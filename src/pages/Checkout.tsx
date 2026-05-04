@@ -32,11 +32,17 @@ const Checkout = () => {
     );
   }
 
+  const [zone, setZone] = useState<"dhaka" | "outside">("dhaka");
   const paymentNumbers = { bkash: "01774585757", nagad: "01774585757" };
   const codAdvance = 100;
   const isCod = method === "cod";
-  const dueNow = isCod ? codAdvance : total;
-  const dueOnDelivery = isCod ? total - codAdvance : 0;
+  const deliveryFee = hasPhysical ? (zone === "dhaka" ? 70 : 150) : 0;
+  const deliveryEta = zone === "dhaka"
+    ? (isBn ? "ঢাকার ভিতরে — ১–৩ দিন" : "Inside Dhaka — 1–3 days")
+    : (isBn ? "ঢাকার বাইরে — ২–৭ দিন" : "Outside Dhaka — 2–7 days");
+  const grandTotal = total + deliveryFee;
+  const dueNow = isCod ? codAdvance : grandTotal;
+  const dueOnDelivery = isCod ? grandTotal - codAdvance : 0;
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -51,7 +57,7 @@ const Checkout = () => {
 
     setSubmitting(true);
     const orderId = `JN-${Date.now().toString(36).toUpperCase()}`;
-    const order = { id: orderId, items, total, customer: form, payment: { method, trxId, paid: dueNow, due: dueOnDelivery }, date: new Date().toISOString() };
+    const order = { id: orderId, items, total, deliveryFee, grandTotal, zone, customer: form, payment: { method, trxId, paid: dueNow, due: dueOnDelivery }, date: new Date().toISOString() };
     localStorage.setItem(`order-${orderId}`, JSON.stringify(order));
 
     setTimeout(() => {

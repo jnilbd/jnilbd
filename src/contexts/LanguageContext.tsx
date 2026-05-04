@@ -48,6 +48,7 @@ export const translations: Translations = {
   "card.blog": { bn: "টিপস, গাইড ও ইনসাইট", en: "Tips, Guides & Insights" },
   "card.marketplace": { bn: "পুরাতন প্রোডাক্ট কিনুন বা বিক্রি করুন", en: "Buy or Sell Used Products" },
   "card.rentals": { bn: "বাসা ভাড়া দিন বা খুঁজুন", en: "Rent or Find Houses" },
+  "card.appointment": { bn: "১:১ পরামর্শ ও কনসালটেশন বুক করুন", en: "Book a 1:1 consultation" },
 
   // Buttons
   "btn.viewAll": { bn: "সব দেখুন", en: "View All" },

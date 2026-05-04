@@ -17,7 +17,7 @@ const ProductCard = ({ product, index = 0 }: { product: Product; index?: number 
   const handleAdd = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    add({ id: product.id, name: product.name, nameBn: product.nameBn, price: product.price, image: product.image, type: "product" });
+    add({ id: product.id, name: product.name, nameBn: product.nameBn, price: product.price, image: product.image, type: "product", category: product.category });
     toast.success(language === "bn" ? "কার্টে যোগ হয়েছে" : "Added to cart");
   };
 

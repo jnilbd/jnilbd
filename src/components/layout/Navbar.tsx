@@ -19,6 +19,7 @@ const Navbar = () => {
     { to: "/blog", key: "nav.blog" },
     { to: "/marketplace", key: "nav.marketplace" },
     { to: "/rentals", key: "nav.rentals" },
+    { to: "/about", key: "nav.about" },
   ];
 
   return (

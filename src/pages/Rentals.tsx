@@ -147,9 +147,18 @@ const Rentals = () => {
     setSubmitting(true);
     try {
       const images = files.length ? await uploadImages() : [];
+      const d = parsed.data;
       const { error } = await supabase.from("rentals").insert({
-        ...parsed.data,
-        contact_name: parsed.data.contact_name || null,
+        title: d.title,
+        description: d.description,
+        location: d.location,
+        type: d.type,
+        price: d.price,
+        bedrooms: d.bedrooms,
+        bathrooms: d.bathrooms,
+        size: d.size,
+        contact_phone: d.contact_phone,
+        contact_name: d.contact_name || null,
         user_id: user?.id ?? null,
         images,
       });

@@ -44,12 +44,12 @@ const BlogDetail = () => {
 
           <div className="prose prose-lg max-w-none text-foreground/80 leading-relaxed space-y-4">
             <p className="text-xl font-medium text-foreground">{language === "bn" ? post.excerptBn : post.excerpt}</p>
-            <p>{language === "bn"
-              ? "এই ব্লগ পোস্টটি একটি ডেমো কন্টেন্ট। প্রকৃত কন্টেন্ট এডমিন প্যানেল থেকে যোগ করা যাবে যখন backend (Lovable Cloud) যুক্ত হবে। আপাতত এটি দেখার জন্য একটি প্লেসহোল্ডার।"
-              : "This blog post is demo content. Real content can be added from the admin panel once backend (Lovable Cloud) is connected. This is a placeholder for now."}</p>
-            <p>{language === "bn"
-              ? "এখানে আপনি বিভিন্ন বিষয় নিয়ে লিখতে পারবেন — ব্যবসা, টেকনোলজি, ডিজিটাল মার্কেটিং, পার্সোনাল গ্রোথ, ইত্যাদি। ব্লগ পোস্টে রিচ টেক্সট এডিটিং, ছবি, ভিডিও যোগ করার সুবিধা পরবর্তী ফেইজে আসবে।"
-              : "You can write about various topics here — business, technology, digital marketing, personal growth, etc. Rich text editing, images, videos will be added in the next phase."}</p>
+            {(language === "bn" ? post.contentBn : post.content).map((para, i) => (
+              <p key={i}>{para}</p>
+            ))}
+            <p className="text-sm text-muted-foreground pt-4 border-t border-border/50 mt-6">
+              {language === "bn" ? "লেখক: " : "Author: "}<span className="font-semibold text-foreground">{post.author}</span>
+            </p>
           </div>
         </motion.div>
       </article>

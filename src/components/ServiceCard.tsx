@@ -23,13 +23,15 @@ const ServiceCard = ({ service, index = 0 }: { service: Service; index?: number 
       <div className="aspect-video overflow-hidden flex-shrink-0">
         <img src={service.image} alt={name} loading="lazy" className="w-full h-full object-cover group-hover:scale-110 transition-smooth" />
       </div>
-      <div className="p-6 flex flex-col flex-1">
-        <div>
-          <span className="text-xs font-semibold text-primary uppercase tracking-wide">{service.category}</span>
-          <h3 className="font-display font-bold text-xl mt-1 group-hover:text-primary transition-smooth line-clamp-2 min-h-[3.5rem]">{name}</h3>
+      <div className="p-5 flex flex-col flex-1 gap-3">
+        <div className="flex items-center justify-between">
+          <span className="text-[10px] font-bold text-primary uppercase tracking-[0.18em]">{service.category}</span>
         </div>
-        <p className="text-sm text-muted-foreground line-clamp-2 mt-3 min-h-[2.5rem]">{desc}</p>
-        <ul className="space-y-1.5 mt-4 min-h-[5.25rem]">
+        <div className="rounded-xl bg-muted/40 border border-border/40 px-3 py-2 min-h-[3.5rem] flex items-center">
+          <h3 className="font-display font-bold text-[1.05rem] leading-snug line-clamp-2 group-hover:text-primary transition-smooth">{name}</h3>
+        </div>
+        <p className="text-sm text-muted-foreground line-clamp-2 min-h-[2.5rem]">{desc}</p>
+        <ul className="space-y-1.5 min-h-[5.25rem]">
           {features.slice(0, 3).map((f, i) => (
             <li key={i} className="flex items-center gap-2 text-sm">
               <Check className="w-4 h-4 text-primary shrink-0" />
@@ -37,13 +39,13 @@ const ServiceCard = ({ service, index = 0 }: { service: Service; index?: number 
             </li>
           ))}
         </ul>
-        <div className="flex items-center justify-between pt-4 mt-auto border-t border-border/50">
-          <div>
-            <div className="text-xs text-muted-foreground">{language === "bn" ? "শুরু হচ্ছে" : "Starting at"}</div>
-            <div className="text-2xl font-bold gradient-text">৳{service.price.toLocaleString()}</div>
-          </div>
+        <div className="flex items-center justify-between pt-3 mt-auto border-t border-border/50 gap-2">
+          <span className="inline-flex items-baseline gap-1 px-3 py-1.5 rounded-full bg-primary/10 border border-primary/30 shadow-sm">
+            <span className="text-[10px] font-semibold text-primary/80">{language === "bn" ? "শুরু ৳" : "From ৳"}</span>
+            <span className="text-base font-bold gradient-text leading-none">{service.price.toLocaleString()}</span>
+          </span>
           <Link to={`/services/${service.id}`}>
-            <Button size="sm" className="rounded-full gradient-bg-primary text-white border-0 hover:opacity-90">
+            <Button size="sm" className="rounded-full gradient-bg-primary text-white border-0 hover:opacity-90 shadow-md">
               {t("btn.orderNow")} <ArrowRight className="w-4 h-4 ml-1" />
             </Button>
           </Link>

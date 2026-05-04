@@ -114,14 +114,15 @@ const Footer = () => {
           </h3>
           <ul className="space-y-2.5 text-sm">
             {[
-              { to: "/marketplace", key: "nav.marketplace" },
-              { to: "/rentals", key: "nav.rentals" },
-              { to: "/about", key: "nav.about" },
-              { to: "/cart", key: "nav.cart" },
+              { to: "/marketplace", label: t("nav.marketplace") },
+              { to: "/rentals", label: t("nav.rentals") },
+              { to: "/appointment", label: language === "bn" ? "অ্যাপয়েন্টমেন্ট" : "Appointment" },
+              { to: "/about", label: t("nav.about") },
+              { to: "/policies", label: language === "bn" ? "পলিসি" : "Policies" },
             ].map((l) => (
               <li key={l.to}>
                 <Link to={l.to} className="opacity-70 hover:opacity-100 hover:text-secondary transition-smooth">
-                  {t(l.key)}
+                  {l.label}
                 </Link>
               </li>
             ))}
@@ -180,9 +181,10 @@ const Footer = () => {
             © {new Date().getFullYear()} JohnNil.com — {language === "bn" ? "সর্বস্বত্ব সংরক্ষিত" : "All rights reserved"}.
           </p>
           <div className="flex items-center gap-5 opacity-60">
-            <Link to="/about" className="hover:text-secondary transition-smooth">{language === "bn" ? "প্রাইভেসি" : "Privacy"}</Link>
-            <Link to="/about" className="hover:text-secondary transition-smooth">{language === "bn" ? "শর্তাবলী" : "Terms"}</Link>
-            <Link to="/about" className="hover:text-secondary transition-smooth">{language === "bn" ? "রিফান্ড" : "Refund"}</Link>
+            <Link to="/policies?tab=privacy" className="hover:text-secondary transition-smooth">{language === "bn" ? "প্রাইভেসি" : "Privacy"}</Link>
+            <Link to="/policies?tab=terms" className="hover:text-secondary transition-smooth">{language === "bn" ? "শর্তাবলী" : "Terms"}</Link>
+            <Link to="/policies?tab=refund" className="hover:text-secondary transition-smooth">{language === "bn" ? "রিফান্ড" : "Refund"}</Link>
+            <Link to="/policies?tab=shipping" className="hover:text-secondary transition-smooth">{language === "bn" ? "শিপিং" : "Shipping"}</Link>
           </div>
           <p className="opacity-50 text-[11px] tracking-wider">
             {language === "bn" ? "ভালোবাসায় তৈরি 🇧🇩 ঢাকায়" : "Crafted with ♥ in Dhaka, Bangladesh"}

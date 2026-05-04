@@ -357,17 +357,23 @@ const Rentals = () => {
                     </button>
                   )}
                 </div>
-                <div className="p-5 space-y-2">
+                <div className="p-5 space-y-2.5">
                   <span className="inline-block px-2 py-0.5 rounded-full bg-accent/20 text-accent text-xs font-semibold">{r.type}</span>
-                  <h3 className="font-display font-bold text-lg line-clamp-2">{r.title}</h3>
-                  <div className="flex items-center gap-1 text-sm text-muted-foreground"><MapPin className="w-4 h-4" /> {r.location}</div>
-                  <div className="flex items-center gap-4 text-sm text-foreground/70">
+                  <div className="rounded-xl bg-muted/40 border border-border/40 px-3 py-2 min-h-[3.25rem] flex items-center">
+                    <h3 className="font-display font-bold text-[0.95rem] line-clamp-2 leading-snug">{r.title}</h3>
+                  </div>
+                  <div className="flex items-center gap-1 text-sm text-muted-foreground"><MapPin className="w-4 h-4 shrink-0" /> <span className="truncate">{r.location}</span></div>
+                  <div className="flex items-center gap-3 text-sm text-foreground/70">
                     <span className="flex items-center gap-1"><Bed className="w-4 h-4" /> {r.bedrooms}</span>
                     <span className="flex items-center gap-1"><Bath className="w-4 h-4" /> {r.bathrooms}</span>
                     {r.size > 0 && <span className="flex items-center gap-1"><Maximize2 className="w-4 h-4" /> {r.size}</span>}
                   </div>
-                  <div className="text-2xl font-bold gradient-text pt-2 border-t border-border/50">
-                    ৳{r.price.toLocaleString()}<span className="text-sm font-normal text-muted-foreground">/mo</span>
+                  <div className="pt-2 border-t border-border/50 flex items-center justify-between">
+                    <span className="inline-flex items-baseline gap-1 px-3 py-1.5 rounded-full bg-primary/10 border border-primary/30 shadow-sm">
+                      <span className="text-[10px] font-semibold text-primary/80">৳</span>
+                      <span className="text-base font-bold gradient-text leading-none">{r.price.toLocaleString()}</span>
+                    </span>
+                    <span className="text-xs text-muted-foreground">/mo</span>
                   </div>
                 </div>
               </motion.div>

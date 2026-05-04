@@ -86,9 +86,9 @@ export interface Review {
   avatar: string;
 }
 
-// Relevant photos by keyword (loremflickr serves curated photos for the given tags)
+// Relevant photos by keyword — Unsplash Source returns a curated, unique image per signature
 const img = (keywords: string, w = 800, h = 600, lock = 1) =>
-  `https://loremflickr.com/${w}/${h}/${encodeURIComponent(keywords)}/all?lock=${lock}`;
+  `https://source.unsplash.com/${w}x${h}/?${encodeURIComponent(keywords)}&sig=${lock}`;
 const avatar = (seed: number) => `https://i.pravatar.cc/150?img=${seed}`;
 
 export const products: Product[] = [

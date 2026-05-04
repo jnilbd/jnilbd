@@ -11,7 +11,8 @@ const milestones = [
   { year: "2014–2016", bn: "ফ্রি ইন্টারনেট কমিউনিটিতে ভাইরাল; ৭৮ হাজার সদস্যের ফেসবুক গ্রুপ", en: "Went viral in the free-internet community; ran a 78K member FB group" },
   { year: "2016–2022", bn: "অফলাইনে মোবাইল ডেটা, FRP, সফটওয়্যার ও ডিজিটাল লাইসেন্স সার্ভিস", en: "Offline services: mobile data, FRP bypass, software & digital licenses" },
   { year: "2022–2023", bn: "ঢাকা, বারিধারায় চাকরি — কোম্পানি বন্ধ হওয়ায় গ্রামে ফিরে আসা", en: "Job in Baridhara, Dhaka — returned home after the company shut down" },
-  { year: "2024 — Now", bn: "আবার অনলাইনে — JohnNil.com দিয়ে নতুন অধ্যায়", en: "Back online — a new chapter with JohnNil.com" },
+  { year: "2024", bn: "আবার অনলাইনে — JohnNil.com দিয়ে নতুন অধ্যায়", en: "Back online — a new chapter with JohnNil.com" },
+  { year: "2026 — Now", bn: "Bazario-এর সাথে যুক্ত হয়েছি — নতুন মাইলফলক", en: "Joined Bazario — a new milestone" },
 ];
 
 const About = () => {
@@ -26,6 +27,7 @@ const About = () => {
         "২০১৪–২০১৬ সালে ফ্রি ইন্টারনেট কমিউনিটিতে রীতিমতো ভাইরাল হয়ে যাই। অনেক মানুষ আমার টিপস ও পদ্ধতি শিখে উপকৃত হয়েছেন। কিন্তু এই পরিচিতি কিছু নেতিবাচক মানুষকেও আকৃষ্ট করেছিল — তারা হ্যাকিং, হেনস্তা, ব্যক্তিগত জীবনে হস্তক্ষেপ শুরু করে। আমার ৭৮ হাজার সদস্যের ফেসবুক গ্রুপ বহুবার বন্ধ হয়, প্রতিবারই আবার দাঁড় করিয়েছি। শেষমেশ পরিবারের চাপে অনলাইন কাজ থেকে কিছু সময়ের জন্য সরে আসি।",
         "অফলাইনে কাজ থামাইনি — মোবাইল ডেটা রিসেল, FRP bypass, সফটওয়্যার সার্ভিস, Windows ও হার্ডওয়্যার সমস্যার সমাধান, ডিজিটাল লাইসেন্স — সব কিছুর সাপোর্ট দিতাম বাসা থেকেই। ফেব্রুয়ারি ২০২২-এ বাবার মৃত্যুর পর ঢাকা চলে আসি, বারিধারায় একটি কোম্পানিতে চাকরি শুরু করি। সেখানে সফলতা পেলেও কোম্পানি লোকসানে বন্ধ হয়ে যায়, প্রায় ৬ মাসের বেতনও আটকে থাকে। ১০ সেপ্টেম্বর ২০২৩-এ গ্রামে ফিরে আসি।",
         "এখন আবার পুরোপুরি অনলাইনে ফিরে এসেছি। আমার পুরো যাত্রা সম্পূর্ণ self-taught — কোনো প্রতিষ্ঠান থেকে আমি ফরমাল ট্রেনিং পাইনি। যখন যেটা দরকার হয়েছে, নিজে শিখেছি, অন্যকেও শিখিয়েছি। ইনশাআল্লাহ, এই শেখার আর অনলাইন দুনিয়াকে আরও ভালো করার যাত্রা চলবেই।",
+        "২০২৬ সালে আমি একটি নতুন মাইলফলক ছুঁয়েছি — আমি Bazario-এর সাথে আনুষ্ঠানিকভাবে যুক্ত হয়েছি। এটি আমার যাত্রার একটি নতুন অধ্যায়, যেখানে আরও বড় পরিসরে কাজ করার এবং আরও বেশি মানুষের কাছে পৌঁছানোর সুযোগ পাচ্ছি — ইনশাআল্লাহ।",
       ]
     : [
         "Greetings. I am Abu Saeed, though many know me by the nickname John Nil. My journey into the world of the internet began back in 2006 — born out of an early fascination with the online realm. From the very start my focus has been on innovation: identifying problems and trying to solve them, making the online world a little better with every effort.",
@@ -34,6 +36,7 @@ const About = () => {
         "From 2014 to 2016, I became a viral figure in the free-internet space. Many people embraced and benefited from the techniques I shared. But the notoriety also attracted negative attention — relentless harassment, hacking attempts, and intrusion into my personal life. My Facebook group of 78,000 members was deactivated multiple times; I rebuilt it every single time. Eventually, under family pressure, I stepped away from this line of work for a while.",
         "I never stopped offline though — mobile data reselling, FRP bypass, software provisioning, Windows & hardware support, digital licenses — all delivered from home. After my father's passing in February 2022, I moved to Dhaka for a job in Baridhara. I found success there, but the company shut down due to losses and nearly six months of my salary was withheld. On 10 September 2023, I returned home.",
         "Today I'm fully back online. My entire journey has been self-taught — no formal training, no institution. Whenever I needed something, I learned it, and shared what I knew. Insha'Allah, this pursuit of knowledge — and the mission to make the online world a little better — will continue.",
+        "In 2026, I reached a new milestone — I officially joined Bazario. It opens a new chapter in my journey, giving me the chance to work at a larger scale and reach many more people, Insha'Allah.",
       ];
 
   return (

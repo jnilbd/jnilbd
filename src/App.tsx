@@ -19,6 +19,7 @@ import Rentals from "./pages/Rentals";
 import Cart from "./pages/Cart";
 import Checkout from "./pages/Checkout";
 import OrderConfirmation from "./pages/OrderConfirmation";
+import About from "./pages/About";
 import NotFound from "./pages/NotFound.tsx";
 
 const queryClient = new QueryClient();
@@ -43,6 +44,7 @@ const App = () => (
                 <Route path="/blog/:id" element={<BlogDetail />} />
                 <Route path="/marketplace" element={<Marketplace />} />
                 <Route path="/rentals" element={<Rentals />} />
+                <Route path="/about" element={<About />} />
                 <Route path="/cart" element={<Cart />} />
                 <Route path="/checkout" element={<Checkout />} />
                 <Route path="/order-confirmation/:id" element={<OrderConfirmation />} />

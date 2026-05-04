@@ -1,5 +1,15 @@
 // Mock data — পরবর্তীতে Lovable Cloud database থেকে আসবে
 
+export interface SubProduct {
+  id: string;
+  name: string;
+  nameBn: string;
+  price: number;
+  image?: string;
+  badge?: string;
+  badgeBn?: string;
+}
+
 export interface Product {
   id: string;
   name: string;
@@ -13,6 +23,7 @@ export interface Product {
   categoryNameBn: string;
   featured?: boolean;
   rating?: number;
+  subProducts?: SubProduct[];
 }
 
 export interface Service {

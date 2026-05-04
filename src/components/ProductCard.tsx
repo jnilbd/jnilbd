@@ -29,9 +29,9 @@ const ProductCard = ({ product, index = 0 }: { product: Product; index?: number 
       transition={{ delay: index * 0.05 }}
       whileHover={{ y: -8 }}
     >
-      <Link to={`/shop/${product.id}`} className="group block">
-        <div className="bg-card rounded-2xl overflow-hidden shadow-card hover:shadow-elegant transition-smooth border border-border/50">
-          <div className="aspect-[4/3] overflow-hidden bg-muted relative">
+      <Link to={`/shop/${product.id}`} className="group block h-full">
+        <div className="bg-card rounded-2xl overflow-hidden shadow-card hover:shadow-elegant transition-smooth border border-border/50 h-full flex flex-col">
+          <div className="aspect-[4/3] overflow-hidden bg-muted relative flex-shrink-0">
             <img src={product.image} alt={name} loading="lazy" className="w-full h-full object-cover group-hover:scale-110 transition-smooth" />
             <span className="absolute top-3 left-3 px-3 py-1 rounded-full glass-card text-xs font-semibold">{cat}</span>
             {product.rating && (
@@ -41,9 +41,9 @@ const ProductCard = ({ product, index = 0 }: { product: Product; index?: number 
               </span>
             )}
           </div>
-          <div className="p-4 space-y-3">
-            <h3 className="font-display font-bold line-clamp-2 group-hover:text-primary transition-smooth">{name}</h3>
-            <div className="flex items-center justify-between">
+          <div className="p-4 flex flex-col flex-1">
+            <h3 className="font-display font-bold line-clamp-2 group-hover:text-primary transition-smooth min-h-[3rem]">{name}</h3>
+            <div className="flex items-center justify-between mt-auto pt-3">
               <span className="text-xl font-bold gradient-text">৳{product.price.toLocaleString()}</span>
               <Button size="sm" onClick={handleAdd} className="rounded-full gradient-bg-primary text-white hover:opacity-90 border-0">
                 <ShoppingCart className="w-4 h-4" />

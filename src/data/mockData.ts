@@ -86,7 +86,10 @@ export interface Review {
   avatar: string;
 }
 
-// Relevant photos by keyword — Unsplash Source returns a curated, unique image per signature
+// Direct Unsplash photo URL helper — guarantees unique, relevant imagery
+const u = (id: string, w = 800) =>
+  `https://images.unsplash.com/photo-${id}?w=${w}&q=80&auto=format&fit=crop`;
+// Fallback for non-product imagery (still keyword-based)
 const img = (keywords: string, w = 800, h = 600, lock = 1) =>
   `https://source.unsplash.com/${w}x${h}/?${encodeURIComponent(keywords)}&sig=${lock}`;
 const avatar = (seed: number) => `https://i.pravatar.cc/150?img=${seed}`;

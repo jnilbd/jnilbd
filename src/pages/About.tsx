@@ -11,7 +11,8 @@ const milestones = [
   { year: "2014–2016", bn: "ফ্রি ইন্টারনেট কমিউনিটিতে ভাইরাল; ৭৮ হাজার সদস্যের ফেসবুক গ্রুপ", en: "Went viral in the free-internet community; ran a 78K member FB group" },
   { year: "2016–2022", bn: "অফলাইনে মোবাইল ডেটা, FRP, সফটওয়্যার ও ডিজিটাল লাইসেন্স সার্ভিস", en: "Offline services: mobile data, FRP bypass, software & digital licenses" },
   { year: "2022–2023", bn: "ঢাকা, বারিধারায় চাকরি — কোম্পানি বন্ধ হওয়ায় গ্রামে ফিরে আসা", en: "Job in Baridhara, Dhaka — returned home after the company shut down" },
-  { year: "2024 — Now", bn: "আবার অনলাইনে — JohnNil.com দিয়ে নতুন অধ্যায়", en: "Back online — a new chapter with JohnNil.com" },
+  { year: "2024", bn: "আবার অনলাইনে — JohnNil.com দিয়ে নতুন অধ্যায়", en: "Back online — a new chapter with JohnNil.com" },
+  { year: "2026 — Now", bn: "Bazario-এর সাথে যুক্ত হয়েছি — নতুন মাইলফলক", en: "Joined Bazario — a new milestone" },
 ];
 
 const About = () => {

@@ -41,11 +41,18 @@ const ProductCard = ({ product, index = 0 }: { product: Product; index?: number 
               </span>
             )}
           </div>
-          <div className="p-4 flex flex-col flex-1">
-            <h3 className="font-display font-bold line-clamp-2 group-hover:text-primary transition-smooth min-h-[3rem]">{name}</h3>
-            <div className="flex items-center justify-between mt-auto pt-3">
-              <span className="text-xl font-bold gradient-text">৳{product.price.toLocaleString()}</span>
-              <Button size="sm" onClick={handleAdd} className="rounded-full gradient-bg-primary text-white hover:opacity-90 border-0">
+          <div className="p-4 flex flex-col flex-1 gap-3">
+            <div className="rounded-xl bg-muted/40 border border-border/40 px-3 py-2 min-h-[3.25rem] flex items-center">
+              <h3 className="font-display font-bold text-[0.95rem] leading-snug line-clamp-2 group-hover:text-primary transition-smooth">
+                {name}
+              </h3>
+            </div>
+            <div className="flex items-center justify-between mt-auto gap-2">
+              <span className="inline-flex items-baseline gap-1 px-3 py-1.5 rounded-full bg-primary/10 border border-primary/30 shadow-sm">
+                <span className="text-[0.7rem] font-semibold text-primary/80">৳</span>
+                <span className="text-base font-bold gradient-text leading-none">{product.price.toLocaleString()}</span>
+              </span>
+              <Button size="sm" onClick={handleAdd} className="rounded-full gradient-bg-primary text-white hover:opacity-90 border-0 shadow-md">
                 <ShoppingCart className="w-4 h-4" />
               </Button>
             </div>

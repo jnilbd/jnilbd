@@ -1,75 +1,193 @@
 import { Link } from "react-router-dom";
-import { Mail, Phone, MapPin, Facebook, Instagram, MessageCircle, Sparkles, Youtube, Linkedin } from "lucide-react";
+import { Mail, Phone, MapPin, Facebook, Instagram, MessageCircle, Youtube, Linkedin, Send, ShieldCheck, Truck, CreditCard, Headphones } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { toast } from "sonner";
+import { useState } from "react";
+import logoMark from "@/assets/logo-mark.png";
 
 const Footer = () => {
-  const { t } = useLanguage();
-  return (
-    <footer className="relative mt-20 border-t border-border/50 bg-gradient-to-br from-background via-muted/30 to-background overflow-hidden">
-      <div className="blob w-96 h-96 bg-primary/20 -top-20 -left-20" />
-      <div className="blob w-96 h-96 bg-secondary/20 bottom-0 right-0" />
+  const { t, language } = useLanguage();
+  const [email, setEmail] = useState("");
 
-      <div className="container relative py-16 grid grid-cols-1 md:grid-cols-4 gap-10">
-        <div className="md:col-span-2">
-          <Link to="/" className="flex items-center gap-2 mb-4">
-            <div className="w-10 h-10 rounded-xl gradient-bg-primary flex items-center justify-center shadow-glow">
-              <Sparkles className="w-5 h-5 text-white" />
+  const handleSubscribe = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!email.match(/^[^\s@]+@[^\s@]+\.[^\s@]+$/)) {
+      toast.error(language === "bn" ? "সঠিক ইমেইল দিন" : "Please enter a valid email");
+      return;
+    }
+    toast.success(language === "bn" ? "ধন্যবাদ! সাবস্ক্রাইব হয়েছে।" : "Thank you! You're subscribed.");
+    setEmail("");
+  };
+
+  const trustItems = [
+    { icon: ShieldCheck, label: language === "bn" ? "১০০% সিকিউর পেমেন্ট" : "100% Secure Payment" },
+    { icon: Truck, label: language === "bn" ? "দ্রুত ডেলিভারি" : "Fast Nationwide Delivery" },
+    { icon: CreditCard, label: language === "bn" ? "ক্যাশ অন ডেলিভারি" : "Cash on Delivery" },
+    { icon: Headphones, label: language === "bn" ? "২৪/৭ সাপোর্ট" : "24/7 Customer Support" },
+  ];
+
+  return (
+    <footer className="relative mt-24 bg-primary text-primary-foreground overflow-hidden">
+      {/* Decorative gold line */}
+      <div className="h-[3px] w-full bg-gradient-to-r from-transparent via-secondary to-transparent" />
+
+      {/* Trust strip */}
+      <div className="border-b border-primary-foreground/10">
+        <div className="container py-6 grid grid-cols-2 md:grid-cols-4 gap-5">
+          {trustItems.map((item, i) => (
+            <div key={i} className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-full bg-secondary/15 border border-secondary/30 flex items-center justify-center shrink-0">
+                <item.icon className="w-4 h-4 text-secondary" />
+              </div>
+              <span className="text-xs md:text-sm font-medium opacity-90">{item.label}</span>
             </div>
-            <span className="font-display font-bold text-2xl gradient-text">JohnNil.com</span>
+          ))}
+        </div>
+      </div>
+
+      <div className="container relative py-14 grid grid-cols-1 md:grid-cols-12 gap-10">
+        {/* Brand column */}
+        <div className="md:col-span-4">
+          <Link to="/" className="flex items-center gap-3 mb-5">
+            <img src={logoMark} alt="JohnNil" width={48} height={48} className="w-12 h-12 object-contain" loading="lazy" />
+            <div className="flex flex-col leading-none">
+              <span className="font-display font-bold text-2xl tracking-tight">
+                JohnNil<span className="text-secondary">.</span>
+              </span>
+              <span className="text-[10px] tracking-[0.3em] uppercase text-secondary/80 font-semibold mt-1.5">
+                {language === "bn" ? "অল-ইন-ওয়ান প্ল্যাটফর্ম" : "All-In-One Platform"}
+              </span>
+            </div>
           </Link>
-          <p className="text-muted-foreground max-w-md mb-4">{t("footer.aboutText")}</p>
-          <div className="flex gap-3">
-            <a href="https://facebook.com" target="_blank" rel="noreferrer" className="w-10 h-10 rounded-full bg-muted hover:gradient-bg-primary hover:text-white flex items-center justify-center transition-smooth">
-              <Facebook className="w-5 h-5" />
-            </a>
-            <a href="https://instagram.com" target="_blank" rel="noreferrer" className="w-10 h-10 rounded-full bg-muted hover:gradient-bg-warm hover:text-white flex items-center justify-center transition-smooth">
-              <Instagram className="w-5 h-5" />
-            </a>
-            <a href="https://youtube.com" target="_blank" rel="noreferrer" aria-label="YouTube" className="w-10 h-10 rounded-full bg-muted hover:bg-red-600 hover:text-white flex items-center justify-center transition-smooth">
-              <Youtube className="w-5 h-5" />
-            </a>
-            <a href="https://linkedin.com" target="_blank" rel="noreferrer" aria-label="LinkedIn" className="w-10 h-10 rounded-full bg-muted hover:bg-[#0A66C2] hover:text-white flex items-center justify-center transition-smooth">
-              <Linkedin className="w-5 h-5" />
-            </a>
-            <a href="https://wa.me/8801774585757" target="_blank" rel="noreferrer" aria-label="WhatsApp" className="w-10 h-10 rounded-full bg-muted hover:bg-green-500 hover:text-white flex items-center justify-center transition-smooth">
-              <MessageCircle className="w-5 h-5" />
-            </a>
+          <p className="text-sm leading-relaxed opacity-75 max-w-md mb-6">
+            {language === "bn"
+              ? "ডিজিটাল প্রোডাক্ট, কোর্স, সার্ভিস, ইউজড মার্কেট ও বাসা ভাড়া — বাংলাদেশের জন্য তৈরি একটি প্রিমিয়াম ডিজিটাল ইকোসিস্টেম।"
+              : "Digital products, courses, services, used marketplace & rentals — a premium digital ecosystem crafted for Bangladesh."}
+          </p>
+          <div className="flex gap-2.5">
+            {[
+              { Icon: Facebook, href: "https://facebook.com", color: "hover:bg-[#1877F2]" },
+              { Icon: Instagram, href: "https://instagram.com", color: "hover:bg-gradient-to-br hover:from-[#F58529] hover:to-[#DD2A7B]" },
+              { Icon: Youtube, href: "https://youtube.com", color: "hover:bg-[#FF0000]" },
+              { Icon: Linkedin, href: "https://linkedin.com", color: "hover:bg-[#0A66C2]" },
+              { Icon: MessageCircle, href: "https://wa.me/8801774585757", color: "hover:bg-[#25D366]" },
+            ].map(({ Icon, href, color }, i) => (
+              <a
+                key={i}
+                href={href}
+                target="_blank"
+                rel="noreferrer"
+                className={`w-9 h-9 rounded-full bg-primary-foreground/10 border border-primary-foreground/15 flex items-center justify-center transition-smooth hover:scale-110 hover:border-transparent ${color}`}
+              >
+                <Icon className="w-4 h-4" />
+              </a>
+            ))}
           </div>
         </div>
 
-        <div>
-          <h3 className="font-display font-bold mb-4">{t("footer.quickLinks")}</h3>
-          <ul className="space-y-2 text-sm">
-            <li><Link to="/shop" className="text-muted-foreground hover:text-primary transition-smooth">{t("nav.shop")}</Link></li>
-            <li><Link to="/services" className="text-muted-foreground hover:text-primary transition-smooth">{t("nav.services")}</Link></li>
-            <li><Link to="/portfolio" className="text-muted-foreground hover:text-primary transition-smooth">{t("nav.portfolio")}</Link></li>
-            <li><Link to="/blog" className="text-muted-foreground hover:text-primary transition-smooth">{t("nav.blog")}</Link></li>
-            <li><Link to="/marketplace" className="text-muted-foreground hover:text-primary transition-smooth">{t("nav.marketplace")}</Link></li>
-            <li><Link to="/rentals" className="text-muted-foreground hover:text-primary transition-smooth">{t("nav.rentals")}</Link></li>
+        {/* Quick links */}
+        <div className="md:col-span-2">
+          <h3 className="font-display font-bold text-sm tracking-[0.2em] uppercase text-secondary mb-5">
+            {t("footer.quickLinks")}
+          </h3>
+          <ul className="space-y-2.5 text-sm">
+            {[
+              { to: "/shop", key: "nav.shop" },
+              { to: "/services", key: "nav.services" },
+              { to: "/portfolio", key: "nav.portfolio" },
+              { to: "/blog", key: "nav.blog" },
+            ].map((l) => (
+              <li key={l.to}>
+                <Link to={l.to} className="opacity-70 hover:opacity-100 hover:text-secondary transition-smooth">
+                  {t(l.key)}
+                </Link>
+              </li>
+            ))}
           </ul>
         </div>
 
-        <div>
-          <h3 className="font-display font-bold mb-4">{t("footer.contact")}</h3>
-          <ul className="space-y-3 text-sm">
-            <li className="flex items-start gap-2 text-muted-foreground">
-              <Phone className="w-4 h-4 mt-0.5 shrink-0 text-primary" />
-              <a href="tel:01774585757">01774585757</a>
+        <div className="md:col-span-2">
+          <h3 className="font-display font-bold text-sm tracking-[0.2em] uppercase text-secondary mb-5">
+            {language === "bn" ? "অন্যান্য" : "Discover"}
+          </h3>
+          <ul className="space-y-2.5 text-sm">
+            {[
+              { to: "/marketplace", key: "nav.marketplace" },
+              { to: "/rentals", key: "nav.rentals" },
+              { to: "/about", key: "nav.about" },
+              { to: "/cart", key: "nav.cart" },
+            ].map((l) => (
+              <li key={l.to}>
+                <Link to={l.to} className="opacity-70 hover:opacity-100 hover:text-secondary transition-smooth">
+                  {t(l.key)}
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </div>
+
+        {/* Newsletter */}
+        <div className="md:col-span-4">
+          <h3 className="font-display font-bold text-sm tracking-[0.2em] uppercase text-secondary mb-5">
+            {language === "bn" ? "নিউজলেটার" : "Newsletter"}
+          </h3>
+          <p className="text-sm opacity-75 mb-4 leading-relaxed">
+            {language === "bn"
+              ? "এক্সক্লুসিভ অফার, নতুন প্রোডাক্ট ও টিপস সবার আগে পেতে সাবস্ক্রাইব করুন।"
+              : "Get exclusive offers, new launches & insider tips delivered to your inbox."}
+          </p>
+          <form onSubmit={handleSubscribe} className="flex gap-2 mb-6">
+            <Input
+              type="email"
+              required
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder={language === "bn" ? "your@email.com" : "your@email.com"}
+              className="rounded-full bg-primary-foreground/10 border-primary-foreground/20 text-primary-foreground placeholder:text-primary-foreground/50 focus-visible:ring-secondary"
+            />
+            <Button
+              type="submit"
+              size="icon"
+              className="rounded-full bg-secondary text-secondary-foreground hover:bg-secondary/90 shrink-0"
+            >
+              <Send className="w-4 h-4" />
+            </Button>
+          </form>
+
+          <ul className="space-y-2.5 text-sm">
+            <li className="flex items-start gap-2.5 opacity-80">
+              <Phone className="w-4 h-4 mt-0.5 shrink-0 text-secondary" />
+              <a href="tel:01774585757" className="hover:text-secondary transition-smooth">+880 1774-585757</a>
             </li>
-            <li className="flex items-start gap-2 text-muted-foreground">
-              <Mail className="w-4 h-4 mt-0.5 shrink-0 text-primary" />
-              <a href="mailto:jnilbd@gmail.com">jnilbd@gmail.com</a>
+            <li className="flex items-start gap-2.5 opacity-80">
+              <Mail className="w-4 h-4 mt-0.5 shrink-0 text-secondary" />
+              <a href="mailto:jnilbd@gmail.com" className="hover:text-secondary transition-smooth">jnilbd@gmail.com</a>
             </li>
-            <li className="flex items-start gap-2 text-muted-foreground">
-              <MapPin className="w-4 h-4 mt-0.5 shrink-0 text-primary" />
-              <span>Baridhara, Dhaka</span>
+            <li className="flex items-start gap-2.5 opacity-80">
+              <MapPin className="w-4 h-4 mt-0.5 shrink-0 text-secondary" />
+              <span>Baridhara, Dhaka, Bangladesh</span>
             </li>
           </ul>
         </div>
       </div>
 
-      <div className="border-t border-border/50 py-6 text-center text-sm text-muted-foreground">
-        {t("footer.rights")}
+      {/* Bottom bar */}
+      <div className="border-t border-primary-foreground/10">
+        <div className="container py-5 flex flex-col md:flex-row items-center justify-between gap-3 text-xs">
+          <p className="opacity-60">
+            © {new Date().getFullYear()} JohnNil.com — {language === "bn" ? "সর্বস্বত্ব সংরক্ষিত" : "All rights reserved"}.
+          </p>
+          <div className="flex items-center gap-5 opacity-60">
+            <Link to="/about" className="hover:text-secondary transition-smooth">{language === "bn" ? "প্রাইভেসি" : "Privacy"}</Link>
+            <Link to="/about" className="hover:text-secondary transition-smooth">{language === "bn" ? "শর্তাবলী" : "Terms"}</Link>
+            <Link to="/about" className="hover:text-secondary transition-smooth">{language === "bn" ? "রিফান্ড" : "Refund"}</Link>
+          </div>
+          <p className="opacity-50 text-[11px] tracking-wider">
+            {language === "bn" ? "ভালোবাসায় তৈরি 🇧🇩 ঢাকায়" : "Crafted with ♥ in Dhaka, Bangladesh"}
+          </p>
+        </div>
       </div>
     </footer>
   );

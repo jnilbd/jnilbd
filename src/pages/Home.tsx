@@ -25,24 +25,24 @@ const Home = () => {
   return (
     <div>
       {/* Hero */}
-      <section className="relative overflow-hidden min-h-[92vh] flex items-center">
+      <section className="relative overflow-hidden min-h-[78vh] md:min-h-[88vh] flex items-center">
         <div className="absolute inset-0 animated-gradient opacity-90" />
         <div className="absolute inset-0 bg-background/10" />
-        <div className="blob w-[500px] h-[500px] bg-white/30 top-10 -left-20 animate-float" />
-        <div className="blob w-[400px] h-[400px] bg-secondary/40 bottom-10 right-10 animate-float" style={{ animationDelay: "2s" }} />
+        <div className="blob w-[320px] h-[320px] md:w-[500px] md:h-[500px] bg-white/30 top-10 -left-20 animate-float" />
+        <div className="blob w-[260px] h-[260px] md:w-[400px] md:h-[400px] bg-secondary/40 bottom-10 right-10 animate-float" style={{ animationDelay: "2s" }} />
 
-        <div className="container relative z-10 py-20">
+        <div className="container relative z-10 py-14 md:py-20">
           <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7 }} className="max-w-3xl text-white">
-            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full glass-card text-white border-white/40 text-sm font-medium mb-6">
+            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full glass-card text-white border-white/40 text-xs md:text-sm font-medium mb-5">
               <Sparkles className="w-4 h-4" />
               <span>{t("hero.tagline")}</span>
             </div>
-            <p className="text-2xl md:text-3xl font-light mb-2">{t("hero.greeting")}</p>
-            <h1 className="text-5xl md:text-7xl lg:text-8xl font-display font-bold mb-6 leading-none">
+            <p className="text-xl md:text-3xl font-light mb-1.5">{t("hero.greeting")}</p>
+            <h1 className="text-4xl sm:text-5xl md:text-7xl lg:text-8xl font-display font-bold mb-5 leading-[1.05]">
               {t("hero.name")}
             </h1>
-            <p className="text-lg md:text-xl mb-8 text-white/90 max-w-2xl leading-relaxed">{t("hero.description")}</p>
-            <div className="flex flex-wrap gap-4">
+            <p className="text-base md:text-xl mb-7 text-white/90 max-w-2xl leading-relaxed">{t("hero.description")}</p>
+            <div className="flex flex-wrap gap-3">
               <Link to="/shop">
                 <Button size="lg" className="rounded-full bg-white text-primary hover:bg-white/90 font-semibold shadow-2xl border-0">
                   {t("hero.cta1")} <ArrowRight className="ml-2 w-5 h-5" />
@@ -61,26 +61,26 @@ const Home = () => {
       <Marquee variant="primary" />
 
       {/* Sections grid */}
-      <section className="py-20 container">
-        <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="text-center mb-12">
-          <h2 className="text-4xl md:text-5xl font-display font-bold mb-3">
+      <section className="py-12 md:py-20 container">
+        <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="text-center mb-8 md:mb-12 max-w-2xl mx-auto">
+          <h2 className="text-3xl md:text-5xl font-display font-bold mb-3">
             <span className="gradient-text">{t("section.explore")}</span>
           </h2>
-          <p className="text-muted-foreground text-lg">{t("section.exploreDesc")}</p>
+          <p className="text-muted-foreground text-base md:text-lg">{t("section.exploreDesc")}</p>
         </motion.div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
           {sectionCards.map((card, i) => (
             <motion.div key={card.to} initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.08 }}>
               <Link to={card.to} className="group block h-full">
-                <div className={`relative h-full p-8 rounded-3xl ${card.color} text-white shadow-elegant overflow-hidden hover:scale-[1.02] transition-bounce`}>
+                <div className={`relative h-full p-6 md:p-8 rounded-3xl ${card.color} text-white shadow-elegant overflow-hidden hover:scale-[1.02] transition-bounce`}>
                   <div className="absolute -top-10 -right-10 w-40 h-40 rounded-full bg-white/10 group-hover:scale-150 transition-bounce" />
-                  <card.icon className="w-12 h-12 mb-4 relative z-10" />
-                  <h3 className="text-2xl font-display font-bold mb-2 relative z-10">{t(card.titleKey)}</h3>
-                  <p className="text-white/90 mb-6 relative z-10">{t(card.descKey)}</p>
-                  <div className="flex items-center gap-2 font-semibold relative z-10 group-hover:gap-3 transition-smooth">
+                  <card.icon className="w-10 h-10 md:w-12 md:h-12 mb-3 md:mb-4 relative z-10" />
+                  <h3 className="text-xl md:text-2xl font-display font-bold mb-2 relative z-10">{t(card.titleKey)}</h3>
+                  <p className="text-sm md:text-base text-white/90 mb-5 relative z-10 line-clamp-2">{t(card.descKey)}</p>
+                  <div className="flex items-center gap-2 font-semibold relative z-10 group-hover:gap-3 transition-smooth text-sm md:text-base">
                     <span>{t("btn.viewDetails")}</span>
-                    <ArrowRight className="w-5 h-5" />
+                    <ArrowRight className="w-4 h-4 md:w-5 md:h-5" />
                   </div>
                 </div>
               </Link>
@@ -92,44 +92,44 @@ const Home = () => {
       <Marquee variant="warm" />
 
       {/* Featured Products */}
-      <section className="py-20 container">
-        <div className="flex items-end justify-between mb-12 gap-4">
+      <section className="py-12 md:py-20 container">
+        <div className="flex items-end justify-between mb-8 md:mb-10 gap-4 flex-wrap">
           <div>
-            <h2 className="text-4xl md:text-5xl font-display font-bold mb-2">
+            <h2 className="text-3xl md:text-5xl font-display font-bold mb-2">
               <span className="gradient-text">{t("section.featured")}</span>
             </h2>
-            <p className="text-muted-foreground text-lg">{t("section.featuredDesc")}</p>
+            <p className="text-muted-foreground text-base md:text-lg">{t("section.featuredDesc")}</p>
           </div>
           <Link to="/shop">
-            <Button variant="outline" className="rounded-full">
+            <Button variant="outline" size="sm" className="rounded-full">
               {t("btn.viewAll")} <ArrowRight className="ml-1 w-4 h-4" />
             </Button>
           </Link>
         </div>
 
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
           {featured.map((p, i) => <ProductCard key={p.id} product={p} index={i} />)}
         </div>
       </section>
 
       {/* Featured Services */}
-      <section className="py-20 bg-gradient-to-br from-muted/40 via-background to-muted/40">
+      <section className="py-12 md:py-20 bg-gradient-to-br from-muted/40 via-background to-muted/40">
         <div className="container">
-          <div className="flex items-end justify-between mb-12 gap-4">
+          <div className="flex items-end justify-between mb-8 md:mb-10 gap-4 flex-wrap">
             <div>
-              <h2 className="text-4xl md:text-5xl font-display font-bold mb-2">
+              <h2 className="text-3xl md:text-5xl font-display font-bold mb-2">
                 <span className="gradient-text">{t("section.services")}</span>
               </h2>
-              <p className="text-muted-foreground text-lg">{t("section.servicesDesc")}</p>
+              <p className="text-muted-foreground text-base md:text-lg">{t("section.servicesDesc")}</p>
             </div>
             <Link to="/services">
-              <Button variant="outline" className="rounded-full">
+              <Button variant="outline" size="sm" className="rounded-full">
                 {t("btn.viewAll")} <ArrowRight className="ml-1 w-4 h-4" />
               </Button>
             </Link>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 md:gap-6">
             {featuredServices.map((s, i) => <ServiceCard key={s.id} service={s} index={i} />)}
           </div>
         </div>
@@ -138,15 +138,15 @@ const Home = () => {
       <Marquee variant="cool" />
 
       {/* Reviews */}
-      <section className="py-20 container">
-        <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="text-center mb-12">
-          <h2 className="text-4xl md:text-5xl font-display font-bold mb-3">
+      <section className="py-12 md:py-20 container">
+        <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="text-center mb-8 md:mb-12 max-w-2xl mx-auto">
+          <h2 className="text-3xl md:text-5xl font-display font-bold mb-3">
             <span className="gradient-text">{t("section.reviews")}</span>
           </h2>
-          <p className="text-muted-foreground text-lg">{t("section.reviewsDesc")}</p>
+          <p className="text-muted-foreground text-base md:text-lg">{t("section.reviewsDesc")}</p>
         </motion.div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
           {reviews.map((r, i) => {
             const SourceIcon = r.source === "facebook" ? Facebook : r.source === "instagram" ? Instagram : MessageCircle;
             return (
@@ -157,20 +157,20 @@ const Home = () => {
                 viewport={{ once: true }}
                 transition={{ delay: i * 0.08 }}
                 whileHover={{ y: -6 }}
-                className="bg-card p-6 rounded-2xl shadow-card border border-border/50"
+                className="bg-card p-5 md:p-6 rounded-2xl shadow-card border border-border/50 h-full flex flex-col"
               >
                 <div className="flex gap-1 mb-3">
                   {Array.from({ length: r.rating }).map((_, j) => (
                     <Star key={j} className="w-4 h-4 fill-yellow-400 text-yellow-400" />
                   ))}
                 </div>
-                <p className="text-sm text-foreground/80 mb-4 leading-relaxed">"{language === "bn" ? r.textBn : r.text}"</p>
-                <div className="flex items-center justify-between pt-4 border-t border-border/50">
-                  <div className="flex items-center gap-2">
-                    <img src={r.avatar} alt={r.name} className="w-9 h-9 rounded-full object-cover" />
-                    <span className="font-semibold text-sm">{r.name}</span>
+                <p className="text-sm text-foreground/80 mb-4 leading-relaxed line-clamp-4 flex-1">"{language === "bn" ? r.textBn : r.text}"</p>
+                <div className="flex items-center justify-between pt-4 border-t border-border/50 mt-auto">
+                  <div className="flex items-center gap-2 min-w-0">
+                    <img src={r.avatar} alt={r.name} className="w-9 h-9 rounded-full object-cover flex-shrink-0" />
+                    <span className="font-semibold text-sm truncate">{r.name}</span>
                   </div>
-                  <SourceIcon className="w-4 h-4 text-muted-foreground" />
+                  <SourceIcon className="w-4 h-4 text-muted-foreground flex-shrink-0" />
                 </div>
               </motion.div>
             );
@@ -179,22 +179,22 @@ const Home = () => {
       </section>
 
       {/* Social section */}
-      <section className="py-20 bg-gradient-to-br from-primary/5 via-secondary/5 to-accent/5">
+      <section className="py-12 md:py-20 bg-gradient-to-br from-primary/5 via-secondary/5 to-accent/5">
         <div className="container text-center">
-          <h2 className="text-4xl md:text-5xl font-display font-bold mb-3">
+          <h2 className="text-3xl md:text-5xl font-display font-bold mb-3">
             <span className="gradient-text">{t("section.social")}</span>
           </h2>
-          <p className="text-muted-foreground text-lg mb-10">{t("section.socialDesc")}</p>
+          <p className="text-muted-foreground text-base md:text-lg mb-8 md:mb-10">{t("section.socialDesc")}</p>
 
-          <div className="flex justify-center gap-4 flex-wrap">
-            <a href="https://facebook.com" target="_blank" rel="noreferrer" className="w-20 h-20 rounded-2xl gradient-bg-cool flex items-center justify-center text-white shadow-glow hover:scale-110 transition-bounce">
-              <Facebook className="w-10 h-10" />
+          <div className="flex justify-center gap-3 md:gap-4 flex-wrap">
+            <a href="https://facebook.com" target="_blank" rel="noreferrer" className="w-16 h-16 md:w-20 md:h-20 rounded-2xl gradient-bg-cool flex items-center justify-center text-white shadow-glow hover:scale-110 transition-bounce">
+              <Facebook className="w-8 h-8 md:w-10 md:h-10" />
             </a>
-            <a href="https://instagram.com" target="_blank" rel="noreferrer" className="w-20 h-20 rounded-2xl gradient-bg-warm flex items-center justify-center text-white shadow-pink hover:scale-110 transition-bounce">
-              <Instagram className="w-10 h-10" />
+            <a href="https://instagram.com" target="_blank" rel="noreferrer" className="w-16 h-16 md:w-20 md:h-20 rounded-2xl gradient-bg-warm flex items-center justify-center text-white shadow-pink hover:scale-110 transition-bounce">
+              <Instagram className="w-8 h-8 md:w-10 md:h-10" />
             </a>
-            <a href="https://wa.me/8801774585757" target="_blank" rel="noreferrer" className="w-20 h-20 rounded-2xl bg-green-500 flex items-center justify-center text-white shadow-glow hover:scale-110 transition-bounce">
-              <MessageCircle className="w-10 h-10" />
+            <a href="https://wa.me/8801774585757" target="_blank" rel="noreferrer" className="w-16 h-16 md:w-20 md:h-20 rounded-2xl bg-green-500 flex items-center justify-center text-white shadow-glow hover:scale-110 transition-bounce">
+              <MessageCircle className="w-8 h-8 md:w-10 md:h-10" />
             </a>
           </div>
         </div>

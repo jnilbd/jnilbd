@@ -60,6 +60,50 @@ const Home = () => {
 
       <Marquee variant="primary" />
 
+      {/* About teaser - moved to top */}
+      <section className="py-12 md:py-20 bg-gradient-to-br from-primary/5 via-secondary/10 to-accent/5">
+        <div className="container">
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="relative max-w-4xl mx-auto rounded-3xl overflow-hidden shadow-elegant border border-border/60 bg-card"
+          >
+            <div className="absolute -top-20 -right-20 w-64 h-64 rounded-full gradient-bg-warm opacity-20 blur-3xl" />
+            <div className="absolute -bottom-20 -left-20 w-64 h-64 rounded-full gradient-bg-cool opacity-20 blur-3xl" />
+            <div className="relative p-6 md:p-12">
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-secondary/15 text-secondary text-xs font-semibold mb-4">
+                <Sparkles className="w-3.5 h-3.5" />
+                {language === "bn" ? "আমার গল্প" : "My Story"}
+              </div>
+              <h2 className="text-3xl md:text-4xl font-display font-bold mb-4">
+                <span className="gradient-text">
+                  {language === "bn"
+                    ? "একটি গ্রাম থেকে শুরু — ২০০৬ থেকে এখনো অনলাইনে"
+                    : "From a small village — online since 2006"}
+                </span>
+              </h2>
+              <p className="text-base md:text-lg text-foreground/80 leading-relaxed mb-3">
+                {language === "bn"
+                  ? "আমি আবু সাঈদ, অনেকে আমাকে চেনেন জন নীল নামে। self-taught একজন ক্রিয়েটর — Free Internet, VPN Handler, ৪১টি Wapka সাইট, ৭৮ হাজার সদস্যের কমিউনিটি, অফলাইন সার্ভিস থেকে শুরু করে আবার এই নতুন অধ্যায় পর্যন্ত — প্রতিটা ধাপ নিজে শিখে এসেছি।"
+                  : "I'm Abu Saeed — most people know me as John Nil. A self-taught creator: free internet, VPN Handler, 41 Wapka sites, a 78K-member community, offline services, and now this new chapter — every step learned on my own."}
+              </p>
+              <p className="text-sm md:text-base text-muted-foreground mb-6 italic">
+                {language === "bn"
+                  ? "“যখন যেটা দরকার, সেটাই শিখেছি — আর অন্যদের সাথে শেয়ার করেছি।”"
+                  : "“I learned what I needed, when I needed it — and shared it with others.”"}
+              </p>
+              <Link to="/about">
+                <Button size="lg" className="rounded-full gradient-bg-primary text-white border-0 hover:opacity-90">
+                  {language === "bn" ? "পুরো গল্প পড়ুন" : "Read full story"}{" "}
+                  <ArrowRight className="ml-2 w-5 h-5" />
+                </Button>
+              </Link>
+            </div>
+          </motion.div>
+        </div>
+      </section>
+
       {/* Sections grid */}
       <section className="py-12 md:py-20 container">
         <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="text-center mb-8 md:mb-12 max-w-2xl mx-auto">
@@ -109,50 +153,6 @@ const Home = () => {
 
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
           {featured.map((p, i) => <ProductCard key={p.id} product={p} index={i} />)}
-        </div>
-      </section>
-
-      {/* About teaser */}
-      <section className="py-12 md:py-20 bg-gradient-to-br from-primary/5 via-secondary/10 to-accent/5">
-        <div className="container">
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className="relative max-w-4xl mx-auto rounded-3xl overflow-hidden shadow-elegant border border-border/60 bg-card"
-          >
-            <div className="absolute -top-20 -right-20 w-64 h-64 rounded-full gradient-bg-warm opacity-20 blur-3xl" />
-            <div className="absolute -bottom-20 -left-20 w-64 h-64 rounded-full gradient-bg-cool opacity-20 blur-3xl" />
-            <div className="relative p-6 md:p-12">
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-secondary/15 text-secondary text-xs font-semibold mb-4">
-                <Sparkles className="w-3.5 h-3.5" />
-                {language === "bn" ? "আমার গল্প" : "My Story"}
-              </div>
-              <h2 className="text-3xl md:text-4xl font-display font-bold mb-4">
-                <span className="gradient-text">
-                  {language === "bn"
-                    ? "একটি গ্রাম থেকে শুরু — ২০০৬ থেকে এখনো অনলাইনে"
-                    : "From a small village — online since 2006"}
-                </span>
-              </h2>
-              <p className="text-base md:text-lg text-foreground/80 leading-relaxed mb-3">
-                {language === "bn"
-                  ? "আমি আবু সাঈদ, অনেকে আমাকে চেনেন জন নীল নামে। self-taught একজন ক্রিয়েটর — Free Internet, VPN Handler, ৪১টি Wapka সাইট, ৭৮ হাজার সদস্যের কমিউনিটি, অফলাইন সার্ভিস থেকে শুরু করে আবার এই নতুন অধ্যায় পর্যন্ত — প্রতিটা ধাপ নিজে শিখে এসেছি।"
-                  : "I'm Abu Saeed — most people know me as John Nil. A self-taught creator: free internet, VPN Handler, 41 Wapka sites, a 78K-member community, offline services, and now this new chapter — every step learned on my own."}
-              </p>
-              <p className="text-sm md:text-base text-muted-foreground mb-6 italic">
-                {language === "bn"
-                  ? "“যখন যেটা দরকার, সেটাই শিখেছি — আর অন্যদের সাথে শেয়ার করেছি।”"
-                  : "“I learned what I needed, when I needed it — and shared it with others.”"}
-              </p>
-              <Link to="/about">
-                <Button size="lg" className="rounded-full gradient-bg-primary text-white border-0 hover:opacity-90">
-                  {language === "bn" ? "পুরো গল্প পড়ুন" : "Read full story"}{" "}
-                  <ArrowRight className="ml-2 w-5 h-5" />
-                </Button>
-              </Link>
-            </div>
-          </motion.div>
         </div>
       </section>
 

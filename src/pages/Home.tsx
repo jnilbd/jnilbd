@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
-import { ArrowRight, Sparkles, ShoppingBag, Briefcase, FolderKanban, BookOpen, Tag, Home as HomeIcon, Star, Facebook, Instagram, MessageCircle } from "lucide-react";
+import { ArrowRight, Sparkles, ShoppingBag, Briefcase, FolderKanban, BookOpen, Tag, Home as HomeIcon, Star, Facebook, Instagram, MessageCircle, Youtube, Linkedin } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Button } from "@/components/ui/button";
 import Marquee from "@/components/Marquee";
@@ -237,7 +237,13 @@ const Home = () => {
             <a href="https://instagram.com" target="_blank" rel="noreferrer" className="w-16 h-16 md:w-20 md:h-20 rounded-2xl gradient-bg-warm flex items-center justify-center text-white shadow-pink hover:scale-110 transition-bounce">
               <Instagram className="w-8 h-8 md:w-10 md:h-10" />
             </a>
-            <a href="https://wa.me/8801774585757" target="_blank" rel="noreferrer" className="w-16 h-16 md:w-20 md:h-20 rounded-2xl bg-green-500 flex items-center justify-center text-white shadow-glow hover:scale-110 transition-bounce">
+            <a href="https://youtube.com" target="_blank" rel="noreferrer" aria-label="YouTube" className="w-16 h-16 md:w-20 md:h-20 rounded-2xl bg-red-600 flex items-center justify-center text-white shadow-glow hover:scale-110 transition-bounce">
+              <Youtube className="w-8 h-8 md:w-10 md:h-10" />
+            </a>
+            <a href="https://linkedin.com" target="_blank" rel="noreferrer" aria-label="LinkedIn" className="w-16 h-16 md:w-20 md:h-20 rounded-2xl bg-[#0A66C2] flex items-center justify-center text-white shadow-glow hover:scale-110 transition-bounce">
+              <Linkedin className="w-8 h-8 md:w-10 md:h-10" />
+            </a>
+            <a href="https://wa.me/8801774585757" target="_blank" rel="noreferrer" aria-label="WhatsApp" className="w-16 h-16 md:w-20 md:h-20 rounded-2xl bg-green-500 flex items-center justify-center text-white shadow-glow hover:scale-110 transition-bounce">
               <MessageCircle className="w-8 h-8 md:w-10 md:h-10" />
             </a>
           </div>

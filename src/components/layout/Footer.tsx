@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { Mail, Phone, MapPin, Facebook, Instagram, MessageCircle, Sparkles } from "lucide-react";
+import { Mail, Phone, MapPin, Facebook, Instagram, MessageCircle, Sparkles, Youtube, Linkedin } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 
 const Footer = () => {
@@ -25,7 +25,13 @@ const Footer = () => {
             <a href="https://instagram.com" target="_blank" rel="noreferrer" className="w-10 h-10 rounded-full bg-muted hover:gradient-bg-warm hover:text-white flex items-center justify-center transition-smooth">
               <Instagram className="w-5 h-5" />
             </a>
-            <a href="https://wa.me/8801774585757" target="_blank" rel="noreferrer" className="w-10 h-10 rounded-full bg-muted hover:bg-green-500 hover:text-white flex items-center justify-center transition-smooth">
+            <a href="https://youtube.com" target="_blank" rel="noreferrer" aria-label="YouTube" className="w-10 h-10 rounded-full bg-muted hover:bg-red-600 hover:text-white flex items-center justify-center transition-smooth">
+              <Youtube className="w-5 h-5" />
+            </a>
+            <a href="https://linkedin.com" target="_blank" rel="noreferrer" aria-label="LinkedIn" className="w-10 h-10 rounded-full bg-muted hover:bg-[#0A66C2] hover:text-white flex items-center justify-center transition-smooth">
+              <Linkedin className="w-5 h-5" />
+            </a>
+            <a href="https://wa.me/8801774585757" target="_blank" rel="noreferrer" aria-label="WhatsApp" className="w-10 h-10 rounded-full bg-muted hover:bg-green-500 hover:text-white flex items-center justify-center transition-smooth">
               <MessageCircle className="w-5 h-5" />
             </a>
           </div>

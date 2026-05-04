@@ -7,7 +7,8 @@ export interface CartItem {
   price: number;
   image: string;
   quantity: number;
-  type: "product" | "service";
+  type: "product" | "service" | "appointment";
+  category?: "digital" | "physical" | "service" | "appointment";
 }
 
 interface CartContextType {
@@ -18,6 +19,7 @@ interface CartContextType {
   clear: () => void;
   total: number;
   count: number;
+  hasPhysical: boolean;
 }
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
@@ -53,9 +55,10 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
 
   const total = items.reduce((s, i) => s + i.price * i.quantity, 0);
   const count = items.reduce((s, i) => s + i.quantity, 0);
+  const hasPhysical = items.some((i) => i.category === "physical");
 
   return (
-    <CartContext.Provider value={{ items, add, remove, updateQty, clear, total, count }}>
+    <CartContext.Provider value={{ items, add, remove, updateQty, clear, total, count, hasPhysical }}>
       {children}
     </CartContext.Provider>
   );

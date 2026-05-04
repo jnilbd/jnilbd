@@ -114,14 +114,15 @@ const Footer = () => {
           </h3>
           <ul className="space-y-2.5 text-sm">
             {[
-              { to: "/marketplace", key: "nav.marketplace" },
-              { to: "/rentals", key: "nav.rentals" },
-              { to: "/about", key: "nav.about" },
-              { to: "/cart", key: "nav.cart" },
+              { to: "/marketplace", label: t("nav.marketplace") },
+              { to: "/rentals", label: t("nav.rentals") },
+              { to: "/appointment", label: language === "bn" ? "অ্যাপয়েন্টমেন্ট" : "Appointment" },
+              { to: "/about", label: t("nav.about") },
+              { to: "/policies", label: language === "bn" ? "পলিসি" : "Policies" },
             ].map((l) => (
               <li key={l.to}>
                 <Link to={l.to} className="opacity-70 hover:opacity-100 hover:text-secondary transition-smooth">
-                  {t(l.key)}
+                  {l.label}
                 </Link>
               </li>
             ))}

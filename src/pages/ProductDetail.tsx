@@ -58,6 +58,7 @@ const ProductDetail = () => {
         price: effectivePrice,
         image: effectiveImage,
         type: "product",
+        category: product.category,
       },
       qty
     );
@@ -73,6 +74,7 @@ const ProductDetail = () => {
         price: effectivePrice,
         image: effectiveImage,
         type: "product",
+        category: product.category,
       },
       qty
     );

@@ -54,6 +54,7 @@ const ServiceDetail = () => {
       price: finalPrice,
       image: service.image,
       type: "service",
+      category: "service",
     });
     toast.success(language === "bn" ? "সার্ভিস কার্টে যোগ হয়েছে" : "Service added to cart");
     navigate("/checkout");

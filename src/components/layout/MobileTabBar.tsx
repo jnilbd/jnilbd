@@ -83,7 +83,7 @@ const MobileTabBar = () => {
       {/* Bottom tab bar — mobile only */}
       <nav className="fixed bottom-0 left-0 right-0 z-40 lg:hidden pb-[env(safe-area-inset-bottom)]">
         <div className="bg-background/90 backdrop-blur-xl border-t border-border/60 shadow-[0_-8px_24px_-12px_hsl(var(--foreground)/0.15)]">
-          <div className="grid grid-cols-5 items-center h-[68px] px-1">
+          <div className="grid grid-cols-4 items-center h-[68px] px-1">
             {tabs.map((tab) => {
               const active = location.pathname === tab.to;
               return (
@@ -120,22 +120,6 @@ const MobileTabBar = () => {
                 {language === "bn" ? "মেনু" : "Menu"}
               </span>
             </button>
-
-            {/* WhatsApp */}
-            <a
-              href="https://wa.me/8801774585757"
-              target="_blank"
-              rel="noreferrer"
-              className="relative flex flex-col items-center justify-center gap-0.5 h-full"
-              aria-label="WhatsApp"
-            >
-              <div className="flex items-center justify-center w-10 h-10 rounded-2xl bg-green-500 text-white shadow-glow">
-                <MessageCircle className="w-[22px] h-[22px]" />
-              </div>
-              <span className="text-[10px] font-semibold text-green-600">
-                WhatsApp
-              </span>
-            </a>
           </div>
         </div>
       </nav>

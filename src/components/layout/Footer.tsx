@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { Mail, Phone, MapPin, Facebook, Instagram, MessageCircle, Sparkles } from "lucide-react";
+import { Mail, Phone, MapPin, Facebook, Instagram, MessageCircle, Sparkles, Youtube, Linkedin } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 
 const Footer = () => {

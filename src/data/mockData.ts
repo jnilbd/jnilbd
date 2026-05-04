@@ -195,32 +195,32 @@ export const products: Product[] = [
 ];
 
 export const services: Service[] = [
-  { id: "s1", name: "Website Development", nameBn: "ওয়েবসাইট ডেভেলপমেন্ট", description: "Modern responsive website with full features", descriptionBn: "সম্পূর্ণ ফিচার সহ মডার্ন রেস্পন্সিভ ওয়েবসাইট", price: 25000, image: img("website,coding,developer,laptop", 800, 600, 21), category: "Development", features: ["Custom design", "Mobile responsive", "SEO optimized", "Fast delivery"], featuresBn: ["কাস্টম ডিজাইন", "মোবাইল রেস্পন্সিভ", "SEO অপটিমাইজড", "দ্রুত ডেলিভারি"] },
-  { id: "s2", name: "Logo & Branding", nameBn: "লোগো ও ব্র্যান্ডিং", description: "Professional logo design and brand identity", descriptionBn: "প্রফেশনাল লোগো ডিজাইন ও ব্র্যান্ড আইডেন্টিটি", price: 5000, image: img("branding,logo,designer,sketch", 800, 600, 22), category: "Design", features: ["3 logo concepts", "Unlimited revisions", "All file formats", "Brand guidelines"], featuresBn: ["৩টি লোগো কনসেপ্ট", "আনলিমিটেড রিভিশন", "সব ফাইল ফরম্যাট", "ব্র্যান্ড গাইডলাইন"] },
-  { id: "s3", name: "Digital Marketing", nameBn: "ডিজিটাল মার্কেটিং", description: "Complete social media marketing campaign", descriptionBn: "সম্পূর্ণ সোশ্যাল মিডিয়া মার্কেটিং ক্যাম্পেইন", price: 15000, image: img("marketing,social,analytics,chart", 800, 600, 23), category: "Marketing", features: ["FB & IG ads", "Content creation", "Analytics report", "30 days support"], featuresBn: ["FB ও IG অ্যাড", "কন্টেন্ট তৈরি", "অ্যানালিটিক্স রিপোর্ট", "৩০ দিন সাপোর্ট"] },
-  { id: "s4", name: "Custom Information Request", nameBn: "কাস্টম ইনফরমেশন রিকোয়েস্ট", description: "Get any specific information you need", descriptionBn: "যেকোনো নির্দিষ্ট তথ্য পেয়ে যান", price: 500, image: img("research,documents,information,office", 800, 600, 24), category: "Consulting", features: ["Detailed research", "Verified sources", "PDF report", "Quick turnaround"], featuresBn: ["বিস্তারিত গবেষণা", "যাচাইকৃত সূত্র", "PDF রিপোর্ট", "দ্রুত সরবরাহ"] },
-  { id: "s5", name: "1-on-1 Consultation", nameBn: "১-অন-১ কনসালটেশন", description: "60-minute personal consultation session", descriptionBn: "৬০ মিনিটের ব্যক্তিগত পরামর্শ সেশন", price: 2000, image: img("meeting,videocall,consultation,zoom", 800, 600, 25), category: "Consulting", features: ["Video call", "Action plan", "Follow-up email", "Resources"], featuresBn: ["ভিডিও কল", "অ্যাকশন প্ল্যান", "ফলো-আপ ইমেইল", "রিসোর্স"] },
-  { id: "s6", name: "Content Writing", nameBn: "কন্টেন্ট রাইটিং", description: "SEO-optimized blog posts and articles", descriptionBn: "SEO অপটিমাইজড ব্লগ পোস্ট ও আর্টিকেল", price: 1500, image: img("writing,blog,typewriter,notebook", 800, 600, 26), category: "Content", features: ["1000+ words", "Plagiarism free", "Keyword research", "2 revisions"], featuresBn: ["১০০০+ শব্দ", "প্ল্যাজিয়ারিজম মুক্ত", "কীওয়ার্ড রিসার্চ", "২টি রিভিশন"] },
+  { id: "s1", name: "Website Development", nameBn: "ওয়েবসাইট ডেভেলপমেন্ট", description: "Modern responsive website with full features", descriptionBn: "সম্পূর্ণ ফিচার সহ মডার্ন রেস্পন্সিভ ওয়েবসাইট", price: 25000, image: u("1547658719-da2b51169166"), category: "Development", features: ["Custom design", "Mobile responsive", "SEO optimized", "Fast delivery"], featuresBn: ["কাস্টম ডিজাইন", "মোবাইল রেস্পন্সিভ", "SEO অপটিমাইজড", "দ্রুত ডেলিভারি"] },
+  { id: "s2", name: "Logo & Branding", nameBn: "লোগো ও ব্র্যান্ডিং", description: "Professional logo design and brand identity", descriptionBn: "প্রফেশনাল লোগো ডিজাইন ও ব্র্যান্ড আইডেন্টিটি", price: 5000, image: u("1611532736597-de2d4265fba3"), category: "Design", features: ["3 logo concepts", "Unlimited revisions", "All file formats", "Brand guidelines"], featuresBn: ["৩টি লোগো কনসেপ্ট", "আনলিমিটেড রিভিশন", "সব ফাইল ফরম্যাট", "ব্র্যান্ড গাইডলাইন"] },
+  { id: "s3", name: "Digital Marketing", nameBn: "ডিজিটাল মার্কেটিং", description: "Complete social media marketing campaign", descriptionBn: "সম্পূর্ণ সোশ্যাল মিডিয়া মার্কেটিং ক্যাম্পেইন", price: 15000, image: u("1611926653458-09294b3142bf"), category: "Marketing", features: ["FB & IG ads", "Content creation", "Analytics report", "30 days support"], featuresBn: ["FB ও IG অ্যাড", "কন্টেন্ট তৈরি", "অ্যানালিটিক্স রিপোর্ট", "৩০ দিন সাপোর্ট"] },
+  { id: "s4", name: "Custom Information Request", nameBn: "কাস্টম ইনফরমেশন রিকোয়েস্ট", description: "Get any specific information you need", descriptionBn: "যেকোনো নির্দিষ্ট তথ্য পেয়ে যান", price: 500, image: u("1450101499163-c8848c66ca85"), category: "Consulting", features: ["Detailed research", "Verified sources", "PDF report", "Quick turnaround"], featuresBn: ["বিস্তারিত গবেষণা", "যাচাইকৃত সূত্র", "PDF রিপোর্ট", "দ্রুত সরবরাহ"] },
+  { id: "s5", name: "1-on-1 Consultation", nameBn: "১-অন-১ কনসালটেশন", description: "60-minute personal consultation session", descriptionBn: "৬০ মিনিটের ব্যক্তিগত পরামর্শ সেশন", price: 2000, image: u("1587825140708-dfaf72ae4b04"), category: "Consulting", features: ["Video call", "Action plan", "Follow-up email", "Resources"], featuresBn: ["ভিডিও কল", "অ্যাকশন প্ল্যান", "ফলো-আপ ইমেইল", "রিসোর্স"] },
+  { id: "s6", name: "Content Writing", nameBn: "কন্টেন্ট রাইটিং", description: "SEO-optimized blog posts and articles", descriptionBn: "SEO অপটিমাইজড ব্লগ পোস্ট ও আর্টিকেল", price: 1500, image: u("1455390582262-044cdead277a"), category: "Content", features: ["1000+ words", "Plagiarism free", "Keyword research", "2 revisions"], featuresBn: ["১০০০+ শব্দ", "প্ল্যাজিয়ারিজম মুক্ত", "কীওয়ার্ড রিসার্চ", "২টি রিভিশন"] },
 ];
 
 export const blogPosts: BlogPost[] = [
-  { id: "b1", title: "10 Tips to Grow Your Online Business", titleBn: "অনলাইন ব্যবসা বাড়ানোর ১০টি টিপস", excerpt: "Practical strategies to scale your business online in 2025", excerptBn: "২০২৫ সালে আপনার ব্যবসাকে অনলাইনে স্কেল করার বাস্তব কৌশল", image: img("business,growth,startup,office", 800, 500, 31), date: "2025-04-15", category: "Business", readTime: "5 min" },
-  { id: "b2", title: "Mastering Digital Marketing", titleBn: "ডিজিটাল মার্কেটিং মাস্টার করুন", excerpt: "Complete guide to digital marketing for beginners", excerptBn: "নতুনদের জন্য ডিজিটাল মার্কেটিংয়ের সম্পূর্ণ গাইড", image: img("marketing,digital,laptop,analytics", 800, 500, 32), date: "2025-04-10", category: "Marketing", readTime: "8 min" },
-  { id: "b3", title: "Why Personal Branding Matters", titleBn: "পার্সোনাল ব্র্যান্ডিং কেন গুরুত্বপূর্ণ", excerpt: "Build your personal brand to unlock new opportunities", excerptBn: "নতুন সুযোগ আনলক করতে নিজের ব্র্যান্ড গড়ে তুলুন", image: img("personal,brand,portrait,professional", 800, 500, 33), date: "2025-04-05", category: "Personal Growth", readTime: "6 min" },
+  { id: "b1", title: "10 Tips to Grow Your Online Business", titleBn: "অনলাইন ব্যবসা বাড়ানোর ১০টি টিপস", excerpt: "Practical strategies to scale your business online in 2025", excerptBn: "২০২৫ সালে আপনার ব্যবসাকে অনলাইনে স্কেল করার বাস্তব কৌশল", image: u("1556761175-5973dc0f32e7"), date: "2025-04-15", category: "Business", readTime: "5 min" },
+  { id: "b2", title: "Mastering Digital Marketing", titleBn: "ডিজিটাল মার্কেটিং মাস্টার করুন", excerpt: "Complete guide to digital marketing for beginners", excerptBn: "নতুনদের জন্য ডিজিটাল মার্কেটিংয়ের সম্পূর্ণ গাইড", image: u("1432888622747-4eb9a8efeb07"), date: "2025-04-10", category: "Marketing", readTime: "8 min" },
+  { id: "b3", title: "Why Personal Branding Matters", titleBn: "পার্সোনাল ব্র্যান্ডিং কেন গুরুত্বপূর্ণ", excerpt: "Build your personal brand to unlock new opportunities", excerptBn: "নতুন সুযোগ আনলক করতে নিজের ব্র্যান্ড গড়ে তুলুন", image: u("1507003211169-0a1dd7228f2d"), date: "2025-04-05", category: "Personal Growth", readTime: "6 min" },
 ];
 
 export const usedItems: UsedItem[] = [
-  { id: "u1", title: "iPhone 13 Pro - Excellent Condition", titleBn: "আইফোন ১৩ প্রো - এক্সিলেন্ট কন্ডিশন", price: 65000, image: img("iphone,smartphone,apple", 800, 600, 41), location: "Dhaka", condition: "Like New", postedDate: "2025-05-01", seller: "Rakib H." },
-  { id: "u2", title: "Gaming Laptop - Asus ROG", titleBn: "গেমিং ল্যাপটপ - আসুস ROG", price: 95000, image: img("gaming,laptop,rgb,computer", 800, 600, 42), location: "Chittagong", condition: "Good", postedDate: "2025-05-02", seller: "Tanvir A." },
-  { id: "u3", title: "Office Chair Premium", titleBn: "অফিস চেয়ার প্রিমিয়াম", price: 8000, image: img("office,chair,furniture,ergonomic", 800, 600, 43), location: "Dhaka", condition: "Good", postedDate: "2025-04-28", seller: "Sumi K." },
-  { id: "u4", title: "DSLR Camera - Canon", titleBn: "DSLR ক্যামেরা - ক্যানন", price: 45000, image: img("dslr,camera,canon,photography", 800, 600, 44), location: "Sylhet", condition: "Excellent", postedDate: "2025-04-30", seller: "Hasan M." },
+  { id: "u1", title: "iPhone 13 Pro - Excellent Condition", titleBn: "আইফোন ১৩ প্রো - এক্সিলেন্ট কন্ডিশন", price: 65000, image: u("1632661674596-df8be070a5c5"), location: "Dhaka", condition: "Like New", postedDate: "2025-05-01", seller: "Rakib H." },
+  { id: "u2", title: "Gaming Laptop - Asus ROG", titleBn: "গেমিং ল্যাপটপ - আসুস ROG", price: 95000, image: u("1603302576837-37561b2e2302"), location: "Chittagong", condition: "Good", postedDate: "2025-05-02", seller: "Tanvir A." },
+  { id: "u3", title: "Office Chair Premium", titleBn: "অফিস চেয়ার প্রিমিয়াম", price: 8000, image: u("1505797149-35ebcf0ee5a8"), location: "Dhaka", condition: "Good", postedDate: "2025-04-28", seller: "Sumi K." },
+  { id: "u4", title: "DSLR Camera - Canon", titleBn: "DSLR ক্যামেরা - ক্যানন", price: 45000, image: u("1502920917128-1aa500764cbd"), location: "Sylhet", condition: "Excellent", postedDate: "2025-04-30", seller: "Hasan M." },
 ];
 
 export const rentals: Rental[] = [
-  { id: "r1", title: "Modern 3BR Apartment in Baridhara", titleBn: "বারিধারায় ৩ বেডরুম মডার্ন অ্যাপার্টমেন্ট", price: 45000, image: img("apartment,interior,modern,livingroom", 800, 600, 51), location: "Baridhara, Dhaka", bedrooms: 3, bathrooms: 2, size: "1800 sqft", type: "Apartment" },
-  { id: "r2", title: "Cozy 2BR in Gulshan", titleBn: "গুলশানে ২ বেডরুম কোজি ফ্ল্যাট", price: 35000, image: img("apartment,cozy,bedroom,interior", 800, 600, 52), location: "Gulshan, Dhaka", bedrooms: 2, bathrooms: 2, size: "1200 sqft", type: "Apartment" },
-  { id: "r3", title: "Family House in Dhanmondi", titleBn: "ধানমন্ডিতে ফ্যামিলি বাসা", price: 60000, image: img("house,family,home,exterior", 800, 600, 53), location: "Dhanmondi, Dhaka", bedrooms: 4, bathrooms: 3, size: "2400 sqft", type: "House" },
-  { id: "r4", title: "Studio in Banani", titleBn: "বনানীতে স্টুডিও", price: 20000, image: img("studio,apartment,minimal,interior", 800, 600, 54), location: "Banani, Dhaka", bedrooms: 1, bathrooms: 1, size: "600 sqft", type: "Studio" },
+  { id: "r1", title: "Modern 3BR Apartment in Baridhara", titleBn: "বারিধারায় ৩ বেডরুম মডার্ন অ্যাপার্টমেন্ট", price: 45000, image: u("1560448204-e02f11c3d0e2"), location: "Baridhara, Dhaka", bedrooms: 3, bathrooms: 2, size: "1800 sqft", type: "Apartment" },
+  { id: "r2", title: "Cozy 2BR in Gulshan", titleBn: "গুলশানে ২ বেডরুম কোজি ফ্ল্যাট", price: 35000, image: u("1522708323590-d24dbb6b0267"), location: "Gulshan, Dhaka", bedrooms: 2, bathrooms: 2, size: "1200 sqft", type: "Apartment" },
+  { id: "r3", title: "Family House in Dhanmondi", titleBn: "ধানমন্ডিতে ফ্যামিলি বাসা", price: 60000, image: u("1568605114967-8130f3a36994"), location: "Dhanmondi, Dhaka", bedrooms: 4, bathrooms: 3, size: "2400 sqft", type: "House" },
+  { id: "r4", title: "Studio in Banani", titleBn: "বনানীতে স্টুডিও", price: 20000, image: u("1554995207-c18c203602cb"), location: "Banani, Dhaka", bedrooms: 1, bathrooms: 1, size: "600 sqft", type: "Studio" },
 ];
 
 export const reviews: Review[] = [
@@ -231,12 +231,12 @@ export const reviews: Review[] = [
 ];
 
 export const portfolioItems = [
-  { id: "pf1", title: "E-commerce Platform", titleBn: "ই-কমার্স প্ল্যাটফর্ম", category: "Web Development", year: "2024", image: img("ecommerce,website,shop,screen", 800, 600, 61) },
-  { id: "pf2", title: "Brand Identity Design", titleBn: "ব্র্যান্ড আইডেন্টিটি ডিজাইন", category: "Branding", year: "2024", image: img("branding,identity,logo,mockup", 800, 600, 62) },
-  { id: "pf3", title: "Mobile App", titleBn: "মোবাইল অ্যাপ", category: "App Development", year: "2023", image: img("mobile,app,smartphone,interface", 800, 600, 63) },
-  { id: "pf4", title: "SaaS Dashboard", titleBn: "SaaS ড্যাশবোর্ড", category: "UI/UX", year: "2024", image: img("dashboard,saas,analytics,ui", 800, 600, 64) },
-  { id: "pf5", title: "Marketing Campaign", titleBn: "মার্কেটিং ক্যাম্পেইন", category: "Marketing", year: "2023", image: img("marketing,campaign,billboard,ad", 800, 600, 65) },
-  { id: "pf6", title: "Content Strategy", titleBn: "কন্টেন্ট স্ট্র্যাটেজি", category: "Content", year: "2024", image: img("content,writing,strategy,workspace", 800, 600, 66) },
+  { id: "pf1", title: "E-commerce Platform", titleBn: "ই-কমার্স প্ল্যাটফর্ম", category: "Web Development", year: "2024", image: u("1556742049-0cfed4f6a45d") },
+  { id: "pf2", title: "Brand Identity Design", titleBn: "ব্র্যান্ড আইডেন্টিটি ডিজাইন", category: "Branding", year: "2024", image: u("1626785774573-4b799315345d") },
+  { id: "pf3", title: "Mobile App", titleBn: "মোবাইল অ্যাপ", category: "App Development", year: "2023", image: u("1512941937669-90a1b58e7e9c") },
+  { id: "pf4", title: "SaaS Dashboard", titleBn: "SaaS ড্যাশবোর্ড", category: "UI/UX", year: "2024", image: u("1551288049-bebda4e38f71") },
+  { id: "pf5", title: "Marketing Campaign", titleBn: "মার্কেটিং ক্যাম্পেইন", category: "Marketing", year: "2023", image: u("1542744173-8e7e53415bb0") },
+  { id: "pf6", title: "Content Strategy", titleBn: "কন্টেন্ট স্ট্র্যাটেজি", category: "Content", year: "2024", image: u("1499750310107-5fef28a66643") },
 ];
 
 export const experience = [

@@ -1,13 +1,13 @@
 import { useParams, Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { ShoppingCart, Star, ArrowLeft, Zap, Shield, Truck } from "lucide-react";
+import { ShoppingCart, Star, ArrowLeft, Zap, Shield, Truck, Check, Package } from "lucide-react";
 import { products } from "@/data/mockData";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useCart } from "@/contexts/CartContext";
 import ProductCard from "@/components/ProductCard";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import Marquee from "@/components/Marquee";
 
 const ProductDetail = () => {
@@ -18,6 +18,15 @@ const ProductDetail = () => {
   const [qty, setQty] = useState(1);
 
   const product = products.find((p) => p.id === id);
+  const [selectedSubId, setSelectedSubId] = useState<string | null>(
+    product?.subProducts?.[0]?.id ?? null
+  );
+
+  const selectedSub = useMemo(
+    () => product?.subProducts?.find((s) => s.id === selectedSubId) ?? null,
+    [product, selectedSubId]
+  );
+
   if (!product) {
     return (
       <div className="container py-20 text-center">
@@ -31,15 +40,42 @@ const ProductDetail = () => {
   const desc = language === "bn" ? product.descriptionBn : product.description;
   const cat = language === "bn" ? product.categoryNameBn : product.categoryName;
 
+  const effectivePrice = selectedSub?.price ?? product.price;
+  const effectiveImage = selectedSub?.image ?? product.image;
+  const effectiveName = selectedSub
+    ? `${name} — ${language === "bn" ? selectedSub.nameBn : selectedSub.name}`
+    : name;
+  const effectiveId = selectedSub?.id ?? product.id;
+
   const related = products.filter((p) => p.id !== product.id && p.category === product.category).slice(0, 4);
 
   const handleAdd = () => {
-    add({ id: product.id, name: product.name, nameBn: product.nameBn, price: product.price, image: product.image, type: "product" }, qty);
+    add(
+      {
+        id: effectiveId,
+        name: effectiveName,
+        nameBn: effectiveName,
+        price: effectivePrice,
+        image: effectiveImage,
+        type: "product",
+      },
+      qty
+    );
     toast.success(language === "bn" ? "কার্টে যোগ হয়েছে" : "Added to cart");
   };
 
   const handleBuy = () => {
-    add({ id: product.id, name: product.name, nameBn: product.nameBn, price: product.price, image: product.image, type: "product" }, qty);
+    add(
+      {
+        id: effectiveId,
+        name: effectiveName,
+        nameBn: effectiveName,
+        price: effectivePrice,
+        image: effectiveImage,
+        type: "product",
+      },
+      qty
+    );
     navigate("/checkout");
   };
 
@@ -56,7 +92,7 @@ const ProductDetail = () => {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-start">
             <motion.div initial={{ opacity: 0, x: -30 }} animate={{ opacity: 1, x: 0 }} className="relative">
               <div className="aspect-square rounded-3xl overflow-hidden shadow-elegant bg-muted">
-                <img src={product.image} alt={name} className="w-full h-full object-cover" />
+                <img src={effectiveImage} alt={name} className="w-full h-full object-cover transition-smooth" />
               </div>
             </motion.div>
 
@@ -79,7 +115,10 @@ const ProductDetail = () => {
               <p className="text-lg text-foreground/80 leading-relaxed">{desc}</p>
 
               <div className="flex items-baseline gap-3">
-                <span className="text-5xl font-display font-bold gradient-text">৳{product.price.toLocaleString()}</span>
+                <span className="text-5xl font-display font-bold gradient-text">৳{effectivePrice.toLocaleString()}</span>
+                {selectedSub && selectedSub.price !== product.price && (
+                  <span className="text-lg text-muted-foreground line-through">৳{product.price.toLocaleString()}</span>
+                )}
               </div>
 
               <div className="grid grid-cols-3 gap-3">
@@ -118,6 +157,82 @@ const ProductDetail = () => {
           </div>
         </div>
       </section>
+
+      {/* Sub-products / Variants */}
+      {product.subProducts && product.subProducts.length > 0 && (
+        <section className="container py-12 md:py-16">
+          <div className="flex items-end justify-between gap-4 flex-wrap mb-6 md:mb-8">
+            <div>
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-secondary/15 text-secondary text-xs font-semibold mb-2">
+                <Package className="w-3.5 h-3.5" />
+                {language === "bn" ? "ভ্যারিয়েন্ট / অপশন" : "Variants / Options"}
+              </div>
+              <h2 className="text-2xl md:text-4xl font-display font-bold">
+                <span className="gradient-text">
+                  {language === "bn" ? "আপনার অপশন বেছে নিন" : "Choose your option"}
+                </span>
+              </h2>
+              <p className="text-sm text-muted-foreground mt-1">
+                {language === "bn"
+                  ? "এই প্রোডাক্টের নিচের যেকোনো একটি ভ্যারিয়েন্ট সিলেক্ট করুন।"
+                  : "Pick any one variant of this product below."}
+              </p>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-5">
+            {product.subProducts.map((sub, i) => {
+              const active = sub.id === selectedSubId;
+              const subName = language === "bn" ? sub.nameBn : sub.name;
+              const subBadge = language === "bn" ? sub.badgeBn : sub.badge;
+              return (
+                <motion.button
+                  key={sub.id}
+                  type="button"
+                  onClick={() => setSelectedSubId(sub.id)}
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: i * 0.06 }}
+                  whileHover={{ y: -4 }}
+                  className={`text-left rounded-2xl border-2 overflow-hidden bg-card transition-smooth shadow-card ${
+                    active
+                      ? "border-primary ring-2 ring-primary/30 shadow-glow"
+                      : "border-border/60 hover:border-primary/50"
+                  }`}
+                >
+                  <div className="relative aspect-[4/3] bg-muted overflow-hidden">
+                    {sub.image && (
+                      <img src={sub.image} alt={subName} className="w-full h-full object-cover" />
+                    )}
+                    {subBadge && (
+                      <span className="absolute top-2 left-2 px-2.5 py-1 rounded-full gradient-bg-warm text-white text-[10px] font-bold tracking-wide shadow-pink">
+                        {subBadge}
+                      </span>
+                    )}
+                    {active && (
+                      <span className="absolute top-2 right-2 w-7 h-7 rounded-full gradient-bg-primary text-white flex items-center justify-center shadow-glow">
+                        <Check className="w-4 h-4" />
+                      </span>
+                    )}
+                  </div>
+                  <div className="p-4">
+                    <p className="font-display font-bold text-base mb-1 line-clamp-1">{subName}</p>
+                    <div className="flex items-baseline justify-between">
+                      <span className="text-xl font-bold gradient-text">৳{sub.price.toLocaleString()}</span>
+                      <span className={`text-xs font-semibold ${active ? "text-primary" : "text-muted-foreground"}`}>
+                        {active
+                          ? language === "bn" ? "নির্বাচিত" : "Selected"
+                          : language === "bn" ? "বেছে নিন" : "Select"}
+                      </span>
+                    </div>
+                  </div>
+                </motion.button>
+              );
+            })}
+          </div>
+        </section>
+      )}
 
       <Marquee variant="warm" />
 

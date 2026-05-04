@@ -1,5 +1,15 @@
 // Mock data — পরবর্তীতে Lovable Cloud database থেকে আসবে
 
+export interface SubProduct {
+  id: string;
+  name: string;
+  nameBn: string;
+  price: number;
+  image?: string;
+  badge?: string;
+  badgeBn?: string;
+}
+
 export interface Product {
   id: string;
   name: string;
@@ -13,6 +23,7 @@ export interface Product {
   categoryNameBn: string;
   featured?: boolean;
   rating?: number;
+  subProducts?: SubProduct[];
 }
 
 export interface Service {
@@ -81,14 +92,103 @@ const img = (keywords: string, w = 800, h = 600, lock = 1) =>
 const avatar = (seed: number) => `https://i.pravatar.cc/150?img=${seed}`;
 
 export const products: Product[] = [
-  { id: "p1", name: "Premium UI Kit", nameBn: "প্রিমিয়াম UI কিট", description: "Modern, fully customizable UI kit with 200+ components", descriptionBn: "২০০+ কম্পোনেন্ট সহ কাস্টমাইজেবল মডার্ন UI কিট", price: 1500, image: img("ui,design,figma,screen", 800, 600, 11), category: "digital", categoryName: "Digital", categoryNameBn: "ডিজিটাল", featured: true, rating: 4.9 },
-  { id: "p2", name: "E-Book: Digital Marketing 2025", nameBn: "ই-বুক: ডিজিটাল মার্কেটিং ২০২৫", description: "Complete guide to mastering digital marketing in 2025", descriptionBn: "২০২৫ সালের ডিজিটাল মার্কেটিং মাস্টার করার সম্পূর্ণ গাইড", price: 800, image: img("ebook,book,reading,laptop", 800, 600, 12), category: "digital", categoryName: "Digital", categoryNameBn: "ডিজিটাল", featured: true, rating: 4.8 },
-  { id: "p3", name: "Branded T-Shirt", nameBn: "ব্র্যান্ডেড টি-শার্ট", description: "Premium cotton t-shirt with exclusive design", descriptionBn: "এক্সক্লুসিভ ডিজাইনের প্রিমিয়াম কটন টি-শার্ট", price: 600, image: img("tshirt,apparel,fashion", 800, 600, 13), category: "physical", categoryName: "Physical", categoryNameBn: "ফিজিক্যাল", featured: true, rating: 4.7 },
-  { id: "p4", name: "Online Course Bundle", nameBn: "অনলাইন কোর্স বান্ডেল", description: "10 premium courses bundled at one price", descriptionBn: "১০টি প্রিমিয়াম কোর্স একটি দামে", price: 3500, image: img("online,course,study,laptop", 800, 600, 14), category: "digital", categoryName: "Digital", categoryNameBn: "ডিজিটাল", featured: true, rating: 5.0 },
-  { id: "p5", name: "Notion Templates Pack", nameBn: "নোশন টেমপ্লেট প্যাক", description: "50+ productivity Notion templates", descriptionBn: "৫০+ প্রোডাক্টিভিটি নোশন টেমপ্লেট", price: 1200, image: img("notebook,planner,workspace", 800, 600, 15), category: "digital", categoryName: "Digital", categoryNameBn: "ডিজিটাল", rating: 4.6 },
-  { id: "p6", name: "Custom Mug", nameBn: "কাস্টম মগ", description: "Personalized ceramic mug with your design", descriptionBn: "আপনার ডিজাইনের কাস্টম সিরামিক মগ", price: 350, image: img("mug,coffee,ceramic", 800, 600, 16), category: "physical", categoryName: "Physical", categoryNameBn: "ফিজিক্যাল", rating: 4.5 },
-  { id: "p7", name: "Logo Design Templates", nameBn: "লোগো ডিজাইন টেমপ্লেট", description: "100 premium logo templates", descriptionBn: "১০০টি প্রিমিয়াম লোগো টেমপ্লেট", price: 2000, image: img("logo,branding,design", 800, 600, 17), category: "digital", categoryName: "Digital", categoryNameBn: "ডিজিটাল", rating: 4.8 },
-  { id: "p8", name: "Hoodie", nameBn: "হুডি", description: "Comfortable premium hoodie", descriptionBn: "আরামদায়ক প্রিমিয়াম হুডি", price: 1500, image: img("hoodie,clothing,fashion", 800, 600, 18), category: "physical", categoryName: "Physical", categoryNameBn: "ফিজিক্যাল", rating: 4.9 },
+  {
+    id: "p1", name: "Premium UI Kit", nameBn: "প্রিমিয়াম UI কিট",
+    description: "Modern, fully customizable UI kit with 200+ components",
+    descriptionBn: "২০০+ কম্পোনেন্ট সহ কাস্টমাইজেবল মডার্ন UI কিট",
+    price: 1500, image: img("ui,design,figma,screen", 800, 600, 11),
+    category: "digital", categoryName: "Digital", categoryNameBn: "ডিজিটাল", featured: true, rating: 4.9,
+    subProducts: [
+      { id: "p1-a", name: "Starter (50 components)", nameBn: "স্টার্টার (৫০ কম্পোনেন্ট)", price: 800, badge: "Basic", badgeBn: "বেসিক", image: img("ui,wireframe", 400, 300, 111) },
+      { id: "p1-b", name: "Pro (200 components)", nameBn: "প্রো (২০০ কম্পোনেন্ট)", price: 1500, badge: "Popular", badgeBn: "জনপ্রিয়", image: img("ui,figma,components", 400, 300, 112) },
+      { id: "p1-c", name: "Team License (5 users)", nameBn: "টিম লাইসেন্স (৫ ইউজার)", price: 3200, badge: "Best Value", badgeBn: "সেরা মূল্য", image: img("team,collaboration,design", 400, 300, 113) },
+    ],
+  },
+  {
+    id: "p2", name: "E-Book: Digital Marketing 2025", nameBn: "ই-বুক: ডিজিটাল মার্কেটিং ২০২৫",
+    description: "Complete guide to mastering digital marketing in 2025",
+    descriptionBn: "২০২৫ সালের ডিজিটাল মার্কেটিং মাস্টার করার সম্পূর্ণ গাইড",
+    price: 800, image: img("ebook,book,reading,laptop", 800, 600, 12),
+    category: "digital", categoryName: "Digital", categoryNameBn: "ডিজিটাল", featured: true, rating: 4.8,
+    subProducts: [
+      { id: "p2-a", name: "PDF Only", nameBn: "শুধু PDF", price: 800, image: img("pdf,ebook", 400, 300, 121) },
+      { id: "p2-b", name: "PDF + Audio Book", nameBn: "PDF + অডিও বুক", price: 1400, badge: "Popular", badgeBn: "জনপ্রিয়", image: img("audiobook,headphones", 400, 300, 122) },
+      { id: "p2-c", name: "Bundle + Templates", nameBn: "বান্ডেল + টেমপ্লেট", price: 2200, badge: "Best Value", badgeBn: "সেরা মূল্য", image: img("bundle,templates,marketing", 400, 300, 123) },
+    ],
+  },
+  {
+    id: "p3", name: "Branded T-Shirt", nameBn: "ব্র্যান্ডেড টি-শার্ট",
+    description: "Premium cotton t-shirt with exclusive design",
+    descriptionBn: "এক্সক্লুসিভ ডিজাইনের প্রিমিয়াম কটন টি-শার্ট",
+    price: 600, image: img("tshirt,apparel,fashion", 800, 600, 13),
+    category: "physical", categoryName: "Physical", categoryNameBn: "ফিজিক্যাল", featured: true, rating: 4.7,
+    subProducts: [
+      { id: "p3-s", name: "Size S", nameBn: "সাইজ S", price: 600, image: img("tshirt,white", 400, 300, 131) },
+      { id: "p3-m", name: "Size M", nameBn: "সাইজ M", price: 600, image: img("tshirt,black", 400, 300, 132) },
+      { id: "p3-l", name: "Size L", nameBn: "সাইজ L", price: 650, image: img("tshirt,navy", 400, 300, 133) },
+      { id: "p3-xl", name: "Size XL", nameBn: "সাইজ XL", price: 700, image: img("tshirt,grey", 400, 300, 134) },
+    ],
+  },
+  {
+    id: "p4", name: "Online Course Bundle", nameBn: "অনলাইন কোর্স বান্ডেল",
+    description: "10 premium courses bundled at one price",
+    descriptionBn: "১০টি প্রিমিয়াম কোর্স একটি দামে",
+    price: 3500, image: img("online,course,study,laptop", 800, 600, 14),
+    category: "digital", categoryName: "Digital", categoryNameBn: "ডিজিটাল", featured: true, rating: 5.0,
+    subProducts: [
+      { id: "p4-a", name: "3 Courses", nameBn: "৩টি কোর্স", price: 1500, image: img("course,laptop", 400, 300, 141) },
+      { id: "p4-b", name: "10 Courses Bundle", nameBn: "১০টি কোর্স বান্ডেল", price: 3500, badge: "Popular", badgeBn: "জনপ্রিয়", image: img("courses,study", 400, 300, 142) },
+      { id: "p4-c", name: "Lifetime Access (All)", nameBn: "লাইফটাইম অ্যাক্সেস", price: 6500, badge: "Best Value", badgeBn: "সেরা মূল্য", image: img("learning,classroom", 400, 300, 143) },
+    ],
+  },
+  {
+    id: "p5", name: "Notion Templates Pack", nameBn: "নোশন টেমপ্লেট প্যাক",
+    description: "50+ productivity Notion templates",
+    descriptionBn: "৫০+ প্রোডাক্টিভিটি নোশন টেমপ্লেট",
+    price: 1200, image: img("notebook,planner,workspace", 800, 600, 15),
+    category: "digital", categoryName: "Digital", categoryNameBn: "ডিজিটাল", rating: 4.6,
+    subProducts: [
+      { id: "p5-a", name: "Personal Pack", nameBn: "পার্সোনাল প্যাক", price: 800, image: img("planner,personal", 400, 300, 151) },
+      { id: "p5-b", name: "Business Pack", nameBn: "বিজনেস প্যাক", price: 1200, badge: "Popular", badgeBn: "জনপ্রিয়", image: img("notion,business", 400, 300, 152) },
+      { id: "p5-c", name: "Ultimate (All 50+)", nameBn: "আল্টিমেট (৫০+)", price: 2000, badge: "Best Value", badgeBn: "সেরা মূল্য", image: img("workspace,planning", 400, 300, 153) },
+    ],
+  },
+  {
+    id: "p6", name: "Custom Mug", nameBn: "কাস্টম মগ",
+    description: "Personalized ceramic mug with your design",
+    descriptionBn: "আপনার ডিজাইনের কাস্টম সিরামিক মগ",
+    price: 350, image: img("mug,coffee,ceramic", 800, 600, 16),
+    category: "physical", categoryName: "Physical", categoryNameBn: "ফিজিক্যাল", rating: 4.5,
+    subProducts: [
+      { id: "p6-w", name: "White Mug", nameBn: "সাদা মগ", price: 350, image: img("mug,white", 400, 300, 161) },
+      { id: "p6-b", name: "Black Magic Mug", nameBn: "ব্ল্যাক ম্যাজিক মগ", price: 450, badge: "Popular", badgeBn: "জনপ্রিয়", image: img("mug,black", 400, 300, 162) },
+      { id: "p6-c", name: "Couple Mug Set (2)", nameBn: "কাপল মগ সেট (২টি)", price: 700, badge: "Best Value", badgeBn: "সেরা মূল্য", image: img("couple,mugs", 400, 300, 163) },
+    ],
+  },
+  {
+    id: "p7", name: "Logo Design Templates", nameBn: "লোগো ডিজাইন টেমপ্লেট",
+    description: "100 premium logo templates",
+    descriptionBn: "১০০টি প্রিমিয়াম লোগো টেমপ্লেট",
+    price: 2000, image: img("logo,branding,design", 800, 600, 17),
+    category: "digital", categoryName: "Digital", categoryNameBn: "ডিজিটাল", rating: 4.8,
+    subProducts: [
+      { id: "p7-a", name: "25 Logos Pack", nameBn: "২৫ লোগো প্যাক", price: 700, image: img("logo,minimal", 400, 300, 171) },
+      { id: "p7-b", name: "100 Logos Pack", nameBn: "১০০ লোগো প্যাক", price: 2000, badge: "Popular", badgeBn: "জনপ্রিয়", image: img("logo,collection", 400, 300, 172) },
+      { id: "p7-c", name: "100 Logos + Source Files", nameBn: "১০০ লোগো + সোর্স ফাইল", price: 3500, badge: "Best Value", badgeBn: "সেরা মূল্য", image: img("branding,vector", 400, 300, 173) },
+    ],
+  },
+  {
+    id: "p8", name: "Hoodie", nameBn: "হুডি",
+    description: "Comfortable premium hoodie",
+    descriptionBn: "আরামদায়ক প্রিমিয়াম হুডি",
+    price: 1500, image: img("hoodie,clothing,fashion", 800, 600, 18),
+    category: "physical", categoryName: "Physical", categoryNameBn: "ফিজিক্যাল", rating: 4.9,
+    subProducts: [
+      { id: "p8-bk", name: "Black - M", nameBn: "কালো - M", price: 1500, image: img("hoodie,black", 400, 300, 181) },
+      { id: "p8-gr", name: "Grey - L", nameBn: "ধূসর - L", price: 1550, badge: "Popular", badgeBn: "জনপ্রিয়", image: img("hoodie,grey", 400, 300, 182) },
+      { id: "p8-nv", name: "Navy - XL", nameBn: "নেভি - XL", price: 1650, image: img("hoodie,navy", 400, 300, 183) },
+    ],
+  },
 ];
 
 export const services: Service[] = [

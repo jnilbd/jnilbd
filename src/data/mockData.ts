@@ -420,7 +420,7 @@ export const portfolioItems = [
   { id: "pf8", title: "Pathao Driver Training Microsite", titleBn: "Pathao ড্রাইভার ট্রেনিং মাইক্রোসাইট", category: "UI/UX", year: "2024", image: u("1517336714731-489689fd1ca8") },
   { id: "pf9", title: "Banglalink Ramadan Reels", titleBn: "Banglalink রমজান রিলস", category: "Video Production", year: "2025", image: u("1574717024653-61fd2cf4d44d") },
   { id: "pf10", title: "Daraz Seller Onboarding Bot", titleBn: "Daraz সেলার অনবোর্ডিং বট", category: "Automation", year: "2025", image: u("1611605698335-8b1569810432") },
-  { id: "pf11", title: "BRAC University Alumni Portal", titleBn: "BRAC University অ্যালামনাই পোর্টাল", category: "Web Development", year: "2025", image: u("1523050854058-8df90110c9f1") },
+  { id: "pf11", title: "BRAC University Alumni Portal", titleBn: "BRAC University অ্যালামনাই পোর্টাল", category: "Web Development", year: "2025", image: u("1498243691581-b145c3f54a5a") },
   { id: "pf12", title: "Kacchi Bhai Online Ordering", titleBn: "Kacchi Bhai অনলাইন অর্ডারিং", category: "E-commerce", year: "2025", image: u("1565299624946-b28f40a0ae38") },
 ];
 

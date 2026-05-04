@@ -32,11 +32,17 @@ const Checkout = () => {
     );
   }
 
+  const [zone, setZone] = useState<"dhaka" | "outside">("dhaka");
   const paymentNumbers = { bkash: "01774585757", nagad: "01774585757" };
   const codAdvance = 100;
   const isCod = method === "cod";
-  const dueNow = isCod ? codAdvance : total;
-  const dueOnDelivery = isCod ? total - codAdvance : 0;
+  const deliveryFee = hasPhysical ? (zone === "dhaka" ? 70 : 150) : 0;
+  const deliveryEta = zone === "dhaka"
+    ? (isBn ? "ঢাকার ভিতরে — ১–৩ দিন" : "Inside Dhaka — 1–3 days")
+    : (isBn ? "ঢাকার বাইরে — ২–৭ দিন" : "Outside Dhaka — 2–7 days");
+  const grandTotal = total + deliveryFee;
+  const dueNow = isCod ? codAdvance : grandTotal;
+  const dueOnDelivery = isCod ? grandTotal - codAdvance : 0;
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -51,7 +57,7 @@ const Checkout = () => {
 
     setSubmitting(true);
     const orderId = `JN-${Date.now().toString(36).toUpperCase()}`;
-    const order = { id: orderId, items, total, customer: form, payment: { method, trxId, paid: dueNow, due: dueOnDelivery }, date: new Date().toISOString() };
+    const order = { id: orderId, items, total, deliveryFee, grandTotal, zone, customer: form, payment: { method, trxId, paid: dueNow, due: dueOnDelivery }, date: new Date().toISOString() };
     localStorage.setItem(`order-${orderId}`, JSON.stringify(order));
 
     setTimeout(() => {
@@ -85,6 +91,35 @@ const Checkout = () => {
             </div>
           </motion.div>
 
+          {hasPhysical && (
+            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05 }} className="bg-card rounded-2xl p-6 shadow-card border border-border/50">
+              <h2 className="font-display font-bold text-xl mb-1">{isBn ? "ডেলিভারি জোন" : "Delivery Zone"}</h2>
+              <p className="text-xs text-muted-foreground mb-4">{isBn ? "আপনার এলাকা সিলেক্ট করুন" : "Select your area"}</p>
+              <RadioGroup value={zone} onValueChange={(v) => setZone(v as any)} className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                <Label htmlFor="z-dhaka" className={`flex items-start gap-3 p-4 rounded-xl border-2 cursor-pointer transition-smooth ${zone === "dhaka" ? "border-primary bg-primary/5" : "border-border"}`}>
+                  <RadioGroupItem value="dhaka" id="z-dhaka" className="mt-0.5" />
+                  <div className="flex-1">
+                    <div className="flex items-center justify-between">
+                      <span className="font-semibold text-sm">{isBn ? "ঢাকার ভিতরে" : "Inside Dhaka"}</span>
+                      <span className="text-xs font-bold text-primary px-2 py-0.5 rounded-full bg-primary/10">৳70</span>
+                    </div>
+                    <p className="text-xs text-muted-foreground mt-1">{isBn ? "ডেলিভারি: ১–৩ দিন" : "Delivery: 1–3 days"}</p>
+                  </div>
+                </Label>
+                <Label htmlFor="z-out" className={`flex items-start gap-3 p-4 rounded-xl border-2 cursor-pointer transition-smooth ${zone === "outside" ? "border-primary bg-primary/5" : "border-border"}`}>
+                  <RadioGroupItem value="outside" id="z-out" className="mt-0.5" />
+                  <div className="flex-1">
+                    <div className="flex items-center justify-between">
+                      <span className="font-semibold text-sm">{isBn ? "ঢাকার বাইরে" : "Outside Dhaka"}</span>
+                      <span className="text-xs font-bold text-primary px-2 py-0.5 rounded-full bg-primary/10">৳150</span>
+                    </div>
+                    <p className="text-xs text-muted-foreground mt-1">{isBn ? "ডেলিভারি: ২–৭ দিন" : "Delivery: 2–7 days"}</p>
+                  </div>
+                </Label>
+              </RadioGroup>
+            </motion.div>
+          )}
+
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="bg-card rounded-2xl p-6 shadow-card border border-border/50">
             <h2 className="font-display font-bold text-xl mb-4">{isBn ? "পেমেন্ট মেথড" : "Payment Method"}</h2>
 
@@ -107,7 +142,7 @@ const Checkout = () => {
                     <ul className="text-sm text-muted-foreground space-y-1 list-disc list-inside">
                       <li>{isBn ? `অগ্রিম ৳${codAdvance} bKash/Nagad-এ পাঠাতে হবে (ভুয়া অর্ডার রোধে)।` : `Send ৳${codAdvance} advance via bKash/Nagad (anti-fraud).`}</li>
                       <li>{isBn ? `বাকি ৳${dueOnDelivery.toLocaleString()} ডেলিভারিম্যানের কাছে দিন।` : `Pay ৳${dueOnDelivery.toLocaleString()} balance to courier.`}</li>
-                      <li>{isBn ? "ডেলিভারি: ঢাকায় ১–২ দিন, বাইরে ৩–৫ দিন।" : "Delivery: 1–2 days Dhaka, 3–5 days outside."}</li>
+                      <li>{isBn ? `ডেলিভারি: ${zone === "dhaka" ? "ঢাকার ভিতরে ১–৩ দিন" : "ঢাকার বাইরে ২–৭ দিন"}।` : `Delivery: ${zone === "dhaka" ? "Inside Dhaka 1–3 days" : "Outside Dhaka 2–7 days"}.`}</li>
                     </ul>
                   </div>
                 </div>
@@ -116,7 +151,7 @@ const Checkout = () => {
             ) : (
               <div className="bg-gradient-to-br from-primary/10 to-secondary/10 p-5 rounded-2xl mb-4">
                 <p className="text-sm mb-2 text-muted-foreground">
-                  {isBn ? `নিচের ${method === "bkash" ? "bKash" : "Nagad"} নম্বরে ৳${total.toLocaleString()} সেন্ড করুন (Send Money):` : `Send ৳${total.toLocaleString()} to this ${method === "bkash" ? "bKash" : "Nagad"} number (Send Money):`}
+                  {isBn ? `নিচের ${method === "bkash" ? "bKash" : "Nagad"} নম্বরে ৳${grandTotal.toLocaleString()} সেন্ড করুন (Send Money):` : `Send ৳${grandTotal.toLocaleString()} to this ${method === "bkash" ? "bKash" : "Nagad"} number (Send Money):`}
                 </p>
                 <div className="text-3xl font-display font-bold gradient-text">{paymentNumbers[method as "bkash" | "nagad"]}</div>
                 <p className="text-xs text-muted-foreground mt-2">
@@ -162,10 +197,16 @@ const Checkout = () => {
 
           <div className="border-t border-border/50 pt-4 space-y-1 text-sm">
             <div className="flex justify-between"><span className="text-muted-foreground">{isBn ? "সাবটোটাল" : "Subtotal"}</span><span>৳{total.toLocaleString()}</span></div>
-            <div className="flex justify-between"><span className="text-muted-foreground">{isBn ? "ডেলিভারি" : "Delivery"}</span><span className="text-green-600">{isBn ? "ফ্রি" : "Free"}</span></div>
+            <div className="flex justify-between">
+              <span className="text-muted-foreground">{isBn ? "ডেলিভারি" : "Delivery"}</span>
+              {hasPhysical ? <span>৳{deliveryFee}</span> : <span className="text-green-600">{isBn ? "ফ্রি" : "Free"}</span>}
+            </div>
+            {hasPhysical && (
+              <p className="text-[11px] text-muted-foreground">{deliveryEta}</p>
+            )}
             {isCod && (
               <>
-                <div className="flex justify-between text-primary font-semibold"><span>{isBn ? "এখন দিতে হবে" : "Pay now"}</span><span>৳{dueNow.toLocaleString()}</span></div>
+                <div className="flex justify-between text-primary font-semibold pt-1"><span>{isBn ? "এখন দিতে হবে" : "Pay now"}</span><span>৳{dueNow.toLocaleString()}</span></div>
                 <div className="flex justify-between"><span className="text-muted-foreground">{isBn ? "ডেলিভারিতে দিতে হবে" : "Pay on delivery"}</span><span>৳{dueOnDelivery.toLocaleString()}</span></div>
               </>
             )}
@@ -175,7 +216,7 @@ const Checkout = () => {
             <span className="font-display font-bold">{t("common.total")}</span>
             <span className="inline-flex items-baseline gap-1 px-3 py-1.5 rounded-full bg-primary/10 border border-primary/30 shadow-sm">
               <span className="text-xs font-semibold text-primary/80">৳</span>
-              <span className="text-2xl font-bold gradient-text">{total.toLocaleString()}</span>
+              <span className="text-2xl font-bold gradient-text">{grandTotal.toLocaleString()}</span>
             </span>
           </div>
 

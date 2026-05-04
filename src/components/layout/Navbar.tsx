@@ -1,5 +1,5 @@
 import { Link, NavLink } from "react-router-dom";
-import { Menu, X, ShoppingCart, Languages, Phone, Mail, MapPin } from "lucide-react";
+import { Menu, X, ShoppingCart, Globe, Phone, Mail, MapPin } from "lucide-react";
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -101,15 +101,20 @@ const Navbar = () => {
           </nav>
 
           <div className="flex items-center gap-1.5">
-            <Button
-              variant="ghost"
-              size="sm"
+            <button
               onClick={toggle}
-              className="gap-1.5 rounded-full text-xs font-semibold tracking-wider uppercase"
+              aria-label="Switch language"
+              className="group relative flex items-center gap-1.5 h-9 px-1 pr-3 rounded-full border border-border/60 bg-gradient-to-r from-background to-muted/40 hover:border-primary/50 hover:shadow-md transition-all"
             >
-              <Languages className="w-3.5 h-3.5" />
-              {language === "bn" ? "EN" : "বাং"}
-            </Button>
+              <span className="relative flex items-center justify-center w-7 h-7 rounded-full bg-gradient-to-br from-primary/20 to-secondary/20 ring-1 ring-primary/30">
+                <Globe className="w-3.5 h-3.5 text-primary" strokeWidth={2.5} />
+              </span>
+              <span className="flex items-center text-[11px] font-bold tracking-wider">
+                <span className={language === "en" ? "text-primary" : "text-muted-foreground/60"}>EN</span>
+                <span className="mx-1 text-muted-foreground/40">|</span>
+                <span className={language === "bn" ? "text-primary font-display" : "text-muted-foreground/60 font-display"}>বাং</span>
+              </span>
+            </button>
 
             <Link to="/cart" className="relative">
               <Button variant="ghost" size="icon" className="rounded-full">

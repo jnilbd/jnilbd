@@ -334,16 +334,23 @@ const Marketplace = () => {
                     <div className="w-full h-full flex items-center justify-center text-muted-foreground"><Tag className="w-10 h-10" /></div>
                   )}
                 </div>
-                <div className="p-3 md:p-4 space-y-1.5">
+                <div className="p-3 md:p-4 space-y-2">
                   <div className="flex flex-wrap gap-1">
                     <span className="px-2 py-0.5 rounded-full bg-secondary/20 text-secondary text-[10px] font-semibold">{item.condition}</span>
                     <span className="px-2 py-0.5 rounded-full bg-primary/10 text-primary text-[10px] font-semibold">{item.category}</span>
                   </div>
-                  <h3 className="font-display font-bold text-sm md:text-base line-clamp-2">{item.title}</h3>
-                  <div className="text-lg md:text-xl font-bold gradient-text">৳{item.price.toLocaleString()}</div>
-                  <div className="flex items-center gap-1 text-xs text-muted-foreground"><MapPin className="w-3 h-3" /> {item.location}</div>
+                  <div className="rounded-lg bg-muted/40 border border-border/40 px-2.5 py-1.5 min-h-[2.75rem] flex items-center">
+                    <h3 className="font-display font-bold text-sm md:text-[0.95rem] line-clamp-2 leading-snug">{item.title}</h3>
+                  </div>
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="inline-flex items-baseline gap-1 px-2.5 py-1 rounded-full bg-primary/10 border border-primary/30 shadow-sm">
+                      <span className="text-[10px] font-semibold text-primary/80">৳</span>
+                      <span className="text-sm md:text-base font-bold gradient-text leading-none">{item.price.toLocaleString()}</span>
+                    </span>
+                    <span className="flex items-center gap-1 text-[10px] text-muted-foreground truncate"><MapPin className="w-3 h-3 shrink-0" /> {item.location}</span>
+                  </div>
                   {user && item.user_id === user.id && (
-                    <Button size="sm" variant="ghost" className="text-destructive w-full mt-1" onClick={(e) => { e.stopPropagation(); handleDelete(item.id); }}>
+                    <Button size="sm" variant="ghost" className="text-destructive w-full h-7" onClick={(e) => { e.stopPropagation(); handleDelete(item.id); }}>
                       <Trash2 className="w-3 h-3 mr-1" /> {language === "bn" ? "মুছুন" : "Delete"}
                     </Button>
                   )}

@@ -151,7 +151,7 @@ const Checkout = () => {
             ) : (
               <div className="bg-gradient-to-br from-primary/10 to-secondary/10 p-5 rounded-2xl mb-4">
                 <p className="text-sm mb-2 text-muted-foreground">
-                  {isBn ? `নিচের ${method === "bkash" ? "bKash" : "Nagad"} নম্বরে ৳${total.toLocaleString()} সেন্ড করুন (Send Money):` : `Send ৳${total.toLocaleString()} to this ${method === "bkash" ? "bKash" : "Nagad"} number (Send Money):`}
+                  {isBn ? `নিচের ${method === "bkash" ? "bKash" : "Nagad"} নম্বরে ৳${grandTotal.toLocaleString()} সেন্ড করুন (Send Money):` : `Send ৳${grandTotal.toLocaleString()} to this ${method === "bkash" ? "bKash" : "Nagad"} number (Send Money):`}
                 </p>
                 <div className="text-3xl font-display font-bold gradient-text">{paymentNumbers[method as "bkash" | "nagad"]}</div>
                 <p className="text-xs text-muted-foreground mt-2">

@@ -15,6 +15,7 @@ export const translations: Translations = {
   "nav.rentals": { bn: "বাসা ভাড়া", en: "Rentals" },
   "nav.contact": { bn: "যোগাযোগ", en: "Contact" },
   "nav.about": { bn: "আমার গল্প", en: "About" },
+  "nav.appointment": { bn: "অ্যাপয়েন্টমেন্ট", en: "Appointment" },
   "nav.cart": { bn: "কার্ট", en: "Cart" },
 
   // Hero

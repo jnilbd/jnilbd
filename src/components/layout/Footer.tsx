@@ -180,9 +180,10 @@ const Footer = () => {
             © {new Date().getFullYear()} JohnNil.com — {language === "bn" ? "সর্বস্বত্ব সংরক্ষিত" : "All rights reserved"}.
           </p>
           <div className="flex items-center gap-5 opacity-60">
-            <Link to="/about" className="hover:text-secondary transition-smooth">{language === "bn" ? "প্রাইভেসি" : "Privacy"}</Link>
-            <Link to="/about" className="hover:text-secondary transition-smooth">{language === "bn" ? "শর্তাবলী" : "Terms"}</Link>
-            <Link to="/about" className="hover:text-secondary transition-smooth">{language === "bn" ? "রিফান্ড" : "Refund"}</Link>
+            <Link to="/policies?tab=privacy" className="hover:text-secondary transition-smooth">{language === "bn" ? "প্রাইভেসি" : "Privacy"}</Link>
+            <Link to="/policies?tab=terms" className="hover:text-secondary transition-smooth">{language === "bn" ? "শর্তাবলী" : "Terms"}</Link>
+            <Link to="/policies?tab=refund" className="hover:text-secondary transition-smooth">{language === "bn" ? "রিফান্ড" : "Refund"}</Link>
+            <Link to="/policies?tab=shipping" className="hover:text-secondary transition-smooth">{language === "bn" ? "শিপিং" : "Shipping"}</Link>
           </div>
           <p className="opacity-50 text-[11px] tracking-wider">
             {language === "bn" ? "ভালোবাসায় তৈরি 🇧🇩 ঢাকায়" : "Crafted with ♥ in Dhaka, Bangladesh"}

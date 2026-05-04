@@ -1,5 +1,5 @@
 import { Link, NavLink, useLocation } from "react-router-dom";
-import { Home, Store, ShoppingCart, LayoutGrid, MessageCircle, X, Briefcase, FolderKanban, BookOpen, Tag, Home as HomeIcon, User } from "lucide-react";
+import { Home, Store, ShoppingCart, LayoutGrid, MessageCircle, X, Briefcase, FolderKanban, BookOpen, Tag, Home as HomeIcon, User, CalendarClock, ShieldCheck } from "lucide-react";
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -23,7 +23,9 @@ const MobileTabBar = () => {
     { to: "/blog", icon: BookOpen, label: t("nav.blog") },
     { to: "/marketplace", icon: Tag, label: t("nav.marketplace") },
     { to: "/rentals", icon: HomeIcon, label: t("nav.rentals") },
+    { to: "/appointment", icon: CalendarClock, label: language === "bn" ? "অ্যাপয়েন্টমেন্ট" : "Appointment" },
     { to: "/about", icon: User, label: t("nav.about") },
+    { to: "/policies", icon: ShieldCheck, label: language === "bn" ? "পলিসি" : "Policies" },
   ];
 
   return (

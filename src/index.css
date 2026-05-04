@@ -217,12 +217,12 @@
   }
 
   .animated-gradient {
-    background: linear-gradient(135deg, hsl(280 85% 55%), hsl(320 90% 65%), hsl(25 95% 60%), hsl(195 90% 55%), hsl(280 85% 55%));
+    background: linear-gradient(135deg, hsl(220 45% 18%), hsl(220 35% 25%), hsl(175 35% 30%), hsl(220 40% 22%), hsl(220 45% 18%));
     background-size: 400% 400%;
-    animation: gradient-shift 15s ease infinite;
+    animation: gradient-shift 20s ease infinite;
   }
 
   .blob {
-    @apply absolute rounded-full blur-3xl opacity-50 pointer-events-none;
+    @apply absolute rounded-full blur-3xl opacity-30 pointer-events-none;
   }
 }

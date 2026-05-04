@@ -217,7 +217,7 @@
   }
 
   .animated-gradient {
-    background: linear-gradient(135deg, hsl(220 45% 18%), hsl(220 35% 25%), hsl(175 35% 30%), hsl(220 40% 22%), hsl(220 45% 18%));
+    background: linear-gradient(135deg, hsl(215 70% 18%), hsl(215 60% 28%), hsl(195 55% 38%), hsl(210 65% 30%), hsl(215 70% 18%));
     background-size: 400% 400%;
     animation: gradient-shift 20s ease infinite;
   }

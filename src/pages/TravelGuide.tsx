@@ -224,8 +224,8 @@ const SAUDI_DESTINATIONS = [
 ];
 
 export default function TravelGuide() {
-  const { lang } = useLanguage();
-  const isBn = lang === "bn";
+  const { language } = useLanguage();
+  const isBn = language === "bn";
   const [favs, setFavs] = useState<Set<string>>(new Set());
 
   const toggleFav = (name: string) => {

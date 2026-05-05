@@ -29,8 +29,8 @@ function normalizeIntl(num: string) {
 }
 
 export default function PhoneLookup() {
-  const { lang } = useLanguage();
-  const isBn = lang === "bn";
+  const { language } = useLanguage();
+  const isBn = language === "bn";
   const [phone, setPhone] = useState("");
   const [result, setResult] = useState<string | null>(null);
 

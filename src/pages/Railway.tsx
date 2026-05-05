@@ -76,8 +76,8 @@ const PLATFORM_CCTV = [
 const todayDay = () => new Date().toLocaleDateString("en-US", { weekday: "long" });
 
 export default function Railway() {
-  const { lang } = useLanguage();
-  const isBn = lang === "bn";
+  const { language } = useLanguage();
+  const isBn = language === "bn";
   const { toast } = useToast();
   const [from, setFrom] = useState("Dhaka (Kamalapur)");
   const [to, setTo] = useState("Chattogram");

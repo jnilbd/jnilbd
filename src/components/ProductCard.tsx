@@ -6,6 +6,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { useCart } from "@/contexts/CartContext";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
+import { displayImage, fallbackImageHandler } from "@/lib/siteImages";
 
 const ProductCard = ({ product, index = 0 }: { product: Product; index?: number }) => {
   const { language, t } = useLanguage();
@@ -13,11 +14,12 @@ const ProductCard = ({ product, index = 0 }: { product: Product; index?: number 
 
   const name = language === "bn" ? product.nameBn : product.name;
   const cat = language === "bn" ? product.categoryNameBn : product.categoryName;
+  const image = displayImage(product.image, product.id, name, cat);
 
   const handleAdd = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    add({ id: product.id, name: product.name, nameBn: product.nameBn, price: product.price, image: product.image, type: "product", category: product.category });
+    add({ id: product.id, name: product.name, nameBn: product.nameBn, price: product.price, image, type: "product", category: product.category });
     toast.success(language === "bn" ? "কার্টে যোগ হয়েছে" : "Added to cart");
   };
 
@@ -32,7 +34,7 @@ const ProductCard = ({ product, index = 0 }: { product: Product; index?: number 
       <Link to={`/shop/${product.id}`} className="group block h-full">
         <div className="bg-card rounded-2xl overflow-hidden shadow-card hover:shadow-elegant transition-smooth border border-border/50 h-full flex flex-col">
           <div className="aspect-[4/3] overflow-hidden bg-muted relative flex-shrink-0">
-            <img src={product.image} alt={name} loading="lazy" className="w-full h-full object-cover group-hover:scale-110 transition-smooth" />
+            <img src={image} alt={name} loading="lazy" onError={fallbackImageHandler(product.id, name, cat)} className="w-full h-full object-cover group-hover:scale-110 transition-smooth" />
             <span className="absolute top-3 left-3 px-3 py-1 rounded-full glass-card text-xs font-semibold">{cat}</span>
             {product.rating && (
               <span className="absolute top-3 right-3 px-2 py-1 rounded-full bg-black/60 text-white text-xs font-semibold flex items-center gap-1">

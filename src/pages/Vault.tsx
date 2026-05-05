@@ -62,7 +62,7 @@ const Vault = () => {
   const [newCat, setNewCat] = useState("password");
   const [newData, setNewData] = useState("");
 
-  const salt = user ? new TextEncoder().encode(user.id.padEnd(16, "x")) : new Uint8Array(16);
+  const salt: BufferSource = user ? new TextEncoder().encode(user.id.padEnd(16, "x")) as BufferSource : new Uint8Array(16) as BufferSource;
 
   const load = async () => {
     if (!user) return;

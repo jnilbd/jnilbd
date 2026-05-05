@@ -14,6 +14,75 @@ export type Database = {
   }
   public: {
     Tables: {
+      budgets: {
+        Row: {
+          category: string
+          created_at: string
+          id: string
+          monthly_limit: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          category: string
+          created_at?: string
+          id?: string
+          monthly_limit: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          id?: string
+          monthly_limit?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      debts: {
+        Row: {
+          amount: number
+          counterparty: string
+          created_at: string
+          direction: string
+          due_date: string | null
+          id: string
+          is_settled: boolean
+          note: string | null
+          paid_amount: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          amount: number
+          counterparty: string
+          created_at?: string
+          direction: string
+          due_date?: string | null
+          id?: string
+          is_settled?: boolean
+          note?: string | null
+          paid_amount?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          amount?: number
+          counterparty?: string
+          created_at?: string
+          direction?: string
+          due_date?: string | null
+          id?: string
+          is_settled?: boolean
+          note?: string | null
+          paid_amount?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       marketplace_items: {
         Row: {
           category: string
@@ -59,6 +128,42 @@ export type Database = {
           title?: string
           updated_at?: string
           user_id?: string | null
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          avatar_url: string | null
+          created_at: string
+          currency: string
+          full_name: string | null
+          id: string
+          monthly_income: number
+          phone: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          avatar_url?: string | null
+          created_at?: string
+          currency?: string
+          full_name?: string | null
+          id?: string
+          monthly_income?: number
+          phone?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          avatar_url?: string | null
+          created_at?: string
+          currency?: string
+          full_name?: string | null
+          id?: string
+          monthly_income?: number
+          phone?: string | null
+          updated_at?: string
+          user_id?: string
         }
         Relationships: []
       }
@@ -113,6 +218,75 @@ export type Database = {
           type?: string
           updated_at?: string
           user_id?: string | null
+        }
+        Relationships: []
+      }
+      savings_goals: {
+        Row: {
+          created_at: string
+          id: string
+          saved_amount: number
+          target_amount: number
+          target_date: string | null
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          saved_amount?: number
+          target_amount: number
+          target_date?: string | null
+          title: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          saved_amount?: number
+          target_amount?: number
+          target_date?: string | null
+          title?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      transactions: {
+        Row: {
+          amount: number
+          category: string
+          created_at: string
+          id: string
+          note: string | null
+          occurred_on: string
+          type: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          amount: number
+          category: string
+          created_at?: string
+          id?: string
+          note?: string | null
+          occurred_on?: string
+          type: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          amount?: number
+          category?: string
+          created_at?: string
+          id?: string
+          note?: string | null
+          occurred_on?: string
+          type?: string
+          updated_at?: string
+          user_id?: string
         }
         Relationships: []
       }

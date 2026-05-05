@@ -27,6 +27,7 @@ import TaxCalc from "./pages/TaxCalc";
 import Warish from "./pages/Warish";
 import ProfitLoss from "./pages/ProfitLoss";
 import Weather from "./pages/Weather";
+import GadgetAdvisor from "./pages/GadgetAdvisor";
 import Home from "./pages/Home";
 import Shop from "./pages/Shop";
 import ProductDetail from "./pages/ProductDetail";
@@ -91,6 +92,7 @@ const App = () => (
                 <Route path="/warish" element={<Warish />} />
                 <Route path="/profit-loss" element={<ProfitLoss />} />
                 <Route path="/weather" element={<Weather />} />
+                <Route path="/gadget" element={<GadgetAdvisor />} />
                 <Route path="/cart" element={<Cart />} />
                 <Route path="/checkout" element={<Checkout />} />
                 <Route path="/order-confirmation/:id" element={<OrderConfirmation />} />

@@ -41,6 +41,10 @@ export const translations: Translations = {
  "card.gadget": { bn: "বাজেট দিন — BD মার্কেটে সেরা মোবাইল/ল্যাপটপ AI সাজেশন", en: "Set budget — AI picks best phone/laptop from BD market" },
  "nav.freeNet": { bn: "ফ্রি ইন্টারনেট", en: "Free Internet" },
  "card.freeNet": { bn: "GP/Robi/BL/Airtel/Teletalk — সব সিমের সস্তা ও ফ্রি নেট অফার, USSD ও সেটআপ গাইড", en: "GP/Robi/BL/Airtel/Teletalk — cheap & free net offers, USSD codes & setup guide" },
+ "nav.requestService": { bn: "সার্ভিস রিকোয়েস্ট", en: "Request Service" },
+ "card.requestService": { bn: "নতুন সার্ভিস বা ফিচার চান? সরাসরি আমাকে জানান", en: "Need a new service or feature? Tell me directly" },
+ "nav.movies": { bn: "মুভি ও সিরিজ", en: "Movies & Series" },
+ "card.movies": { bn: "জনপ্রিয় মুভি ও TV সিরিজ — থার্ড-পার্টি স্ট্রিমিং", en: "Popular movies & TV series — third-party streaming" },
 
   // Hero
   "hero.greeting": { bn: "হ্যালো, আমি", en: "Hello, I'm" },
@@ -90,11 +94,11 @@ export const translations: Translations = {
   "card.downloader": { bn: "YouTube/TikTok/Insta/FB ভিডিও/MP3 ডাউনলোড", en: "YouTube/TikTok/Insta/FB video/MP3 downloader" },
   "card.scheduler": { bn: "নির্দিষ্ট সময়ে WhatsApp/SMS উইশ পাঠান", en: "Send WhatsApp/SMS at the perfect time" },
   "card.land": { bn: "খতিয়ান, নামজারি, কর, কনভার্টার", en: "Khatian, Mutation, Tax, Converter" },
-  "card.height": { bn: "BMI, আদর্শ ওজন, BMR — সব এক জায়গায়", en: "BMI, Ideal Weight, BMR — all-in-one" },
+  "card.height": { bn: "উচ্চতা ক্যালকুলেটর — BMI, আদর্শ ওজন, BMR (দৈনিক ক্যালরি), শরীরের ফ্যাট %, বয়স অনুযায়ী আদর্শ উচ্চতা — পুরুষ ও মহিলা উভয়ের জন্য একদম এক জায়গায় বিস্তারিত হিসাব", en: "Height Calculator — BMI, ideal weight, BMR (daily calories), body-fat %, age-based ideal height — detailed for men & women, all in one" },
   "card.health": { bn: "AI স্বাস্থ্য পরামর্শ, রুটিন, অসুখ গাইড", en: "AI health advice, routine, ailment guide" },
-  "card.solar": { bn: "সোলার প্যানেল, ব্যাটারি, ইনভার্টার সাইজিং", en: "Solar panel, battery, inverter sizing" },
+  "card.solar": { bn: "সোলার ক্যালকুলেটর — দৈনিক ব্যবহার (ওয়াট/ঘণ্টা) থেকে প্যানেল সাইজ, ব্যাটারি ক্যাপাসিটি (Ah), ইনভার্টার রেটিং, চার্জ কন্ট্রোলার, আনুমানিক খরচ ও পে-ব্যাক — অফ-গ্রিড ও হাইব্রিড দু'ধরনের সিস্টেমের পূর্ণাঙ্গ ডিজাইন", en: "Solar Calculator — from daily watt-hours: panel size, battery (Ah), inverter rating, charge controller, approx. cost & payback — full design for off-grid & hybrid" },
   "card.vault": { bn: "WiFi, ব্যাংক, পাসওয়ার্ড — এন্ড-টু-এন্ড এন্ক্রিপ্টেড", en: "WiFi, bank, passwords — end-to-end encrypted" },
-  "card.tax": { bn: "বাংলাদেশের ইনকাম ট্যাক্স — FY 2024-25", en: "Bangladesh income tax — FY 2024-25" },
+  "card.tax": { bn: "ট্যাক্স ক্যালকুলেটর — বাংলাদেশ FY 2024-25 আয়কর: পুরুষ/মহিলা/সিনিয়র সিটিজেন/মুক্তিযোদ্ধা ভিত্তিক স্ল্যাব, রিবেট, ইনভেস্টমেন্ট অ্যালাউন্স, মিনিমাম ট্যাক্স ও আনুমানিক রিটার্ন — সবকিছু স্বয়ংক্রিয়ভাবে হিসাব", en: "Tax Calculator — BD FY 2024-25 income tax: slabs by gender/senior/freedom-fighter, rebate, investment allowance, minimum tax & estimated return — all auto-calculated" },
   "card.warish": { bn: "ইসলামি উত্তরাধিকার বণ্টন (ফারাইজ)", en: "Islamic inheritance distribution" },
   "card.profitLoss": { bn: "লাভ, ক্ষতি, মার্জিন, ডিসকাউন্ট, % পরিবর্তন", en: "Profit, loss, margin, discount, % change" },
 

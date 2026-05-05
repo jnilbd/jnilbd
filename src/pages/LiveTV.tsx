@@ -13,13 +13,14 @@ type Channel = {
   country: "BD" | "IN" | "Other";
   category: "tv" | "radio";
   logo?: string;
-  url: string; // HLS .m3u8 or audio stream
+  url: string; // HLS .m3u8, audio stream, or iframe embed url
+  embed?: boolean; // if true, render in iframe (third-party bypass player)
 };
 
-// Curated free public live streams (HLS where available).
-// Sources may rotate occasionally; users can report broken streams.
+// Curated free public live streams. HLS where available, otherwise third-party iframe embeds.
+// Embeds use ok.ru / public CDNs / known free IPTV mirrors as a bypass fallback.
 const CHANNELS: Channel[] = [
-  // ===== Bangladesh TV =====
+  // ===== Bangladesh TV (HLS) =====
   { id: "btv", name: "BTV National", country: "BD", category: "tv", url: "https://btvlive.brrm.gov.bd/btv/btv/playlist.m3u8" },
   { id: "btv-world", name: "BTV World", country: "BD", category: "tv", url: "https://btvworldlive.brrm.gov.bd/btvworld/btvworld/playlist.m3u8" },
   { id: "sangsad", name: "Sangsad TV", country: "BD", category: "tv", url: "https://sangsadlive.brrm.gov.bd/sangsadtv/sangsadtv/playlist.m3u8" },
@@ -30,7 +31,22 @@ const CHANNELS: Channel[] = [
   { id: "rtv", name: "RTV", country: "BD", category: "tv", url: "https://rtvlive.akamaized.net/hls/live/2008080/rtv/index.m3u8" },
   { id: "ntv", name: "NTV Bangladesh", country: "BD", category: "tv", url: "https://ntvlive.akamaized.net/hls/live/2014075/NTV/index.m3u8" },
   { id: "atn-news", name: "ATN News", country: "BD", category: "tv", url: "https://live.atnnewstv.com/hls/stream.m3u8" },
+  { id: "atn-bangla", name: "ATN Bangla", country: "BD", category: "tv", url: "https://live.atnbanglatv.tv/hls/stream.m3u8" },
   { id: "independent", name: "Independent TV", country: "BD", category: "tv", url: "https://live.independent24.tv/hls/stream.m3u8" },
+  { id: "ekhon-tv", name: "Ekhon TV", country: "BD", category: "tv", url: "https://feed.bismetvtech.com/ekhontv/ekhontv/playlist.m3u8" },
+  { id: "deepto", name: "Deepto TV", country: "BD", category: "tv", url: "https://deepto.global.ssl.fastly.net/Deeptotv/index.m3u8" },
+  { id: "channeli", name: "Channel i", country: "BD", category: "tv", url: "https://live.channeli.tv/live_channeli/index.m3u8" },
+  { id: "maasranga", name: "Maasranga TV", country: "BD", category: "tv", url: "https://5b624ea9cfe05.streamlock.net/MaasRangaHD/smil:MaasRangaHD.smil/playlist.m3u8" },
+  { id: "boishakhi", name: "Boishakhi TV", country: "BD", category: "tv", url: "https://feed.bismetvtech.com/boishakhi/boishakhi/playlist.m3u8" },
+  { id: "ekushey", name: "Ekushey TV (ETV)", country: "BD", category: "tv", url: "https://feed.bismetvtech.com/etv/etv/playlist.m3u8" },
+  { id: "gtv", name: "Gazi TV (GTV)", country: "BD", category: "tv", url: "https://feed.bismetvtech.com/gtv/gtv/playlist.m3u8" },
+  { id: "nexus-tv", name: "Nexus TV", country: "BD", category: "tv", url: "https://feed.bismetvtech.com/nexustv/nexustv/playlist.m3u8" },
+  { id: "duronto", name: "Duronto TV", country: "BD", category: "tv", url: "https://feed.bismetvtech.com/duronto/duronto/playlist.m3u8" },
+  { id: "news24", name: "News24 BD", country: "BD", category: "tv", url: "https://news24bdlive.akamaized.net/hls/live/2014233/news24/index.m3u8" },
+  { id: "dbc-news", name: "DBC News", country: "BD", category: "tv", url: "https://feed.bismetvtech.com/dbc/dbc/playlist.m3u8" },
+  { id: "asian-tv", name: "Asian TV", country: "BD", category: "tv", url: "https://feed.bismetvtech.com/asiantv/asiantv/playlist.m3u8" },
+  { id: "mytv", name: "My TV", country: "BD", category: "tv", url: "https://feed.bismetvtech.com/mytv/mytv/playlist.m3u8" },
+  { id: "bangla-vision", name: "Bangla Vision", country: "BD", category: "tv", url: "https://feed.bismetvtech.com/banglavision/banglavision/playlist.m3u8" },
 
   // ===== India TV =====
   { id: "ddnews", name: "DD News", country: "IN", category: "tv", url: "https://ddnewslive.akamaized.net/hls/live/2003678/ddnewslive/index.m3u8" },
@@ -38,14 +54,30 @@ const CHANNELS: Channel[] = [
   { id: "ddbangla", name: "DD Bangla", country: "IN", category: "tv", url: "https://ddbanglalive.akamaized.net/hls/live/2003682/ddbangla/index.m3u8" },
   { id: "ddsports", name: "DD Sports", country: "IN", category: "tv", url: "https://ddsportslive.akamaized.net/hls/live/2003684/ddsports/index.m3u8" },
   { id: "ddurdu", name: "DD Urdu", country: "IN", category: "tv", url: "https://ddurdulive.akamaized.net/hls/live/2003686/ddurdu/index.m3u8" },
+  { id: "ddkisan", name: "DD Kisan", country: "IN", category: "tv", url: "https://ddkisanlive.akamaized.net/hls/live/2003692/ddkisan/index.m3u8" },
+  { id: "ddindia", name: "DD India", country: "IN", category: "tv", url: "https://ddindialive.akamaized.net/hls/live/2003688/DDIndia/index.m3u8" },
   { id: "wion", name: "WION", country: "IN", category: "tv", url: "https://d3eyhbo8st9bly.cloudfront.net/hls/wionLow/master.m3u8" },
   { id: "republic-bharat", name: "Republic Bharat", country: "IN", category: "tv", url: "https://rbhlive-lh.akamaihd.net/i/RBH_1@174463/master.m3u8" },
   { id: "ndtv-india", name: "NDTV India", country: "IN", category: "tv", url: "https://ndtv24x7elemarchana.akamaized.net/hls/live/2003682/ndtv24x7/master.m3u8" },
+  { id: "ndtv-247", name: "NDTV 24x7", country: "IN", category: "tv", url: "https://ndtv24x7elemarchana.akamaized.net/hls/live/2003680/ndtv24x7/master.m3u8" },
+  { id: "tv9-bharatvarsh", name: "TV9 Bharatvarsh", country: "IN", category: "tv", url: "https://tv9hindiwebhls.akamaized.net/hls/live/2034711/tv9bharatvarsh/master.m3u8" },
+  { id: "abp-news", name: "ABP News", country: "IN", category: "tv", url: "https://abplivetv.akamaized.net/hls/live/2043010/abpnews/index.m3u8" },
+  { id: "aaj-tak", name: "Aaj Tak", country: "IN", category: "tv", url: "https://feeds.intoday.in/aajtak/api/aajtakhd/master.m3u8" },
+  { id: "india-today", name: "India Today", country: "IN", category: "tv", url: "https://feeds.intoday.in/aajtak/api/indiatodaylive/master.m3u8" },
+  { id: "zee-news", name: "Zee News", country: "IN", category: "tv", url: "https://znlive-hls.zee5.com/zlive/zenglive_24x7/zenglive_24x7.m3u8" },
 
   // ===== Other (popular) =====
   { id: "aljazeera", name: "Al Jazeera English", country: "Other", category: "tv", url: "https://live-hls-web-aje.getaj.net/AJE/index.m3u8" },
+  { id: "aljazeera-ar", name: "Al Jazeera Arabic", country: "Other", category: "tv", url: "https://live-hls-web-aja.getaj.net/AJA/index.m3u8" },
   { id: "trtworld", name: "TRT World", country: "Other", category: "tv", url: "https://tv-trtworld.medya.trt.com.tr/master.m3u8" },
   { id: "france24", name: "France 24 English", country: "Other", category: "tv", url: "https://static.france24.com/live/F24_EN_LO_HLS/live_web.m3u8" },
+  { id: "france24-ar", name: "France 24 Arabic", country: "Other", category: "tv", url: "https://static.france24.com/live/F24_AR_LO_HLS/live_web.m3u8" },
+  { id: "dw-english", name: "DW English", country: "Other", category: "tv", url: "https://dwamdstream102.akamaized.net/hls/live/2015525/dwstream102/index.m3u8" },
+  { id: "cna", name: "CNA Singapore", country: "Other", category: "tv", url: "https://d2e1asnsl7br7b.cloudfront.net/7782e205e72f43aeb4a48ec97f66ebbe/index.m3u8" },
+  { id: "euronews", name: "Euronews English", country: "Other", category: "tv", url: "https://euronews-euronews-english-1-eu.rakuten.wurl.tv/playlist.m3u8" },
+  { id: "abc-au", name: "ABC News (Australia)", country: "Other", category: "tv", url: "https://abc-iview-mediapackagestreams-2.akamaized.net/out/v1/6e1cc6d25ec0480ea099a5399d73bc4b/index.m3u8" },
+  { id: "nhk-world", name: "NHK World Japan", country: "Other", category: "tv", url: "https://nhkwlive-ojp.akamaized.net/hls/live/2003459/nhkwlive-ojp-en/index.m3u8" },
+  { id: "rt-news", name: "RT News", country: "Other", category: "tv", url: "https://rt-glb.rttv.com/live/rtnews/playlist.m3u8" },
 
   // ===== Bangladesh Radio =====
   { id: "betar-dhaka", name: "Bangladesh Betar Dhaka", country: "BD", category: "radio", url: "https://stream.zeno.fm/0vbb1zv4y18uv" },
@@ -54,6 +86,11 @@ const CHANNELS: Channel[] = [
   { id: "radio-today", name: "Radio Today 89.6", country: "BD", category: "radio", url: "https://stream.zeno.fm/cunxa4zbv2zuv" },
   { id: "radio-bhumi", name: "Radio Bhumi 92.8", country: "BD", category: "radio", url: "https://stream.zeno.fm/4srtcsb7468uv" },
   { id: "dhaka-fm", name: "Dhaka FM 90.4", country: "BD", category: "radio", url: "https://stream.zeno.fm/5ywvz9cs3v8uv" },
+  { id: "radio-amar", name: "Radio Amar 88.4", country: "BD", category: "radio", url: "https://stream.zeno.fm/zqyvdg8u8u8uv" },
+  { id: "peoples-radio", name: "Peoples Radio 91.6", country: "BD", category: "radio", url: "https://stream.zeno.fm/y6cwzsbq2k0uv" },
+  { id: "radio-shadhin", name: "Radio Shadhin 92.4", country: "BD", category: "radio", url: "https://stream.zeno.fm/g7e8r3w17fhvv" },
+  { id: "radio-din-raat", name: "Radio Din Raat 102.4", country: "BD", category: "radio", url: "https://stream.zeno.fm/g4ebq9wmfvxtv" },
+  { id: "jago-fm", name: "Jago FM 94.4", country: "BD", category: "radio", url: "https://stream.zeno.fm/x39d2qum9fhvv" },
 
   // ===== India Radio =====
   { id: "air-news", name: "AIR News 24x7", country: "IN", category: "radio", url: "https://airhlspush.pc.cdn.bitgravity.com/httppush/hlsslive/master.m3u8" },
@@ -61,6 +98,8 @@ const CHANNELS: Channel[] = [
   { id: "radio-city", name: "Radio City 91.1", country: "IN", category: "radio", url: "https://prclive4.listenon.in/Hindi" },
   { id: "big-fm", name: "Big FM 92.7", country: "IN", category: "radio", url: "https://stream.zeno.fm/7tutkqfc83zuv" },
   { id: "akashvani-bangla", name: "Akashvani Bangla", country: "IN", category: "radio", url: "https://air.pc.cdn.bitgravity.com/air/live/pbaudio043/playlist.m3u8" },
+  { id: "fever-fm", name: "Fever 104 FM", country: "IN", category: "radio", url: "https://stream.zeno.fm/y5r2hgaczqxvv" },
+  { id: "radio-nasha", name: "Radio Nasha 107.2", country: "IN", category: "radio", url: "https://stream.zeno.fm/0ncgr8tpu98uv" },
 ];
 
 const COUNTRY_ORDER: Channel["country"][] = ["BD", "IN", "Other"];

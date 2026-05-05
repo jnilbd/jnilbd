@@ -323,6 +323,51 @@ export type Database = {
         }
         Relationships: []
       }
+      service_requests: {
+        Row: {
+          budget: string | null
+          created_at: string
+          description: string
+          email: string | null
+          id: string
+          name: string
+          phone: string
+          service_type: string
+          status: string
+          updated_at: string
+          urgent: boolean
+          user_id: string | null
+        }
+        Insert: {
+          budget?: string | null
+          created_at?: string
+          description: string
+          email?: string | null
+          id?: string
+          name: string
+          phone: string
+          service_type: string
+          status?: string
+          updated_at?: string
+          urgent?: boolean
+          user_id?: string | null
+        }
+        Update: {
+          budget?: string | null
+          created_at?: string
+          description?: string
+          email?: string | null
+          id?: string
+          name?: string
+          phone?: string
+          service_type?: string
+          status?: string
+          updated_at?: string
+          urgent?: boolean
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       transactions: {
         Row: {
           amount: number

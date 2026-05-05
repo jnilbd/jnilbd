@@ -18,6 +18,11 @@ export const translations: Translations = {
   "nav.appointment": { bn: "অ্যাপয়েন্টমেন্ট", en: "Appointment" },
   "nav.cart": { bn: "কার্ট", en: "Cart" },
   "nav.finance": { bn: "ফিন্যান্স", en: "Finance" },
+  "nav.thumbnail": { bn: "থাম্বনেইল", en: "Thumbnail" },
+  "nav.voice": { bn: "ভয়েস এডিটর", en: "Voice Editor" },
+  "nav.chat": { bn: "লাইভ চ্যাট", en: "Live Chat" },
+  "nav.namaz": { bn: "নামাজের সময়", en: "Prayer Times" },
+  "nav.quran": { bn: "কুরআন", en: "Al-Quran" },
 
   // Hero
   "hero.greeting": { bn: "হ্যালো, আমি", en: "Hello, I'm" },
@@ -51,6 +56,11 @@ export const translations: Translations = {
   "card.rentals": { bn: "বাসা ভাড়া দিন বা খুঁজুন", en: "Rent or Find Houses" },
   "card.appointment": { bn: "১:১ পরামর্শ ও কনসালটেশন বুক করুন", en: "Book a 1:1 consultation" },
   "card.finance": { bn: "ব্যক্তিগত আয়-ব্যয়, ধার, বাজেট ও AI পরামর্শ", en: "Personal income, expense, debts, budget & AI advice" },
+  "card.thumbnail": { bn: "YouTube/Insta/FB থাম্বনেইল ১ ক্লিকে তৈরি", en: "Create YouTube/Insta/FB thumbnails in 1 click" },
+  "card.voice": { bn: "ভয়েস ইম্প্রুভ, নয়েজ ক্যান্সেল, মিউজিক যোগ", en: "Voice improve, denoise, add music" },
+  "card.chat": { bn: "সব রেজিস্টার্ড ইউজারের সাথে লাইভ আড্ডা", en: "Live chat with all registered users" },
+  "card.namaz": { bn: "লোকেশন অনুযায়ী নামাজের সঠিক সময়", en: "Accurate prayer times by location" },
+  "card.quran": { bn: "৩০ পারা কুরআন — পড়ুন ও শুনুন", en: "30 Para Quran — read & listen" },
 
   // Buttons
   "btn.viewAll": { bn: "সব দেখুন", en: "View All" },

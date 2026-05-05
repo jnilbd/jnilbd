@@ -9,6 +9,11 @@ import { AuthProvider } from "@/hooks/useAuth";
 import Layout from "@/components/layout/Layout";
 import Auth from "./pages/Auth";
 import Finance from "./pages/Finance";
+import ThumbnailEditor from "./pages/ThumbnailEditor";
+import VoiceEditor from "./pages/VoiceEditor";
+import LiveChat from "./pages/LiveChat";
+import NamazTime from "./pages/NamazTime";
+import Quran from "./pages/Quran";
 import Home from "./pages/Home";
 import Shop from "./pages/Shop";
 import ProductDetail from "./pages/ProductDetail";
@@ -55,6 +60,11 @@ const App = () => (
                 <Route path="/policies" element={<Policies />} />
                 <Route path="/auth" element={<Auth />} />
                 <Route path="/finance" element={<Finance />} />
+                <Route path="/thumbnail" element={<ThumbnailEditor />} />
+                <Route path="/voice" element={<VoiceEditor />} />
+                <Route path="/chat" element={<LiveChat />} />
+                <Route path="/namaz" element={<NamazTime />} />
+                <Route path="/quran" element={<Quran />} />
                 <Route path="/cart" element={<Cart />} />
                 <Route path="/checkout" element={<Checkout />} />
                 <Route path="/order-confirmation/:id" element={<OrderConfirmation />} />

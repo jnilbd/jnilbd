@@ -8,7 +8,7 @@ import { useState } from "react";
 import logoMark from "@/assets/logo-mark.png";
 
 const Footer = () => {
-  const { t, language } = useLanguage();
+  const { language } = useLanguage();
   const [email, setEmail] = useState("");
 
   const handleSubscribe = (e: React.FormEvent) => {

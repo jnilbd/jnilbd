@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { Mail, Phone, MapPin, Facebook, Instagram, MessageCircle, Youtube, Linkedin, Send, ShieldCheck, Truck, CreditCard, Headphones } from "lucide-react";
+import { Mail, Phone, MapPin, Facebook, Instagram, MessageCircle, Youtube, Linkedin, Send, Sparkles, BookOpen, CloudRain, HeartPulse, Wifi } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -8,7 +8,7 @@ import { useState } from "react";
 import logoMark from "@/assets/logo-mark.png";
 
 const Footer = () => {
-  const { t, language } = useLanguage();
+  const { language } = useLanguage();
   const [email, setEmail] = useState("");
 
   const handleSubscribe = (e: React.FormEvent) => {
@@ -22,10 +22,10 @@ const Footer = () => {
   };
 
   const trustItems = [
-    { icon: ShieldCheck, label: language === "bn" ? "১০০% সিকিউর পেমেন্ট" : "100% Secure Payment" },
-    { icon: Truck, label: language === "bn" ? "দ্রুত ডেলিভারি" : "Fast Nationwide Delivery" },
-    { icon: CreditCard, label: language === "bn" ? "ক্যাশ অন ডেলিভারি" : "Cash on Delivery" },
-    { icon: Headphones, label: language === "bn" ? "২৪/৭ সাপোর্ট" : "24/7 Customer Support" },
+    { icon: BookOpen, label: language === "bn" ? "১১৪ সূরা — সম্পূর্ণ কুরআন" : "114 Surahs — Full Quran" },
+    { icon: CloudRain, label: language === "bn" ? "লাইভ আবহাওয়া ও অ্যালার্ট" : "Live Weather & Alerts" },
+    { icon: HeartPulse, label: language === "bn" ? "AI স্বাস্থ্য পরামর্শ" : "AI Health Guidance" },
+    { icon: Wifi, label: language === "bn" ? "ফ্রি ইন্টারনেট গাইড" : "Free Internet Guide" },
   ];
 
   return (
@@ -63,8 +63,8 @@ const Footer = () => {
           </Link>
           <p className="text-sm leading-relaxed opacity-75 max-w-md mb-6">
             {language === "bn"
-              ? "ডিজিটাল প্রোডাক্ট, কোর্স, সার্ভিস, ইউজড মার্কেট ও বাসা ভাড়া — বাংলাদেশের জন্য তৈরি একটি প্রিমিয়াম ডিজিটাল ইকোসিস্টেম।"
-              : "Digital products, courses, services, used marketplace & rentals — a premium digital ecosystem crafted for Bangladesh."}
+              ? "কুরআন, নামাজ, আবহাওয়া, স্বাস্থ্য, ফ্রি ইন্টারনেট, ক্যালকুলেটর, AI টুলস — বাংলাদেশের মানুষের দৈনন্দিন প্রয়োজনের ৩০+ স্মার্ট সার্ভিস একটি প্ল্যাটফর্মে।"
+              : "Quran, prayers, weather, health, free internet, calculators, AI tools — 30+ smart services for everyday Bangladeshi life, all in one platform."}
           </p>
           <div className="flex gap-2.5">
             {[
@@ -87,43 +87,42 @@ const Footer = () => {
           </div>
         </div>
 
-        {/* Quick links */}
+        {/* Top Tools — public demand */}
         <div className="md:col-span-2">
-          <h3 className="font-display font-bold text-sm tracking-[0.2em] uppercase text-secondary mb-5">
-            {t("footer.quickLinks")}
+          <h3 className="font-display font-bold text-sm tracking-[0.2em] uppercase text-secondary mb-5 flex items-center gap-1.5">
+            <Sparkles className="w-3.5 h-3.5" /> {language === "bn" ? "জনপ্রিয়" : "Popular"}
           </h3>
           <ul className="space-y-2.5 text-sm">
             {[
-              { to: "/shop", key: "nav.shop" },
-              { to: "/services", key: "nav.services" },
-              { to: "/portfolio", key: "nav.portfolio" },
-              { to: "/blog", key: "nav.blog" },
+              { to: "/quran", label: language === "bn" ? "আল-কুরআন" : "Al-Quran" },
+              { to: "/namaz", label: language === "bn" ? "নামাজের সময়" : "Prayer Times" },
+              { to: "/weather", label: language === "bn" ? "আবহাওয়া" : "Weather" },
+              { to: "/health", label: language === "bn" ? "স্বাস্থ্য" : "Health" },
+              { to: "/free-internet", label: language === "bn" ? "ফ্রি ইন্টারনেট" : "Free Internet" },
             ].map((l) => (
               <li key={l.to}>
-                <Link to={l.to} className="opacity-70 hover:opacity-100 hover:text-secondary transition-smooth">
-                  {t(l.key)}
-                </Link>
+                <Link to={l.to} className="opacity-70 hover:opacity-100 hover:text-secondary transition-smooth">{l.label}</Link>
               </li>
             ))}
           </ul>
         </div>
 
+        {/* Calculators */}
         <div className="md:col-span-2">
           <h3 className="font-display font-bold text-sm tracking-[0.2em] uppercase text-secondary mb-5">
-            {language === "bn" ? "অন্যান্য" : "Discover"}
+            {language === "bn" ? "ক্যালকুলেটর" : "Calculators"}
           </h3>
           <ul className="space-y-2.5 text-sm">
             {[
-              { to: "/marketplace", label: t("nav.marketplace") },
-              { to: "/rentals", label: t("nav.rentals") },
-              { to: "/appointment", label: language === "bn" ? "অ্যাপয়েন্টমেন্ট" : "Appointment" },
-              { to: "/about", label: t("nav.about") },
-              { to: "/policies", label: language === "bn" ? "পলিসি" : "Policies" },
+              { to: "/tax", label: language === "bn" ? "ট্যাক্স" : "Tax" },
+              { to: "/warish", label: language === "bn" ? "ওয়ারিশ" : "Inheritance" },
+              { to: "/profit-loss", label: language === "bn" ? "লাভ/ক্ষতি" : "Profit/Loss" },
+              { to: "/land", label: language === "bn" ? "ভূমি জরিপ" : "Land Survey" },
+              { to: "/solar", label: language === "bn" ? "সোলার" : "Solar" },
+              { to: "/gadget", label: language === "bn" ? "গ্যাজেট অ্যাডভাইজার" : "Gadget Advisor" },
             ].map((l) => (
               <li key={l.to}>
-                <Link to={l.to} className="opacity-70 hover:opacity-100 hover:text-secondary transition-smooth">
-                  {l.label}
-                </Link>
+                <Link to={l.to} className="opacity-70 hover:opacity-100 hover:text-secondary transition-smooth">{l.label}</Link>
               </li>
             ))}
           </ul>

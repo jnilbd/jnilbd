@@ -6,6 +6,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { toast } from "sonner";
 
 type Surah = { number: number; name: string; englishName: string; englishNameTranslation: string; numberOfAyahs: number; revelationType: string };
 type Ayah = { number: number; text: string; numberInSurah: number; juz: number; audio?: string };
@@ -24,8 +25,11 @@ const Quran = () => {
   const [playingAyah, setPlayingAyah] = useState<number | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
+  const readerRef = useRef<HTMLDivElement | null>(null);
+
   useEffect(() => {
-    fetch("https://api.alquran.cloud/v1/surah").then(r=>r.json()).then(j => setSurahs(j.data || []));
+    fetch("https://api.alquran.cloud/v1/surah").then(r=>r.json()).then(j => setSurahs(j.data || []))
+      .catch(()=>toast.error(bn?"সূরা তালিকা লোড হয়নি":"Failed to load surah list"));
   }, []);
 
   useEffect(() => {
@@ -36,9 +40,16 @@ const Quran = () => {
     ]).then(([a, t]) => {
       setArabic(a.data?.ayahs || []);
       setTranslation(t.data?.ayahs || []);
-    }).finally(()=>setLoading(false));
+    }).catch(()=>toast.error(bn?"লোড করতে সমস্যা":"Failed to load surah"))
+      .finally(()=>setLoading(false));
     setPlayingAyah(null);
-    audioRef.current?.pause();
+    if (audioRef.current) { audioRef.current.pause(); }
+    // Scroll reader into view on mobile when selecting a surah
+    setTimeout(() => {
+      if (window.innerWidth < 1024) {
+        readerRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+      }
+    }, 100);
   }, [current, reciter, translator]);
 
   const filtered = useMemo(() => {
@@ -49,25 +60,44 @@ const Quran = () => {
 
   const surahInfo = surahs.find(s => s.number === current);
 
-  const playAyah = (ayah: Ayah) => {
-    if (!ayah.audio) return;
-    if (playingAyah === ayah.numberInSurah) {
-      audioRef.current?.pause();
-      setPlayingAyah(null); return;
+  const ensureAudio = () => {
+    if (!audioRef.current) {
+      const el = new Audio();
+      el.preload = "auto";
+      el.crossOrigin = "anonymous";
+      audioRef.current = el;
     }
-    if (!audioRef.current) audioRef.current = new Audio();
-    audioRef.current.src = ayah.audio;
-    audioRef.current.play();
-    setPlayingAyah(ayah.numberInSurah);
-    audioRef.current.onended = () => {
-      // play next ayah
+    return audioRef.current;
+  };
+
+  const playAyah = (ayah: Ayah) => {
+    const url = ayah.audio;
+    if (!url) { toast.error(bn?"অডিও পাওয়া যায়নি":"No audio available"); return; }
+    const el = ensureAudio();
+    if (playingAyah === ayah.numberInSurah && !el.paused) {
+      el.pause();
+      setPlayingAyah(null);
+      return;
+    }
+    el.src = url;
+    el.onended = () => {
       const next = arabic.find(a => a.numberInSurah === ayah.numberInSurah + 1);
       if (next) playAyah(next); else setPlayingAyah(null);
     };
+    el.onerror = () => { toast.error(bn?"অডিও চালু করা যায়নি":"Audio failed"); setPlayingAyah(null); };
+    const p = el.play();
+    if (p && typeof p.then === "function") {
+      p.then(() => setPlayingAyah(ayah.numberInSurah))
+       .catch((err) => { console.error("Audio play failed", err); toast.error(bn?"প্লে করতে সমস্যা":"Tap again to play"); setPlayingAyah(null); });
+    } else {
+      setPlayingAyah(ayah.numberInSurah);
+    }
   };
   const playFull = () => {
     if (arabic[0]) playAyah(arabic[0]);
   };
+
+  useEffect(() => () => { audioRef.current?.pause(); audioRef.current = null; }, []);
 
   return (
     <div className="container py-6 lg:py-10 max-w-6xl space-y-4">
@@ -106,7 +136,7 @@ const Quran = () => {
         </div>
 
         {/* Reader */}
-        <div className="space-y-3">
+        <div ref={readerRef} className="space-y-3 scroll-mt-20">
           <div className="grid grid-cols-2 gap-2">
             <Select value={reciter} onValueChange={setReciter}>
               <SelectTrigger><SelectValue placeholder={bn?"কারি":"Reciter"} /></SelectTrigger>

@@ -1,5 +1,5 @@
 import { Link, NavLink, useLocation } from "react-router-dom";
-import { Home, Store, ShoppingCart, LayoutGrid, MessageCircle, X, Briefcase, FolderKanban, BookOpen, Tag, Home as HomeIcon, User, CalendarClock, ShieldCheck, Wallet } from "lucide-react";
+import { Home, Store, ShoppingCart, LayoutGrid, MessageCircle, X, Briefcase, FolderKanban, BookOpen, Tag, Home as HomeIcon, User, CalendarClock, ShieldCheck, Wallet, Image as ImageIcon, Mic, Compass } from "lucide-react";
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -19,6 +19,11 @@ const MobileTabBar = () => {
 
   const menuItems = [
     { to: "/finance", icon: Wallet, label: language === "bn" ? "ফিন্যান্স" : "Finance" },
+    { to: "/thumbnail", icon: ImageIcon, label: language === "bn" ? "থাম্বনেইল" : "Thumbnail" },
+    { to: "/voice", icon: Mic, label: language === "bn" ? "ভয়েস" : "Voice" },
+    { to: "/chat", icon: MessageCircle, label: language === "bn" ? "লাইভ চ্যাট" : "Live Chat" },
+    { to: "/namaz", icon: Compass, label: language === "bn" ? "নামাজ" : "Namaz" },
+    { to: "/quran", icon: BookOpen, label: language === "bn" ? "কুরআন" : "Quran" },
     { to: "/services", icon: Briefcase, label: t("nav.services") },
     { to: "/portfolio", icon: FolderKanban, label: t("nav.portfolio") },
     { to: "/blog", icon: BookOpen, label: t("nav.blog") },

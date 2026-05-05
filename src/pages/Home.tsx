@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
-import { ArrowRight, Sparkles, ShoppingBag, Briefcase, FolderKanban, BookOpen, Tag, Home as HomeIcon, Star, Facebook, Instagram, MessageCircle, Youtube, Linkedin, CalendarClock, Wallet } from "lucide-react";
+import { ArrowRight, Sparkles, ShoppingBag, Briefcase, FolderKanban, BookOpen, Tag, Home as HomeIcon, Star, Facebook, Instagram, MessageCircle, Youtube, Linkedin, CalendarClock, Wallet, Image as ImageIcon, Mic, Compass } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Button } from "@/components/ui/button";
 import Marquee from "@/components/Marquee";
@@ -22,6 +22,11 @@ const Home = () => {
     { to: "/rentals", icon: HomeIcon, titleKey: "nav.rentals", descKey: "card.rentals", color: "gradient-bg-cool" },
     { to: "/appointment", icon: CalendarClock, titleKey: "nav.appointment", descKey: "card.appointment", color: "gradient-bg-primary" },
     { to: "/finance", icon: Wallet, titleKey: "nav.finance", descKey: "card.finance", color: "gradient-bg-warm" },
+    { to: "/thumbnail", icon: ImageIcon, titleKey: "nav.thumbnail", descKey: "card.thumbnail", color: "gradient-bg-cool" },
+    { to: "/voice", icon: Mic, titleKey: "nav.voice", descKey: "card.voice", color: "gradient-bg-primary" },
+    { to: "/chat", icon: MessageCircle, titleKey: "nav.chat", descKey: "card.chat", color: "gradient-bg-warm" },
+    { to: "/namaz", icon: Compass, titleKey: "nav.namaz", descKey: "card.namaz", color: "gradient-bg-cool" },
+    { to: "/quran", icon: BookOpen, titleKey: "nav.quran", descKey: "card.quran", color: "gradient-bg-primary" },
   ];
 
   return (

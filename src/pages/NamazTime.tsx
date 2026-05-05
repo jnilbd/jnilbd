@@ -1,10 +1,14 @@
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import { MapPin, Sun, Moon, Sunrise, Sunset, Cloud, Star, Loader2, Compass } from "lucide-react";
+import { MapPin, Sun, Moon, Sunrise, Sunset, Cloud, Star, Loader2, Compass, Bell, BellOff, MessageCircle } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Checkbox } from "@/components/ui/checkbox";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 
 type PrayerTimes = {
   Fajr: string; Sunrise: string; Dhuhr: string; Asr: string; Maghrib: string; Isha: string;

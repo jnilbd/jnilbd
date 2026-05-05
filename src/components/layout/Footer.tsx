@@ -87,43 +87,42 @@ const Footer = () => {
           </div>
         </div>
 
-        {/* Quick links */}
+        {/* Top Tools — public demand */}
         <div className="md:col-span-2">
-          <h3 className="font-display font-bold text-sm tracking-[0.2em] uppercase text-secondary mb-5">
-            {t("footer.quickLinks")}
+          <h3 className="font-display font-bold text-sm tracking-[0.2em] uppercase text-secondary mb-5 flex items-center gap-1.5">
+            <Sparkles className="w-3.5 h-3.5" /> {language === "bn" ? "জনপ্রিয়" : "Popular"}
           </h3>
           <ul className="space-y-2.5 text-sm">
             {[
-              { to: "/shop", key: "nav.shop" },
-              { to: "/services", key: "nav.services" },
-              { to: "/portfolio", key: "nav.portfolio" },
-              { to: "/blog", key: "nav.blog" },
+              { to: "/quran", label: language === "bn" ? "আল-কুরআন" : "Al-Quran" },
+              { to: "/namaz", label: language === "bn" ? "নামাজের সময়" : "Prayer Times" },
+              { to: "/weather", label: language === "bn" ? "আবহাওয়া" : "Weather" },
+              { to: "/health", label: language === "bn" ? "স্বাস্থ্য" : "Health" },
+              { to: "/free-internet", label: language === "bn" ? "ফ্রি ইন্টারনেট" : "Free Internet" },
             ].map((l) => (
               <li key={l.to}>
-                <Link to={l.to} className="opacity-70 hover:opacity-100 hover:text-secondary transition-smooth">
-                  {t(l.key)}
-                </Link>
+                <Link to={l.to} className="opacity-70 hover:opacity-100 hover:text-secondary transition-smooth">{l.label}</Link>
               </li>
             ))}
           </ul>
         </div>
 
+        {/* Calculators */}
         <div className="md:col-span-2">
           <h3 className="font-display font-bold text-sm tracking-[0.2em] uppercase text-secondary mb-5">
-            {language === "bn" ? "অন্যান্য" : "Discover"}
+            {language === "bn" ? "ক্যালকুলেটর" : "Calculators"}
           </h3>
           <ul className="space-y-2.5 text-sm">
             {[
-              { to: "/marketplace", label: t("nav.marketplace") },
-              { to: "/rentals", label: t("nav.rentals") },
-              { to: "/appointment", label: language === "bn" ? "অ্যাপয়েন্টমেন্ট" : "Appointment" },
-              { to: "/about", label: t("nav.about") },
-              { to: "/policies", label: language === "bn" ? "পলিসি" : "Policies" },
+              { to: "/tax", label: language === "bn" ? "ট্যাক্স" : "Tax" },
+              { to: "/warish", label: language === "bn" ? "ওয়ারিশ" : "Inheritance" },
+              { to: "/profit-loss", label: language === "bn" ? "লাভ/ক্ষতি" : "Profit/Loss" },
+              { to: "/land", label: language === "bn" ? "ভূমি জরিপ" : "Land Survey" },
+              { to: "/solar", label: language === "bn" ? "সোলার" : "Solar" },
+              { to: "/gadget", label: language === "bn" ? "গ্যাজেট অ্যাডভাইজার" : "Gadget Advisor" },
             ].map((l) => (
               <li key={l.to}>
-                <Link to={l.to} className="opacity-70 hover:opacity-100 hover:text-secondary transition-smooth">
-                  {l.label}
-                </Link>
+                <Link to={l.to} className="opacity-70 hover:opacity-100 hover:text-secondary transition-smooth">{l.label}</Link>
               </li>
             ))}
           </ul>

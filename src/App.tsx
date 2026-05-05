@@ -5,6 +5,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { LanguageProvider } from "@/contexts/LanguageContext";
 import { CartProvider } from "@/contexts/CartContext";
+import { MenuProvider } from "@/contexts/MenuContext";
 import { AuthProvider } from "@/hooks/useAuth";
 import Layout from "@/components/layout/Layout";
 import Auth from "./pages/Auth";
@@ -54,6 +55,7 @@ const App = () => (
     <LanguageProvider>
       <AuthProvider>
       <CartProvider>
+        <MenuProvider>
         <TooltipProvider>
           <Toaster />
           <Sonner />
@@ -103,6 +105,7 @@ const App = () => (
             </Routes>
           </BrowserRouter>
         </TooltipProvider>
+        </MenuProvider>
       </CartProvider>
       </AuthProvider>
     </LanguageProvider>

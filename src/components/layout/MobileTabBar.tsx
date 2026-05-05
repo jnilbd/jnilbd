@@ -1,14 +1,16 @@
 import { Link, NavLink, useLocation } from "react-router-dom";
-import { Home, Store, ShoppingCart, LayoutGrid, MessageCircle, X, Briefcase, FolderKanban, BookOpen, Tag, Home as HomeIcon, User, CalendarClock, ShieldCheck, Wallet, Image as ImageIcon, Mic, Compass, FileType, Tv, Download, Clock, Map, Ruler, HeartPulse, Sun, Lock, Receipt, Scale, Percent, CloudRain, Smartphone, Wifi } from "lucide-react";
-import { useState } from "react";
+import { Home, Store, ShoppingCart, LayoutGrid, X, CalendarClock } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useCart } from "@/contexts/CartContext";
+import { useMenu } from "@/contexts/MenuContext";
+import { ALL_CATEGORIES } from "@/lib/categories";
 
 const MobileTabBar = () => {
-  const { t, language } = useLanguage();
+  const { language } = useLanguage();
   const { count } = useCart();
-  const [menuOpen, setMenuOpen] = useState(false);
+  const { openMenu, toggleMenu, setOpenMenu } = useMenu();
+  const menuOpen = openMenu === "bottom";
   const location = useLocation();
 
   const tabs = [
@@ -17,42 +19,8 @@ const MobileTabBar = () => {
     { to: "/cart", icon: ShoppingCart, label: language === "bn" ? "কার্ট" : "Cart", badge: count },
   ];
 
-  const menuItems = [
-    // Sensitive / spiritual first
-    { to: "/quran", icon: BookOpen, label: language === "bn" ? "কুরআন" : "Quran" },
-    { to: "/namaz", icon: Compass, label: language === "bn" ? "নামাজ" : "Namaz" },
-    // Daily essentials
-    { to: "/weather", icon: CloudRain, label: language === "bn" ? "আবহাওয়া" : "Weather" },
-    { to: "/free-internet", icon: Wifi, label: language === "bn" ? "ফ্রি ইন্টারনেট" : "Free Internet" },
-    { to: "/health", icon: HeartPulse, label: language === "bn" ? "স্বাস্থ্য" : "Health" },
-    { to: "/finance", icon: Wallet, label: language === "bn" ? "ফিন্যান্স" : "Finance" },
-    { to: "/vault", icon: Lock, label: language === "bn" ? "ভল্ট" : "Vault" },
-    // Calculators
-    { to: "/tax", icon: Receipt, label: language === "bn" ? "ট্যাক্স" : "Tax" },
-    { to: "/warish", icon: Scale, label: language === "bn" ? "ওয়ারিশ" : "Warish" },
-    { to: "/profit-loss", icon: Percent, label: language === "bn" ? "লাভ/ক্ষতি" : "Profit/Loss" },
-    { to: "/land", icon: Map, label: language === "bn" ? "ভূমি জরিপ" : "Land Survey" },
-    { to: "/height", icon: Ruler, label: language === "bn" ? "উচ্চতা" : "Height" },
-    { to: "/solar", icon: Sun, label: language === "bn" ? "সোলার" : "Solar" },
-    { to: "/gadget", icon: Smartphone, label: language === "bn" ? "গ্যাজেট" : "Gadget" },
-    // Tools
-    { to: "/converter", icon: FileType, label: language === "bn" ? "কনভার্টার" : "Converter" },
-    { to: "/downloader", icon: Download, label: language === "bn" ? "ডাউনলোডার" : "Downloader" },
-    { to: "/thumbnail", icon: ImageIcon, label: language === "bn" ? "থাম্বনেইল" : "Thumbnail" },
-    { to: "/voice", icon: Mic, label: language === "bn" ? "ভয়েস" : "Voice" },
-    { to: "/scheduler", icon: Clock, label: language === "bn" ? "শিডিউল মেসেজ" : "Scheduler" },
-    { to: "/livetv", icon: Tv, label: language === "bn" ? "লাইভ টিভি" : "Live TV" },
-    { to: "/chat", icon: MessageCircle, label: language === "bn" ? "লাইভ চ্যাট" : "Live Chat" },
-    // Commerce / community
-    { to: "/services", icon: Briefcase, label: t("nav.services") },
-    { to: "/marketplace", icon: Tag, label: t("nav.marketplace") },
-    { to: "/rentals", icon: HomeIcon, label: t("nav.rentals") },
-    { to: "/appointment", icon: CalendarClock, label: language === "bn" ? "অ্যাপয়েন্টমেন্ট" : "Appointment" },
-    { to: "/portfolio", icon: FolderKanban, label: t("nav.portfolio") },
-    { to: "/blog", icon: BookOpen, label: t("nav.blog") },
-    { to: "/about", icon: User, label: t("nav.about") },
-    { to: "/policies", icon: ShieldCheck, label: language === "bn" ? "পলিসি" : "Policies" },
-  ];
+  const menuItems = ALL_CATEGORIES.filter((c) => c.to !== "/");
+
 
   return (
     <>
@@ -64,7 +32,7 @@ const MobileTabBar = () => {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              onClick={() => setMenuOpen(false)}
+              onClick={() => setOpenMenu(null)}
               className="fixed inset-0 bg-foreground/40 backdrop-blur-sm z-40 lg:hidden"
             />
             <motion.div
@@ -80,7 +48,7 @@ const MobileTabBar = () => {
                     {language === "bn" ? "সব ক্যাটাগরি" : "All Categories"}
                   </span>
                   <button
-                    onClick={() => setMenuOpen(false)}
+                    onClick={() => setOpenMenu(null)}
                     className="w-8 h-8 rounded-full bg-muted flex items-center justify-center"
                     aria-label="Close"
                   >
@@ -92,12 +60,16 @@ const MobileTabBar = () => {
                     <Link
                       key={m.to}
                       to={m.to}
-                      onClick={() => setMenuOpen(false)}
-                      className="flex flex-col items-center justify-center gap-1.5 p-3 rounded-2xl bg-muted/60 hover:bg-primary/10 hover:text-primary transition-smooth"
+                      onClick={() => setOpenMenu(null)}
+                      className={`flex flex-col items-center justify-center gap-1.5 p-3 rounded-2xl transition-smooth ${
+                        m.highlight
+                          ? "gradient-bg-warm text-white shadow-pink"
+                          : "bg-muted/60 hover:bg-primary/10 hover:text-primary"
+                      }`}
                     >
                       <m.icon className="w-6 h-6" />
                       <span className="text-[11px] font-semibold text-center leading-tight">
-                        {m.label}
+                        {language === "bn" ? m.bn : m.en}
                       </span>
                     </Link>
                   ))}
@@ -118,7 +90,7 @@ const MobileTabBar = () => {
                 <NavLink
                   key={tab.to}
                   to={tab.to}
-                  onClick={() => setMenuOpen(false)}
+                  onClick={() => setOpenMenu(null)}
                   className="relative flex flex-col items-center justify-center gap-0.5 h-full"
                 >
                   <div className={`relative flex items-center justify-center w-10 h-10 rounded-2xl transition-smooth ${active ? "gradient-bg-primary text-white shadow-glow" : "text-foreground/65"}`}>
@@ -138,7 +110,7 @@ const MobileTabBar = () => {
 
             {/* Menu */}
             <button
-              onClick={() => setMenuOpen((o) => !o)}
+              onClick={() => toggleMenu("bottom")}
               className="relative flex flex-col items-center justify-center gap-0.5 h-full"
               aria-label="Menu"
             >

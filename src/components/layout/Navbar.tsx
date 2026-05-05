@@ -1,29 +1,36 @@
 import { Link, NavLink } from "react-router-dom";
-import { Menu, X, ShoppingCart, Globe, Phone, Mail, MapPin } from "lucide-react";
+import { Menu, X, ShoppingCart, Globe, Phone, Mail, MapPin, LayoutGrid, CalendarClock } from "lucide-react";
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useCart } from "@/contexts/CartContext";
+import { useMenu } from "@/contexts/MenuContext";
 import { Button } from "@/components/ui/button";
+import { ALL_CATEGORIES } from "@/lib/categories";
 import logoMark from "@/assets/logo-mark.png";
 
 const Navbar = () => {
   const { t, language, toggle } = useLanguage();
   const { count } = useCart();
-  const [open, setOpen] = useState(false);
+  const { openMenu, toggleMenu, setOpenMenu } = useMenu();
+  const [mobileNavOpen, setMobileNavOpen] = useState(false);
 
-  const links = [
+  const isBn = language === "bn";
+  const topOpen = openMenu === "top";
+
+  // Inline primary links (top priority — always visible on lg+)
+  const primary = [
     { to: "/", key: "nav.home" },
     { to: "/quran", key: "nav.quran" },
     { to: "/namaz", key: "nav.namaz" },
     { to: "/weather", key: "nav.weather" },
-    { to: "/health", key: "nav.health" },
     { to: "/free-internet", key: "nav.freeNet" },
-    { to: "/finance", key: "nav.finance" },
+    { to: "/health", key: "nav.health" },
     { to: "/shop", key: "nav.shop" },
-    { to: "/services", key: "nav.services" },
-    { to: "/about", key: "nav.about" },
   ];
+
+  // Categories panel = all categories (priority order, Appointment last/highlighted)
+  const categories = ALL_CATEGORIES;
 
   return (
     <header className="sticky top-0 z-50 w-full">
@@ -43,7 +50,7 @@ const Navbar = () => {
           </div>
           <div className="flex items-center gap-4 opacity-90">
             <span className="hidden lg:inline tracking-[0.2em] uppercase text-[10px] text-secondary font-semibold">
-              {language === "bn" ? "৩০+ স্মার্ট টুল • কুরআন • আবহাওয়া • স্বাস্থ্য • ক্যালকুলেটর" : "30+ Smart Tools • Quran • Weather • Health • Calculators"}
+              {isBn ? "৩০+ স্মার্ট টুল • কুরআন • আবহাওয়া • স্বাস্থ্য • ক্যালকুলেটর" : "30+ Smart Tools • Quran • Weather • Health • Calculators"}
             </span>
             <span className="text-[10px] tracking-wider uppercase opacity-70">EST. 2018</span>
           </div>
@@ -53,7 +60,7 @@ const Navbar = () => {
       {/* Main nav */}
       <div className="backdrop-blur-xl bg-background/80 border-b border-border/60 supports-[backdrop-filter]:bg-background/60">
         <div className="container flex h-[72px] items-center justify-between gap-4">
-          <Link to="/" className="flex items-center gap-3 group shrink-0">
+          <Link to="/" className="flex items-center gap-3 group shrink-0" onClick={() => setOpenMenu(null)}>
             <div className="relative">
               <img
                 src={logoMark}
@@ -68,22 +75,21 @@ const Navbar = () => {
                 JohnNil<span className="text-secondary">.</span>
               </span>
               <span className="text-[9.5px] tracking-[0.32em] uppercase text-muted-foreground font-semibold mt-1">
-                {language === "bn" ? "ক্রাফটেড ইন ঢাকা" : "Crafted in Dhaka"}
+                {isBn ? "ক্রাফটেড ইন ঢাকা" : "Crafted in Dhaka"}
               </span>
             </div>
           </Link>
 
           <nav className="hidden lg:flex items-center gap-0.5">
-            {links.map((l) => (
+            {primary.map((l) => (
               <NavLink
                 key={l.to}
                 to={l.to}
                 end={l.to === "/"}
+                onClick={() => setOpenMenu(null)}
                 className={({ isActive }) =>
                   `relative px-3 py-2 rounded-md text-[13px] font-medium tracking-wide transition-smooth ${
-                    isActive
-                      ? "text-foreground"
-                      : "text-foreground/65 hover:text-foreground"
+                    isActive ? "text-foreground" : "text-foreground/65 hover:text-foreground"
                   } group`
                 }
               >
@@ -99,6 +105,28 @@ const Navbar = () => {
                 )}
               </NavLink>
             ))}
+
+            {/* Categories trigger */}
+            <button
+              onClick={() => toggleMenu("top")}
+              className={`flex items-center gap-1.5 px-3 py-2 rounded-md text-[13px] font-semibold tracking-wide transition-smooth ${
+                topOpen ? "bg-primary/10 text-primary" : "text-foreground/65 hover:text-foreground"
+              }`}
+              aria-expanded={topOpen}
+            >
+              <LayoutGrid className="w-4 h-4" />
+              {isBn ? "সব ক্যাটাগরি" : "All Categories"}
+            </button>
+
+            {/* Highlighted Appointment CTA — last */}
+            <Link
+              to="/appointment"
+              onClick={() => setOpenMenu(null)}
+              className="ml-2 flex items-center gap-1.5 px-3.5 py-2 rounded-full text-[12px] font-bold gradient-bg-warm text-white shadow-pink hover:scale-105 transition-bounce"
+            >
+              <CalendarClock className="w-3.5 h-3.5" />
+              {isBn ? "বুক অ্যাপয়েন্টমেন্ট" : "Book Appointment"}
+            </Link>
           </nav>
 
           <div className="flex items-center gap-1.5">
@@ -117,7 +145,7 @@ const Navbar = () => {
               </span>
             </button>
 
-            <Link to="/cart" className="relative">
+            <Link to="/cart" className="relative" onClick={() => setOpenMenu(null)}>
               <Button variant="ghost" size="icon" className="rounded-full">
                 <ShoppingCart className="w-[18px] h-[18px]" />
                 {count > 0 && (
@@ -132,17 +160,76 @@ const Navbar = () => {
               variant="ghost"
               size="icon"
               className="lg:hidden rounded-full"
-              onClick={() => setOpen(!open)}
+              onClick={() => {
+                setOpenMenu(null);
+                setMobileNavOpen((o) => !o);
+              }}
               aria-label="Menu"
             >
-              {open ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+              {mobileNavOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
             </Button>
           </div>
         </div>
       </div>
 
+      {/* Desktop Categories dropdown panel */}
       <AnimatePresence>
-        {open && (
+        {topOpen && (
+          <>
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setOpenMenu(null)}
+              className="fixed inset-0 bg-foreground/30 backdrop-blur-sm z-40 hidden lg:block"
+            />
+            <motion.div
+              initial={{ y: -10, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              exit={{ y: -10, opacity: 0 }}
+              className="hidden lg:block absolute left-0 right-0 z-50 border-b border-border/60 bg-background/98 backdrop-blur-xl shadow-elegant"
+            >
+              <div className="container py-6">
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="font-display font-bold text-lg">
+                    {isBn ? "সব ক্যাটাগরি" : "All Categories"}
+                  </h3>
+                  <button
+                    onClick={() => setOpenMenu(null)}
+                    className="w-8 h-8 rounded-full bg-muted hover:bg-muted/70 flex items-center justify-center"
+                    aria-label="Close"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                </div>
+                <div className="grid grid-cols-4 xl:grid-cols-6 gap-2">
+                  {categories.map((c) => (
+                    <Link
+                      key={c.to}
+                      to={c.to}
+                      onClick={() => setOpenMenu(null)}
+                      className={`flex flex-col items-center justify-center gap-2 p-3 rounded-2xl border transition-smooth ${
+                        c.highlight
+                          ? "gradient-bg-warm text-white border-transparent shadow-pink hover:scale-[1.03]"
+                          : "bg-muted/40 border-border/40 hover:bg-primary/10 hover:text-primary hover:border-primary/30"
+                      }`}
+                    >
+                      <c.icon className="w-6 h-6" />
+                      <span className="text-[12px] font-semibold text-center leading-tight">
+                        {isBn ? c.bn : c.en}
+                      </span>
+                    </Link>
+                  ))}
+                </div>
+              </div>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
+
+      {/* Mobile small primary nav (hamburger) */}
+      <AnimatePresence>
+        {mobileNavOpen && (
           <motion.div
             initial={{ height: 0, opacity: 0 }}
             animate={{ height: "auto", opacity: 1 }}
@@ -150,12 +237,12 @@ const Navbar = () => {
             className="lg:hidden overflow-hidden border-b border-border/60 bg-background/98 backdrop-blur-xl"
           >
             <nav className="container py-4 flex flex-col gap-0.5">
-              {links.map((l) => (
+              {primary.map((l) => (
                 <NavLink
                   key={l.to}
                   to={l.to}
                   end={l.to === "/"}
-                  onClick={() => setOpen(false)}
+                  onClick={() => setMobileNavOpen(false)}
                   className={({ isActive }) =>
                     `px-4 py-3 rounded-lg font-medium transition-smooth border-l-2 ${
                       isActive
@@ -167,6 +254,13 @@ const Navbar = () => {
                   {t(l.key)}
                 </NavLink>
               ))}
+              <Link
+                to="/appointment"
+                onClick={() => setMobileNavOpen(false)}
+                className="mt-2 px-4 py-3 rounded-lg font-bold gradient-bg-warm text-white text-center shadow-pink"
+              >
+                {isBn ? "বুক অ্যাপয়েন্টমেন্ট" : "Book Appointment"}
+              </Link>
               <div className="mt-3 pt-3 border-t border-border/50 flex flex-col gap-2 text-xs text-muted-foreground px-2">
                 <a href="tel:01774585757" className="flex items-center gap-2"><Phone className="w-3.5 h-3.5 text-secondary" /> +880 1774-585757</a>
                 <a href="mailto:jnilbd@gmail.com" className="flex items-center gap-2"><Mail className="w-3.5 h-3.5 text-secondary" /> jnilbd@gmail.com</a>

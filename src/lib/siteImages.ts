@@ -1,3 +1,5 @@
+import type { SyntheticEvent } from "react";
+
 const PALETTES = [
   ["hsl(220 18% 14%)", "hsl(38 55% 52%)", "hsl(40 30% 97%)"],
   ["hsl(175 40% 32%)", "hsl(30 55% 60%)", "hsl(30 15% 95%)"],
@@ -43,7 +45,7 @@ export const displayImage = (source: string | undefined, id: string, label: stri
 };
 
 export const fallbackImageHandler = (id: string, label: string, eyebrow?: string) =>
-  (event: React.SyntheticEvent<HTMLImageElement>) => {
+  (event: SyntheticEvent<HTMLImageElement>) => {
     const fallback = visualImage(id, label, eyebrow);
     if (event.currentTarget.src !== fallback) event.currentTarget.src = fallback;
   };

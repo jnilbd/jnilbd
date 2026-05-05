@@ -278,6 +278,51 @@ export type Database = {
         }
         Relationships: []
       }
+      scheduled_messages: {
+        Row: {
+          channel: string
+          created_at: string
+          error: string | null
+          id: string
+          message: string
+          recipient_name: string
+          recipient_phone: string
+          send_at: string
+          sent_at: string | null
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          channel?: string
+          created_at?: string
+          error?: string | null
+          id?: string
+          message: string
+          recipient_name: string
+          recipient_phone: string
+          send_at: string
+          sent_at?: string | null
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          channel?: string
+          created_at?: string
+          error?: string | null
+          id?: string
+          message?: string
+          recipient_name?: string
+          recipient_phone?: string
+          send_at?: string
+          sent_at?: string | null
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       transactions: {
         Row: {
           amount: number

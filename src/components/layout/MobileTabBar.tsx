@@ -1,5 +1,5 @@
 import { Link, NavLink, useLocation } from "react-router-dom";
-import { Home, Store, ShoppingCart, LayoutGrid, MessageCircle, X, Briefcase, FolderKanban, BookOpen, Tag, Home as HomeIcon, User, CalendarClock, ShieldCheck, Wallet, Image as ImageIcon, Mic, Compass, FileType, Tv, Download, Clock, Map, Ruler, HeartPulse, Sun, Lock } from "lucide-react";
+import { Home, Store, ShoppingCart, LayoutGrid, MessageCircle, X, Briefcase, FolderKanban, BookOpen, Tag, Home as HomeIcon, User, CalendarClock, ShieldCheck, Wallet, Image as ImageIcon, Mic, Compass, FileType, Tv, Download, Clock, Map, Ruler, HeartPulse, Sun, Lock, Receipt, Scale, Percent } from "lucide-react";
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -33,6 +33,9 @@ const MobileTabBar = () => {
     { to: "/health", icon: HeartPulse, label: language === "bn" ? "স্বাস্থ্য" : "Health" },
     { to: "/solar", icon: Sun, label: language === "bn" ? "সোলার" : "Solar" },
     { to: "/vault", icon: Lock, label: language === "bn" ? "ভল্ট" : "Vault" },
+    { to: "/tax", icon: Receipt, label: language === "bn" ? "ট্যাক্স" : "Tax" },
+    { to: "/warish", icon: Scale, label: language === "bn" ? "ওয়ারিশ" : "Warish" },
+    { to: "/profit-loss", icon: Percent, label: language === "bn" ? "লাভ/ক্ষতি" : "Profit/Loss" },
     { to: "/services", icon: Briefcase, label: t("nav.services") },
     { to: "/portfolio", icon: FolderKanban, label: t("nav.portfolio") },
     { to: "/blog", icon: BookOpen, label: t("nav.blog") },

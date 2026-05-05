@@ -32,6 +32,9 @@ export const translations: Translations = {
   "nav.health": { bn: "স্বাস্থ্য গাইড", en: "Health Guide" },
   "nav.solar": { bn: "সোলার ক্যালক", en: "Solar Calc" },
   "nav.vault": { bn: "ভল্ট", en: "Vault" },
+  "nav.tax": { bn: "ট্যাক্স ক্যালক", en: "Tax Calc" },
+  "nav.warish": { bn: "ওয়ারিশ", en: "Inheritance" },
+  "nav.profitLoss": { bn: "লাভ/ক্ষতি", en: "Profit/Loss" },
 
   // Hero
   "hero.greeting": { bn: "হ্যালো, আমি", en: "Hello, I'm" },
@@ -79,6 +82,9 @@ export const translations: Translations = {
   "card.health": { bn: "AI স্বাস্থ্য পরামর্শ, রুটিন, অসুখ গাইড", en: "AI health advice, routine, ailment guide" },
   "card.solar": { bn: "সোলার প্যানেল, ব্যাটারি, ইনভার্টার সাইজিং", en: "Solar panel, battery, inverter sizing" },
   "card.vault": { bn: "WiFi, ব্যাংক, পাসওয়ার্ড — এন্ড-টু-এন্ড এন্ক্রিপ্টেড", en: "WiFi, bank, passwords — end-to-end encrypted" },
+  "card.tax": { bn: "বাংলাদেশের ইনকাম ট্যাক্স — FY 2024-25", en: "Bangladesh income tax — FY 2024-25" },
+  "card.warish": { bn: "ইসলামি উত্তরাধিকার বণ্টন (ফারাইজ)", en: "Islamic inheritance distribution" },
+  "card.profitLoss": { bn: "লাভ, ক্ষতি, মার্জিন, ডিসকাউন্ট, % পরিবর্তন", en: "Profit, loss, margin, discount, % change" },
 
   // Buttons
   "btn.viewAll": { bn: "সব দেখুন", en: "View All" },

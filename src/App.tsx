@@ -23,6 +23,9 @@ import HeightCalc from "./pages/HeightCalc";
 import HealthGuide from "./pages/HealthGuide";
 import SolarCalc from "./pages/SolarCalc";
 import Vault from "./pages/Vault";
+import TaxCalc from "./pages/TaxCalc";
+import Warish from "./pages/Warish";
+import ProfitLoss from "./pages/ProfitLoss";
 import Home from "./pages/Home";
 import Shop from "./pages/Shop";
 import ProductDetail from "./pages/ProductDetail";
@@ -83,6 +86,9 @@ const App = () => (
                 <Route path="/health" element={<HealthGuide />} />
                 <Route path="/solar" element={<SolarCalc />} />
                 <Route path="/vault" element={<Vault />} />
+                <Route path="/tax" element={<TaxCalc />} />
+                <Route path="/warish" element={<Warish />} />
+                <Route path="/profit-loss" element={<ProfitLoss />} />
                 <Route path="/cart" element={<Cart />} />
                 <Route path="/checkout" element={<Checkout />} />
                 <Route path="/order-confirmation/:id" element={<OrderConfirmation />} />

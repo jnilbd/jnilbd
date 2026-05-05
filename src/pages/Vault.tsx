@@ -30,12 +30,12 @@ const CATEGORIES = [
 ];
 
 // Derive AES-GCM key from passphrase using PBKDF2
-async function deriveKey(passphrase: string, salt: Uint8Array): Promise<CryptoKey> {
+async function deriveKey(passphrase: string, salt: BufferSource): Promise<CryptoKey> {
   const baseKey = await crypto.subtle.importKey(
     "raw", new TextEncoder().encode(passphrase), "PBKDF2", false, ["deriveKey"]
   );
   return crypto.subtle.deriveKey(
-    { name: "PBKDF2", salt, iterations: 100_000, hash: "SHA-256" },
+    { name: "PBKDF2", salt, iterations: 100_000, hash: "SHA-256" } as Pbkdf2Params,
     baseKey,
     { name: "AES-GCM", length: 256 },
     false,

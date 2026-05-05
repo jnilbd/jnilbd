@@ -18,6 +18,11 @@ import Converter from "./pages/Converter";
 import LiveTV from "./pages/LiveTV";
 import Downloader from "./pages/Downloader";
 import Scheduler from "./pages/Scheduler";
+import LandSurvey from "./pages/LandSurvey";
+import HeightCalc from "./pages/HeightCalc";
+import HealthGuide from "./pages/HealthGuide";
+import SolarCalc from "./pages/SolarCalc";
+import Vault from "./pages/Vault";
 import Home from "./pages/Home";
 import Shop from "./pages/Shop";
 import ProductDetail from "./pages/ProductDetail";
@@ -73,6 +78,11 @@ const App = () => (
                 <Route path="/livetv" element={<LiveTV />} />
                 <Route path="/downloader" element={<Downloader />} />
                 <Route path="/scheduler" element={<Scheduler />} />
+                <Route path="/land" element={<LandSurvey />} />
+                <Route path="/height" element={<HeightCalc />} />
+                <Route path="/health" element={<HealthGuide />} />
+                <Route path="/solar" element={<SolarCalc />} />
+                <Route path="/vault" element={<Vault />} />
                 <Route path="/cart" element={<Cart />} />
                 <Route path="/checkout" element={<Checkout />} />
                 <Route path="/order-confirmation/:id" element={<OrderConfirmation />} />

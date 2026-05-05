@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
-import { ArrowRight, Sparkles, ShoppingBag, Briefcase, FolderKanban, BookOpen, Tag, Home as HomeIcon, Star, Facebook, Instagram, MessageCircle, Youtube, Linkedin, CalendarClock, Wallet, Image as ImageIcon, Mic, Compass, FileType, Tv, Download, Clock } from "lucide-react";
+import { ArrowRight, Sparkles, ShoppingBag, Briefcase, FolderKanban, BookOpen, Tag, Home as HomeIcon, Star, Facebook, Instagram, MessageCircle, Youtube, Linkedin, CalendarClock, Wallet, Image as ImageIcon, Mic, Compass, FileType, Tv, Download, Clock, Map, Ruler, HeartPulse, Sun, Lock } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Button } from "@/components/ui/button";
 import Marquee from "@/components/Marquee";
@@ -31,6 +31,11 @@ const Home = () => {
     { to: "/livetv", icon: Tv, titleKey: "nav.livetv", descKey: "card.livetv", color: "gradient-bg-cool" },
     { to: "/downloader", icon: Download, titleKey: "nav.downloader", descKey: "card.downloader", color: "gradient-bg-primary" },
     { to: "/scheduler", icon: Clock, titleKey: "nav.scheduler", descKey: "card.scheduler", color: "gradient-bg-warm" },
+    { to: "/land", icon: Map, titleKey: "nav.land", descKey: "card.land", color: "gradient-bg-cool" },
+    { to: "/height", icon: Ruler, titleKey: "nav.height", descKey: "card.height", color: "gradient-bg-primary" },
+    { to: "/health", icon: HeartPulse, titleKey: "nav.health", descKey: "card.health", color: "gradient-bg-warm" },
+    { to: "/solar", icon: Sun, titleKey: "nav.solar", descKey: "card.solar", color: "gradient-bg-cool" },
+    { to: "/vault", icon: Lock, titleKey: "nav.vault", descKey: "card.vault", color: "gradient-bg-primary" },
   ];
 
   return (

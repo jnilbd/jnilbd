@@ -27,6 +27,11 @@ export const translations: Translations = {
   "nav.livetv": { bn: "লাইভ টিভি/রেডিও", en: "Live TV/Radio" },
   "nav.downloader": { bn: "ভিডিও ডাউনলোডার", en: "Downloader" },
   "nav.scheduler": { bn: "শিডিউলড মেসেজ", en: "Scheduled SMS" },
+  "nav.land": { bn: "ভূমি জরিপ", en: "Land Survey" },
+  "nav.height": { bn: "উচ্চতা ক্যালক", en: "Height Calc" },
+  "nav.health": { bn: "স্বাস্থ্য গাইড", en: "Health Guide" },
+  "nav.solar": { bn: "সোলার ক্যালক", en: "Solar Calc" },
+  "nav.vault": { bn: "ভল্ট", en: "Vault" },
 
   // Hero
   "hero.greeting": { bn: "হ্যালো, আমি", en: "Hello, I'm" },
@@ -69,6 +74,11 @@ export const translations: Translations = {
   "card.livetv": { bn: "BD ও ইন্ডিয়ান টিভি/রেডিও সরাসরি", en: "BD & Indian TV/Radio live" },
   "card.downloader": { bn: "YouTube/TikTok/Insta/FB ভিডিও/MP3 ডাউনলোড", en: "YouTube/TikTok/Insta/FB video/MP3 downloader" },
   "card.scheduler": { bn: "নির্দিষ্ট সময়ে WhatsApp/SMS উইশ পাঠান", en: "Send WhatsApp/SMS at the perfect time" },
+  "card.land": { bn: "খতিয়ান, নামজারি, কর, কনভার্টার", en: "Khatian, Mutation, Tax, Converter" },
+  "card.height": { bn: "BMI, আদর্শ ওজন, BMR — সব এক জায়গায়", en: "BMI, Ideal Weight, BMR — all-in-one" },
+  "card.health": { bn: "AI স্বাস্থ্য পরামর্শ, রুটিন, অসুখ গাইড", en: "AI health advice, routine, ailment guide" },
+  "card.solar": { bn: "সোলার প্যানেল, ব্যাটারি, ইনভার্টার সাইজিং", en: "Solar panel, battery, inverter sizing" },
+  "card.vault": { bn: "WiFi, ব্যাংক, পাসওয়ার্ড — এন্ড-টু-এন্ড এন্ক্রিপ্টেড", en: "WiFi, bank, passwords — end-to-end encrypted" },
 
   // Buttons
   "btn.viewAll": { bn: "সব দেখুন", en: "View All" },

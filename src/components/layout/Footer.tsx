@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { Mail, Phone, MapPin, Facebook, Instagram, MessageCircle, Youtube, Linkedin, Send, ShieldCheck, Truck, CreditCard, Headphones } from "lucide-react";
+import { Mail, Phone, MapPin, Facebook, Instagram, MessageCircle, Youtube, Linkedin, Send, Sparkles, BookOpen, CloudRain, HeartPulse, Wifi } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";

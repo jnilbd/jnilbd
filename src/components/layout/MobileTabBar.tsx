@@ -64,10 +64,10 @@ const MobileTabBar = () => {
               animate={{ y: 0 }}
               exit={{ y: "100%" }}
               transition={{ type: "spring", damping: 28, stiffness: 280 }}
-              className="fixed bottom-[68px] left-0 right-0 z-50 lg:hidden"
+              className="fixed bottom-[68px] left-0 right-0 z-50 lg:hidden max-h-[70vh] flex flex-col"
             >
-              <div className="mx-3 mb-2 rounded-3xl bg-card/95 backdrop-blur-xl border border-border/60 shadow-elegant overflow-hidden">
-                <div className="flex items-center justify-between px-5 py-3 border-b border-border/50">
+              <div className="mx-3 mb-2 rounded-3xl bg-card/95 backdrop-blur-xl border border-border/60 shadow-elegant overflow-hidden flex flex-col max-h-[70vh]">
+                <div className="flex items-center justify-between px-5 py-3 border-b border-border/50 shrink-0">
                   <span className="font-display font-bold text-base">
                     {language === "bn" ? "সব ক্যাটাগরি" : "All Categories"}
                   </span>
@@ -79,7 +79,7 @@ const MobileTabBar = () => {
                     <X className="w-4 h-4" />
                   </button>
                 </div>
-                <div className="grid grid-cols-3 gap-2 p-4">
+                <div className="grid grid-cols-3 gap-2 p-4 overflow-y-auto overscroll-contain flex-1" style={{ WebkitOverflowScrolling: "touch" }}>
                   {menuItems.map((m) => (
                     <Link
                       key={m.to}
@@ -110,6 +110,7 @@ const MobileTabBar = () => {
                 <NavLink
                   key={tab.to}
                   to={tab.to}
+                  onClick={() => setMenuOpen(false)}
                   className="relative flex flex-col items-center justify-center gap-0.5 h-full"
                 >
                   <div className={`relative flex items-center justify-center w-10 h-10 rounded-2xl transition-smooth ${active ? "gradient-bg-primary text-white shadow-glow" : "text-foreground/65"}`}>

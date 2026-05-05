@@ -14,33 +14,38 @@ const Home = () => {
   const featuredServices = services.slice(0, 3);
 
   const sectionCards = [
-    { to: "/shop", icon: ShoppingBag, titleKey: "nav.shop", descKey: "card.shop", color: "gradient-bg-primary" },
-    { to: "/services", icon: Briefcase, titleKey: "nav.services", descKey: "card.services", color: "gradient-bg-warm" },
-    { to: "/portfolio", icon: FolderKanban, titleKey: "nav.portfolio", descKey: "card.portfolio", color: "gradient-bg-cool" },
-    { to: "/blog", icon: BookOpen, titleKey: "nav.blog", descKey: "card.blog", color: "gradient-bg-primary" },
-    { to: "/marketplace", icon: Tag, titleKey: "nav.marketplace", descKey: "card.marketplace", color: "gradient-bg-warm" },
-    { to: "/rentals", icon: HomeIcon, titleKey: "nav.rentals", descKey: "card.rentals", color: "gradient-bg-cool" },
-    { to: "/appointment", icon: CalendarClock, titleKey: "nav.appointment", descKey: "card.appointment", color: "gradient-bg-primary" },
-    { to: "/finance", icon: Wallet, titleKey: "nav.finance", descKey: "card.finance", color: "gradient-bg-warm" },
-    { to: "/thumbnail", icon: ImageIcon, titleKey: "nav.thumbnail", descKey: "card.thumbnail", color: "gradient-bg-cool" },
-    { to: "/voice", icon: Mic, titleKey: "nav.voice", descKey: "card.voice", color: "gradient-bg-primary" },
-    { to: "/chat", icon: MessageCircle, titleKey: "nav.chat", descKey: "card.chat", color: "gradient-bg-warm" },
-    { to: "/namaz", icon: Compass, titleKey: "nav.namaz", descKey: "card.namaz", color: "gradient-bg-cool" },
+    // Sensitive / spiritual first
     { to: "/quran", icon: BookOpen, titleKey: "nav.quran", descKey: "card.quran", color: "gradient-bg-primary" },
-    { to: "/converter", icon: FileType, titleKey: "nav.converter", descKey: "card.converter", color: "gradient-bg-warm" },
-    { to: "/livetv", icon: Tv, titleKey: "nav.livetv", descKey: "card.livetv", color: "gradient-bg-cool" },
-    { to: "/downloader", icon: Download, titleKey: "nav.downloader", descKey: "card.downloader", color: "gradient-bg-primary" },
-    { to: "/scheduler", icon: Clock, titleKey: "nav.scheduler", descKey: "card.scheduler", color: "gradient-bg-warm" },
-    { to: "/land", icon: Map, titleKey: "nav.land", descKey: "card.land", color: "gradient-bg-cool" },
-    { to: "/height", icon: Ruler, titleKey: "nav.height", descKey: "card.height", color: "gradient-bg-primary" },
-    { to: "/health", icon: HeartPulse, titleKey: "nav.health", descKey: "card.health", color: "gradient-bg-warm" },
-    { to: "/solar", icon: Sun, titleKey: "nav.solar", descKey: "card.solar", color: "gradient-bg-cool" },
-    { to: "/vault", icon: Lock, titleKey: "nav.vault", descKey: "card.vault", color: "gradient-bg-primary" },
-    { to: "/tax", icon: Receipt, titleKey: "nav.tax", descKey: "card.tax", color: "gradient-bg-warm" },
-    { to: "/warish", icon: Scale, titleKey: "nav.warish", descKey: "card.warish", color: "gradient-bg-cool" },
-    { to: "/profit-loss", icon: Percent, titleKey: "nav.profitLoss", descKey: "card.profitLoss", color: "gradient-bg-primary" },
+    { to: "/namaz", icon: Compass, titleKey: "nav.namaz", descKey: "card.namaz", color: "gradient-bg-cool" },
+    // Daily-life essentials
     { to: "/weather", icon: CloudRain, titleKey: "nav.weather", descKey: "card.weather", color: "gradient-bg-warm" },
-    { to: "/gadget", icon: Smartphone, titleKey: "nav.gadget", descKey: "card.gadget", color: "gradient-bg-cool" },
+    { to: "/health", icon: HeartPulse, titleKey: "nav.health", descKey: "card.health", color: "gradient-bg-primary" },
+    { to: "/finance", icon: Wallet, titleKey: "nav.finance", descKey: "card.finance", color: "gradient-bg-cool" },
+    { to: "/vault", icon: Lock, titleKey: "nav.vault", descKey: "card.vault", color: "gradient-bg-warm" },
+    // Calculators
+    { to: "/tax", icon: Receipt, titleKey: "nav.tax", descKey: "card.tax", color: "gradient-bg-primary" },
+    { to: "/warish", icon: Scale, titleKey: "nav.warish", descKey: "card.warish", color: "gradient-bg-cool" },
+    { to: "/profit-loss", icon: Percent, titleKey: "nav.profitLoss", descKey: "card.profitLoss", color: "gradient-bg-warm" },
+    { to: "/land", icon: Map, titleKey: "nav.land", descKey: "card.land", color: "gradient-bg-primary" },
+    { to: "/height", icon: Ruler, titleKey: "nav.height", descKey: "card.height", color: "gradient-bg-cool" },
+    { to: "/solar", icon: Sun, titleKey: "nav.solar", descKey: "card.solar", color: "gradient-bg-warm" },
+    { to: "/gadget", icon: Smartphone, titleKey: "nav.gadget", descKey: "card.gadget", color: "gradient-bg-primary" },
+    // Tools
+    { to: "/converter", icon: FileType, titleKey: "nav.converter", descKey: "card.converter", color: "gradient-bg-cool" },
+    { to: "/downloader", icon: Download, titleKey: "nav.downloader", descKey: "card.downloader", color: "gradient-bg-warm" },
+    { to: "/thumbnail", icon: ImageIcon, titleKey: "nav.thumbnail", descKey: "card.thumbnail", color: "gradient-bg-primary" },
+    { to: "/voice", icon: Mic, titleKey: "nav.voice", descKey: "card.voice", color: "gradient-bg-cool" },
+    { to: "/scheduler", icon: Clock, titleKey: "nav.scheduler", descKey: "card.scheduler", color: "gradient-bg-warm" },
+    { to: "/livetv", icon: Tv, titleKey: "nav.livetv", descKey: "card.livetv", color: "gradient-bg-primary" },
+    { to: "/chat", icon: MessageCircle, titleKey: "nav.chat", descKey: "card.chat", color: "gradient-bg-cool" },
+    // Commerce / community
+    { to: "/shop", icon: ShoppingBag, titleKey: "nav.shop", descKey: "card.shop", color: "gradient-bg-warm" },
+    { to: "/services", icon: Briefcase, titleKey: "nav.services", descKey: "card.services", color: "gradient-bg-primary" },
+    { to: "/marketplace", icon: Tag, titleKey: "nav.marketplace", descKey: "card.marketplace", color: "gradient-bg-cool" },
+    { to: "/rentals", icon: HomeIcon, titleKey: "nav.rentals", descKey: "card.rentals", color: "gradient-bg-warm" },
+    { to: "/appointment", icon: CalendarClock, titleKey: "nav.appointment", descKey: "card.appointment", color: "gradient-bg-primary" },
+    { to: "/portfolio", icon: FolderKanban, titleKey: "nav.portfolio", descKey: "card.portfolio", color: "gradient-bg-cool" },
+    { to: "/blog", icon: BookOpen, titleKey: "nav.blog", descKey: "card.blog", color: "gradient-bg-warm" },
   ];
 
   return (

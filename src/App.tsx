@@ -30,6 +30,8 @@ import ProfitLoss from "./pages/ProfitLoss";
 import Weather from "./pages/Weather";
 import GadgetAdvisor from "./pages/GadgetAdvisor";
 import FreeInternet from "./pages/FreeInternet";
+import ServiceRequest from "./pages/ServiceRequest";
+import Movies from "./pages/Movies";
 import Home from "./pages/Home";
 import Shop from "./pages/Shop";
 import ProductDetail from "./pages/ProductDetail";
@@ -97,6 +99,8 @@ const App = () => (
                 <Route path="/weather" element={<Weather />} />
                 <Route path="/gadget" element={<GadgetAdvisor />} />
                 <Route path="/free-internet" element={<FreeInternet />} />
+                <Route path="/request-service" element={<ServiceRequest />} />
+                <Route path="/movies" element={<Movies />} />
                 <Route path="/cart" element={<Cart />} />
                 <Route path="/checkout" element={<Checkout />} />
                 <Route path="/order-confirmation/:id" element={<OrderConfirmation />} />

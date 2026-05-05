@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
-import { ArrowRight, Sparkles, ShoppingBag, Briefcase, FolderKanban, BookOpen, Tag, Home as HomeIcon, Star, Facebook, Instagram, MessageCircle, Youtube, Linkedin, CalendarClock, Wallet, Image as ImageIcon, Mic, Compass } from "lucide-react";
+import { ArrowRight, Sparkles, ShoppingBag, Briefcase, FolderKanban, BookOpen, Tag, Home as HomeIcon, Star, Facebook, Instagram, MessageCircle, Youtube, Linkedin, CalendarClock, Wallet, Image as ImageIcon, Mic, Compass, FileType, Tv } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Button } from "@/components/ui/button";
 import Marquee from "@/components/Marquee";
@@ -27,6 +27,8 @@ const Home = () => {
     { to: "/chat", icon: MessageCircle, titleKey: "nav.chat", descKey: "card.chat", color: "gradient-bg-warm" },
     { to: "/namaz", icon: Compass, titleKey: "nav.namaz", descKey: "card.namaz", color: "gradient-bg-cool" },
     { to: "/quran", icon: BookOpen, titleKey: "nav.quran", descKey: "card.quran", color: "gradient-bg-primary" },
+    { to: "/converter", icon: FileType, titleKey: "nav.converter", descKey: "card.converter", color: "gradient-bg-warm" },
+    { to: "/livetv", icon: Tv, titleKey: "nav.livetv", descKey: "card.livetv", color: "gradient-bg-cool" },
   ];
 
   return (

@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
-import { ArrowRight, Sparkles, ShoppingBag, Briefcase, FolderKanban, BookOpen, Tag, Home as HomeIcon, Star, Facebook, Instagram, MessageCircle, Youtube, Linkedin, CalendarClock, Wallet, Image as ImageIcon, Mic, Compass, FileType, Tv, Download, Clock, Map, Ruler, HeartPulse, Sun, Lock, Receipt, Scale, Percent, CloudRain, Smartphone } from "lucide-react";
+import { ArrowRight, Sparkles, ShoppingBag, Briefcase, FolderKanban, BookOpen, Tag, Home as HomeIcon, Star, Facebook, Instagram, MessageCircle, Youtube, Linkedin, CalendarClock, Wallet, Image as ImageIcon, Mic, Compass, FileType, Tv, Download, Clock, Map, Ruler, HeartPulse, Sun, Lock, Receipt, Scale, Percent, CloudRain, Smartphone, Wifi } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Button } from "@/components/ui/button";
 import Marquee from "@/components/Marquee";

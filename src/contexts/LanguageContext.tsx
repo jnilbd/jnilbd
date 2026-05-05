@@ -50,6 +50,7 @@ export const translations: Translations = {
   "card.marketplace": { bn: "পুরাতন প্রোডাক্ট কিনুন বা বিক্রি করুন", en: "Buy or Sell Used Products" },
   "card.rentals": { bn: "বাসা ভাড়া দিন বা খুঁজুন", en: "Rent or Find Houses" },
   "card.appointment": { bn: "১:১ পরামর্শ ও কনসালটেশন বুক করুন", en: "Book a 1:1 consultation" },
+  "card.finance": { bn: "ব্যক্তিগত আয়-ব্যয়, ধার, বাজেট ও AI পরামর্শ", en: "Personal income, expense, debts, budget & AI advice" },
 
   // Buttons
   "btn.viewAll": { bn: "সব দেখুন", en: "View All" },

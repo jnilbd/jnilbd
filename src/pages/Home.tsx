@@ -113,7 +113,7 @@ const Home = () => {
       {/* About teaser removed — keep focus on tools */}
 
       {/* Sections grid */}
-      <section className="py-12 md:py-20 container">
+      <section id="explore" className="py-12 md:py-20 container scroll-mt-20">
         <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="text-center mb-8 md:mb-12 max-w-2xl mx-auto">
           <h2 className="text-3xl md:text-5xl font-display font-bold mb-3">
             <span className="gradient-text">{t("section.explore")}</span>

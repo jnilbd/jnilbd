@@ -137,6 +137,8 @@ const NamazTime = () => {
           })}
         </div>
 
+        <PrayerAlertCard data={data} bn={bn} />
+
         <p className="text-center text-[11px] text-muted-foreground">{bn?"ডেটা সোর্স":"Source"}: aladhan.com (ISNA method)</p>
       </>)}
     </div>
@@ -144,3 +146,101 @@ const NamazTime = () => {
 };
 
 export default NamazTime;
+
+// ===== Prayer Alert (SMS / WhatsApp) =====
+function PrayerAlertCard({ data, bn }: { data: any; bn: boolean }) {
+  const [phone, setPhone] = useState("");
+  const [channel, setChannel] = useState<"sms" | "whatsapp">("whatsapp");
+  const [submitting, setSubmitting] = useState(false);
+
+  const enable = async () => {
+    const cleanPhone = phone.trim();
+    if (!/^\+?\d{10,15}$/.test(cleanPhone.replace(/\s/g, ""))) {
+      toast.error(bn ? "সঠিক ফোন নাম্বার দিন (+8801...)" : "Enter a valid phone (+8801...)");
+      return;
+    }
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+      toast.error(bn ? "অ্যালার্ট চালু করতে লগইন করুন" : "Please log in to enable alerts");
+      return;
+    }
+    setSubmitting(true);
+    try {
+      const prayers: [string, string, string][] = [
+        ["Fajr", data.timings.Fajr, bn ? "ফজর" : "Fajr"],
+        ["Dhuhr", data.timings.Dhuhr, bn ? "যুহর" : "Dhuhr"],
+        ["Asr", data.timings.Asr, bn ? "আসর" : "Asr"],
+        ["Maghrib", data.timings.Maghrib, bn ? "মাগরিব" : "Maghrib"],
+        ["Isha", data.timings.Isha, bn ? "ইশা" : "Isha"],
+      ];
+      const rows = prayers.map(([_, t, label]) => {
+        const [h, m] = t.split(":").map(Number);
+        const dt = new Date(); dt.setHours(h, m, 0, 0);
+        if (dt < new Date()) dt.setDate(dt.getDate() + 1);
+        return {
+          user_id: user.id,
+          recipient_name: bn ? "নামাজ অ্যালার্ট" : "Prayer Alert",
+          recipient_phone: cleanPhone,
+          channel,
+          message: bn
+            ? `🕌 ${label}-এর সময় হয়েছে। নামাজের জন্য প্রস্তুত হোন। — JohnNil.com`
+            : `🕌 It's time for ${label} prayer. Please prepare. — JohnNil.com`,
+          send_at: dt.toISOString(),
+          status: "pending",
+        };
+      });
+      const { error } = await supabase.from("scheduled_messages").insert(rows);
+      if (error) throw error;
+      toast.success(bn ? "✅ আগামী ৫ ওয়াক্তের অ্যালার্ট সেট হয়েছে" : "✅ Next 5 prayer alerts scheduled");
+    } catch (e: any) {
+      toast.error(e.message);
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  if (!data) return null;
+  return (
+    <Card className="border-primary/30 bg-gradient-to-br from-primary/5 to-secondary/5">
+      <CardHeader>
+        <CardTitle className="flex items-center gap-2 text-base">
+          <Bell className="w-5 h-5 text-primary" />
+          {bn ? "নামাজের অ্যালার্ট পান (SMS / WhatsApp)" : "Get Prayer Alerts (SMS / WhatsApp)"}
+        </CardTitle>
+      </CardHeader>
+      <CardContent className="space-y-3">
+        <p className="text-xs text-muted-foreground">
+          {bn
+            ? "প্রতিটি নামাজের সময় হলে আপনার ফোনে সরাসরি বার্তা পাবেন।"
+            : "Get a direct message to your phone for each prayer time."}
+        </p>
+        <div>
+          <Label className="text-xs">{bn ? "ফোন নাম্বার" : "Phone Number"}</Label>
+          <Input value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="+8801XXXXXXXXX" />
+        </div>
+        <div className="flex gap-2">
+          <button
+            onClick={() => setChannel("whatsapp")}
+            className={`flex-1 py-2 rounded-lg text-sm font-semibold flex items-center justify-center gap-1.5 ${channel === "whatsapp" ? "bg-green-500 text-white" : "bg-muted"}`}
+          >
+            <MessageCircle className="w-4 h-4" /> WhatsApp
+          </button>
+          <button
+            onClick={() => setChannel("sms")}
+            className={`flex-1 py-2 rounded-lg text-sm font-semibold ${channel === "sms" ? "gradient-bg-primary text-white" : "bg-muted"}`}
+          >
+            SMS
+          </button>
+        </div>
+        <Button onClick={enable} disabled={submitting} className="w-full gradient-bg-primary text-white">
+          {submitting ? (bn ? "সেট করা হচ্ছে..." : "Scheduling...") : (bn ? "🔔 অ্যালার্ট চালু করুন" : "🔔 Enable Alerts")}
+        </Button>
+        <p className="text-[11px] text-muted-foreground">
+          {bn
+            ? "* প্রতিদিন এসে এই বাটন চাপলে পরবর্তী দিনের অ্যালার্ট সেট হবে। দুর্যোগকালীন আবহাওয়া অ্যালার্ট পেতে আবহাওয়া পেজে যান।"
+            : "* Tap daily to schedule the next day. For storm/weather alerts, see the Weather page."}
+        </p>
+      </CardContent>
+    </Card>
+  );
+}

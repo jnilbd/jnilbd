@@ -14,14 +14,15 @@ const Navbar = () => {
 
   const links = [
     { to: "/", key: "nav.home" },
+    { to: "/quran", key: "nav.quran" },
+    { to: "/namaz", key: "nav.namaz" },
+    { to: "/weather", key: "nav.weather" },
+    { to: "/health", key: "nav.health" },
+    { to: "/finance", key: "nav.finance" },
     { to: "/shop", key: "nav.shop" },
     { to: "/services", key: "nav.services" },
-    { to: "/finance", key: "nav.finance" },
-    { to: "/portfolio", key: "nav.portfolio" },
-    { to: "/blog", key: "nav.blog" },
     { to: "/marketplace", key: "nav.marketplace" },
-    { to: "/rentals", key: "nav.rentals" },
-    { to: "/appointment", key: "nav.appointment" },
+    { to: "/blog", key: "nav.blog" },
     { to: "/about", key: "nav.about" },
   ];
 

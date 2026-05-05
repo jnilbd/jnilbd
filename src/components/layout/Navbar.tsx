@@ -18,11 +18,10 @@ const Navbar = () => {
     { to: "/namaz", key: "nav.namaz" },
     { to: "/weather", key: "nav.weather" },
     { to: "/health", key: "nav.health" },
+    { to: "/free-internet", key: "nav.freeNet" },
     { to: "/finance", key: "nav.finance" },
     { to: "/shop", key: "nav.shop" },
     { to: "/services", key: "nav.services" },
-    { to: "/marketplace", key: "nav.marketplace" },
-    { to: "/blog", key: "nav.blog" },
     { to: "/about", key: "nav.about" },
   ];
 

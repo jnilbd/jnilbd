@@ -94,6 +94,7 @@ const App = () => (
                 <Route path="/profit-loss" element={<ProfitLoss />} />
                 <Route path="/weather" element={<Weather />} />
                 <Route path="/gadget" element={<GadgetAdvisor />} />
+                <Route path="/free-internet" element={<FreeInternet />} />
                 <Route path="/cart" element={<Cart />} />
                 <Route path="/checkout" element={<Checkout />} />
                 <Route path="/order-confirmation/:id" element={<OrderConfirmation />} />

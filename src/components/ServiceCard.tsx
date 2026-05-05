@@ -4,12 +4,14 @@ import { ArrowRight, Check } from "lucide-react";
 import { Service } from "@/data/mockData";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Button } from "@/components/ui/button";
+import { displayImage, fallbackImageHandler } from "@/lib/siteImages";
 
 const ServiceCard = ({ service, index = 0 }: { service: Service; index?: number }) => {
   const { language, t } = useLanguage();
   const name = language === "bn" ? service.nameBn : service.name;
   const desc = language === "bn" ? service.descriptionBn : service.description;
   const features = language === "bn" ? service.featuresBn : service.features;
+  const image = displayImage(service.image, service.id, name, service.category);
 
   return (
     <motion.div
@@ -21,7 +23,7 @@ const ServiceCard = ({ service, index = 0 }: { service: Service; index?: number 
       className="group relative bg-card rounded-2xl overflow-hidden shadow-card hover:shadow-elegant transition-smooth border border-border/50 h-full flex flex-col"
     >
       <div className="aspect-video overflow-hidden flex-shrink-0">
-        <img src={service.image} alt={name} loading="lazy" className="w-full h-full object-cover group-hover:scale-110 transition-smooth" />
+        <img src={image} alt={name} loading="lazy" onError={fallbackImageHandler(service.id, name, service.category)} className="w-full h-full object-cover group-hover:scale-110 transition-smooth" />
       </div>
       <div className="p-5 flex flex-col flex-1 gap-3">
         <div className="flex items-center justify-between">

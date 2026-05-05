@@ -7,6 +7,7 @@ import Marquee from "@/components/Marquee";
 import ProductCard from "@/components/ProductCard";
 import ServiceCard from "@/components/ServiceCard";
 import { products, services, reviews } from "@/data/mockData";
+import { displayImage, fallbackImageHandler } from "@/lib/siteImages";
 
 const Home = () => {
   const { t, language } = useLanguage();
@@ -222,7 +223,7 @@ const Home = () => {
                 <p className="text-sm text-foreground/80 mb-4 leading-relaxed line-clamp-4 flex-1">"{language === "bn" ? r.textBn : r.text}"</p>
                 <div className="flex items-center justify-between pt-4 border-t border-border/50 mt-auto">
                   <div className="flex items-center gap-2 min-w-0">
-                    <img src={r.avatar} alt={r.name} className="w-9 h-9 rounded-full object-cover flex-shrink-0" />
+                    <img src={displayImage(r.avatar, r.id, r.name, "Review")} alt={r.name} onError={fallbackImageHandler(r.id, r.name, "Review")} className="w-9 h-9 rounded-full object-cover flex-shrink-0" />
                     <span className="font-semibold text-sm truncate">{r.name}</span>
                   </div>
                   <SourceIcon className="w-4 h-4 text-muted-foreground flex-shrink-0" />

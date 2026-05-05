@@ -41,12 +41,12 @@ const ProductDetail = () => {
   const desc = language === "bn" ? product.descriptionBn : product.description;
   const cat = language === "bn" ? product.categoryNameBn : product.categoryName;
 
-  const effectivePrice = selectedSub?.price ?? product.price;
-  const effectiveImage = displayImage(selectedSub?.image ?? product.image, selectedSub?.id ?? product.id, effectiveName, cat);
   const effectiveName = selectedSub
     ? `${name} — ${language === "bn" ? selectedSub.nameBn : selectedSub.name}`
     : name;
   const effectiveId = selectedSub?.id ?? product.id;
+  const effectivePrice = selectedSub?.price ?? product.price;
+  const effectiveImage = displayImage(selectedSub?.image ?? product.image, effectiveId, effectiveName, cat);
 
   const related = products.filter((p) => p.id !== product.id && p.category === product.category).slice(0, 4);
 

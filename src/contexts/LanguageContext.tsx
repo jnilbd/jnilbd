@@ -23,6 +23,8 @@ export const translations: Translations = {
   "nav.chat": { bn: "লাইভ চ্যাট", en: "Live Chat" },
   "nav.namaz": { bn: "নামাজের সময়", en: "Prayer Times" },
   "nav.quran": { bn: "কুরআন", en: "Al-Quran" },
+  "nav.converter": { bn: "ফাইল কনভার্টার", en: "Converter" },
+  "nav.livetv": { bn: "লাইভ টিভি/রেডিও", en: "Live TV/Radio" },
 
   // Hero
   "hero.greeting": { bn: "হ্যালো, আমি", en: "Hello, I'm" },
@@ -61,6 +63,8 @@ export const translations: Translations = {
   "card.chat": { bn: "সব রেজিস্টার্ড ইউজারের সাথে লাইভ আড্ডা", en: "Live chat with all registered users" },
   "card.namaz": { bn: "লোকেশন অনুযায়ী নামাজের সঠিক সময়", en: "Accurate prayer times by location" },
   "card.quran": { bn: "৩০ পারা কুরআন — পড়ুন ও শুনুন", en: "30 Para Quran — read & listen" },
+  "card.converter": { bn: "যেকোনো ফাইল — যেকোনো ফরম্যাটে কনভার্ট", en: "Convert any file to any format" },
+  "card.livetv": { bn: "BD ও ইন্ডিয়ান টিভি/রেডিও সরাসরি", en: "BD & Indian TV/Radio live" },
 
   // Buttons
   "btn.viewAll": { bn: "সব দেখুন", en: "View All" },

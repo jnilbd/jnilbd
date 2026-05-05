@@ -38,7 +38,9 @@ export const translations: Translations = {
   "nav.weather": { bn: "আবহাওয়া", en: "Weather" },
   "card.weather": { bn: "BD/IN নির্ভুল আবহাওয়া + ঝড়/বৃষ্টি/তাপ সতর্কতা", en: "Accurate BD/IN weather + storm/rain/heat alerts" },
   "nav.gadget": { bn: "গ্যাজেট অ্যাডভাইজার", en: "Gadget Advisor" },
-  "card.gadget": { bn: "বাজেট দিন — BD মার্কেটে সেরা মোবাইল/ল্যাপটপ AI সাজেশন", en: "Set budget — AI picks best phone/laptop from BD market" },
+ "card.gadget": { bn: "বাজেট দিন — BD মার্কেটে সেরা মোবাইল/ল্যাপটপ AI সাজেশন", en: "Set budget — AI picks best phone/laptop from BD market" },
+ "nav.freeNet": { bn: "ফ্রি ইন্টারনেট", en: "Free Internet" },
+ "card.freeNet": { bn: "GP/Robi/BL/Airtel/Teletalk — সব সিমের সস্তা ও ফ্রি নেট অফার, USSD ও সেটআপ গাইড", en: "GP/Robi/BL/Airtel/Teletalk — cheap & free net offers, USSD codes & setup guide" },
 
   // Hero
   "hero.greeting": { bn: "হ্যালো, আমি", en: "Hello, I'm" },

@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
-import { ArrowRight, Sparkles, ShoppingBag, Briefcase, FolderKanban, BookOpen, Tag, Home as HomeIcon, Star, Facebook, Instagram, MessageCircle, Youtube, Linkedin, CalendarClock, Wallet, Image as ImageIcon, Mic, Compass, FileType, Tv, Download, Clock, Map, Ruler, HeartPulse, Sun, Lock, Receipt, Scale, Percent, CloudRain, Smartphone } from "lucide-react";
+import { ArrowRight, Sparkles, ShoppingBag, Briefcase, FolderKanban, BookOpen, Tag, Home as HomeIcon, Star, Facebook, Instagram, MessageCircle, Youtube, Linkedin, CalendarClock, Wallet, Image as ImageIcon, Mic, Compass, FileType, Tv, Download, Clock, Map, Ruler, HeartPulse, Sun, Lock, Receipt, Scale, Percent, CloudRain, Smartphone, Wifi } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Button } from "@/components/ui/button";
 import Marquee from "@/components/Marquee";
@@ -19,6 +19,7 @@ const Home = () => {
     { to: "/namaz", icon: Compass, titleKey: "nav.namaz", descKey: "card.namaz", color: "gradient-bg-cool" },
     // Daily-life essentials
     { to: "/weather", icon: CloudRain, titleKey: "nav.weather", descKey: "card.weather", color: "gradient-bg-warm" },
+    { to: "/free-internet", icon: Wifi, titleKey: "nav.freeNet", descKey: "card.freeNet", color: "gradient-bg-cool" },
     { to: "/health", icon: HeartPulse, titleKey: "nav.health", descKey: "card.health", color: "gradient-bg-primary" },
     { to: "/finance", icon: Wallet, titleKey: "nav.finance", descKey: "card.finance", color: "gradient-bg-cool" },
     { to: "/vault", icon: Lock, titleKey: "nav.vault", descKey: "card.vault", color: "gradient-bg-warm" },

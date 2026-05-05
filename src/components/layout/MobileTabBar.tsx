@@ -1,5 +1,5 @@
 import { Link, NavLink, useLocation } from "react-router-dom";
-import { Home, Store, ShoppingCart, LayoutGrid, MessageCircle, X, Briefcase, FolderKanban, BookOpen, Tag, Home as HomeIcon, User, CalendarClock, ShieldCheck, Wallet, Image as ImageIcon, Mic, Compass, FileType, Tv, Download, Clock, Map, Ruler, HeartPulse, Sun, Lock, Receipt, Scale, Percent, CloudRain, Smartphone } from "lucide-react";
+import { Home, Store, ShoppingCart, LayoutGrid, MessageCircle, X, Briefcase, FolderKanban, BookOpen, Tag, Home as HomeIcon, User, CalendarClock, ShieldCheck, Wallet, Image as ImageIcon, Mic, Compass, FileType, Tv, Download, Clock, Map, Ruler, HeartPulse, Sun, Lock, Receipt, Scale, Percent, CloudRain, Smartphone, Wifi } from "lucide-react";
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -23,6 +23,7 @@ const MobileTabBar = () => {
     { to: "/namaz", icon: Compass, label: language === "bn" ? "নামাজ" : "Namaz" },
     // Daily essentials
     { to: "/weather", icon: CloudRain, label: language === "bn" ? "আবহাওয়া" : "Weather" },
+    { to: "/free-internet", icon: Wifi, label: language === "bn" ? "ফ্রি ইন্টারনেট" : "Free Internet" },
     { to: "/health", icon: HeartPulse, label: language === "bn" ? "স্বাস্থ্য" : "Health" },
     { to: "/finance", icon: Wallet, label: language === "bn" ? "ফিন্যান্স" : "Finance" },
     { to: "/vault", icon: Lock, label: language === "bn" ? "ভল্ট" : "Vault" },

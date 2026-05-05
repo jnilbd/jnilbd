@@ -28,11 +28,11 @@ export const translations: Translations = {
   "nav.downloader": { bn: "ভিডিও ডাউনলোডার", en: "Downloader" },
   "nav.scheduler": { bn: "শিডিউলড মেসেজ", en: "Scheduled SMS" },
   "nav.land": { bn: "ভূমি জরিপ", en: "Land Survey" },
-  "nav.height": { bn: "উচ্চতা ক্যালক", en: "Height Calc" },
-  "nav.health": { bn: "স্বাস্থ্য গাইড", en: "Health Guide" },
-  "nav.solar": { bn: "সোলার ক্যালক", en: "Solar Calc" },
-  "nav.vault": { bn: "ভল্ট", en: "Vault" },
-  "nav.tax": { bn: "ট্যাক্স ক্যালক", en: "Tax Calc" },
+  "nav.height": { bn: "উচ্চতা ক্যালকুলেটর", en: "Height Calculator" },
+  
+  "nav.solar": { bn: "সোলার ক্যালকুলেটর", en: "Solar Calculator" },
+  
+  "nav.tax": { bn: "ট্যাক্স ক্যালকুলেটর", en: "Tax Calculator" },
   "nav.warish": { bn: "ওয়ারিশ", en: "Inheritance" },
   "nav.profitLoss": { bn: "লাভ/ক্ষতি", en: "Profit/Loss" },
   "nav.weather": { bn: "আবহাওয়া", en: "Weather" },

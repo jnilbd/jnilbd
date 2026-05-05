@@ -22,10 +22,10 @@ const Footer = () => {
   };
 
   const trustItems = [
-    { icon: ShieldCheck, label: language === "bn" ? "১০০% সিকিউর পেমেন্ট" : "100% Secure Payment" },
-    { icon: Truck, label: language === "bn" ? "দ্রুত ডেলিভারি" : "Fast Nationwide Delivery" },
-    { icon: CreditCard, label: language === "bn" ? "ক্যাশ অন ডেলিভারি" : "Cash on Delivery" },
-    { icon: Headphones, label: language === "bn" ? "২৪/৭ সাপোর্ট" : "24/7 Customer Support" },
+    { icon: BookOpen, label: language === "bn" ? "১১৪ সূরা — সম্পূর্ণ কুরআন" : "114 Surahs — Full Quran" },
+    { icon: CloudRain, label: language === "bn" ? "লাইভ আবহাওয়া ও অ্যালার্ট" : "Live Weather & Alerts" },
+    { icon: HeartPulse, label: language === "bn" ? "AI স্বাস্থ্য পরামর্শ" : "AI Health Guidance" },
+    { icon: Wifi, label: language === "bn" ? "ফ্রি ইন্টারনেট গাইড" : "Free Internet Guide" },
   ];
 
   return (

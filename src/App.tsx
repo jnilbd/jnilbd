@@ -28,6 +28,7 @@ import Warish from "./pages/Warish";
 import ProfitLoss from "./pages/ProfitLoss";
 import Weather from "./pages/Weather";
 import GadgetAdvisor from "./pages/GadgetAdvisor";
+import FreeInternet from "./pages/FreeInternet";
 import Home from "./pages/Home";
 import Shop from "./pages/Shop";
 import ProductDetail from "./pages/ProductDetail";

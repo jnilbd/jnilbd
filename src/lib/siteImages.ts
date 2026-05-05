@@ -42,7 +42,7 @@ export const displayImage = (source: string | undefined, id: string, label: stri
   return source;
 };
 
-export const useFallbackImage = (id: string, label: string, eyebrow?: string) =>
+export const fallbackImageHandler = (id: string, label: string, eyebrow?: string) =>
   (event: React.SyntheticEvent<HTMLImageElement>) => {
     const fallback = visualImage(id, label, eyebrow);
     if (event.currentTarget.src !== fallback) event.currentTarget.src = fallback;

@@ -68,17 +68,41 @@ const Home = () => {
               {t("hero.name")}
             </h1>
             <p className="text-base md:text-xl mb-7 text-white/90 max-w-2xl leading-relaxed">{t("hero.description")}</p>
-            <div className="flex flex-wrap gap-3">
-              <Link to="/shop">
+            <div className="flex flex-wrap gap-2.5">
+              <Link to="/quran">
                 <Button size="lg" className="rounded-full bg-white text-primary hover:bg-white/90 font-semibold shadow-2xl border-0">
+                  {t("hero.cta2")} <ArrowRight className="ml-2 w-5 h-5" />
+                </Button>
+              </Link>
+              <a href="#explore">
+                <Button size="lg" variant="outline" className="rounded-full border-2 border-white text-white bg-white/10 hover:bg-white hover:text-primary font-semibold backdrop-blur-sm">
                   {t("hero.cta1")} <ArrowRight className="ml-2 w-5 h-5" />
+                </Button>
+              </a>
+              <Link to="/weather">
+                <Button size="lg" variant="outline" className="rounded-full border-2 border-white/70 text-white bg-transparent hover:bg-white hover:text-primary font-semibold backdrop-blur-sm">
+                  {t("hero.cta3")}
                 </Button>
               </Link>
               <Link to="/services">
-                <Button size="lg" variant="outline" className="rounded-full border-2 border-white text-white bg-white/10 hover:bg-white hover:text-primary font-semibold backdrop-blur-sm">
-                  {t("hero.cta2")}
+                <Button size="lg" variant="outline" className="rounded-full border-2 border-white/70 text-white bg-transparent hover:bg-white hover:text-primary font-semibold backdrop-blur-sm">
+                  {t("hero.cta4")}
                 </Button>
               </Link>
+            </div>
+
+            {/* Hero stats */}
+            <div className="mt-7 grid grid-cols-4 gap-2 max-w-xl">
+              {[
+                { v: t("hero.stat1") },
+                { v: t("hero.stat2") },
+                { v: t("hero.stat3") },
+                { v: t("hero.stat4") },
+              ].map((s, i) => (
+                <div key={i} className="glass-card border-white/30 rounded-2xl px-2 py-2.5 text-center">
+                  <div className="text-xs md:text-sm font-display font-bold text-white leading-tight">{s.v}</div>
+                </div>
+              ))}
             </div>
           </motion.div>
         </div>
@@ -89,7 +113,7 @@ const Home = () => {
       {/* About teaser removed — keep focus on tools */}
 
       {/* Sections grid */}
-      <section className="py-12 md:py-20 container">
+      <section id="explore" className="py-12 md:py-20 container scroll-mt-20">
         <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="text-center mb-8 md:mb-12 max-w-2xl mx-auto">
           <h2 className="text-3xl md:text-5xl font-display font-bold mb-3">
             <span className="gradient-text">{t("section.explore")}</span>

@@ -43,10 +43,16 @@ export const translations: Translations = {
   // Hero
   "hero.greeting": { bn: "হ্যালো, আমি", en: "Hello, I'm" },
   "hero.name": { bn: "জন নীল", en: "John Nil" },
-  "hero.tagline": { bn: "ক্রিয়েটর • এন্ট্রাপ্রেনিউর • ডিজিটাল প্রোডাক্ট মেকার", en: "Creator • Entrepreneur • Digital Product Maker" },
-  "hero.description": { bn: "আপনার সব ধরনের ডিজিটাল ও ফিজিক্যাল প্রয়োজনের জন্য একটি অল-ইন-ওয়ান প্ল্যাটফর্ম। প্রোডাক্ট, সার্ভিস, পোর্টফোলিও, ব্লগ, ইউজড মার্কেট এবং বাসা ভাড়া — সব এক জায়গায়।", en: "An all-in-one platform for all your digital and physical needs. Products, services, portfolio, blog, used marketplace and rentals — all in one place." },
-  "hero.cta1": { bn: "এক্সপ্লোর শপ", en: "Explore Shop" },
-  "hero.cta2": { bn: "অর্ডার সার্ভিস", en: "Order Service" },
+ "hero.tagline": { bn: "৩০+ স্মার্ট টুল • কুরআন • আবহাওয়া • স্বাস্থ্য • ক্যালকুলেটর — এক ছাদের নিচে", en: "30+ Smart Tools • Quran • Weather • Health • Calculators — all under one roof" },
+ "hero.description": { bn: "কুরআন তিলাওয়াত, নামাজের সময়, লাইভ আবহাওয়া ও ঝড়ের অ্যালার্ট, স্বাস্থ্য পরামর্শ, ভূমি জরিপ, ট্যাক্স–ওয়ারিশ–সোলার ক্যালকুলেটর, পাসওয়ার্ড ভল্ট, গ্যাজেট অ্যাডভাইজার, AI ফিনান্স, লাইভ টিভি, ডাউনলোডার, কনভার্টার — আপনার দৈনন্দিন প্রয়োজনের সবকিছু একটি অ্যাপেই।", en: "Quran recitation, prayer times, live weather & storm alerts, health guidance, land survey, tax–inheritance–solar calculators, password vault, gadget advisor, AI finance, live TV, downloader, converter — everything you need, in one app." },
+ "hero.cta1": { bn: "টুলস এক্সপ্লোর করুন", en: "Explore Tools" },
+ "hero.cta2": { bn: "কুরআন পড়ুন ও শুনুন", en: "Read & Listen Quran" },
+ "hero.cta3": { bn: "আবহাওয়া দেখুন", en: "Check Weather" },
+ "hero.cta4": { bn: "অর্ডার সার্ভিস", en: "Order Service" },
+ "hero.stat1": { bn: "৩০+ টুল", en: "30+ Tools" },
+ "hero.stat2": { bn: "১১৪ সূরা", en: "114 Surahs" },
+ "hero.stat3": { bn: "AI সহায়তা", en: "AI Assist" },
+ "hero.stat4": { bn: "১০০% ফ্রি", en: "100% Free" },
 
   // Marquee
   "marquee.text": { bn: "✨ ১০০% সিকিউর পেমেন্ট ✦ দ্রুত ডেলিভারি ✦ ২৪/৭ সাপোর্ট ✦ প্রিমিয়াম কোয়ালিটি ✦ কাস্টম অর্ডার ✦", en: "✨ 100% Secure Payment ✦ Fast Delivery ✦ 24/7 Support ✦ Premium Quality ✦ Custom Orders ✦" },

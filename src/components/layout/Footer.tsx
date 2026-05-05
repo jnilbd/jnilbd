@@ -63,8 +63,8 @@ const Footer = () => {
           </Link>
           <p className="text-sm leading-relaxed opacity-75 max-w-md mb-6">
             {language === "bn"
-              ? "ডিজিটাল প্রোডাক্ট, কোর্স, সার্ভিস, ইউজড মার্কেট ও বাসা ভাড়া — বাংলাদেশের জন্য তৈরি একটি প্রিমিয়াম ডিজিটাল ইকোসিস্টেম।"
-              : "Digital products, courses, services, used marketplace & rentals — a premium digital ecosystem crafted for Bangladesh."}
+              ? "কুরআন, নামাজ, আবহাওয়া, স্বাস্থ্য, ফ্রি ইন্টারনেট, ক্যালকুলেটর, AI টুলস — বাংলাদেশের মানুষের দৈনন্দিন প্রয়োজনের ৩০+ স্মার্ট সার্ভিস একটি প্ল্যাটফর্মে।"
+              : "Quran, prayers, weather, health, free internet, calculators, AI tools — 30+ smart services for everyday Bangladeshi life, all in one platform."}
           </p>
           <div className="flex gap-2.5">
             {[

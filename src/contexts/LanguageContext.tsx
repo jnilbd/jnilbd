@@ -25,6 +25,8 @@ export const translations: Translations = {
   "nav.quran": { bn: "কুরআন", en: "Al-Quran" },
   "nav.converter": { bn: "ফাইল কনভার্টার", en: "Converter" },
   "nav.livetv": { bn: "লাইভ টিভি/রেডিও", en: "Live TV/Radio" },
+  "nav.downloader": { bn: "ভিডিও ডাউনলোডার", en: "Downloader" },
+  "nav.scheduler": { bn: "শিডিউলড মেসেজ", en: "Scheduled SMS" },
 
   // Hero
   "hero.greeting": { bn: "হ্যালো, আমি", en: "Hello, I'm" },
@@ -65,6 +67,8 @@ export const translations: Translations = {
   "card.quran": { bn: "৩০ পারা কুরআন — পড়ুন ও শুনুন", en: "30 Para Quran — read & listen" },
   "card.converter": { bn: "যেকোনো ফাইল — যেকোনো ফরম্যাটে কনভার্ট", en: "Convert any file to any format" },
   "card.livetv": { bn: "BD ও ইন্ডিয়ান টিভি/রেডিও সরাসরি", en: "BD & Indian TV/Radio live" },
+  "card.downloader": { bn: "YouTube/TikTok/Insta/FB ভিডিও/MP3 ডাউনলোড", en: "YouTube/TikTok/Insta/FB video/MP3 downloader" },
+  "card.scheduler": { bn: "নির্দিষ্ট সময়ে WhatsApp/SMS উইশ পাঠান", en: "Send WhatsApp/SMS at the perfect time" },
 
   // Buttons
   "btn.viewAll": { bn: "সব দেখুন", en: "View All" },

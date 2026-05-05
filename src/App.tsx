@@ -16,6 +16,8 @@ import NamazTime from "./pages/NamazTime";
 import Quran from "./pages/Quran";
 import Converter from "./pages/Converter";
 import LiveTV from "./pages/LiveTV";
+import Downloader from "./pages/Downloader";
+import Scheduler from "./pages/Scheduler";
 import Home from "./pages/Home";
 import Shop from "./pages/Shop";
 import ProductDetail from "./pages/ProductDetail";
@@ -69,6 +71,8 @@ const App = () => (
                 <Route path="/quran" element={<Quran />} />
                 <Route path="/converter" element={<Converter />} />
                 <Route path="/livetv" element={<LiveTV />} />
+                <Route path="/downloader" element={<Downloader />} />
+                <Route path="/scheduler" element={<Scheduler />} />
                 <Route path="/cart" element={<Cart />} />
                 <Route path="/checkout" element={<Checkout />} />
                 <Route path="/order-confirmation/:id" element={<OrderConfirmation />} />

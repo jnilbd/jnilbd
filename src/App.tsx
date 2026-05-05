@@ -32,6 +32,9 @@ import GadgetAdvisor from "./pages/GadgetAdvisor";
 import FreeInternet from "./pages/FreeInternet";
 import ServiceRequest from "./pages/ServiceRequest";
 import Movies from "./pages/Movies";
+import Railway from "./pages/Railway";
+import PhoneLookup from "./pages/PhoneLookup";
+import TravelGuide from "./pages/TravelGuide";
 import Home from "./pages/Home";
 import Shop from "./pages/Shop";
 import ProductDetail from "./pages/ProductDetail";
@@ -101,6 +104,9 @@ const App = () => (
                 <Route path="/free-internet" element={<FreeInternet />} />
                 <Route path="/request-service" element={<ServiceRequest />} />
                 <Route path="/movies" element={<Movies />} />
+                <Route path="/railway" element={<Railway />} />
+                <Route path="/phone-lookup" element={<PhoneLookup />} />
+                <Route path="/travel" element={<TravelGuide />} />
                 <Route path="/cart" element={<Cart />} />
                 <Route path="/checkout" element={<Checkout />} />
                 <Route path="/order-confirmation/:id" element={<OrderConfirmation />} />

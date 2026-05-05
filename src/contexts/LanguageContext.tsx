@@ -35,6 +35,8 @@ export const translations: Translations = {
   "nav.tax": { bn: "ট্যাক্স ক্যালক", en: "Tax Calc" },
   "nav.warish": { bn: "ওয়ারিশ", en: "Inheritance" },
   "nav.profitLoss": { bn: "লাভ/ক্ষতি", en: "Profit/Loss" },
+  "nav.weather": { bn: "আবহাওয়া", en: "Weather" },
+  "card.weather": { bn: "BD/IN নির্ভুল আবহাওয়া + ঝড়/বৃষ্টি/তাপ সতর্কতা", en: "Accurate BD/IN weather + storm/rain/heat alerts" },
 
   // Hero
   "hero.greeting": { bn: "হ্যালো, আমি", en: "Hello, I'm" },

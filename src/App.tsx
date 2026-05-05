@@ -26,6 +26,7 @@ import Vault from "./pages/Vault";
 import TaxCalc from "./pages/TaxCalc";
 import Warish from "./pages/Warish";
 import ProfitLoss from "./pages/ProfitLoss";
+import Weather from "./pages/Weather";
 import Home from "./pages/Home";
 import Shop from "./pages/Shop";
 import ProductDetail from "./pages/ProductDetail";
@@ -89,6 +90,7 @@ const App = () => (
                 <Route path="/tax" element={<TaxCalc />} />
                 <Route path="/warish" element={<Warish />} />
                 <Route path="/profit-loss" element={<ProfitLoss />} />
+                <Route path="/weather" element={<Weather />} />
                 <Route path="/cart" element={<Cart />} />
                 <Route path="/checkout" element={<Checkout />} />
                 <Route path="/order-confirmation/:id" element={<OrderConfirmation />} />

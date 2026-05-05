@@ -136,7 +136,7 @@ const Quran = () => {
         </div>
 
         {/* Reader */}
-        <div className="space-y-3">
+        <div ref={readerRef} className="space-y-3 scroll-mt-20">
           <div className="grid grid-cols-2 gap-2">
             <Select value={reciter} onValueChange={setReciter}>
               <SelectTrigger><SelectValue placeholder={bn?"কারি":"Reciter"} /></SelectTrigger>

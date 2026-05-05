@@ -3,6 +3,7 @@ import { Calendar, Clock, ArrowRight } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { blogPosts } from "@/data/mockData";
+import { displayImage, fallbackImageHandler } from "@/lib/siteImages";
 
 const Blog = () => {
   const { language } = useLanguage();
@@ -26,7 +27,7 @@ const Blog = () => {
               whileHover={{ y: -6 }} className="group bg-card rounded-2xl overflow-hidden shadow-card hover:shadow-elegant transition-smooth border border-border/50">
               <Link to={`/blog/${post.id}`}>
                 <div className="aspect-[4/3] overflow-hidden">
-                  <img src={post.image} alt={post.title} className="w-full h-full object-cover group-hover:scale-110 transition-smooth" />
+                  <img src={displayImage(post.image, post.id, language === "bn" ? post.titleBn : post.title, post.category)} alt={post.title} onError={fallbackImageHandler(post.id, language === "bn" ? post.titleBn : post.title, post.category)} className="w-full h-full object-cover group-hover:scale-110 transition-smooth" />
                 </div>
                 <div className="p-6">
                   <span className="inline-block px-3 py-1 rounded-full bg-primary/10 text-primary text-xs font-semibold mb-3">{post.category}</span>

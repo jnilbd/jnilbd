@@ -2,6 +2,7 @@ import { motion } from "framer-motion";
 import { Briefcase, Award, Users, Zap } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { portfolioItems, experience } from "@/data/mockData";
+import { displayImage, fallbackImageHandler } from "@/lib/siteImages";
 
 const Portfolio = () => {
   const { language } = useLanguage();
@@ -49,7 +50,7 @@ const Portfolio = () => {
             <motion.div key={p.id} initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.05 }}
               whileHover={{ y: -6 }} className="group relative rounded-2xl overflow-hidden shadow-card hover:shadow-elegant transition-smooth">
               <div className="aspect-[4/3]">
-                <img src={p.image} alt={p.title} className="w-full h-full object-cover group-hover:scale-110 transition-smooth" />
+                <img src={displayImage(p.image, p.id, language === "bn" ? p.titleBn : p.title, p.category)} alt={p.title} onError={fallbackImageHandler(p.id, language === "bn" ? p.titleBn : p.title, p.category)} className="w-full h-full object-cover group-hover:scale-110 transition-smooth" />
               </div>
               <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent p-6 flex flex-col justify-end text-white">
                 <span className="text-xs font-semibold uppercase tracking-wide opacity-80">{p.category} • {p.year}</span>

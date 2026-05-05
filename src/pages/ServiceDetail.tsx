@@ -12,6 +12,7 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 import Marquee from "@/components/Marquee";
+import { displayImage, fallbackImageHandler } from "@/lib/siteImages";
 
 const ServiceDetail = () => {
   const { id } = useParams();
@@ -35,6 +36,7 @@ const ServiceDetail = () => {
   const name = language === "bn" ? service.nameBn : service.name;
   const desc = language === "bn" ? service.descriptionBn : service.description;
   const features = language === "bn" ? service.featuresBn : service.features;
+  const image = displayImage(service.image, service.id, name, service.category);
   const related = services.filter((s) => s.id !== service.id).slice(0, 3);
 
   const handleOrder = () => {
@@ -52,7 +54,7 @@ const ServiceDetail = () => {
       name: `${service.name} — ${details.slice(0, 50)}`,
       nameBn: `${service.nameBn} — ${details.slice(0, 50)}`,
       price: finalPrice,
-      image: service.image,
+      image,
       type: "service",
       category: "service",
     });
@@ -72,7 +74,7 @@ const ServiceDetail = () => {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
             <motion.div initial={{ opacity: 0, x: -30 }} animate={{ opacity: 1, x: 0 }}>
               <div className="aspect-video rounded-3xl overflow-hidden shadow-elegant mb-6">
-                <img src={service.image} alt={name} className="w-full h-full object-cover" />
+                <img src={image} alt={name} onError={fallbackImageHandler(service.id, name, service.category)} className="w-full h-full object-cover" />
               </div>
 
               <span className="inline-block px-3 py-1 rounded-full gradient-bg-warm text-white text-xs font-semibold mb-3">{service.category}</span>

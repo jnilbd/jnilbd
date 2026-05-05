@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { useState, useMemo } from "react";
 import Marquee from "@/components/Marquee";
+import { displayImage, fallbackImageHandler } from "@/lib/siteImages";
 
 const ProductDetail = () => {
   const { id } = useParams();
@@ -40,12 +41,12 @@ const ProductDetail = () => {
   const desc = language === "bn" ? product.descriptionBn : product.description;
   const cat = language === "bn" ? product.categoryNameBn : product.categoryName;
 
-  const effectivePrice = selectedSub?.price ?? product.price;
-  const effectiveImage = selectedSub?.image ?? product.image;
   const effectiveName = selectedSub
     ? `${name} — ${language === "bn" ? selectedSub.nameBn : selectedSub.name}`
     : name;
   const effectiveId = selectedSub?.id ?? product.id;
+  const effectivePrice = selectedSub?.price ?? product.price;
+  const effectiveImage = displayImage(selectedSub?.image ?? product.image, effectiveId, effectiveName, cat);
 
   const related = products.filter((p) => p.id !== product.id && p.category === product.category).slice(0, 4);
 
@@ -94,7 +95,7 @@ const ProductDetail = () => {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-start">
             <motion.div initial={{ opacity: 0, x: -30 }} animate={{ opacity: 1, x: 0 }} className="relative">
               <div className="aspect-square rounded-3xl overflow-hidden shadow-elegant bg-muted">
-                <img src={effectiveImage} alt={name} className="w-full h-full object-cover transition-smooth" />
+                <img src={effectiveImage} alt={name} onError={fallbackImageHandler(effectiveId, effectiveName, cat)} className="w-full h-full object-cover transition-smooth" />
               </div>
             </motion.div>
 
@@ -204,9 +205,7 @@ const ProductDetail = () => {
                   }`}
                 >
                   <div className="relative aspect-[4/3] bg-muted overflow-hidden">
-                    {sub.image && (
-                      <img src={sub.image} alt={subName} className="w-full h-full object-cover" />
-                    )}
+                    <img src={displayImage(sub.image, sub.id, subName, cat)} alt={subName} onError={fallbackImageHandler(sub.id, subName, cat)} className="w-full h-full object-cover" />
                     {subBadge && (
                       <span className="absolute top-2 left-2 px-2.5 py-1 rounded-full gradient-bg-warm text-white text-[10px] font-bold tracking-wide shadow-pink">
                         {subBadge}

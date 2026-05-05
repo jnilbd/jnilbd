@@ -4,6 +4,7 @@ import { ArrowLeft, Calendar, Clock } from "lucide-react";
 import { blogPosts } from "@/data/mockData";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Button } from "@/components/ui/button";
+import { displayImage, fallbackImageHandler } from "@/lib/siteImages";
 
 const BlogDetail = () => {
   const { id } = useParams();
@@ -39,7 +40,7 @@ const BlogDetail = () => {
           </div>
 
           <div className="aspect-video rounded-2xl overflow-hidden shadow-elegant mb-8">
-            <img src={post.image} alt={post.title} className="w-full h-full object-cover" />
+            <img src={displayImage(post.image, post.id, language === "bn" ? post.titleBn : post.title, post.category)} alt={post.title} onError={fallbackImageHandler(post.id, language === "bn" ? post.titleBn : post.title, post.category)} className="w-full h-full object-cover" />
           </div>
 
           <div className="prose prose-lg max-w-none text-foreground/80 leading-relaxed space-y-4">
@@ -64,7 +65,7 @@ const BlogDetail = () => {
               {related.map((p) => (
                 <Link key={p.id} to={`/blog/${p.id}`} className="bg-card rounded-2xl overflow-hidden shadow-card hover:shadow-elegant transition-smooth group">
                   <div className="aspect-[4/3] overflow-hidden">
-                    <img src={p.image} alt={p.title} className="w-full h-full object-cover group-hover:scale-110 transition-smooth" />
+                    <img src={displayImage(p.image, p.id, language === "bn" ? p.titleBn : p.title, p.category)} alt={p.title} onError={fallbackImageHandler(p.id, language === "bn" ? p.titleBn : p.title, p.category)} className="w-full h-full object-cover group-hover:scale-110 transition-smooth" />
                   </div>
                   <div className="p-4">
                     <span className="text-xs font-semibold text-primary">{p.category}</span>

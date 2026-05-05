@@ -13,6 +13,7 @@ import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import type { User } from "@supabase/supabase-js";
 import { z } from "zod";
+import { displayImage, fallbackImageHandler } from "@/lib/siteImages";
 
 interface Rental {
   id: string;
@@ -346,9 +347,9 @@ const Rentals = () => {
                 onClick={() => setSelectedRental(r)}>
                 <div className="aspect-[16/10] overflow-hidden bg-muted relative">
                   {r.images[0] ? (
-                    <img src={r.images[0]} alt={r.title} className="w-full h-full object-cover group-hover:scale-110 transition-smooth" />
+                    <img src={displayImage(r.images[0], r.id, r.title, r.type)} alt={r.title} onError={fallbackImageHandler(r.id, r.title, r.type)} className="w-full h-full object-cover group-hover:scale-110 transition-smooth" />
                   ) : (
-                    <div className="w-full h-full flex items-center justify-center text-muted-foreground"><MapPin className="w-12 h-12" /></div>
+                    <img src={displayImage(undefined, r.id, r.title, r.type)} alt={r.title} className="w-full h-full object-cover group-hover:scale-110 transition-smooth" />
                   )}
                   {user && r.user_id === user.id && (
                     <button onClick={(e) => { e.stopPropagation(); handleDelete(r.id); }}
@@ -391,7 +392,7 @@ const Rentals = () => {
               {selectedRental.images.length > 0 && (
                 <div className="grid grid-cols-2 gap-2">
                   {selectedRental.images.map((src, i) => (
-                    <img key={i} src={src} alt="" className="w-full aspect-video object-cover rounded-xl" />
+                    <img key={i} src={displayImage(src, `${selectedRental.id}-${i}`, selectedRental.title, selectedRental.type)} alt={selectedRental.title} onError={fallbackImageHandler(`${selectedRental.id}-${i}`, selectedRental.title, selectedRental.type)} className="w-full aspect-video object-cover rounded-xl" />
                   ))}
                 </div>
               )}

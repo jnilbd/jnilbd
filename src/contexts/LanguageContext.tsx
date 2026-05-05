@@ -41,6 +41,10 @@ export const translations: Translations = {
  "card.gadget": { bn: "বাজেট দিন — BD মার্কেটে সেরা মোবাইল/ল্যাপটপ AI সাজেশন", en: "Set budget — AI picks best phone/laptop from BD market" },
  "nav.freeNet": { bn: "ফ্রি ইন্টারনেট", en: "Free Internet" },
  "card.freeNet": { bn: "GP/Robi/BL/Airtel/Teletalk — সব সিমের সস্তা ও ফ্রি নেট অফার, USSD ও সেটআপ গাইড", en: "GP/Robi/BL/Airtel/Teletalk — cheap & free net offers, USSD codes & setup guide" },
+ "nav.requestService": { bn: "সার্ভিস রিকোয়েস্ট", en: "Request Service" },
+ "card.requestService": { bn: "নতুন সার্ভিস বা ফিচার চান? সরাসরি আমাকে জানান", en: "Need a new service or feature? Tell me directly" },
+ "nav.movies": { bn: "মুভি ও সিরিজ", en: "Movies & Series" },
+ "card.movies": { bn: "জনপ্রিয় মুভি ও TV সিরিজ — থার্ড-পার্টি স্ট্রিমিং", en: "Popular movies & TV series — third-party streaming" },
 
   // Hero
   "hero.greeting": { bn: "হ্যালো, আমি", en: "Hello, I'm" },

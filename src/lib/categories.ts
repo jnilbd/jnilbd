@@ -1,4 +1,4 @@
-import { Home, Store, BookOpen, Compass, CloudRain, Wifi, HeartPulse, Wallet, Lock, Receipt, Scale, Percent, Map, Ruler, Sun, Smartphone, FileType, Download, Image as ImageIcon, Mic, Clock, Tv, MessageCircle, Briefcase, Tag, Home as HomeIcon, FolderKanban, User, ShieldCheck, CalendarClock } from "lucide-react";
+import { Home, Store, BookOpen, Compass, CloudRain, Wifi, HeartPulse, Wallet, Lock, Receipt, Scale, Percent, Map, Ruler, Sun, Smartphone, FileType, Download, Image as ImageIcon, Mic, Clock, Tv, MessageCircle, Briefcase, Tag, Home as HomeIcon, FolderKanban, User, ShieldCheck, CalendarClock, Send, Film } from "lucide-react";
 
 export type CategoryItem = {
   to: string;
@@ -24,6 +24,8 @@ export const ALL_CATEGORIES: CategoryItem[] = [
   // Commerce
   { to: "/shop", icon: Store, bn: "শপ", en: "Shop" },
   { to: "/services", icon: Briefcase, bn: "সার্ভিস", en: "Services" },
+  { to: "/request-service", icon: Send, bn: "সার্ভিস রিকোয়েস্ট", en: "Request Service" },
+  { to: "/movies", icon: Film, bn: "মুভি ও সিরিজ", en: "Movies & Series" },
   { to: "/marketplace", icon: Tag, bn: "ইউজড মার্কেট", en: "Used Market" },
   { to: "/rentals", icon: HomeIcon, bn: "বাসা ভাড়া", en: "Rentals" },
   // Calculators

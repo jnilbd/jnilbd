@@ -60,12 +60,16 @@ const MobileTabBar = () => {
                     <Link
                       key={m.to}
                       to={m.to}
-                      onClick={() => setMenuOpen(false)}
-                      className="flex flex-col items-center justify-center gap-1.5 p-3 rounded-2xl bg-muted/60 hover:bg-primary/10 hover:text-primary transition-smooth"
+                      onClick={() => setOpenMenu(null)}
+                      className={`flex flex-col items-center justify-center gap-1.5 p-3 rounded-2xl transition-smooth ${
+                        m.highlight
+                          ? "gradient-bg-warm text-white shadow-pink"
+                          : "bg-muted/60 hover:bg-primary/10 hover:text-primary"
+                      }`}
                     >
                       <m.icon className="w-6 h-6" />
                       <span className="text-[11px] font-semibold text-center leading-tight">
-                        {m.label}
+                        {language === "bn" ? m.bn : m.en}
                       </span>
                     </Link>
                   ))}
@@ -86,7 +90,7 @@ const MobileTabBar = () => {
                 <NavLink
                   key={tab.to}
                   to={tab.to}
-                  onClick={() => setMenuOpen(false)}
+                  onClick={() => setOpenMenu(null)}
                   className="relative flex flex-col items-center justify-center gap-0.5 h-full"
                 >
                   <div className={`relative flex items-center justify-center w-10 h-10 rounded-2xl transition-smooth ${active ? "gradient-bg-primary text-white shadow-glow" : "text-foreground/65"}`}>
@@ -106,7 +110,7 @@ const MobileTabBar = () => {
 
             {/* Menu */}
             <button
-              onClick={() => setMenuOpen((o) => !o)}
+              onClick={() => toggleMenu("bottom")}
               className="relative flex flex-col items-center justify-center gap-0.5 h-full"
               aria-label="Menu"
             >

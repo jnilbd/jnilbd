@@ -43,7 +43,7 @@ const Navbar = () => {
           </div>
           <div className="flex items-center gap-4 opacity-90">
             <span className="hidden lg:inline tracking-[0.2em] uppercase text-[10px] text-secondary font-semibold">
-              {language === "bn" ? "প্রিমিয়াম অল-ইন-ওয়ান প্ল্যাটফর্ম" : "Premium All-in-One Platform"}
+              {language === "bn" ? "৩০+ স্মার্ট টুল • কুরআন • আবহাওয়া • স্বাস্থ্য • ক্যালকুলেটর" : "30+ Smart Tools • Quran • Weather • Health • Calculators"}
             </span>
             <span className="text-[10px] tracking-wider uppercase opacity-70">EST. 2018</span>
           </div>

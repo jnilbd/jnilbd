@@ -14,33 +14,38 @@ const Home = () => {
   const featuredServices = services.slice(0, 3);
 
   const sectionCards = [
-    { to: "/shop", icon: ShoppingBag, titleKey: "nav.shop", descKey: "card.shop", color: "gradient-bg-primary" },
-    { to: "/services", icon: Briefcase, titleKey: "nav.services", descKey: "card.services", color: "gradient-bg-warm" },
-    { to: "/portfolio", icon: FolderKanban, titleKey: "nav.portfolio", descKey: "card.portfolio", color: "gradient-bg-cool" },
-    { to: "/blog", icon: BookOpen, titleKey: "nav.blog", descKey: "card.blog", color: "gradient-bg-primary" },
-    { to: "/marketplace", icon: Tag, titleKey: "nav.marketplace", descKey: "card.marketplace", color: "gradient-bg-warm" },
-    { to: "/rentals", icon: HomeIcon, titleKey: "nav.rentals", descKey: "card.rentals", color: "gradient-bg-cool" },
-    { to: "/appointment", icon: CalendarClock, titleKey: "nav.appointment", descKey: "card.appointment", color: "gradient-bg-primary" },
-    { to: "/finance", icon: Wallet, titleKey: "nav.finance", descKey: "card.finance", color: "gradient-bg-warm" },
-    { to: "/thumbnail", icon: ImageIcon, titleKey: "nav.thumbnail", descKey: "card.thumbnail", color: "gradient-bg-cool" },
-    { to: "/voice", icon: Mic, titleKey: "nav.voice", descKey: "card.voice", color: "gradient-bg-primary" },
-    { to: "/chat", icon: MessageCircle, titleKey: "nav.chat", descKey: "card.chat", color: "gradient-bg-warm" },
-    { to: "/namaz", icon: Compass, titleKey: "nav.namaz", descKey: "card.namaz", color: "gradient-bg-cool" },
+    // Sensitive / spiritual first
     { to: "/quran", icon: BookOpen, titleKey: "nav.quran", descKey: "card.quran", color: "gradient-bg-primary" },
-    { to: "/converter", icon: FileType, titleKey: "nav.converter", descKey: "card.converter", color: "gradient-bg-warm" },
-    { to: "/livetv", icon: Tv, titleKey: "nav.livetv", descKey: "card.livetv", color: "gradient-bg-cool" },
-    { to: "/downloader", icon: Download, titleKey: "nav.downloader", descKey: "card.downloader", color: "gradient-bg-primary" },
-    { to: "/scheduler", icon: Clock, titleKey: "nav.scheduler", descKey: "card.scheduler", color: "gradient-bg-warm" },
-    { to: "/land", icon: Map, titleKey: "nav.land", descKey: "card.land", color: "gradient-bg-cool" },
-    { to: "/height", icon: Ruler, titleKey: "nav.height", descKey: "card.height", color: "gradient-bg-primary" },
-    { to: "/health", icon: HeartPulse, titleKey: "nav.health", descKey: "card.health", color: "gradient-bg-warm" },
-    { to: "/solar", icon: Sun, titleKey: "nav.solar", descKey: "card.solar", color: "gradient-bg-cool" },
-    { to: "/vault", icon: Lock, titleKey: "nav.vault", descKey: "card.vault", color: "gradient-bg-primary" },
-    { to: "/tax", icon: Receipt, titleKey: "nav.tax", descKey: "card.tax", color: "gradient-bg-warm" },
-    { to: "/warish", icon: Scale, titleKey: "nav.warish", descKey: "card.warish", color: "gradient-bg-cool" },
-    { to: "/profit-loss", icon: Percent, titleKey: "nav.profitLoss", descKey: "card.profitLoss", color: "gradient-bg-primary" },
+    { to: "/namaz", icon: Compass, titleKey: "nav.namaz", descKey: "card.namaz", color: "gradient-bg-cool" },
+    // Daily-life essentials
     { to: "/weather", icon: CloudRain, titleKey: "nav.weather", descKey: "card.weather", color: "gradient-bg-warm" },
-    { to: "/gadget", icon: Smartphone, titleKey: "nav.gadget", descKey: "card.gadget", color: "gradient-bg-cool" },
+    { to: "/health", icon: HeartPulse, titleKey: "nav.health", descKey: "card.health", color: "gradient-bg-primary" },
+    { to: "/finance", icon: Wallet, titleKey: "nav.finance", descKey: "card.finance", color: "gradient-bg-cool" },
+    { to: "/vault", icon: Lock, titleKey: "nav.vault", descKey: "card.vault", color: "gradient-bg-warm" },
+    // Calculators
+    { to: "/tax", icon: Receipt, titleKey: "nav.tax", descKey: "card.tax", color: "gradient-bg-primary" },
+    { to: "/warish", icon: Scale, titleKey: "nav.warish", descKey: "card.warish", color: "gradient-bg-cool" },
+    { to: "/profit-loss", icon: Percent, titleKey: "nav.profitLoss", descKey: "card.profitLoss", color: "gradient-bg-warm" },
+    { to: "/land", icon: Map, titleKey: "nav.land", descKey: "card.land", color: "gradient-bg-primary" },
+    { to: "/height", icon: Ruler, titleKey: "nav.height", descKey: "card.height", color: "gradient-bg-cool" },
+    { to: "/solar", icon: Sun, titleKey: "nav.solar", descKey: "card.solar", color: "gradient-bg-warm" },
+    { to: "/gadget", icon: Smartphone, titleKey: "nav.gadget", descKey: "card.gadget", color: "gradient-bg-primary" },
+    // Tools
+    { to: "/converter", icon: FileType, titleKey: "nav.converter", descKey: "card.converter", color: "gradient-bg-cool" },
+    { to: "/downloader", icon: Download, titleKey: "nav.downloader", descKey: "card.downloader", color: "gradient-bg-warm" },
+    { to: "/thumbnail", icon: ImageIcon, titleKey: "nav.thumbnail", descKey: "card.thumbnail", color: "gradient-bg-primary" },
+    { to: "/voice", icon: Mic, titleKey: "nav.voice", descKey: "card.voice", color: "gradient-bg-cool" },
+    { to: "/scheduler", icon: Clock, titleKey: "nav.scheduler", descKey: "card.scheduler", color: "gradient-bg-warm" },
+    { to: "/livetv", icon: Tv, titleKey: "nav.livetv", descKey: "card.livetv", color: "gradient-bg-primary" },
+    { to: "/chat", icon: MessageCircle, titleKey: "nav.chat", descKey: "card.chat", color: "gradient-bg-cool" },
+    // Commerce / community
+    { to: "/shop", icon: ShoppingBag, titleKey: "nav.shop", descKey: "card.shop", color: "gradient-bg-warm" },
+    { to: "/services", icon: Briefcase, titleKey: "nav.services", descKey: "card.services", color: "gradient-bg-primary" },
+    { to: "/marketplace", icon: Tag, titleKey: "nav.marketplace", descKey: "card.marketplace", color: "gradient-bg-cool" },
+    { to: "/rentals", icon: HomeIcon, titleKey: "nav.rentals", descKey: "card.rentals", color: "gradient-bg-warm" },
+    { to: "/appointment", icon: CalendarClock, titleKey: "nav.appointment", descKey: "card.appointment", color: "gradient-bg-primary" },
+    { to: "/portfolio", icon: FolderKanban, titleKey: "nav.portfolio", descKey: "card.portfolio", color: "gradient-bg-cool" },
+    { to: "/blog", icon: BookOpen, titleKey: "nav.blog", descKey: "card.blog", color: "gradient-bg-warm" },
   ];
 
   return (
@@ -81,49 +86,7 @@ const Home = () => {
 
       <Marquee variant="primary" />
 
-      {/* About teaser - moved to top */}
-      <section className="py-12 md:py-20 bg-gradient-to-br from-primary/5 via-secondary/10 to-accent/5">
-        <div className="container">
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className="relative max-w-4xl mx-auto rounded-3xl overflow-hidden shadow-elegant border border-border/60 bg-card"
-          >
-            <div className="absolute -top-20 -right-20 w-64 h-64 rounded-full gradient-bg-warm opacity-20 blur-3xl" />
-            <div className="absolute -bottom-20 -left-20 w-64 h-64 rounded-full gradient-bg-cool opacity-20 blur-3xl" />
-            <div className="relative p-6 md:p-12">
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-secondary/15 text-secondary text-xs font-semibold mb-4">
-                <Sparkles className="w-3.5 h-3.5" />
-                {language === "bn" ? "আমার গল্প" : "My Story"}
-              </div>
-              <h2 className="text-3xl md:text-4xl font-display font-bold mb-4">
-                <span className="gradient-text">
-                  {language === "bn"
-                    ? "একটি গ্রাম থেকে শুরু — ২০০৬ থেকে এখনো অনলাইনে"
-                    : "From a small village — online since 2006"}
-                </span>
-              </h2>
-              <p className="text-base md:text-lg text-foreground/80 leading-relaxed mb-3">
-                {language === "bn"
-                  ? "আমি আবু সাঈদ, অনেকে আমাকে চেনেন জন নীল নামে। self-taught একজন ক্রিয়েটর — Free Internet, VPN Handler, ৪১টি Wapka সাইট, ৭৮ হাজার সদস্যের কমিউনিটি, অফলাইন সার্ভিস থেকে শুরু করে আবার এই নতুন অধ্যায় পর্যন্ত — প্রতিটা ধাপ নিজে শিখে এসেছি।"
-                  : "I'm Abu Saeed — most people know me as John Nil. A self-taught creator: free internet, VPN Handler, 41 Wapka sites, a 78K-member community, offline services, and now this new chapter — every step learned on my own."}
-              </p>
-              <p className="text-sm md:text-base text-muted-foreground mb-6 italic">
-                {language === "bn"
-                  ? "“যখন যেটা দরকার, সেটাই শিখেছি — আর অন্যদের সাথে শেয়ার করেছি।”"
-                  : "“I learned what I needed, when I needed it — and shared it with others.”"}
-              </p>
-              <Link to="/about">
-                <Button size="lg" className="rounded-full gradient-bg-primary text-white border-0 hover:opacity-90">
-                  {language === "bn" ? "পুরো গল্প পড়ুন" : "Read full story"}{" "}
-                  <ArrowRight className="ml-2 w-5 h-5" />
-                </Button>
-              </Link>
-            </div>
-          </motion.div>
-        </div>
-      </section>
+      {/* About teaser removed — keep focus on tools */}
 
       {/* Sections grid */}
       <section className="py-12 md:py-20 container">

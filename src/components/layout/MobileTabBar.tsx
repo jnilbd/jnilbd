@@ -1,14 +1,16 @@
 import { Link, NavLink, useLocation } from "react-router-dom";
-import { Home, Store, ShoppingCart, LayoutGrid, MessageCircle, X, Briefcase, FolderKanban, BookOpen, Tag, Home as HomeIcon, User, CalendarClock, ShieldCheck, Wallet, Image as ImageIcon, Mic, Compass, FileType, Tv, Download, Clock, Map, Ruler, HeartPulse, Sun, Lock, Receipt, Scale, Percent, CloudRain, Smartphone, Wifi } from "lucide-react";
-import { useState } from "react";
+import { Home, Store, ShoppingCart, LayoutGrid, X, CalendarClock } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useCart } from "@/contexts/CartContext";
+import { useMenu } from "@/contexts/MenuContext";
+import { ALL_CATEGORIES } from "@/lib/categories";
 
 const MobileTabBar = () => {
-  const { t, language } = useLanguage();
+  const { language } = useLanguage();
   const { count } = useCart();
-  const [menuOpen, setMenuOpen] = useState(false);
+  const { openMenu, toggleMenu, setOpenMenu } = useMenu();
+  const menuOpen = openMenu === "bottom";
   const location = useLocation();
 
   const tabs = [

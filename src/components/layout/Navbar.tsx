@@ -16,6 +16,7 @@ const Navbar = () => {
     { to: "/", key: "nav.home" },
     { to: "/shop", key: "nav.shop" },
     { to: "/services", key: "nav.services" },
+    { to: "/finance", key: "nav.finance" },
     { to: "/portfolio", key: "nav.portfolio" },
     { to: "/blog", key: "nav.blog" },
     { to: "/marketplace", key: "nav.marketplace" },

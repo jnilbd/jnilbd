@@ -23,6 +23,7 @@ const MobileTabBar = () => {
     { to: "/namaz", icon: Compass, label: language === "bn" ? "নামাজ" : "Namaz" },
     // Daily essentials
     { to: "/weather", icon: CloudRain, label: language === "bn" ? "আবহাওয়া" : "Weather" },
+    { to: "/free-internet", icon: Wifi, label: language === "bn" ? "ফ্রি ইন্টারনেট" : "Free Internet" },
     { to: "/health", icon: HeartPulse, label: language === "bn" ? "স্বাস্থ্য" : "Health" },
     { to: "/finance", icon: Wallet, label: language === "bn" ? "ফিন্যান্স" : "Finance" },
     { to: "/vault", icon: Lock, label: language === "bn" ? "ভল্ট" : "Vault" },

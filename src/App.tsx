@@ -5,7 +5,10 @@ import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { LanguageProvider } from "@/contexts/LanguageContext";
 import { CartProvider } from "@/contexts/CartContext";
+import { AuthProvider } from "@/hooks/useAuth";
 import Layout from "@/components/layout/Layout";
+import Auth from "./pages/Auth";
+import Finance from "./pages/Finance";
 import Home from "./pages/Home";
 import Shop from "./pages/Shop";
 import ProductDetail from "./pages/ProductDetail";
@@ -29,6 +32,7 @@ const queryClient = new QueryClient();
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <LanguageProvider>
+      <AuthProvider>
       <CartProvider>
         <TooltipProvider>
           <Toaster />
@@ -49,6 +53,8 @@ const App = () => (
                 <Route path="/about" element={<About />} />
                 <Route path="/appointment" element={<Appointment />} />
                 <Route path="/policies" element={<Policies />} />
+                <Route path="/auth" element={<Auth />} />
+                <Route path="/finance" element={<Finance />} />
                 <Route path="/cart" element={<Cart />} />
                 <Route path="/checkout" element={<Checkout />} />
                 <Route path="/order-confirmation/:id" element={<OrderConfirmation />} />
@@ -58,6 +64,7 @@ const App = () => (
           </BrowserRouter>
         </TooltipProvider>
       </CartProvider>
+      </AuthProvider>
     </LanguageProvider>
   </QueryClientProvider>
 );

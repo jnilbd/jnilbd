@@ -19,42 +19,8 @@ const MobileTabBar = () => {
     { to: "/cart", icon: ShoppingCart, label: language === "bn" ? "কার্ট" : "Cart", badge: count },
   ];
 
-  const menuItems = [
-    // Sensitive / spiritual first
-    { to: "/quran", icon: BookOpen, label: language === "bn" ? "কুরআন" : "Quran" },
-    { to: "/namaz", icon: Compass, label: language === "bn" ? "নামাজ" : "Namaz" },
-    // Daily essentials
-    { to: "/weather", icon: CloudRain, label: language === "bn" ? "আবহাওয়া" : "Weather" },
-    { to: "/free-internet", icon: Wifi, label: language === "bn" ? "ফ্রি ইন্টারনেট" : "Free Internet" },
-    { to: "/health", icon: HeartPulse, label: language === "bn" ? "স্বাস্থ্য" : "Health" },
-    { to: "/finance", icon: Wallet, label: language === "bn" ? "ফিন্যান্স" : "Finance" },
-    { to: "/vault", icon: Lock, label: language === "bn" ? "ভল্ট" : "Vault" },
-    // Calculators
-    { to: "/tax", icon: Receipt, label: language === "bn" ? "ট্যাক্স" : "Tax" },
-    { to: "/warish", icon: Scale, label: language === "bn" ? "ওয়ারিশ" : "Warish" },
-    { to: "/profit-loss", icon: Percent, label: language === "bn" ? "লাভ/ক্ষতি" : "Profit/Loss" },
-    { to: "/land", icon: Map, label: language === "bn" ? "ভূমি জরিপ" : "Land Survey" },
-    { to: "/height", icon: Ruler, label: language === "bn" ? "উচ্চতা" : "Height" },
-    { to: "/solar", icon: Sun, label: language === "bn" ? "সোলার" : "Solar" },
-    { to: "/gadget", icon: Smartphone, label: language === "bn" ? "গ্যাজেট" : "Gadget" },
-    // Tools
-    { to: "/converter", icon: FileType, label: language === "bn" ? "কনভার্টার" : "Converter" },
-    { to: "/downloader", icon: Download, label: language === "bn" ? "ডাউনলোডার" : "Downloader" },
-    { to: "/thumbnail", icon: ImageIcon, label: language === "bn" ? "থাম্বনেইল" : "Thumbnail" },
-    { to: "/voice", icon: Mic, label: language === "bn" ? "ভয়েস" : "Voice" },
-    { to: "/scheduler", icon: Clock, label: language === "bn" ? "শিডিউল মেসেজ" : "Scheduler" },
-    { to: "/livetv", icon: Tv, label: language === "bn" ? "লাইভ টিভি" : "Live TV" },
-    { to: "/chat", icon: MessageCircle, label: language === "bn" ? "লাইভ চ্যাট" : "Live Chat" },
-    // Commerce / community
-    { to: "/services", icon: Briefcase, label: t("nav.services") },
-    { to: "/marketplace", icon: Tag, label: t("nav.marketplace") },
-    { to: "/rentals", icon: HomeIcon, label: t("nav.rentals") },
-    { to: "/appointment", icon: CalendarClock, label: language === "bn" ? "অ্যাপয়েন্টমেন্ট" : "Appointment" },
-    { to: "/portfolio", icon: FolderKanban, label: t("nav.portfolio") },
-    { to: "/blog", icon: BookOpen, label: t("nav.blog") },
-    { to: "/about", icon: User, label: t("nav.about") },
-    { to: "/policies", icon: ShieldCheck, label: language === "bn" ? "পলিসি" : "Policies" },
-  ];
+  const menuItems = ALL_CATEGORIES.filter((c) => c.to !== "/");
+
 
   return (
     <>
@@ -66,7 +32,7 @@ const MobileTabBar = () => {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              onClick={() => setMenuOpen(false)}
+              onClick={() => setOpenMenu(null)}
               className="fixed inset-0 bg-foreground/40 backdrop-blur-sm z-40 lg:hidden"
             />
             <motion.div
@@ -82,7 +48,7 @@ const MobileTabBar = () => {
                     {language === "bn" ? "সব ক্যাটাগরি" : "All Categories"}
                   </span>
                   <button
-                    onClick={() => setMenuOpen(false)}
+                    onClick={() => setOpenMenu(null)}
                     className="w-8 h-8 rounded-full bg-muted flex items-center justify-center"
                     aria-label="Close"
                   >

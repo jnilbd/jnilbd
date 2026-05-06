@@ -1,12 +1,15 @@
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import { CloudRain, Wind, Thermometer, Droplets, AlertTriangle, MapPin, Sun, CloudSnow, Cloud, Search, Loader2 } from "lucide-react";
+import { CloudRain, Wind, Thermometer, Droplets, AlertTriangle, MapPin, Sun, CloudSnow, Cloud, Search, Loader2, BellRing } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
+import { PAGE_BANNERS } from "@/lib/siteImages";
 
 interface City { name: string; lat: number; lon: number; country: string }
 

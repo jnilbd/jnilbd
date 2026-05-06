@@ -56,8 +56,9 @@ const Home = () => {
     <div>
       {/* Hero */}
       <section className="relative overflow-hidden min-h-[78vh] md:min-h-[88vh] flex items-center">
-        <div className="absolute inset-0 animated-gradient opacity-90" />
-        <div className="absolute inset-0 bg-background/10" />
+        <img src={PAGE_BANNERS.hero} alt="Bangladesh — Dhaka skyline at golden hour" className="absolute inset-0 w-full h-full object-cover" width={1920} height={1080} />
+        <div className="absolute inset-0 animated-gradient opacity-80 mix-blend-multiply" />
+        <div className="absolute inset-0 bg-background/30" />
         <div className="blob w-[320px] h-[320px] md:w-[500px] md:h-[500px] bg-white/30 top-10 -left-20 animate-float" />
         <div className="blob w-[260px] h-[260px] md:w-[400px] md:h-[400px] bg-secondary/40 bottom-10 right-10 animate-float" style={{ animationDelay: "2s" }} />
 

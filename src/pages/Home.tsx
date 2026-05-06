@@ -7,7 +7,7 @@ import Marquee from "@/components/Marquee";
 import ProductCard from "@/components/ProductCard";
 import ServiceCard from "@/components/ServiceCard";
 import { products, services, reviews } from "@/data/mockData";
-import { displayImage, fallbackImageHandler } from "@/lib/siteImages";
+import { displayImage, fallbackImageHandler, PAGE_BANNERS } from "@/lib/siteImages";
 
 const Home = () => {
   const { t, language } = useLanguage();

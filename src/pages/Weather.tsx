@@ -65,6 +65,34 @@ const Weather = () => {
   const [loading, setLoading] = useState(false);
   const [data, setData] = useState<any>(null);
   const [search, setSearch] = useState("");
+  const [subPhone, setSubPhone] = useState("");
+  const [subName, setSubName] = useState("");
+  const [subbing, setSubbing] = useState(false);
+
+  const subscribeAlerts = async () => {
+    if (!/^(\+?88)?01[3-9]\d{8}$/.test(subPhone.replace(/\s/g, ""))) {
+      toast.error(isBn ? "সঠিক মোবাইল নম্বর দিন" : "Enter a valid mobile number");
+      return;
+    }
+    setSubbing(true);
+    try {
+      const { error } = await supabase.from("weather_alert_subscribers").insert({
+        phone: subPhone.trim(),
+        name: subName.trim() || null,
+        city: city.name,
+        lat: city.lat,
+        lon: city.lon,
+        language: isBn ? "bn" : "en",
+      });
+      if (error && !String(error.message).includes("duplicate")) throw error;
+      toast.success(isBn ? "✅ সাবস্ক্রিপশন সম্পন্ন — দুর্যোগে SMS পাবেন" : "✅ Subscribed — you'll get SMS during severe weather");
+      setSubPhone(""); setSubName("");
+    } catch (e: any) {
+      toast.error(e.message || "Failed");
+    } finally {
+      setSubbing(false);
+    }
+  };
 
   const fetchWeather = async (c: City) => {
     setLoading(true);

@@ -102,7 +102,7 @@ const App = () => (
                 <Route path="/weather" element={<Weather />} />
                 <Route path="/gadget" element={<GadgetAdvisor />} />
                 <Route path="/free-internet" element={<FreeInternet />} />
-                <Route path="/request-service" element={<ServiceRequest />} />
+                <Route path="/request-service" element={<Navigate to="/services#request-service" replace />} />
                 <Route path="/movies" element={<Movies />} />
                 <Route path="/railway" element={<Railway />} />
                 <Route path="/phone-lookup" element={<PhoneLookup />} />

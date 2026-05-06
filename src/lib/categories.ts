@@ -27,7 +27,6 @@ export const ALL_CATEGORIES: CategoryItem[] = [
   // Commerce
   { to: "/shop", icon: Store, bn: "শপ", en: "Shop" },
   { to: "/services", icon: Briefcase, bn: "সার্ভিস", en: "Services" },
-  { to: "/request-service", icon: Send, bn: "সার্ভিস রিকোয়েস্ট", en: "Request Service" },
   { to: "/movies", icon: Film, bn: "মুভি ও সিরিজ", en: "Movies & Series" },
   { to: "/marketplace", icon: Tag, bn: "ইউজড মার্কেট", en: "Used Market" },
   { to: "/rentals", icon: HomeIcon, bn: "বাসা ভাড়া", en: "Rentals" },

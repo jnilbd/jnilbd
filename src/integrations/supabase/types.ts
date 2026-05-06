@@ -437,6 +437,45 @@ export type Database = {
         }
         Relationships: []
       }
+      weather_alert_subscribers: {
+        Row: {
+          active: boolean
+          city: string
+          created_at: string
+          id: string
+          language: string
+          lat: number
+          lon: number
+          name: string | null
+          phone: string
+          updated_at: string
+        }
+        Insert: {
+          active?: boolean
+          city: string
+          created_at?: string
+          id?: string
+          language?: string
+          lat: number
+          lon: number
+          name?: string | null
+          phone: string
+          updated_at?: string
+        }
+        Update: {
+          active?: boolean
+          city?: string
+          created_at?: string
+          id?: string
+          language?: string
+          lat?: number
+          lon?: number
+          name?: string | null
+          phone?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

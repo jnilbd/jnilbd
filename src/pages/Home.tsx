@@ -7,7 +7,7 @@ import Marquee from "@/components/Marquee";
 import ProductCard from "@/components/ProductCard";
 import ServiceCard from "@/components/ServiceCard";
 import { products, services, reviews } from "@/data/mockData";
-import { displayImage, fallbackImageHandler } from "@/lib/siteImages";
+import { displayImage, fallbackImageHandler, PAGE_BANNERS } from "@/lib/siteImages";
 
 const Home = () => {
   const { t, language } = useLanguage();
@@ -43,7 +43,7 @@ const Home = () => {
     // Commerce / community
     { to: "/shop", icon: ShoppingBag, titleKey: "nav.shop", descKey: "card.shop", color: "gradient-bg-warm" },
     { to: "/services", icon: Briefcase, titleKey: "nav.services", descKey: "card.services", color: "gradient-bg-primary" },
-    { to: "/request-service", icon: Send, titleKey: "nav.requestService", descKey: "card.requestService", color: "gradient-bg-warm" },
+    { to: "/services#request-service", icon: Send, titleKey: "nav.requestService", descKey: "card.requestService", color: "gradient-bg-warm" },
     { to: "/movies", icon: Film, titleKey: "nav.movies", descKey: "card.movies", color: "gradient-bg-cool" },
     { to: "/marketplace", icon: Tag, titleKey: "nav.marketplace", descKey: "card.marketplace", color: "gradient-bg-cool" },
     { to: "/rentals", icon: HomeIcon, titleKey: "nav.rentals", descKey: "card.rentals", color: "gradient-bg-warm" },
@@ -56,8 +56,9 @@ const Home = () => {
     <div>
       {/* Hero */}
       <section className="relative overflow-hidden min-h-[78vh] md:min-h-[88vh] flex items-center">
-        <div className="absolute inset-0 animated-gradient opacity-90" />
-        <div className="absolute inset-0 bg-background/10" />
+        <img src={PAGE_BANNERS.hero} alt="Bangladesh — Dhaka skyline at golden hour" className="absolute inset-0 w-full h-full object-cover" width={1920} height={1080} />
+        <div className="absolute inset-0 animated-gradient opacity-80 mix-blend-multiply" />
+        <div className="absolute inset-0 bg-background/30" />
         <div className="blob w-[320px] h-[320px] md:w-[500px] md:h-[500px] bg-white/30 top-10 -left-20 animate-float" />
         <div className="blob w-[260px] h-[260px] md:w-[400px] md:h-[400px] bg-secondary/40 bottom-10 right-10 animate-float" style={{ animationDelay: "2s" }} />
 

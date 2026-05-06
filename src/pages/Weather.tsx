@@ -1,12 +1,15 @@
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import { CloudRain, Wind, Thermometer, Droplets, AlertTriangle, MapPin, Sun, CloudSnow, Cloud, Search, Loader2 } from "lucide-react";
+import { CloudRain, Wind, Thermometer, Droplets, AlertTriangle, MapPin, Sun, CloudSnow, Cloud, Search, Loader2, BellRing } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
+import { PAGE_BANNERS } from "@/lib/siteImages";
 
 interface City { name: string; lat: number; lon: number; country: string }
 
@@ -62,6 +65,34 @@ const Weather = () => {
   const [loading, setLoading] = useState(false);
   const [data, setData] = useState<any>(null);
   const [search, setSearch] = useState("");
+  const [subPhone, setSubPhone] = useState("");
+  const [subName, setSubName] = useState("");
+  const [subbing, setSubbing] = useState(false);
+
+  const subscribeAlerts = async () => {
+    if (!/^(\+?88)?01[3-9]\d{8}$/.test(subPhone.replace(/\s/g, ""))) {
+      toast.error(isBn ? "সঠিক মোবাইল নম্বর দিন" : "Enter a valid mobile number");
+      return;
+    }
+    setSubbing(true);
+    try {
+      const { error } = await supabase.from("weather_alert_subscribers").insert({
+        phone: subPhone.trim(),
+        name: subName.trim() || null,
+        city: city.name,
+        lat: city.lat,
+        lon: city.lon,
+        language: isBn ? "bn" : "en",
+      });
+      if (error && !String(error.message).includes("duplicate")) throw error;
+      toast.success(isBn ? "✅ সাবস্ক্রিপশন সম্পন্ন — দুর্যোগে SMS পাবেন" : "✅ Subscribed — you'll get SMS during severe weather");
+      setSubPhone(""); setSubName("");
+    } catch (e: any) {
+      toast.error(e.message || "Failed");
+    } finally {
+      setSubbing(false);
+    }
+  };
 
   const fetchWeather = async (c: City) => {
     setLoading(true);
@@ -126,12 +157,45 @@ const Weather = () => {
   return (
     <div className="container py-8 max-w-5xl">
       <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
+        <div className="rounded-3xl overflow-hidden mb-6 shadow-elegant">
+          <img src={PAGE_BANNERS.weather} alt="Bangladesh weather" loading="lazy" width={1280} height={420} className="w-full h-48 md:h-64 object-cover" />
+        </div>
         <h1 className="text-3xl md:text-4xl font-display font-bold mb-2">
           {isBn ? "🌤️ আবহাওয়া ও সতর্কতা" : "🌤️ Weather & Alerts"}
         </h1>
         <p className="text-muted-foreground mb-6">
           {isBn ? "বাংলাদেশ ও ভারতের নিকটবর্তী এলাকার সবচেয়ে নির্ভুল আবহাওয়া (Open-Meteo)" : "Accurate forecast for BD & nearby IN regions"}
         </p>
+
+        <Card className="mb-6 border-2 border-primary/40 bg-primary/5">
+          <CardHeader className="pb-2">
+            <CardTitle className="flex items-center gap-2 text-primary text-base md:text-lg">
+              <BellRing className="w-5 h-5" />
+              {isBn ? "দুর্যোগে SMS অ্যালার্ট পেতে সাবস্ক্রাইব করুন" : "Subscribe for SMS alerts during severe weather"}
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            <p className="text-xs text-muted-foreground">
+              {isBn
+                ? `${city.name} অঞ্চলে ঝড়, বজ্রপাত, ভারী বৃষ্টি বা চরম তাপমাত্রার সতর্কতা সরাসরি ফোনে।`
+                : `Get storm, lightning, heavy rain or extreme temperature alerts for ${city.name} on your phone.`}
+            </p>
+            <div className="grid sm:grid-cols-2 gap-3">
+              <div>
+                <Label className="text-xs">{isBn ? "নাম (ঐচ্ছিক)" : "Name (optional)"}</Label>
+                <Input value={subName} onChange={(e) => setSubName(e.target.value)} placeholder={isBn ? "আপনার নাম" : "Your name"} />
+              </div>
+              <div>
+                <Label className="text-xs">{isBn ? "মোবাইল নম্বর *" : "Mobile *"}</Label>
+                <Input value={subPhone} onChange={(e) => setSubPhone(e.target.value)} placeholder="01XXXXXXXXX" />
+              </div>
+            </div>
+            <Button onClick={subscribeAlerts} disabled={subbing} className="w-full sm:w-auto rounded-full gradient-bg-primary text-white">
+              <BellRing className="w-4 h-4 mr-2" />
+              {subbing ? (isBn ? "প্রসেস হচ্ছে..." : "Processing...") : (isBn ? "সাবস্ক্রাইব করুন" : "Subscribe")}
+            </Button>
+          </CardContent>
+        </Card>
 
         <div className="flex gap-2 mb-4 flex-wrap">
           <Input placeholder={isBn ? "শহর খুঁজুন..." : "Search city..."} value={search} onChange={(e) => setSearch(e.target.value)} onKeyDown={(e) => e.key === "Enter" && handleSearch()} className="flex-1 min-w-[200px]" />

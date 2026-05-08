@@ -43,7 +43,7 @@ const Home = () => {
     // Commerce / community
     { to: "/shop", icon: ShoppingBag, titleKey: "nav.shop", descKey: "card.shop", color: "gradient-bg-warm" },
     { to: "/services", icon: Briefcase, titleKey: "nav.services", descKey: "card.services", color: "gradient-bg-primary" },
-    { to: "/services#request-service", icon: Send, titleKey: "nav.requestService", descKey: "card.requestService", color: "gradient-bg-warm" },
+    
     { to: "/movies", icon: Film, titleKey: "nav.movies", descKey: "card.movies", color: "gradient-bg-cool" },
     { to: "/marketplace", icon: Tag, titleKey: "nav.marketplace", descKey: "card.marketplace", color: "gradient-bg-cool" },
     { to: "/rentals", icon: HomeIcon, titleKey: "nav.rentals", descKey: "card.rentals", color: "gradient-bg-warm" },

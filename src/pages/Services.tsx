@@ -20,15 +20,15 @@ const Services = () => {
         </div>
       </section>
 
+      {/* Service request — placed on top per request */}
+      <section id="request-service" className="bg-muted/30 border-b border-border/50 scroll-mt-20">
+        <ServiceRequest />
+      </section>
+
       <section className="container py-12">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {services.map((s, i) => <ServiceCard key={s.id} service={s} index={i} />)}
         </div>
-      </section>
-
-      {/* Inline service request — merged from /request-service */}
-      <section id="request-service" className="bg-muted/30 border-t border-border/50 scroll-mt-20">
-        <ServiceRequest />
       </section>
     </div>
   );

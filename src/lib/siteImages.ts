@@ -36,9 +36,10 @@ export const visualImage = (id: string, _label?: string, _eyebrow?: string) =>
   BD_PHOTOS[hash(id) % BD_PHOTOS.length];
 
 export const displayImage = (source: string | undefined, id: string, label?: string, eyebrow?: string) => {
-  if (!source || source.includes("images.unsplash.com") || source.includes("pravatar.cc")) {
-    return visualImage(id, label, eyebrow);
-  }
+  // Trust real source URLs (e.g. curated unsplash photos for products/services so each item
+  // shows its own topical image). Only fall back when no source was provided at all — runtime
+  // load failures are handled separately via fallbackImageHandler's onError.
+  if (!source) return visualImage(id, label, eyebrow);
   return source;
 };
 

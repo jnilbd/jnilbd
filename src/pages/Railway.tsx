@@ -234,7 +234,6 @@ export default function Railway() {
     toast({ title: isBn ? "অ্যালার্ট বন্ধ" : "Alert stopped" });
   };
 
-  };
 
   return (
     <div className="container mx-auto px-4 py-8 max-w-6xl">

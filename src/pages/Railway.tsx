@@ -359,43 +359,139 @@ export default function Railway() {
         </TabsContent>
 
         {/* ALERT TAB */}
-        <TabsContent value="alert">
-          <Card className="p-6 max-w-xl mx-auto">
+        <TabsContent value="alert" className="space-y-4">
+          <Card className="p-6 max-w-2xl mx-auto">
             <h3 className="font-bold text-lg mb-2 flex items-center gap-2">
-              <Bell className="h-5 w-5 text-primary" />
-              {isBn ? "টিকেট খালি হলে SMS পান" : "SMS Alert when Seats Open"}
+              <BellRing className="h-5 w-5 text-primary" />
+              {isBn ? "টিকেট খালি হলে সাথে সাথে অ্যালার্ট" : "Instant alert when seats open"}
             </h3>
             <p className="text-sm text-muted-foreground mb-4">
               {isBn
-                ? "যদি বর্তমানে সব টিকেট sold out থাকে, ক্যানসেলেশন থেকে যখন সিট খালি হবে আমরা আপনাকে SMS-এ জানাব।"
-                : "If tickets are sold out now, we'll SMS you the moment a cancelled seat becomes available."}
+                ? "প্রতি ২ মিনিটে আমরা অফিসিয়াল BR সার্ভার চেক করি। ক্যানসেল বা এক্সট্রা বগি যোগ হলে সিট খালি হওয়া মাত্রই আপনার ব্রাউজারে নোটিফিকেশন পাঠাই — পেজ বারবার রিফ্রেশ করতে হবে না, একদম ফ্রি।"
+                : "Every 2 minutes we poll the official BR server. The moment seats open (cancellation or extra coach), you get a browser notification — no refresh, no cost."}
             </p>
-            <div className="space-y-3">
-              <div>
-                <Label>{isBn ? "রুট" : "Route"}</Label>
-                <div className="text-sm font-medium mt-1">{from} → {to} • {date}</div>
+
+            {subscribed ? (
+              <div className="space-y-4">
+                <div className="flex items-center gap-2 p-3 rounded-md bg-green-500/10 text-green-700 dark:text-green-300">
+                  <CheckCircle2 className="h-5 w-5" />
+                  <div className="text-sm font-medium">
+                    {isBn ? "অ্যালার্ট সক্রিয়" : "Alert active"} — {subscribed.phone}
+                  </div>
+                </div>
+                <div className="text-sm">
+                  <Label className="text-xs">{isBn ? "রুট" : "Route"}</Label>
+                  <div className="font-medium">{from} → {to} • {date}</div>
+                </div>
+                <Button variant="outline" onClick={handleUnsubscribe} className="w-full">
+                  {isBn ? "অ্যালার্ট বন্ধ করুন" : "Stop alert"}
+                </Button>
+
+                {liveAlerts.length > 0 && (
+                  <div className="pt-4 border-t space-y-2">
+                    <div className="text-sm font-semibold">{isBn ? "সাম্প্রতিক অ্যালার্ট" : "Recent alerts"}</div>
+                    {liveAlerts.map((n) => (
+                      <Card key={n.id} className="p-3 bg-primary/5 border-primary/20">
+                        <div className="text-sm">{n.message}</div>
+                        <div className="text-xs text-muted-foreground mt-1">
+                          {new Date(n.created_at).toLocaleString()}
+                        </div>
+                      </Card>
+                    ))}
+                  </div>
+                )}
               </div>
-              <div>
-                <Label>{isBn ? "ফোন নাম্বার" : "Phone number"}</Label>
-                <Input
-                  type="tel"
-                  placeholder="01XXXXXXXXX"
-                  value={phone}
-                  onChange={(e) => setPhone(e.target.value)}
-                />
+            ) : (
+              <div className="space-y-3">
+                <div className="grid sm:grid-cols-2 gap-3">
+                  <div>
+                    <Label>{isBn ? "কোথা থেকে" : "From"}</Label>
+                    <select value={from} onChange={(e) => setFrom(e.target.value)} className="w-full h-10 rounded-md border border-input bg-background px-3 text-sm">
+                      {STATIONS.map((s) => <option key={s} value={s}>{s}</option>)}
+                    </select>
+                  </div>
+                  <div>
+                    <Label>{isBn ? "কোথায়" : "To"}</Label>
+                    <select value={to} onChange={(e) => setTo(e.target.value)} className="w-full h-10 rounded-md border border-input bg-background px-3 text-sm">
+                      {STATIONS.map((s) => <option key={s} value={s}>{s}</option>)}
+                    </select>
+                  </div>
+                  <div>
+                    <Label>{isBn ? "যাত্রার তারিখ" : "Journey date"}</Label>
+                    <Input type="date" value={date} onChange={(e) => setDate(e.target.value)} />
+                  </div>
+                  <div>
+                    <Label>{isBn ? "ট্রেন (ঐচ্ছিক)" : "Train (optional)"}</Label>
+                    <Input placeholder={isBn ? "যেকোনো ট্রেন" : "Any train"} value={alertTrain} onChange={(e) => setAlertTrain(e.target.value)} />
+                  </div>
+                </div>
+
+                <div>
+                  <Label>{isBn ? "ক্লাস (ঐচ্ছিক)" : "Seat class (optional)"}</Label>
+                  <select value={alertClass} onChange={(e) => setAlertClass(e.target.value)} className="w-full h-10 rounded-md border border-input bg-background px-3 text-sm">
+                    <option value="">{isBn ? "যেকোনো ক্লাস" : "Any class"}</option>
+                    <option value="AC_B">AC Berth</option>
+                    <option value="AC_S">AC Seat</option>
+                    <option value="SNIGDHA">Snigdha</option>
+                    <option value="S_CHAIR">Shovan Chair</option>
+                    <option value="SHOVAN">Shovan</option>
+                  </select>
+                </div>
+
+                <div className="grid sm:grid-cols-2 gap-3">
+                  <div>
+                    <Label>{isBn ? "নাম (ঐচ্ছিক)" : "Your name (optional)"}</Label>
+                    <Input value={alertName} onChange={(e) => setAlertName(e.target.value)} />
+                  </div>
+                  <div>
+                    <Label>{isBn ? "ফোন নাম্বার" : "Phone number"} *</Label>
+                    <Input type="tel" placeholder="01XXXXXXXXX" value={phone} onChange={(e) => setPhone(e.target.value)} />
+                  </div>
+                </div>
+
+                <div>
+                  <Label>{isBn ? "কোথায় অ্যালার্ট চান" : "Notify me via"}</Label>
+                  <div className="grid grid-cols-3 gap-2 mt-1">
+                    {([
+                      { v: "browser", bn: "ব্রাউজার (ফ্রি)", en: "Browser (Free)" },
+                      { v: "sms", bn: "SMS", en: "SMS" },
+                      { v: "whatsapp", bn: "WhatsApp", en: "WhatsApp" },
+                    ] as const).map((o) => (
+                      <button
+                        key={o.v}
+                        type="button"
+                        onClick={() => setAlertChannel(o.v)}
+                        className={`h-10 rounded-md border text-xs font-medium transition-colors ${alertChannel === o.v ? "border-primary bg-primary/10 text-primary" : "border-input bg-background"}`}
+                      >
+                        {isBn ? o.bn : o.en}
+                      </button>
+                    ))}
+                  </div>
+                  {alertChannel !== "browser" && (
+                    <p className="text-xs text-muted-foreground mt-2">
+                      {isBn
+                        ? "SMS/WhatsApp ডেলিভারি Twilio গেটওয়ে সক্রিয় হলে চালু হবে। এখনই ব্রাউজার নোটিফিকেশন ফ্রিতে চলবে।"
+                        : "SMS/WhatsApp delivery activates when Twilio gateway is configured. Browser notifications work now for free."}
+                    </p>
+                  )}
+                </div>
+
+                <Button onClick={handleAlertSubscribe} disabled={subscribing} className="w-full">
+                  <Bell className="h-4 w-4 mr-2" />
+                  {subscribing
+                    ? (isBn ? "সাবস্ক্রাইব হচ্ছে..." : "Subscribing...")
+                    : (isBn ? "অ্যালার্ট চালু করুন (ফ্রি)" : "Start free alert")}
+                </Button>
+                <p className="text-xs text-muted-foreground text-center">
+                  {isBn
+                    ? "প্রম্পট এলে \"Allow\" দিন — তবেই ব্যাকগ্রাউন্ডে নোটিফিকেশন কাজ করবে।"
+                    : "Click \"Allow\" on the browser prompt so notifications work in the background."}
+                </p>
               </div>
-              <Button onClick={handleAlertSubscribe} className="w-full">
-                <Bell className="h-4 w-4 mr-2" />
-                {isBn ? "অ্যালার্ট চালু করুন" : "Subscribe to Alerts"}
-              </Button>
-              <p className="text-xs text-muted-foreground">
-                {isBn
-                  ? "বিঃদ্রঃ SMS গেটওয়ে কনফিগার করার পর সক্রিয় হবে।"
-                  : "Note: Alerts activate once SMS gateway is configured."}
-              </p>
-            </div>
+            )}
           </Card>
         </TabsContent>
+
 
         {/* TRACKER TAB */}
         <TabsContent value="tracker">

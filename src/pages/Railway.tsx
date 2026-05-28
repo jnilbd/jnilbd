@@ -79,12 +79,19 @@ const todayDay = () => new Date().toLocaleDateString("en-US", { weekday: "long" 
 export default function Railway() {
   const { language } = useLanguage();
   const isBn = language === "bn";
-  const { toast } = useToast();
   const [from, setFrom] = useState("Dhaka (Kamalapur)");
   const [to, setTo] = useState("Chattogram");
   const [date, setDate] = useState(new Date().toISOString().slice(0, 10));
   const [phone, setPhone] = useState("");
+  const [alertName, setAlertName] = useState("");
+  const [alertChannel, setAlertChannel] = useState<"browser" | "sms" | "whatsapp">("browser");
+  const [alertTrain, setAlertTrain] = useState<string>("");
+  const [alertClass, setAlertClass] = useState<string>("");
+  const [subscribing, setSubscribing] = useState(false);
+  const [subscribed, setSubscribed] = useState<{ id: string; phone: string } | null>(null);
+  const [liveAlerts, setLiveAlerts] = useState<any[]>([]);
   const [searchedPair, setSearchedPair] = useState<{ from: string; to: string } | null>(null);
+  const channelRef = useRef<ReturnType<typeof supabase.channel> | null>(null);
 
   const matches = useMemo(() => {
     if (!searchedPair) return [];
@@ -98,7 +105,6 @@ export default function Railway() {
   const today = todayDay();
 
   const eticketUrl = (t: Train) => {
-    // Official BR eticket — direct deep link with prefilled stations & date.
     const params = new URLSearchParams({
       fromcity: t.from.split(" ")[0],
       tocity: t.to.split(" ")[0],
@@ -110,37 +116,124 @@ export default function Railway() {
 
   const handleSearch = () => setSearchedPair({ from, to });
 
+  // Restore subscription from localStorage so refresh keeps the active alert
+  useEffect(() => {
+    const saved = localStorage.getItem("train_alert_sub");
+    if (saved) {
+      try { setSubscribed(JSON.parse(saved)); } catch { /* ignore */ }
+    }
+  }, []);
+
+  // Subscribe to realtime notifications for this phone
+  useEffect(() => {
+    if (!subscribed?.phone) return;
+    // Ask browser notification permission once
+    if (typeof Notification !== "undefined" && Notification.permission === "default") {
+      Notification.requestPermission().catch(() => {});
+    }
+    // Load any recent existing notifications
+    supabase
+      .from("train_alert_notifications")
+      .select("*")
+      .eq("phone", subscribed.phone)
+      .order("created_at", { ascending: false })
+      .limit(10)
+      .then(({ data }) => { if (data) setLiveAlerts(data); });
+
+    channelRef.current = supabase
+      .channel(`train-alerts-${subscribed.phone}`)
+      .on(
+        "postgres_changes",
+        { event: "INSERT", schema: "public", table: "train_alert_notifications", filter: `phone=eq.${subscribed.phone}` },
+        (payload) => {
+          const n: any = payload.new;
+          setLiveAlerts((prev) => [n, ...prev].slice(0, 20));
+          // Browser notification
+          if (typeof Notification !== "undefined" && Notification.permission === "granted") {
+            try {
+              new Notification(isBn ? "🚆 ট্রেন টিকেট পাওয়া যাচ্ছে!" : "🚆 Train tickets available!", {
+                body: n.message,
+                icon: "/placeholder.svg",
+                tag: `train-${n.id}`,
+              });
+            } catch { /* ignore */ }
+          }
+          // Toast fallback
+          toast({
+            title: isBn ? "🚆 টিকেট পাওয়া যাচ্ছে!" : "🚆 Tickets available!",
+            description: n.message,
+          });
+        }
+      )
+      .subscribe();
+
+    return () => {
+      if (channelRef.current) supabase.removeChannel(channelRef.current);
+      channelRef.current = null;
+    };
+  }, [subscribed?.phone, isBn, toast]);
+
   const handleAlertSubscribe = async () => {
     if (!phone || phone.length < 11) {
       toast({ title: isBn ? "ফোন নাম্বার দিন" : "Enter a valid phone", variant: "destructive" });
       return;
     }
+    setSubscribing(true);
     const { data: { user } } = await supabase.auth.getUser();
-    if (!user) {
-      toast({
-        title: isBn ? "লগইন প্রয়োজন" : "Login required",
-        description: isBn ? "এসএমএস নোটিফিকেশনের জন্য লগইন করুন" : "Login to receive SMS notifications",
-        variant: "destructive",
-      });
+
+    const { data, error } = await supabase
+      .from("train_alert_subscribers")
+      .insert({
+        user_id: user?.id ?? null,
+        name: alertName || null,
+        phone,
+        channel: alertChannel,
+        from_station: from,
+        to_station: to,
+        journey_date: date,
+        train_number: alertTrain || null,
+        seat_class: alertClass || null,
+        language: isBn ? "bn" : "en",
+      })
+      .select("id, phone")
+      .single();
+    setSubscribing(false);
+
+    if (error || !data) {
+      toast({ title: "Error", description: error?.message ?? "Failed", variant: "destructive" });
       return;
     }
-    const { error } = await supabase.from("scheduled_messages").insert({
-      user_id: user.id,
-      recipient_name: "Railway Alert Subscriber",
-      recipient_phone: phone,
-      channel: "sms",
-      message: `Railway availability alert: ${from} → ${to} on ${date}. We will notify you when seats are available.`,
-      send_at: new Date(Date.now() + 60_000).toISOString(),
-      status: "pending",
-    });
-    if (error) {
-      toast({ title: "Error", description: error.message, variant: "destructive" });
-    } else {
-      toast({
-        title: isBn ? "সাবস্ক্রাইব হয়েছে" : "Subscribed",
-        description: isBn ? "টিকেট পাওয়া গেলে SMS পাবেন" : "You'll get an SMS when seats open up",
-      });
+    const sub = { id: data.id, phone: data.phone };
+    setSubscribed(sub);
+    localStorage.setItem("train_alert_sub", JSON.stringify(sub));
+
+    // Trigger an immediate check (non-blocking)
+    supabase.functions.invoke("check-train-availability").catch(() => {});
+
+    if (typeof Notification !== "undefined" && Notification.permission === "default") {
+      try { await Notification.requestPermission(); } catch { /* ignore */ }
     }
+
+    toast({
+      title: isBn ? "✅ সাবস্ক্রাইব হয়েছে" : "✅ Subscribed",
+      description: isBn
+        ? "টিকেট পাওয়া গেলে সাথে সাথে ব্রাউজার নোটিফিকেশন পাবেন। পেজ বন্ধ করলেও কাজ করবে যদি নোটিফিকেশন allow করা থাকে।"
+        : "You'll get a browser notification the moment seats open up.",
+    });
+  };
+
+  const handleUnsubscribe = async () => {
+    if (!subscribed) return;
+    await supabase
+      .from("train_alert_subscribers")
+      .update({ active: false })
+      .eq("id", subscribed.id);
+    localStorage.removeItem("train_alert_sub");
+    setSubscribed(null);
+    setLiveAlerts([]);
+    toast({ title: isBn ? "অ্যালার্ট বন্ধ" : "Alert stopped" });
+  };
+
   };
 
   return (

@@ -1,14 +1,15 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Train, ExternalLink, MapPin, Bell, Camera, Phone, Search, Clock } from "lucide-react";
+import { Train, ExternalLink, MapPin, Bell, Camera, Phone, Search, Clock, BellRing, CheckCircle2 } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+
 
 // Curated Bangladesh Railway data — major stations & popular intercity trains.
 // Data is approximate and based on public BR schedule (Nov 2024 print).

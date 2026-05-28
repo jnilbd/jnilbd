@@ -2,3 +2,6 @@ project_id = "bsqpeosyifbqewoicmaf"
 
 [functions.finance-insight]
 verify_jwt = true
+
+[functions.check-train-availability]
+verify_jwt = false

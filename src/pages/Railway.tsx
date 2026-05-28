@@ -1,14 +1,15 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Train, ExternalLink, MapPin, Bell, Camera, Phone, Search, Clock } from "lucide-react";
+import { Train, ExternalLink, MapPin, Bell, Camera, Phone, Search, Clock, BellRing, CheckCircle2 } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+
 
 // Curated Bangladesh Railway data — major stations & popular intercity trains.
 // Data is approximate and based on public BR schedule (Nov 2024 print).
@@ -79,11 +80,20 @@ export default function Railway() {
   const { language } = useLanguage();
   const isBn = language === "bn";
   const { toast } = useToast();
+
   const [from, setFrom] = useState("Dhaka (Kamalapur)");
   const [to, setTo] = useState("Chattogram");
   const [date, setDate] = useState(new Date().toISOString().slice(0, 10));
   const [phone, setPhone] = useState("");
+  const [alertName, setAlertName] = useState("");
+  const [alertChannel, setAlertChannel] = useState<"browser" | "sms" | "whatsapp">("browser");
+  const [alertTrain, setAlertTrain] = useState<string>("");
+  const [alertClass, setAlertClass] = useState<string>("");
+  const [subscribing, setSubscribing] = useState(false);
+  const [subscribed, setSubscribed] = useState<{ id: string; phone: string } | null>(null);
+  const [liveAlerts, setLiveAlerts] = useState<any[]>([]);
   const [searchedPair, setSearchedPair] = useState<{ from: string; to: string } | null>(null);
+  const channelRef = useRef<ReturnType<typeof supabase.channel> | null>(null);
 
   const matches = useMemo(() => {
     if (!searchedPair) return [];
@@ -97,7 +107,6 @@ export default function Railway() {
   const today = todayDay();
 
   const eticketUrl = (t: Train) => {
-    // Official BR eticket — direct deep link with prefilled stations & date.
     const params = new URLSearchParams({
       fromcity: t.from.split(" ")[0],
       tocity: t.to.split(" ")[0],
@@ -109,38 +118,124 @@ export default function Railway() {
 
   const handleSearch = () => setSearchedPair({ from, to });
 
+  // Restore subscription from localStorage so refresh keeps the active alert
+  useEffect(() => {
+    const saved = localStorage.getItem("train_alert_sub");
+    if (saved) {
+      try { setSubscribed(JSON.parse(saved)); } catch { /* ignore */ }
+    }
+  }, []);
+
+  // Subscribe to realtime notifications for this phone
+  useEffect(() => {
+    if (!subscribed?.phone) return;
+    // Ask browser notification permission once
+    if (typeof Notification !== "undefined" && Notification.permission === "default") {
+      Notification.requestPermission().catch(() => {});
+    }
+    // Load any recent existing notifications
+    supabase
+      .from("train_alert_notifications")
+      .select("*")
+      .eq("phone", subscribed.phone)
+      .order("created_at", { ascending: false })
+      .limit(10)
+      .then(({ data }) => { if (data) setLiveAlerts(data); });
+
+    channelRef.current = supabase
+      .channel(`train-alerts-${subscribed.phone}`)
+      .on(
+        "postgres_changes",
+        { event: "INSERT", schema: "public", table: "train_alert_notifications", filter: `phone=eq.${subscribed.phone}` },
+        (payload) => {
+          const n: any = payload.new;
+          setLiveAlerts((prev) => [n, ...prev].slice(0, 20));
+          // Browser notification
+          if (typeof Notification !== "undefined" && Notification.permission === "granted") {
+            try {
+              new Notification(isBn ? "🚆 ট্রেন টিকেট পাওয়া যাচ্ছে!" : "🚆 Train tickets available!", {
+                body: n.message,
+                icon: "/placeholder.svg",
+                tag: `train-${n.id}`,
+              });
+            } catch { /* ignore */ }
+          }
+          // Toast fallback
+          toast({
+            title: isBn ? "🚆 টিকেট পাওয়া যাচ্ছে!" : "🚆 Tickets available!",
+            description: n.message,
+          });
+        }
+      )
+      .subscribe();
+
+    return () => {
+      if (channelRef.current) supabase.removeChannel(channelRef.current);
+      channelRef.current = null;
+    };
+  }, [subscribed?.phone, isBn, toast]);
+
   const handleAlertSubscribe = async () => {
     if (!phone || phone.length < 11) {
       toast({ title: isBn ? "ফোন নাম্বার দিন" : "Enter a valid phone", variant: "destructive" });
       return;
     }
+    setSubscribing(true);
     const { data: { user } } = await supabase.auth.getUser();
-    if (!user) {
-      toast({
-        title: isBn ? "লগইন প্রয়োজন" : "Login required",
-        description: isBn ? "এসএমএস নোটিফিকেশনের জন্য লগইন করুন" : "Login to receive SMS notifications",
-        variant: "destructive",
-      });
+
+    const { data, error } = await supabase
+      .from("train_alert_subscribers")
+      .insert({
+        user_id: user?.id ?? null,
+        name: alertName || null,
+        phone,
+        channel: alertChannel,
+        from_station: from,
+        to_station: to,
+        journey_date: date,
+        train_number: alertTrain || null,
+        seat_class: alertClass || null,
+        language: isBn ? "bn" : "en",
+      })
+      .select("id, phone")
+      .single();
+    setSubscribing(false);
+
+    if (error || !data) {
+      toast({ title: "Error", description: error?.message ?? "Failed", variant: "destructive" });
       return;
     }
-    const { error } = await supabase.from("scheduled_messages").insert({
-      user_id: user.id,
-      recipient_name: "Railway Alert Subscriber",
-      recipient_phone: phone,
-      channel: "sms",
-      message: `Railway availability alert: ${from} → ${to} on ${date}. We will notify you when seats are available.`,
-      send_at: new Date(Date.now() + 60_000).toISOString(),
-      status: "pending",
-    });
-    if (error) {
-      toast({ title: "Error", description: error.message, variant: "destructive" });
-    } else {
-      toast({
-        title: isBn ? "সাবস্ক্রাইব হয়েছে" : "Subscribed",
-        description: isBn ? "টিকেট পাওয়া গেলে SMS পাবেন" : "You'll get an SMS when seats open up",
-      });
+    const sub = { id: data.id, phone: data.phone };
+    setSubscribed(sub);
+    localStorage.setItem("train_alert_sub", JSON.stringify(sub));
+
+    // Trigger an immediate check (non-blocking)
+    supabase.functions.invoke("check-train-availability").catch(() => {});
+
+    if (typeof Notification !== "undefined" && Notification.permission === "default") {
+      try { await Notification.requestPermission(); } catch { /* ignore */ }
     }
+
+    toast({
+      title: isBn ? "✅ সাবস্ক্রাইব হয়েছে" : "✅ Subscribed",
+      description: isBn
+        ? "টিকেট পাওয়া গেলে সাথে সাথে ব্রাউজার নোটিফিকেশন পাবেন। পেজ বন্ধ করলেও কাজ করবে যদি নোটিফিকেশন allow করা থাকে।"
+        : "You'll get a browser notification the moment seats open up.",
+    });
   };
+
+  const handleUnsubscribe = async () => {
+    if (!subscribed) return;
+    await supabase
+      .from("train_alert_subscribers")
+      .update({ active: false })
+      .eq("id", subscribed.id);
+    localStorage.removeItem("train_alert_sub");
+    setSubscribed(null);
+    setLiveAlerts([]);
+    toast({ title: isBn ? "অ্যালার্ট বন্ধ" : "Alert stopped" });
+  };
+
 
   return (
     <div className="container mx-auto px-4 py-8 max-w-6xl">
@@ -264,43 +359,139 @@ export default function Railway() {
         </TabsContent>
 
         {/* ALERT TAB */}
-        <TabsContent value="alert">
-          <Card className="p-6 max-w-xl mx-auto">
+        <TabsContent value="alert" className="space-y-4">
+          <Card className="p-6 max-w-2xl mx-auto">
             <h3 className="font-bold text-lg mb-2 flex items-center gap-2">
-              <Bell className="h-5 w-5 text-primary" />
-              {isBn ? "টিকেট খালি হলে SMS পান" : "SMS Alert when Seats Open"}
+              <BellRing className="h-5 w-5 text-primary" />
+              {isBn ? "টিকেট খালি হলে সাথে সাথে অ্যালার্ট" : "Instant alert when seats open"}
             </h3>
             <p className="text-sm text-muted-foreground mb-4">
               {isBn
-                ? "যদি বর্তমানে সব টিকেট sold out থাকে, ক্যানসেলেশন থেকে যখন সিট খালি হবে আমরা আপনাকে SMS-এ জানাব।"
-                : "If tickets are sold out now, we'll SMS you the moment a cancelled seat becomes available."}
+                ? "প্রতি ২ মিনিটে আমরা অফিসিয়াল BR সার্ভার চেক করি। ক্যানসেল বা এক্সট্রা বগি যোগ হলে সিট খালি হওয়া মাত্রই আপনার ব্রাউজারে নোটিফিকেশন পাঠাই — পেজ বারবার রিফ্রেশ করতে হবে না, একদম ফ্রি।"
+                : "Every 2 minutes we poll the official BR server. The moment seats open (cancellation or extra coach), you get a browser notification — no refresh, no cost."}
             </p>
-            <div className="space-y-3">
-              <div>
-                <Label>{isBn ? "রুট" : "Route"}</Label>
-                <div className="text-sm font-medium mt-1">{from} → {to} • {date}</div>
+
+            {subscribed ? (
+              <div className="space-y-4">
+                <div className="flex items-center gap-2 p-3 rounded-md bg-green-500/10 text-green-700 dark:text-green-300">
+                  <CheckCircle2 className="h-5 w-5" />
+                  <div className="text-sm font-medium">
+                    {isBn ? "অ্যালার্ট সক্রিয়" : "Alert active"} — {subscribed.phone}
+                  </div>
+                </div>
+                <div className="text-sm">
+                  <Label className="text-xs">{isBn ? "রুট" : "Route"}</Label>
+                  <div className="font-medium">{from} → {to} • {date}</div>
+                </div>
+                <Button variant="outline" onClick={handleUnsubscribe} className="w-full">
+                  {isBn ? "অ্যালার্ট বন্ধ করুন" : "Stop alert"}
+                </Button>
+
+                {liveAlerts.length > 0 && (
+                  <div className="pt-4 border-t space-y-2">
+                    <div className="text-sm font-semibold">{isBn ? "সাম্প্রতিক অ্যালার্ট" : "Recent alerts"}</div>
+                    {liveAlerts.map((n) => (
+                      <Card key={n.id} className="p-3 bg-primary/5 border-primary/20">
+                        <div className="text-sm">{n.message}</div>
+                        <div className="text-xs text-muted-foreground mt-1">
+                          {new Date(n.created_at).toLocaleString()}
+                        </div>
+                      </Card>
+                    ))}
+                  </div>
+                )}
               </div>
-              <div>
-                <Label>{isBn ? "ফোন নাম্বার" : "Phone number"}</Label>
-                <Input
-                  type="tel"
-                  placeholder="01XXXXXXXXX"
-                  value={phone}
-                  onChange={(e) => setPhone(e.target.value)}
-                />
+            ) : (
+              <div className="space-y-3">
+                <div className="grid sm:grid-cols-2 gap-3">
+                  <div>
+                    <Label>{isBn ? "কোথা থেকে" : "From"}</Label>
+                    <select value={from} onChange={(e) => setFrom(e.target.value)} className="w-full h-10 rounded-md border border-input bg-background px-3 text-sm">
+                      {STATIONS.map((s) => <option key={s} value={s}>{s}</option>)}
+                    </select>
+                  </div>
+                  <div>
+                    <Label>{isBn ? "কোথায়" : "To"}</Label>
+                    <select value={to} onChange={(e) => setTo(e.target.value)} className="w-full h-10 rounded-md border border-input bg-background px-3 text-sm">
+                      {STATIONS.map((s) => <option key={s} value={s}>{s}</option>)}
+                    </select>
+                  </div>
+                  <div>
+                    <Label>{isBn ? "যাত্রার তারিখ" : "Journey date"}</Label>
+                    <Input type="date" value={date} onChange={(e) => setDate(e.target.value)} />
+                  </div>
+                  <div>
+                    <Label>{isBn ? "ট্রেন (ঐচ্ছিক)" : "Train (optional)"}</Label>
+                    <Input placeholder={isBn ? "যেকোনো ট্রেন" : "Any train"} value={alertTrain} onChange={(e) => setAlertTrain(e.target.value)} />
+                  </div>
+                </div>
+
+                <div>
+                  <Label>{isBn ? "ক্লাস (ঐচ্ছিক)" : "Seat class (optional)"}</Label>
+                  <select value={alertClass} onChange={(e) => setAlertClass(e.target.value)} className="w-full h-10 rounded-md border border-input bg-background px-3 text-sm">
+                    <option value="">{isBn ? "যেকোনো ক্লাস" : "Any class"}</option>
+                    <option value="AC_B">AC Berth</option>
+                    <option value="AC_S">AC Seat</option>
+                    <option value="SNIGDHA">Snigdha</option>
+                    <option value="S_CHAIR">Shovan Chair</option>
+                    <option value="SHOVAN">Shovan</option>
+                  </select>
+                </div>
+
+                <div className="grid sm:grid-cols-2 gap-3">
+                  <div>
+                    <Label>{isBn ? "নাম (ঐচ্ছিক)" : "Your name (optional)"}</Label>
+                    <Input value={alertName} onChange={(e) => setAlertName(e.target.value)} />
+                  </div>
+                  <div>
+                    <Label>{isBn ? "ফোন নাম্বার" : "Phone number"} *</Label>
+                    <Input type="tel" placeholder="01XXXXXXXXX" value={phone} onChange={(e) => setPhone(e.target.value)} />
+                  </div>
+                </div>
+
+                <div>
+                  <Label>{isBn ? "কোথায় অ্যালার্ট চান" : "Notify me via"}</Label>
+                  <div className="grid grid-cols-3 gap-2 mt-1">
+                    {([
+                      { v: "browser", bn: "ব্রাউজার (ফ্রি)", en: "Browser (Free)" },
+                      { v: "sms", bn: "SMS", en: "SMS" },
+                      { v: "whatsapp", bn: "WhatsApp", en: "WhatsApp" },
+                    ] as const).map((o) => (
+                      <button
+                        key={o.v}
+                        type="button"
+                        onClick={() => setAlertChannel(o.v)}
+                        className={`h-10 rounded-md border text-xs font-medium transition-colors ${alertChannel === o.v ? "border-primary bg-primary/10 text-primary" : "border-input bg-background"}`}
+                      >
+                        {isBn ? o.bn : o.en}
+                      </button>
+                    ))}
+                  </div>
+                  {alertChannel !== "browser" && (
+                    <p className="text-xs text-muted-foreground mt-2">
+                      {isBn
+                        ? "SMS/WhatsApp ডেলিভারি Twilio গেটওয়ে সক্রিয় হলে চালু হবে। এখনই ব্রাউজার নোটিফিকেশন ফ্রিতে চলবে।"
+                        : "SMS/WhatsApp delivery activates when Twilio gateway is configured. Browser notifications work now for free."}
+                    </p>
+                  )}
+                </div>
+
+                <Button onClick={handleAlertSubscribe} disabled={subscribing} className="w-full">
+                  <Bell className="h-4 w-4 mr-2" />
+                  {subscribing
+                    ? (isBn ? "সাবস্ক্রাইব হচ্ছে..." : "Subscribing...")
+                    : (isBn ? "অ্যালার্ট চালু করুন (ফ্রি)" : "Start free alert")}
+                </Button>
+                <p className="text-xs text-muted-foreground text-center">
+                  {isBn
+                    ? "প্রম্পট এলে \"Allow\" দিন — তবেই ব্যাকগ্রাউন্ডে নোটিফিকেশন কাজ করবে।"
+                    : "Click \"Allow\" on the browser prompt so notifications work in the background."}
+                </p>
               </div>
-              <Button onClick={handleAlertSubscribe} className="w-full">
-                <Bell className="h-4 w-4 mr-2" />
-                {isBn ? "অ্যালার্ট চালু করুন" : "Subscribe to Alerts"}
-              </Button>
-              <p className="text-xs text-muted-foreground">
-                {isBn
-                  ? "বিঃদ্রঃ SMS গেটওয়ে কনফিগার করার পর সক্রিয় হবে।"
-                  : "Note: Alerts activate once SMS gateway is configured."}
-              </p>
-            </div>
+            )}
           </Card>
         </TabsContent>
+
 
         {/* TRACKER TAB */}
         <TabsContent value="tracker">

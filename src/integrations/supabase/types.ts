@@ -368,6 +368,128 @@ export type Database = {
         }
         Relationships: []
       }
+      train_alert_notifications: {
+        Row: {
+          created_at: string
+          delivered_browser: boolean
+          delivered_sms: boolean
+          from_station: string
+          id: string
+          journey_date: string
+          message: string
+          phone: string
+          seat_class: string | null
+          seats_available: number
+          subscriber_id: string
+          to_station: string
+          train_name: string
+          train_number: string
+        }
+        Insert: {
+          created_at?: string
+          delivered_browser?: boolean
+          delivered_sms?: boolean
+          from_station: string
+          id?: string
+          journey_date: string
+          message: string
+          phone: string
+          seat_class?: string | null
+          seats_available?: number
+          subscriber_id: string
+          to_station: string
+          train_name: string
+          train_number: string
+        }
+        Update: {
+          created_at?: string
+          delivered_browser?: boolean
+          delivered_sms?: boolean
+          from_station?: string
+          id?: string
+          journey_date?: string
+          message?: string
+          phone?: string
+          seat_class?: string | null
+          seats_available?: number
+          subscriber_id?: string
+          to_station?: string
+          train_name?: string
+          train_number?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "train_alert_notifications_subscriber_id_fkey"
+            columns: ["subscriber_id"]
+            isOneToOne: false
+            referencedRelation: "train_alert_subscribers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      train_alert_subscribers: {
+        Row: {
+          active: boolean
+          channel: string
+          created_at: string
+          email: string | null
+          from_station: string
+          id: string
+          journey_date: string
+          language: string
+          last_checked_at: string | null
+          last_notified_at: string | null
+          last_seats_found: number
+          name: string | null
+          phone: string
+          seat_class: string | null
+          to_station: string
+          train_number: string | null
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          active?: boolean
+          channel?: string
+          created_at?: string
+          email?: string | null
+          from_station: string
+          id?: string
+          journey_date: string
+          language?: string
+          last_checked_at?: string | null
+          last_notified_at?: string | null
+          last_seats_found?: number
+          name?: string | null
+          phone: string
+          seat_class?: string | null
+          to_station: string
+          train_number?: string | null
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          active?: boolean
+          channel?: string
+          created_at?: string
+          email?: string | null
+          from_station?: string
+          id?: string
+          journey_date?: string
+          language?: string
+          last_checked_at?: string | null
+          last_notified_at?: string | null
+          last_seats_found?: number
+          name?: string | null
+          phone?: string
+          seat_class?: string | null
+          to_station?: string
+          train_number?: string | null
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       transactions: {
         Row: {
           amount: number

@@ -79,6 +79,8 @@ const todayDay = () => new Date().toLocaleDateString("en-US", { weekday: "long" 
 export default function Railway() {
   const { language } = useLanguage();
   const isBn = language === "bn";
+  const { toast } = useToast();
+
   const [from, setFrom] = useState("Dhaka (Kamalapur)");
   const [to, setTo] = useState("Chattogram");
   const [date, setDate] = useState(new Date().toISOString().slice(0, 10));

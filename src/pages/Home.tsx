@@ -8,6 +8,8 @@ import ProductCard from "@/components/ProductCard";
 import ServiceCard from "@/components/ServiceCard";
 import { products, services, reviews } from "@/data/mockData";
 import { displayImage, fallbackImageHandler, PAGE_BANNERS } from "@/lib/siteImages";
+import EidGreetingCard from "@/components/EidGreetingCard";
+
 
 const Home = () => {
   const { t, language } = useLanguage();
@@ -114,6 +116,9 @@ const Home = () => {
       </section>
 
       <Marquee variant="primary" />
+
+      <EidGreetingCard />
+
 
       {/* About teaser removed — keep focus on tools */}
 

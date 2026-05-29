@@ -386,7 +386,7 @@ export default function Railway() {
                     <li>ফোনের Settings এ গিয়ে এই ব্রাউজারের জন্য Notification <strong className="text-foreground">Allow + Sound + Lock screen</strong> অন রাখুন।</li>
                     <li>"Do Not Disturb" বা "Focus" মোড অফ রাখুন, না হলে নোটিফিকেশন silent হয়ে যাবে।</li>
                     <li>SMS/WhatsApp বেছে নিলে — নাম্বারটি <strong className="text-foreground">+880</strong> দিয়ে শুরু করুন (যেমন +8801XXXXXXXXX)। WhatsApp এর ক্ষেত্রে প্রথমবার আমাদের sandbox এ <code className="px-1 rounded bg-muted">join</code> মেসেজ পাঠাতে হবে — সাবস্ক্রাইব করলে আমরা ইনস্ট্রাকশন পাঠাব।</li>
-                    <li>সিট খালি হলে ৩০ মিনিটের মধ্যে নোটিফিকেশন আসবে — সাথে সাথে <a href="https://eticket.railway.gov.bd" target="_blank" rel="noreferrer" className="text-primary underline">eticket.railway.gov.bd</a> এ গিয়ে বুক করুন।</li>
+                    <li><strong className="text-foreground">দ্রুত অ্যালার্ট:</strong> আমরা প্রতি <strong className="text-foreground">১ মিনিটে</strong> Bangladesh Railway সার্ভার চেক করি — সিট খালি হলে সাধারণত <strong className="text-foreground">২–৫ মিনিটের মধ্যে</strong> আপনি নোটিফিকেশন পেয়ে যাবেন। সাথে সাথে <a href="https://eticket.railway.gov.bd" target="_blank" rel="noreferrer" className="text-primary underline">eticket.railway.gov.bd</a> এ গিয়ে বুক করুন — দেরি করলে টিকেট অন্য কেউ নিয়ে নিবে।</li>
                     <li>ব্রাউজার বা সাইটের ডেটা মুছলে অ্যালার্ট আবার চালু করতে হবে।</li>
                   </>
                 ) : (
@@ -397,7 +397,7 @@ export default function Railway() {
                     <li>In phone Settings, allow this browser to send notifications with <strong className="text-foreground">Sound + Lock screen</strong> enabled.</li>
                     <li>Turn off "Do Not Disturb" / "Focus" mode, otherwise alerts will be silenced.</li>
                     <li>For SMS/WhatsApp, enter the number in <strong className="text-foreground">+880</strong> format (e.g. +8801XXXXXXXXX). WhatsApp requires sending a one-time <code className="px-1 rounded bg-muted">join</code> code to our sandbox — we'll share the instruction after subscribe.</li>
-                    <li>You'll be notified within 30 min of seats opening — book immediately at <a href="https://eticket.railway.gov.bd" target="_blank" rel="noreferrer" className="text-primary underline">eticket.railway.gov.bd</a>.</li>
+                    <li><strong className="text-foreground">Fast alerts:</strong> we poll Bangladesh Railway <strong className="text-foreground">every 1 minute</strong> — when a seat opens you'll usually get the alert within <strong className="text-foreground">2–5 minutes</strong>. Book immediately at <a href="https://eticket.railway.gov.bd" target="_blank" rel="noreferrer" className="text-primary underline">eticket.railway.gov.bd</a> — tickets disappear fast.</li>
                     <li>Clearing browser data will deactivate the alert — re-subscribe if that happens.</li>
                   </>
                 )}

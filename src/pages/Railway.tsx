@@ -9,6 +9,7 @@ import { Train, ExternalLink, MapPin, Bell, Camera, Phone, Search, Clock, BellRi
 import { useLanguage } from "@/contexts/LanguageContext";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import LiveTrainMap from "@/components/LiveTrainMap";
 
 
 // Curated Bangladesh Railway data — major stations & popular intercity trains.

@@ -371,6 +371,40 @@ export default function Railway() {
                 : "Every 2 minutes we poll the official BR server. The moment seats open (cancellation or extra coach), you get a browser notification — no refresh, no cost."}
             </p>
 
+            {/* Notification setup guidelines */}
+            <div className="mb-5 rounded-lg border border-primary/20 bg-primary/5 p-4">
+              <div className="flex items-center gap-2 mb-2 font-semibold text-sm">
+                <BellRing className="h-4 w-4 text-primary" />
+                {isBn ? "নোটিফিকেশন পাওয়ার গাইডলাইন (অবশ্যই পড়ুন)" : "Notification setup guide (please read)"}
+              </div>
+              <ol className="text-xs space-y-1.5 text-muted-foreground list-decimal list-inside">
+                {isBn ? (
+                  <>
+                    <li>সাবস্ক্রাইব করার পর ব্রাউজার যখন "Allow Notifications" prompt দেখাবে — অবশ্যই <strong className="text-foreground">Allow</strong> চাপুন।</li>
+                    <li>মোবাইলে Chrome/Brave ব্যবহার করুন। সাইটটি একবার <strong className="text-foreground">হোম স্ক্রিনে Add</strong> করে নিলে ব্যাকগ্রাউন্ডেও নোটিফিকেশন আসবে।</li>
+                    <li>iPhone (Safari) ব্যবহারকারী: Settings → Safari → Advanced → Experimental Features → <strong className="text-foreground">Push API</strong> on করুন (iOS 16.4+)।</li>
+                    <li>ফোনের Settings এ গিয়ে এই ব্রাউজারের জন্য Notification <strong className="text-foreground">Allow + Sound + Lock screen</strong> অন রাখুন।</li>
+                    <li>"Do Not Disturb" বা "Focus" মোড অফ রাখুন, না হলে নোটিফিকেশন silent হয়ে যাবে।</li>
+                    <li>SMS/WhatsApp বেছে নিলে — নাম্বারটি <strong className="text-foreground">+880</strong> দিয়ে শুরু করুন (যেমন +8801XXXXXXXXX)। WhatsApp এর ক্ষেত্রে প্রথমবার আমাদের sandbox এ <code className="px-1 rounded bg-muted">join</code> মেসেজ পাঠাতে হবে — সাবস্ক্রাইব করলে আমরা ইনস্ট্রাকশন পাঠাব।</li>
+                    <li>সিট খালি হলে ৩০ মিনিটের মধ্যে নোটিফিকেশন আসবে — সাথে সাথে <a href="https://eticket.railway.gov.bd" target="_blank" rel="noreferrer" className="text-primary underline">eticket.railway.gov.bd</a> এ গিয়ে বুক করুন।</li>
+                    <li>ব্রাউজার বা সাইটের ডেটা মুছলে অ্যালার্ট আবার চালু করতে হবে।</li>
+                  </>
+                ) : (
+                  <>
+                    <li>When the browser shows the "Allow Notifications" prompt, you must tap <strong className="text-foreground">Allow</strong>.</li>
+                    <li>On mobile use Chrome/Brave. <strong className="text-foreground">Add to Home Screen</strong> once — background notifications will work even when the tab is closed.</li>
+                    <li>iPhone (Safari): turn on Settings → Safari → Advanced → Experimental Features → <strong className="text-foreground">Push API</strong> (iOS 16.4+).</li>
+                    <li>In phone Settings, allow this browser to send notifications with <strong className="text-foreground">Sound + Lock screen</strong> enabled.</li>
+                    <li>Turn off "Do Not Disturb" / "Focus" mode, otherwise alerts will be silenced.</li>
+                    <li>For SMS/WhatsApp, enter the number in <strong className="text-foreground">+880</strong> format (e.g. +8801XXXXXXXXX). WhatsApp requires sending a one-time <code className="px-1 rounded bg-muted">join</code> code to our sandbox — we'll share the instruction after subscribe.</li>
+                    <li>You'll be notified within 30 min of seats opening — book immediately at <a href="https://eticket.railway.gov.bd" target="_blank" rel="noreferrer" className="text-primary underline">eticket.railway.gov.bd</a>.</li>
+                    <li>Clearing browser data will deactivate the alert — re-subscribe if that happens.</li>
+                  </>
+                )}
+              </ol>
+            </div>
+
+
             {subscribed ? (
               <div className="space-y-4">
                 <div className="flex items-center gap-2 p-3 rounded-md bg-green-500/10 text-green-700 dark:text-green-300">

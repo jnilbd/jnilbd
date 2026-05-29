@@ -117,7 +117,7 @@ Deno.serve(async (req) => {
   }
 
   const results: any[] = [];
-  const COOLDOWN_MS = 30 * 60 * 1000; // don't re-notify same sub within 30 min
+  const COOLDOWN_MS = 3 * 60 * 1000; // re-notify after 3 min so users get a fresh ping if seats still open
   const now = Date.now();
 
   for (const [key, groupSubs] of groups.entries()) {

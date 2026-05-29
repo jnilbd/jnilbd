@@ -578,28 +578,52 @@ export default function Railway() {
         </TabsContent>
 
 
-        {/* CCTV TAB */}
+        {/* BOARD TAB — Live station display board (schedule-based, honest) */}
+        <TabsContent value="board">
+          <StationDisplayBoard trains={TRAINS} stations={STATIONS} />
+        </TabsContent>
+
+        {/* CCTV TAB — honest disclosure, no fake links */}
         <TabsContent value="cctv">
-          <Card className="p-6">
-            <h3 className="font-bold text-lg mb-2 flex items-center gap-2">
-              <Camera className="h-5 w-5 text-primary" />
-              {isBn ? "প্ল্যাটফর্ম CCTV ও লাইভ ক্যামেরা" : "Platform CCTV & Live Cameras"}
-            </h3>
-            <p className="text-sm text-muted-foreground mb-4">
-              {isBn
-                ? "পাবলিকলি অ্যাক্সেসিবল লাইভ স্ট্রিম ও সার্ভিল্যান্স ক্যাম। অফিসিয়াল BR CCTV পাবলিক না, তাই YouTube live ও Insecam-এর মতো পাবলিক সোর্স ব্যবহার করা হয়েছে।"
-                : "Publicly accessible live streams and surveillance cams. Official BR CCTV isn't public, so we use YouTube live and Insecam-style public sources."}
-            </p>
+          <Card className="p-6 border-amber-500/30 bg-amber-500/5">
+            <div className="flex items-start gap-3 mb-3">
+              <Info className="h-5 w-5 text-amber-600 shrink-0 mt-0.5" />
+              <div>
+                <h3 className="font-bold text-base mb-1">
+                  {isBn ? "লাইভ CCTV বর্তমানে উপলব্ধ নয়" : "Live CCTV is not available"}
+                </h3>
+                <p className="text-sm text-muted-foreground">
+                  {isBn
+                    ? "Bangladesh Railway কমলাপুর সহ কোনো স্টেশনের CCTV ফিড পাবলিকলি প্রকাশ করে না। কোনো বৈধ লাইভ স্ট্রিম API/RTSP নেই। আমরা ভুল তথ্য দেখাতে চাই না — তাই ফেক/সার্চ লিঙ্ক সরিয়ে দেওয়া হয়েছে। যদি ভবিষ্যতে BR অফিসিয়াল ফিড দেয়, আমরা সাথে সাথে যোগ করব।"
+                    : "Bangladesh Railway does NOT publish public CCTV feeds for Kamalapur or any other station. No legitimate live-stream API or RTSP exists. We refuse to show fake/search-result links. If BR ever publishes an official feed, we'll add it immediately."}
+                </p>
+              </div>
+            </div>
+          </Card>
+
+          <Card className="p-4 mt-4">
+            <h4 className="font-semibold text-sm mb-3 flex items-center gap-2">
+              <Camera className="h-4 w-4 text-primary" />
+              {isBn ? "যাচাইকৃত অফিসিয়াল চ্যানেল" : "Verified official channels"}
+            </h4>
             <div className="space-y-2">
-              {PLATFORM_CCTV.map((c) => (
+              {OFFICIAL_BR_CHANNELS.map((c) => (
                 <a key={c.name} href={c.url} target="_blank" rel="noreferrer">
-                  <Card className="p-3 hover:bg-accent transition-colors flex items-center justify-between">
-                    <span className="text-sm font-medium">{c.name}</span>
-                    <ExternalLink className="h-4 w-4 text-muted-foreground" />
+                  <Card className="p-3 hover:bg-accent transition-colors flex items-center justify-between gap-2">
+                    <div className="min-w-0">
+                      <p className="text-sm font-medium truncate">{c.name}</p>
+                      <p className="text-[11px] text-muted-foreground">{c.note}</p>
+                    </div>
+                    <ExternalLink className="h-4 w-4 text-muted-foreground shrink-0" />
                   </Card>
                 </a>
               ))}
             </div>
+            <p className="text-[11px] text-muted-foreground mt-3">
+              {isBn
+                ? "নিরাপত্তা ফুটেজ দরকার হলে স্টেশন মাস্টার বা RNB (Railway Nirapatta Bahini)-এর সাথে সরাসরি যোগাযোগ করুন।"
+                : "For security footage requests, contact the Station Master or RNB (Railway Nirapatta Bahini) directly."}
+            </p>
           </Card>
         </TabsContent>
       </Tabs>

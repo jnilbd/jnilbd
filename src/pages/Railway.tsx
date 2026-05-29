@@ -175,9 +175,26 @@ export default function Railway() {
     };
   }, [subscribed?.phone, isBn, toast]);
 
+  // Normalize Bangladeshi phone numbers: accept 01XXXXXXXXX, 8801XXXXXXXXX, +8801XXXXXXXXX,
+  // strip spaces/dashes, and always store in international E.164 (+8801XXXXXXXXX).
+  const normalizeBdPhone = (raw: string): string | null => {
+    const digits = raw.replace(/[^\d]/g, "");
+    if (digits.length === 11 && digits.startsWith("01")) return `+880${digits.slice(1)}`;
+    if (digits.length === 13 && digits.startsWith("8801")) return `+${digits}`;
+    if (digits.length === 14 && digits.startsWith("88001")) return `+880${digits.slice(4)}`; // tolerate typo
+    return null;
+  };
+
   const handleAlertSubscribe = async () => {
-    if (!phone || phone.length < 11) {
-      toast({ title: isBn ? "ফোন নাম্বার দিন" : "Enter a valid phone", variant: "destructive" });
+    const normalized = normalizeBdPhone(phone);
+    if (!normalized) {
+      toast({
+        title: isBn ? "ফোন নাম্বার সঠিক নয়" : "Invalid phone number",
+        description: isBn
+          ? "১১ ডিজিটের নাম্বার দিন (যেমন: 01774585757) — কান্ট্রি কোড লাগবে না।"
+          : "Enter your 11-digit BD number (e.g. 01774585757) — no country code needed.",
+        variant: "destructive",
+      });
       return;
     }
     setSubscribing(true);
@@ -188,7 +205,7 @@ export default function Railway() {
       .insert({
         user_id: user?.id ?? null,
         name: alertName || null,
-        phone,
+        phone: normalized,
         channel: alertChannel,
         from_station: from,
         to_station: to,
@@ -209,8 +226,8 @@ export default function Railway() {
     setSubscribed(sub);
     localStorage.setItem("train_alert_sub", JSON.stringify(sub));
 
-    // Trigger an immediate check (non-blocking)
-    supabase.functions.invoke("check-train-availability").catch(() => {});
+    // Trigger an immediate single-cycle check (skip burst for the on-subscribe ping)
+    supabase.functions.invoke("check-train-availability", { body: {} }).catch(() => {});
 
     if (typeof Notification !== "undefined" && Notification.permission === "default") {
       try { await Notification.requestPermission(); } catch { /* ignore */ }
@@ -367,8 +384,8 @@ export default function Railway() {
             </h3>
             <p className="text-sm text-muted-foreground mb-4">
               {isBn
-                ? "প্রতি ২ মিনিটে আমরা অফিসিয়াল BR সার্ভার চেক করি। ক্যানসেল বা এক্সট্রা বগি যোগ হলে সিট খালি হওয়া মাত্রই আপনার ব্রাউজারে নোটিফিকেশন পাঠাই — পেজ বারবার রিফ্রেশ করতে হবে না, একদম ফ্রি।"
-                : "Every 2 minutes we poll the official BR server. The moment seats open (cancellation or extra coach), you get a browser notification — no refresh, no cost."}
+                ? "প্রতি ~১৫ সেকেন্ডে আমরা অফিসিয়াল BR সার্ভার চেক করি (burst mode)। ক্যানসেল বা এক্সট্রা বগি যোগ হলে সিট খালি হওয়ার ১৫–৬০ সেকেন্ডের মধ্যেই ব্রাউজার/SMS/WhatsApp নোটিফিকেশন পাঠাই — পেজ রিফ্রেশ করতে হবে না।"
+                : "We poll the official BR server every ~15 seconds (burst mode). The moment seats open you get a notification within 15–60 seconds — browser, SMS or WhatsApp."}
             </p>
 
             {/* Notification setup guidelines */}
@@ -385,8 +402,9 @@ export default function Railway() {
                     <li>iPhone (Safari) ব্যবহারকারী: Settings → Safari → Advanced → Experimental Features → <strong className="text-foreground">Push API</strong> on করুন (iOS 16.4+)।</li>
                     <li>ফোনের Settings এ গিয়ে এই ব্রাউজারের জন্য Notification <strong className="text-foreground">Allow + Sound + Lock screen</strong> অন রাখুন।</li>
                     <li>"Do Not Disturb" বা "Focus" মোড অফ রাখুন, না হলে নোটিফিকেশন silent হয়ে যাবে।</li>
-                    <li>SMS/WhatsApp বেছে নিলে — নাম্বারটি <strong className="text-foreground">+880</strong> দিয়ে শুরু করুন (যেমন +8801XXXXXXXXX)। WhatsApp এর ক্ষেত্রে প্রথমবার আমাদের sandbox এ <code className="px-1 rounded bg-muted">join</code> মেসেজ পাঠাতে হবে — সাবস্ক্রাইব করলে আমরা ইনস্ট্রাকশন পাঠাব।</li>
-                    <li><strong className="text-foreground">দ্রুত অ্যালার্ট:</strong> আমরা প্রতি <strong className="text-foreground">১ মিনিটে</strong> Bangladesh Railway সার্ভার চেক করি — সিট খালি হলে সাধারণত <strong className="text-foreground">২–৫ মিনিটের মধ্যে</strong> আপনি নোটিফিকেশন পেয়ে যাবেন। সাথে সাথে <a href="https://eticket.railway.gov.bd" target="_blank" rel="noreferrer" className="text-primary underline">eticket.railway.gov.bd</a> এ গিয়ে বুক করুন — দেরি করলে টিকেট অন্য কেউ নিয়ে নিবে।</li>
+                    <li>SMS/WhatsApp বেছে নিলে — সরাসরি আপনার <strong className="text-foreground">১১ ডিজিটের নাম্বার</strong> লিখুন (যেমন: <code className="px-1 rounded bg-muted">01774585757</code>)। কোনো +88 বা কান্ট্রি কোড দেয়ার দরকার নেই — সিস্টেম অটো যোগ করে নিবে। WhatsApp এর ক্ষেত্রে প্রথমবার আমাদের sandbox এ <code className="px-1 rounded bg-muted">join</code> মেসেজ পাঠাতে হবে — সাবস্ক্রাইব করলে ইনস্ট্রাকশন পাবেন।</li>
+                    <li><strong className="text-foreground">মধ্যবর্তী স্টেশন:</strong> ধরুন আপনি Rajshahi → Dhaka সিলেক্ট করেছেন। মাঝপথের স্টেশন (Abdulpur, Ishwardi, Natore, Joydebpur ইত্যাদি) থেকেও যদি ঢাকাগামী সিট খালি হয়, সেটাও আপনি নোটিফিকেশনে পাবেন — মেসেজে স্পষ্ট লেখা থাকবে কোন স্টেশন থেকে উঠতে হবে।</li>
+                    <li><strong className="text-foreground">প্রায় ইনস্ট্যান্ট অ্যালার্ট:</strong> আমরা প্রতি <strong className="text-foreground">~১৫ সেকেন্ডে</strong> Bangladesh Railway সার্ভার চেক করি (burst mode)। সিট খালি হওয়ার <strong className="text-foreground">১৫–৬০ সেকেন্ডের মধ্যেই</strong> নোটিফিকেশন পেয়ে যাবেন। সাথে সাথে <a href="https://eticket.railway.gov.bd" target="_blank" rel="noreferrer" className="text-primary underline">eticket.railway.gov.bd</a> এ গিয়ে বুক করুন — দেরি করলে অন্য কেউ নিয়ে নিবে।</li>
                     <li>ব্রাউজার বা সাইটের ডেটা মুছলে অ্যালার্ট আবার চালু করতে হবে।</li>
                   </>
                 ) : (
@@ -396,8 +414,9 @@ export default function Railway() {
                     <li>iPhone (Safari): turn on Settings → Safari → Advanced → Experimental Features → <strong className="text-foreground">Push API</strong> (iOS 16.4+).</li>
                     <li>In phone Settings, allow this browser to send notifications with <strong className="text-foreground">Sound + Lock screen</strong> enabled.</li>
                     <li>Turn off "Do Not Disturb" / "Focus" mode, otherwise alerts will be silenced.</li>
-                    <li>For SMS/WhatsApp, enter the number in <strong className="text-foreground">+880</strong> format (e.g. +8801XXXXXXXXX). WhatsApp requires sending a one-time <code className="px-1 rounded bg-muted">join</code> code to our sandbox — we'll share the instruction after subscribe.</li>
-                    <li><strong className="text-foreground">Fast alerts:</strong> we poll Bangladesh Railway <strong className="text-foreground">every 1 minute</strong> — when a seat opens you'll usually get the alert within <strong className="text-foreground">2–5 minutes</strong>. Book immediately at <a href="https://eticket.railway.gov.bd" target="_blank" rel="noreferrer" className="text-primary underline">eticket.railway.gov.bd</a> — tickets disappear fast.</li>
+                    <li>For SMS/WhatsApp, just type your <strong className="text-foreground">11-digit BD number</strong> (e.g. <code className="px-1 rounded bg-muted">01774585757</code>) — no +88 or country code needed, we add it automatically. WhatsApp requires a one-time <code className="px-1 rounded bg-muted">join</code> code to our sandbox — instructions shown after subscribe.</li>
+                    <li><strong className="text-foreground">Intermediate stations:</strong> if you pick Rajshahi → Dhaka, we also watch nearby boarding stations on the same route (Abdulpur, Ishwardi, Natore, Joydebpur etc.) and notify you when seats open from any of them — the message will say exactly where to board.</li>
+                    <li><strong className="text-foreground">Near-instant alerts:</strong> we poll Bangladesh Railway <strong className="text-foreground">every ~15 seconds</strong> (burst mode). When a seat opens you'll typically be notified within <strong className="text-foreground">15–60 seconds</strong>. Book immediately at <a href="https://eticket.railway.gov.bd" target="_blank" rel="noreferrer" className="text-primary underline">eticket.railway.gov.bd</a>.</li>
                     <li>Clearing browser data will deactivate the alert — re-subscribe if that happens.</li>
                   </>
                 )}
@@ -478,8 +497,11 @@ export default function Railway() {
                     <Input value={alertName} onChange={(e) => setAlertName(e.target.value)} />
                   </div>
                   <div>
-                    <Label>{isBn ? "ফোন নাম্বার" : "Phone number"} *</Label>
-                    <Input type="tel" placeholder="01XXXXXXXXX" value={phone} onChange={(e) => setPhone(e.target.value)} />
+                    <Label>{isBn ? "ফোন নাম্বার (১১ ডিজিট)" : "Phone number (11-digit)"} *</Label>
+                    <Input type="tel" inputMode="numeric" maxLength={14} placeholder="01774585757" value={phone} onChange={(e) => setPhone(e.target.value)} />
+                    <p className="text-[10px] text-muted-foreground mt-1">
+                      {isBn ? "কোনো +88 দেয়ার দরকার নেই — অটো যুক্ত হবে।" : "No +88 needed — added automatically."}
+                    </p>
                   </div>
                 </div>
 

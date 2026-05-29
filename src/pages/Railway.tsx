@@ -275,11 +275,12 @@ export default function Railway() {
       </div>
 
       <Tabs defaultValue="search" className="w-full">
-        <TabsList className="grid w-full grid-cols-4 mb-6">
-          <TabsTrigger value="search"><Search className="h-4 w-4 mr-1" />{isBn ? "খুঁজুন" : "Search"}</TabsTrigger>
-          <TabsTrigger value="alert"><Bell className="h-4 w-4 mr-1" />{isBn ? "অ্যালার্ট" : "Alert"}</TabsTrigger>
-          <TabsTrigger value="tracker"><MapPin className="h-4 w-4 mr-1" />{isBn ? "ট্র্যাকার" : "Tracker"}</TabsTrigger>
-          <TabsTrigger value="cctv"><Camera className="h-4 w-4 mr-1" />CCTV</TabsTrigger>
+        <TabsList className="grid w-full grid-cols-5 mb-6 h-auto">
+          <TabsTrigger value="search" className="text-[11px] sm:text-sm px-1"><Search className="h-4 w-4 sm:mr-1" /><span className="hidden sm:inline">{isBn ? "খুঁজুন" : "Search"}</span></TabsTrigger>
+          <TabsTrigger value="alert" className="text-[11px] sm:text-sm px-1"><Bell className="h-4 w-4 sm:mr-1" /><span className="hidden sm:inline">{isBn ? "অ্যালার্ট" : "Alert"}</span></TabsTrigger>
+          <TabsTrigger value="board" className="text-[11px] sm:text-sm px-1"><MonitorPlay className="h-4 w-4 sm:mr-1" /><span className="hidden sm:inline">{isBn ? "বোর্ড" : "Board"}</span></TabsTrigger>
+          <TabsTrigger value="tracker" className="text-[11px] sm:text-sm px-1"><MapPin className="h-4 w-4 sm:mr-1" /><span className="hidden sm:inline">{isBn ? "ট্র্যাকার" : "Tracker"}</span></TabsTrigger>
+          <TabsTrigger value="cctv" className="text-[11px] sm:text-sm px-1"><Camera className="h-4 w-4 sm:mr-1" /><span className="hidden sm:inline">CCTV</span></TabsTrigger>
         </TabsList>
 
         {/* SEARCH TAB */}

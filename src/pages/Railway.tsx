@@ -397,7 +397,7 @@ export default function Railway() {
                     <li>In phone Settings, allow this browser to send notifications with <strong className="text-foreground">Sound + Lock screen</strong> enabled.</li>
                     <li>Turn off "Do Not Disturb" / "Focus" mode, otherwise alerts will be silenced.</li>
                     <li>For SMS/WhatsApp, enter the number in <strong className="text-foreground">+880</strong> format (e.g. +8801XXXXXXXXX). WhatsApp requires sending a one-time <code className="px-1 rounded bg-muted">join</code> code to our sandbox — we'll share the instruction after subscribe.</li>
-                    <li>You'll be notified within 30 min of seats opening — book immediately at <a href="https://eticket.railway.gov.bd" target="_blank" rel="noreferrer" className="text-primary underline">eticket.railway.gov.bd</a>.</li>
+                    <li><strong className="text-foreground">Fast alerts:</strong> we poll Bangladesh Railway <strong className="text-foreground">every 1 minute</strong> — when a seat opens you'll usually get the alert within <strong className="text-foreground">2–5 minutes</strong>. Book immediately at <a href="https://eticket.railway.gov.bd" target="_blank" rel="noreferrer" className="text-primary underline">eticket.railway.gov.bd</a> — tickets disappear fast.</li>
                     <li>Clearing browser data will deactivate the alert — re-subscribe if that happens.</li>
                   </>
                 )}

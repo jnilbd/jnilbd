@@ -69,12 +69,13 @@ const TRAINS: Train[] = [
   { name: "Mohanganj Express", number: "789/790", from: "Dhaka (Kamalapur)", to: "Mohanganj", depart: "14:20", arrive: "20:30", off: "Monday", classes: ["SNIGDHA","S_CHAIR","SHOVAN"], fareAC: 0, fareSnigdha: 360, fareShovan: 195 },
 ];
 
-const PLATFORM_CCTV = [
-  { name: "Kamalapur Railway Station Live (BR)", url: "https://www.youtube.com/results?search_query=kamalapur+railway+station+live" },
-  { name: "Chattogram Station Surveillance Feeds", url: "https://www.youtube.com/results?search_query=chittagong+railway+station+live" },
-  { name: "Sylhet Station — Public Cams", url: "https://www.youtube.com/results?search_query=sylhet+railway+station+live" },
-  { name: "Rajshahi Station — Public Cams", url: "https://www.youtube.com/results?search_query=rajshahi+railway+station+live" },
-  { name: "Insecam — Bangladesh Public Cameras", url: "http://www.insecam.org/en/bycountry/BD/" },
+// NOTE: Bangladesh Railway does NOT publish any live CCTV feeds publicly.
+// We intentionally do NOT show fake/search links. Only verified official channels listed.
+const OFFICIAL_BR_CHANNELS = [
+  { name: "Bangladesh Railway — Official Website", url: "https://railway.gov.bd/", note: "schedule, notices, tender" },
+  { name: "BR eTicket Portal (Shohoz)", url: "https://eticket.railway.gov.bd/", note: "live seat availability" },
+  { name: "BR Official YouTube", url: "https://www.youtube.com/@bangladesh_railway", note: "official uploads (not live)" },
+  { name: "BR Facebook (Public Relations)", url: "https://www.facebook.com/BangladeshRailwayHQ/", note: "official advisories" },
 ];
 
 const todayDay = () => new Date().toLocaleDateString("en-US", { weekday: "long" });

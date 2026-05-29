@@ -384,8 +384,8 @@ export default function Railway() {
             </h3>
             <p className="text-sm text-muted-foreground mb-4">
               {isBn
-                ? "প্রতি ২ মিনিটে আমরা অফিসিয়াল BR সার্ভার চেক করি। ক্যানসেল বা এক্সট্রা বগি যোগ হলে সিট খালি হওয়া মাত্রই আপনার ব্রাউজারে নোটিফিকেশন পাঠাই — পেজ বারবার রিফ্রেশ করতে হবে না, একদম ফ্রি।"
-                : "Every 2 minutes we poll the official BR server. The moment seats open (cancellation or extra coach), you get a browser notification — no refresh, no cost."}
+                ? "প্রতি ~১৫ সেকেন্ডে আমরা অফিসিয়াল BR সার্ভার চেক করি (burst mode)। ক্যানসেল বা এক্সট্রা বগি যোগ হলে সিট খালি হওয়ার ১৫–৬০ সেকেন্ডের মধ্যেই ব্রাউজার/SMS/WhatsApp নোটিফিকেশন পাঠাই — পেজ রিফ্রেশ করতে হবে না।"
+                : "We poll the official BR server every ~15 seconds (burst mode). The moment seats open you get a notification within 15–60 seconds — browser, SMS or WhatsApp."}
             </p>
 
             {/* Notification setup guidelines */}

@@ -420,7 +420,6 @@ export default function Railway() {
                     <li>Clearing browser data will deactivate the alert — re-subscribe if that happens.</li>
                   </>
                 )}
-                )}
               </ol>
             </div>
 

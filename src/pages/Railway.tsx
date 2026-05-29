@@ -551,42 +551,27 @@ export default function Railway() {
 
         {/* TRACKER TAB */}
         <TabsContent value="tracker">
-          <Card className="p-6">
-            <h3 className="font-bold text-lg mb-2 flex items-center gap-2">
-              <MapPin className="h-5 w-5 text-primary" />
-              {isBn ? "লাইভ ট্রেন ট্র্যাকার" : "Live Train Tracker"}
-            </h3>
-            <p className="text-sm text-muted-foreground mb-4">
-              {isBn
-                ? "ট্রেনের বর্তমান অবস্থান ও বিলম্বের তথ্য দেখার জন্য নিচের অফিসিয়াল ও থার্ড-পার্টি ট্র্যাকার ব্যবহার করুন।"
-                : "Use these official and third-party trackers to see current train location and delays."}
-            </p>
-            <div className="grid sm:grid-cols-2 gap-3">
+          <LiveTrainMap />
+          <Card className="p-4 mt-4">
+            <h4 className="font-semibold text-sm mb-2">{isBn ? "অতিরিক্ত ট্র্যাকিং সোর্স" : "Other tracking sources"}</h4>
+            <div className="grid sm:grid-cols-2 gap-2">
               {[
                 { name: "Bangladesh Railway Official", url: "https://railway.gov.bd/" },
-                { name: "BR Train Tracker (Where is my train)", url: "https://eticket.railway.gov.bd/" },
-                { name: "Train Status SMS Service", url: "sms:16318?body=tr%20<train_no>" },
+                { name: "BR e-ticket Portal", url: "https://eticket.railway.gov.bd/" },
+                { name: "SMS: TR <train_no> → 16318", url: "sms:16318?body=tr%20" },
                 { name: "Helpline 163", url: "tel:163" },
               ].map((l) => (
                 <a key={l.name} href={l.url} target="_blank" rel="noreferrer">
-                  <Card className="p-4 hover:bg-accent transition-colors">
-                    <div className="flex items-center justify-between">
-                      <span className="font-medium text-sm">{l.name}</span>
-                      <ExternalLink className="h-4 w-4 text-muted-foreground" />
-                    </div>
+                  <Card className="p-3 hover:bg-accent transition-colors flex items-center justify-between">
+                    <span className="text-xs font-medium">{l.name}</span>
+                    <ExternalLink className="h-3 w-3 text-muted-foreground" />
                   </Card>
                 </a>
               ))}
             </div>
-            <div className="mt-6 p-4 rounded-lg bg-muted/50">
-              <p className="text-xs font-semibold mb-2">{isBn ? "SMS দিয়ে ট্রেন স্ট্যাটাস:" : "SMS train status:"}</p>
-              <code className="text-xs">TR &lt;train_number&gt; → 16318</code>
-              <p className="text-xs text-muted-foreground mt-1">
-                {isBn ? "যেমনঃ TR 705 পাঠান 16318 নাম্বারে" : "Example: Send 'TR 705' to 16318"}
-              </p>
-            </div>
           </Card>
         </TabsContent>
+
 
         {/* CCTV TAB */}
         <TabsContent value="cctv">

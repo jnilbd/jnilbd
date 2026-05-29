@@ -497,8 +497,11 @@ export default function Railway() {
                     <Input value={alertName} onChange={(e) => setAlertName(e.target.value)} />
                   </div>
                   <div>
-                    <Label>{isBn ? "ফোন নাম্বার" : "Phone number"} *</Label>
-                    <Input type="tel" placeholder="01XXXXXXXXX" value={phone} onChange={(e) => setPhone(e.target.value)} />
+                    <Label>{isBn ? "ফোন নাম্বার (১১ ডিজিট)" : "Phone number (11-digit)"} *</Label>
+                    <Input type="tel" inputMode="numeric" maxLength={14} placeholder="01774585757" value={phone} onChange={(e) => setPhone(e.target.value)} />
+                    <p className="text-[10px] text-muted-foreground mt-1">
+                      {isBn ? "কোনো +88 দেয়ার দরকার নেই — অটো যুক্ত হবে।" : "No +88 needed — added automatically."}
+                    </p>
                   </div>
                 </div>
 

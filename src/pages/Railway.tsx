@@ -175,9 +175,26 @@ export default function Railway() {
     };
   }, [subscribed?.phone, isBn, toast]);
 
+  // Normalize Bangladeshi phone numbers: accept 01XXXXXXXXX, 8801XXXXXXXXX, +8801XXXXXXXXX,
+  // strip spaces/dashes, and always store in international E.164 (+8801XXXXXXXXX).
+  const normalizeBdPhone = (raw: string): string | null => {
+    const digits = raw.replace(/[^\d]/g, "");
+    if (digits.length === 11 && digits.startsWith("01")) return `+880${digits.slice(1)}`;
+    if (digits.length === 13 && digits.startsWith("8801")) return `+${digits}`;
+    if (digits.length === 14 && digits.startsWith("88001")) return `+880${digits.slice(4)}`; // tolerate typo
+    return null;
+  };
+
   const handleAlertSubscribe = async () => {
-    if (!phone || phone.length < 11) {
-      toast({ title: isBn ? "ফোন নাম্বার দিন" : "Enter a valid phone", variant: "destructive" });
+    const normalized = normalizeBdPhone(phone);
+    if (!normalized) {
+      toast({
+        title: isBn ? "ফোন নাম্বার সঠিক নয়" : "Invalid phone number",
+        description: isBn
+          ? "১১ ডিজিটের নাম্বার দিন (যেমন: 01774585757) — কান্ট্রি কোড লাগবে না।"
+          : "Enter your 11-digit BD number (e.g. 01774585757) — no country code needed.",
+        variant: "destructive",
+      });
       return;
     }
     setSubscribing(true);
@@ -188,7 +205,7 @@ export default function Railway() {
       .insert({
         user_id: user?.id ?? null,
         name: alertName || null,
-        phone,
+        phone: normalized,
         channel: alertChannel,
         from_station: from,
         to_station: to,
@@ -209,8 +226,8 @@ export default function Railway() {
     setSubscribed(sub);
     localStorage.setItem("train_alert_sub", JSON.stringify(sub));
 
-    // Trigger an immediate check (non-blocking)
-    supabase.functions.invoke("check-train-availability").catch(() => {});
+    // Trigger an immediate single-cycle check (skip burst for the on-subscribe ping)
+    supabase.functions.invoke("check-train-availability", { body: {} }).catch(() => {});
 
     if (typeof Notification !== "undefined" && Notification.permission === "default") {
       try { await Notification.requestPermission(); } catch { /* ignore */ }

@@ -51,6 +51,8 @@ const Finance = () => {
   const [debts, setDebts] = useState<Debt[]>([]);
   const [budgets, setBudgets] = useState<Budget[]>([]);
   const [goals, setGoals] = useState<Goal[]>([]);
+  const [plans, setPlans] = useState<Plan[]>([]);
+  const [assets, setAssets] = useState<Asset[]>([]);
   const [insight, setInsight] = useState<string>("");
   const [insightBusy, setInsightBusy] = useState(false);
 

@@ -193,6 +193,55 @@ const Finance = () => {
     loadAll();
   };
 
+  // Planned purchases
+  const [plan, setPlan] = useState({ item: "", est_price: "", priority: "medium", plan_date: "", note: "" });
+  const addPlan = async () => {
+    if (!user || !plan.item || !plan.est_price) return toast.error(bn?"আইটেম ও দাম দিন":"Fill item and price");
+    const { error } = await (supabase as any).from("planned_purchases").insert({
+      user_id: user.id, item: plan.item, est_price: Math.round(Number(plan.est_price)),
+      priority: plan.priority, plan_date: plan.plan_date || null, note: plan.note || null,
+    });
+    if (error) return toast.error(error.message);
+    setPlan({ item:"", est_price:"", priority:"medium", plan_date:"", note:"" });
+    toast.success(bn?"যোগ হয়েছে":"Added");
+    loadAll();
+  };
+  const togglePlanDone = async (p: Plan) => {
+    await (supabase as any).from("planned_purchases").update({ is_done: !p.is_done }).eq("id", p.id);
+    loadAll();
+  };
+  const delPlan = async (id: string) => {
+    await (supabase as any).from("planned_purchases").delete().eq("id", id);
+    setPlans(plans.filter(p=>p.id!==id));
+  };
+
+  // Sellable assets
+  const [asset, setAsset] = useState({ item: "", est_value: "", condition: "good", note: "" });
+  const addAsset = async () => {
+    if (!user || !asset.item || !asset.est_value) return toast.error(bn?"আইটেম ও মূল্য দিন":"Fill item and value");
+    const { error } = await (supabase as any).from("sellable_assets").insert({
+      user_id: user.id, item: asset.item, est_value: Math.round(Number(asset.est_value)),
+      condition: asset.condition, note: asset.note || null,
+    });
+    if (error) return toast.error(error.message);
+    setAsset({ item:"", est_value:"", condition:"good", note:"" });
+    toast.success(bn?"যোগ হয়েছে":"Added");
+    loadAll();
+  };
+  const markAssetSold = async (a: Asset) => {
+    const amt = prompt(bn?"কত টাকায় বিক্রি হলো?":"Sold for how much?", String(a.est_value));
+    if (!amt) return;
+    await (supabase as any).from("sellable_assets").update({ is_sold: true, sold_amount: Math.round(Number(amt)) }).eq("id", a.id);
+    loadAll();
+  };
+  const delAsset = async (id: string) => {
+    await (supabase as any).from("sellable_assets").delete().eq("id", id);
+    setAssets(assets.filter(a=>a.id!==id));
+  };
+
+  const planTotal = plans.filter(p=>!p.is_done).reduce((s,p)=>s+Number(p.est_price),0);
+  const assetTotal = assets.filter(a=>!a.is_sold).reduce((s,a)=>s+Number(a.est_value),0);
+
   const saveProfile = async () => {
     if (!user || !profile) return;
     const { error } = await supabase.from("profiles").update({

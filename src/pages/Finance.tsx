@@ -323,9 +323,11 @@ const Finance = () => {
       </div>
 
       <Tabs defaultValue="dashboard" className="w-full">
-        <TabsList className="grid grid-cols-3 lg:grid-cols-6 w-full h-auto">
+        <TabsList className="grid grid-cols-3 lg:grid-cols-8 w-full h-auto">
           <TabsTrigger value="dashboard">{bn?"ড্যাশবোর্ড":"Dashboard"}</TabsTrigger>
           <TabsTrigger value="tx">{bn?"লেনদেন":"Transactions"}</TabsTrigger>
+          <TabsTrigger value="plans">{bn?"পরিকল্পনা":"Plans"}</TabsTrigger>
+          <TabsTrigger value="assets">{bn?"আমার সম্পদ":"My Assets"}</TabsTrigger>
           <TabsTrigger value="debts">{bn?"ধার-দেনা":"Debts"}</TabsTrigger>
           <TabsTrigger value="budget">{bn?"বাজেট":"Budgets"}</TabsTrigger>
           <TabsTrigger value="goals">{bn?"লক্ষ্য":"Goals"}</TabsTrigger>

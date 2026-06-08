@@ -452,6 +452,121 @@ const Finance = () => {
         </TabsContent>
 
         {/* DEBTS */}
+        {/* PLANNED PURCHASES */}
+        <TabsContent value="plans" className="mt-4 space-y-4">
+          <Card><CardContent className="p-4 space-y-3">
+            <div className="flex items-center justify-between flex-wrap gap-2">
+              <h3 className="font-display font-bold flex items-center gap-2"><ShoppingCart className="w-4 h-4" />{bn?"এই মাসে কী কিনবেন":"What to buy this month"}</h3>
+              <Badge variant="outline">{bn?"মোট পরিকল্পিত":"Planned total"}: {cur(planTotal)}</Badge>
+            </div>
+            <div className="grid grid-cols-2 lg:grid-cols-5 gap-2">
+              <Input placeholder={bn?"আইটেম":"Item"} value={plan.item} onChange={e=>setPlan({...plan, item:e.target.value})} maxLength={80} />
+              <Input type="number" placeholder={bn?"৳ আনুমানিক":"Est. price"} value={plan.est_price} onChange={e=>setPlan({...plan, est_price:e.target.value})} />
+              <Select value={plan.priority} onValueChange={(v)=>setPlan({...plan, priority:v})}>
+                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="high">{bn?"জরুরি":"High"}</SelectItem>
+                  <SelectItem value="medium">{bn?"মাঝারি":"Medium"}</SelectItem>
+                  <SelectItem value="low">{bn?"কম":"Low"}</SelectItem>
+                </SelectContent>
+              </Select>
+              <Input type="date" value={plan.plan_date} onChange={e=>setPlan({...plan, plan_date:e.target.value})} />
+              <Button onClick={addPlan} className="gradient-bg-primary text-white"><Plus className="w-4 h-4 mr-1" />{bn?"যোগ":"Add"}</Button>
+            </div>
+            <Textarea placeholder={bn?"নোট (ঐচ্ছিক)":"Note (optional)"} value={plan.note} onChange={e=>setPlan({...plan, note:e.target.value})} maxLength={300} />
+          </CardContent></Card>
+
+          <Card><CardContent className="p-0">
+            <div className="divide-y divide-border max-h-[500px] overflow-auto">
+              {plans.length===0 && <div className="p-6 text-center text-sm text-muted-foreground">{bn?"কোনো পরিকল্পনা নেই":"No plans yet"}</div>}
+              {plans.map(p=>(
+                <div key={p.id} className={`p-3 flex items-center gap-3 ${p.is_done?"opacity-60":""}`}>
+                  <Button size="icon" variant={p.is_done?"default":"outline"} className="w-8 h-8 shrink-0" onClick={()=>togglePlanDone(p)}>
+                    <Check className="w-4 h-4" />
+                  </Button>
+                  <div className="flex-1 min-w-0">
+                    <div className={`font-semibold text-sm truncate ${p.is_done?"line-through":""}`}>{p.item}</div>
+                    <div className="text-[11px] text-muted-foreground truncate">
+                      {p.plan_date || (bn?"যে কোনো সময়":"Anytime")}
+                      {p.note?` • ${p.note}`:""}
+                    </div>
+                  </div>
+                  <Badge variant={p.priority==="high"?"destructive":p.priority==="low"?"outline":"secondary"} className="text-[10px]">
+                    {p.priority==="high"?(bn?"জরুরি":"High"):p.priority==="low"?(bn?"কম":"Low"):(bn?"মাঝারি":"Med")}
+                  </Badge>
+                  <div className="font-display font-bold">{cur(Number(p.est_price))}</div>
+                  <Button size="icon" variant="ghost" onClick={()=>delPlan(p.id)}><Trash2 className="w-4 h-4 text-muted-foreground" /></Button>
+                </div>
+              ))}
+            </div>
+          </CardContent></Card>
+
+          {plans.length>0 && (
+            <Card className="border-primary/30 bg-primary/5"><CardContent className="p-4 text-sm">
+              <div className="flex justify-between items-center flex-wrap gap-2">
+                <div><span className="font-semibold">{bn?"নেট হিসাব":"Net check"}:</span> {bn?"এই মাসের আয়":"This month income"} {cur(stats.income)} − {bn?"পরিকল্পিত":"Planned"} {cur(planTotal)} = <span className={`font-display font-bold ${stats.income-planTotal>=0?"text-emerald-600":"text-rose-600"}`}>{cur(stats.income-planTotal)}</span></div>
+                {stats.income-planTotal < 0 && <Badge variant="destructive">{bn?"বাজেট ছাড়িয়ে গেছে":"Over income"}</Badge>}
+              </div>
+            </CardContent></Card>
+          )}
+        </TabsContent>
+
+        {/* SELLABLE ASSETS */}
+        <TabsContent value="assets" className="mt-4 space-y-4">
+          <Card><CardContent className="p-4 space-y-3">
+            <div className="flex items-center justify-between flex-wrap gap-2">
+              <h3 className="font-display font-bold flex items-center gap-2"><Package className="w-4 h-4" />{bn?"বিক্রয়যোগ্য সম্পদ":"Sellable items"}</h3>
+              <Badge variant="outline">{bn?"মোট আনুমানিক মূল্য":"Est. liquid value"}: {cur(assetTotal)}</Badge>
+            </div>
+            <p className="text-xs text-muted-foreground">{bn?"আপনার কাছে যে প্রোডাক্টগুলো আছে—দরকার হলে বিক্রি করে খরচ মেটাতে পারবেন":"Things you own and could sell to cover expenses if needed"}</p>
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-2">
+              <Input placeholder={bn?"আইটেম (যেমন: পুরাতন ফোন)":"Item (e.g. old phone)"} value={asset.item} onChange={e=>setAsset({...asset, item:e.target.value})} maxLength={80} />
+              <Input type="number" placeholder={bn?"৳ আনুমানিক মূল্য":"Est. value"} value={asset.est_value} onChange={e=>setAsset({...asset, est_value:e.target.value})} />
+              <Select value={asset.condition} onValueChange={(v)=>setAsset({...asset, condition:v})}>
+                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="new">{bn?"নতুনের মতো":"Like new"}</SelectItem>
+                  <SelectItem value="good">{bn?"ভালো":"Good"}</SelectItem>
+                  <SelectItem value="fair">{bn?"মোটামুটি":"Fair"}</SelectItem>
+                  <SelectItem value="poor">{bn?"পুরাতন":"Poor"}</SelectItem>
+                </SelectContent>
+              </Select>
+              <Button onClick={addAsset} className="gradient-bg-primary text-white"><Plus className="w-4 h-4 mr-1" />{bn?"যোগ":"Add"}</Button>
+            </div>
+            <Textarea placeholder={bn?"নোট (ব্র্যান্ড, কোথায় বিক্রি করবেন)":"Note (brand, where to sell)"} value={asset.note} onChange={e=>setAsset({...asset, note:e.target.value})} maxLength={300} />
+          </CardContent></Card>
+
+          <Card><CardContent className="p-0">
+            <div className="divide-y divide-border max-h-[500px] overflow-auto">
+              {assets.length===0 && <div className="p-6 text-center text-sm text-muted-foreground">{bn?"কোনো আইটেম যোগ করা হয়নি":"No items added"}</div>}
+              {assets.map(a=>(
+                <div key={a.id} className={`p-3 flex items-center gap-3 ${a.is_sold?"opacity-60":""}`}>
+                  <div className="w-9 h-9 rounded-xl bg-violet-500/15 text-violet-600 flex items-center justify-center shrink-0">
+                    <Package className="w-4 h-4" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className={`font-semibold text-sm truncate ${a.is_sold?"line-through":""}`}>{a.item}</div>
+                    <div className="text-[11px] text-muted-foreground truncate">
+                      {a.condition}{a.note?` • ${a.note}`:""}
+                      {a.is_sold && a.sold_amount!=null ? ` • ${bn?"বিক্রি":"Sold"}: ${cur(Number(a.sold_amount))}` : ""}
+                    </div>
+                  </div>
+                  <div className="font-display font-bold">{cur(Number(a.est_value))}</div>
+                  {!a.is_sold && <Button size="sm" variant="outline" onClick={()=>markAssetSold(a)}>{bn?"বিক্রি":"Sold"}</Button>}
+                  {a.is_sold && <Badge variant="secondary">{bn?"বিক্রিত":"Sold"}</Badge>}
+                  <Button size="icon" variant="ghost" onClick={()=>delAsset(a.id)}><Trash2 className="w-4 h-4 text-muted-foreground" /></Button>
+                </div>
+              ))}
+            </div>
+          </CardContent></Card>
+
+          {assets.length>0 && stats.net<0 && (
+            <Card className="border-amber-500/30 bg-amber-500/5"><CardContent className="p-4 text-sm">
+              💡 {bn?`এই মাসে ঘাটতি ${cur(Math.abs(stats.net))}—আপনার সম্পদ থেকে বিক্রি করলে ${cur(assetTotal)} পর্যন্ত পেতে পারেন।`:`Shortfall this month: ${cur(Math.abs(stats.net))}. You could raise up to ${cur(assetTotal)} from your assets.`}
+            </CardContent></Card>
+          )}
+        </TabsContent>
+
         <TabsContent value="debts" className="mt-4 space-y-4">
           <Card><CardContent className="p-4 space-y-3">
             <h3 className="font-display font-bold">{bn?"ধার যোগ করুন":"Add Debt"}</h3>

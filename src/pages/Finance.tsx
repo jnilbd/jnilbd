@@ -3,7 +3,8 @@ import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import {
   Wallet, TrendingUp, TrendingDown, PiggyBank, HandCoins, Target, Sparkles,
-  Plus, Trash2, LogOut, User as UserIcon, Calendar as CalIcon, Save, Brain
+  Plus, Trash2, LogOut, User as UserIcon, Calendar as CalIcon, Save, Brain,
+  ShoppingCart, Package, Check
 } from "lucide-react";
 import {
   PieChart, Pie, Cell, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, Legend, CartesianGrid

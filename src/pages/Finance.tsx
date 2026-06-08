@@ -62,18 +62,22 @@ const Finance = () => {
 
   const loadAll = async () => {
     if (!user) return;
-    const [p, t, d, b, g] = await Promise.all([
+    const [p, t, d, b, g, pl, a] = await Promise.all([
       supabase.from("profiles").select("*").eq("user_id", user.id).maybeSingle(),
       supabase.from("transactions").select("*").eq("user_id", user.id).order("occurred_on", { ascending: false }).limit(500),
       supabase.from("debts").select("*").eq("user_id", user.id).order("created_at", { ascending: false }),
       supabase.from("budgets").select("*").eq("user_id", user.id),
       supabase.from("savings_goals").select("*").eq("user_id", user.id).order("created_at", { ascending: false }),
+      (supabase as any).from("planned_purchases").select("*").eq("user_id", user.id).order("created_at", { ascending: false }),
+      (supabase as any).from("sellable_assets").select("*").eq("user_id", user.id).order("created_at", { ascending: false }),
     ]);
     if (p.data) setProfile(p.data as Profile);
     if (t.data) setTxs(t.data as Tx[]);
     if (d.data) setDebts(d.data as Debt[]);
     if (b.data) setBudgets(b.data as Budget[]);
     if (g.data) setGoals(g.data as Goal[]);
+    if (pl.data) setPlans(pl.data as Plan[]);
+    if (a.data) setAssets(a.data as Asset[]);
   };
 
   useEffect(() => { loadAll(); /* eslint-disable-next-line */ }, [user]);

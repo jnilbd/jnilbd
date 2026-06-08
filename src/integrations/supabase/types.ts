@@ -155,6 +155,45 @@ export type Database = {
         }
         Relationships: []
       }
+      planned_purchases: {
+        Row: {
+          created_at: string
+          est_price: number
+          id: string
+          is_done: boolean
+          item: string
+          note: string | null
+          plan_date: string | null
+          priority: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          est_price?: number
+          id?: string
+          is_done?: boolean
+          item: string
+          note?: string | null
+          plan_date?: string | null
+          priority?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          est_price?: number
+          id?: string
+          is_done?: boolean
+          item?: string
+          note?: string | null
+          plan_date?: string | null
+          priority?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null
@@ -318,6 +357,45 @@ export type Database = {
           send_at?: string
           sent_at?: string | null
           status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      sellable_assets: {
+        Row: {
+          condition: string
+          created_at: string
+          est_value: number
+          id: string
+          is_sold: boolean
+          item: string
+          note: string | null
+          sold_amount: number | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          condition?: string
+          created_at?: string
+          est_value?: number
+          id?: string
+          is_sold?: boolean
+          item: string
+          note?: string | null
+          sold_amount?: number | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          condition?: string
+          created_at?: string
+          est_value?: number
+          id?: string
+          is_sold?: boolean
+          item?: string
+          note?: string | null
+          sold_amount?: number | null
           updated_at?: string
           user_id?: string
         }

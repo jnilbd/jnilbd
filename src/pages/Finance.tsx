@@ -35,6 +35,8 @@ type Debt = { id: string; direction: "lent"|"borrowed"; counterparty: string; am
 type Budget = { id: string; category: string; monthly_limit: number };
 type Goal = { id: string; title: string; target_amount: number; saved_amount: number; target_date: string|null };
 type Profile = { id: string; full_name: string|null; phone: string|null; monthly_income: number; currency: string };
+type Plan = { id: string; item: string; est_price: number; priority: string; plan_date: string|null; is_done: boolean; note: string|null };
+type Asset = { id: string; item: string; est_value: number; condition: string; is_sold: boolean; sold_amount: number|null; note: string|null };
 
 const Finance = () => {
   const { user, loading, signOut } = useAuth();

@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, useMemo } from "react";
 import { motion } from "framer-motion";
-import { Tv, Radio, Search, Play } from "lucide-react";
+import { Tv, Radio, Search, Play, Loader2 } from "lucide-react";
 import Hls from "hls.js";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -13,96 +13,20 @@ type Channel = {
   country: "BD" | "IN" | "Other";
   category: "tv" | "radio";
   logo?: string;
-  url: string; // HLS .m3u8, audio stream, or iframe embed url
-  embed?: boolean; // if true, render in iframe (third-party bypass player)
+  url: string;
+  referrer?: string;
+  userAgent?: string;
 };
 
-// Curated free public live streams. HLS where available, otherwise third-party iframe embeds.
-// Embeds use ok.ru / public CDNs / known free IPTV mirrors as a bypass fallback.
-const CHANNELS: Channel[] = [
-  // ===== Bangladesh TV (HLS) =====
-  { id: "btv", name: "BTV National", country: "BD", category: "tv", url: "https://btvlive.brrm.gov.bd/btv/btv/playlist.m3u8" },
-  { id: "btv-world", name: "BTV World", country: "BD", category: "tv", url: "https://btvworldlive.brrm.gov.bd/btvworld/btvworld/playlist.m3u8" },
-  { id: "sangsad", name: "Sangsad TV", country: "BD", category: "tv", url: "https://sangsadlive.brrm.gov.bd/sangsadtv/sangsadtv/playlist.m3u8" },
-  { id: "somoy", name: "Somoy TV", country: "BD", category: "tv", url: "https://Somoynews.live-s.cdn.bitgravity.com/cdn-live/_definst_/Somoynews/liveevent/livestream/chunklist.m3u8" },
-  { id: "jamuna", name: "Jamuna TV", country: "BD", category: "tv", url: "https://5e0dc0b785015.streamlock.net/jamuna/jamuna/playlist.m3u8" },
-  { id: "ekattor", name: "Ekattor TV", country: "BD", category: "tv", url: "https://live.ekattor.tv/hls/stream.m3u8" },
-  { id: "channel24", name: "Channel 24", country: "BD", category: "tv", url: "https://live.channel24bd.tv/c24/smil:c24.smil/chunklist_b1500000.m3u8" },
-  { id: "rtv", name: "RTV", country: "BD", category: "tv", url: "https://rtvlive.akamaized.net/hls/live/2008080/rtv/index.m3u8" },
-  { id: "ntv", name: "NTV Bangladesh", country: "BD", category: "tv", url: "https://ntvlive.akamaized.net/hls/live/2014075/NTV/index.m3u8" },
-  { id: "atn-news", name: "ATN News", country: "BD", category: "tv", url: "https://live.atnnewstv.com/hls/stream.m3u8" },
-  { id: "atn-bangla", name: "ATN Bangla", country: "BD", category: "tv", url: "https://live.atnbanglatv.tv/hls/stream.m3u8" },
-  { id: "independent", name: "Independent TV", country: "BD", category: "tv", url: "https://live.independent24.tv/hls/stream.m3u8" },
-  { id: "ekhon-tv", name: "Ekhon TV", country: "BD", category: "tv", url: "https://feed.bismetvtech.com/ekhontv/ekhontv/playlist.m3u8" },
-  { id: "deepto", name: "Deepto TV", country: "BD", category: "tv", url: "https://deepto.global.ssl.fastly.net/Deeptotv/index.m3u8" },
-  { id: "channeli", name: "Channel i", country: "BD", category: "tv", url: "https://live.channeli.tv/live_channeli/index.m3u8" },
-  { id: "maasranga", name: "Maasranga TV", country: "BD", category: "tv", url: "https://5b624ea9cfe05.streamlock.net/MaasRangaHD/smil:MaasRangaHD.smil/playlist.m3u8" },
-  { id: "boishakhi", name: "Boishakhi TV", country: "BD", category: "tv", url: "https://feed.bismetvtech.com/boishakhi/boishakhi/playlist.m3u8" },
-  { id: "ekushey", name: "Ekushey TV (ETV)", country: "BD", category: "tv", url: "https://feed.bismetvtech.com/etv/etv/playlist.m3u8" },
-  { id: "gtv", name: "Gazi TV (GTV)", country: "BD", category: "tv", url: "https://feed.bismetvtech.com/gtv/gtv/playlist.m3u8" },
-  { id: "nexus-tv", name: "Nexus TV", country: "BD", category: "tv", url: "https://feed.bismetvtech.com/nexustv/nexustv/playlist.m3u8" },
-  { id: "duronto", name: "Duronto TV", country: "BD", category: "tv", url: "https://feed.bismetvtech.com/duronto/duronto/playlist.m3u8" },
-  { id: "news24", name: "News24 BD", country: "BD", category: "tv", url: "https://news24bdlive.akamaized.net/hls/live/2014233/news24/index.m3u8" },
-  { id: "dbc-news", name: "DBC News", country: "BD", category: "tv", url: "https://feed.bismetvtech.com/dbc/dbc/playlist.m3u8" },
-  { id: "asian-tv", name: "Asian TV", country: "BD", category: "tv", url: "https://feed.bismetvtech.com/asiantv/asiantv/playlist.m3u8" },
-  { id: "mytv", name: "My TV", country: "BD", category: "tv", url: "https://feed.bismetvtech.com/mytv/mytv/playlist.m3u8" },
-  { id: "bangla-vision", name: "Bangla Vision", country: "BD", category: "tv", url: "https://feed.bismetvtech.com/banglavision/banglavision/playlist.m3u8" },
-
-  // ===== India TV =====
-  { id: "ddnews", name: "DD News", country: "IN", category: "tv", url: "https://ddnewslive.akamaized.net/hls/live/2003678/ddnewslive/index.m3u8" },
-  { id: "ddnational", name: "DD National", country: "IN", category: "tv", url: "https://ddnationallive.akamaized.net/hls/live/2003680/ddnational/index.m3u8" },
-  { id: "ddbangla", name: "DD Bangla", country: "IN", category: "tv", url: "https://ddbanglalive.akamaized.net/hls/live/2003682/ddbangla/index.m3u8" },
-  { id: "ddsports", name: "DD Sports", country: "IN", category: "tv", url: "https://ddsportslive.akamaized.net/hls/live/2003684/ddsports/index.m3u8" },
-  { id: "ddurdu", name: "DD Urdu", country: "IN", category: "tv", url: "https://ddurdulive.akamaized.net/hls/live/2003686/ddurdu/index.m3u8" },
-  { id: "ddkisan", name: "DD Kisan", country: "IN", category: "tv", url: "https://ddkisanlive.akamaized.net/hls/live/2003692/ddkisan/index.m3u8" },
-  { id: "ddindia", name: "DD India", country: "IN", category: "tv", url: "https://ddindialive.akamaized.net/hls/live/2003688/DDIndia/index.m3u8" },
-  { id: "wion", name: "WION", country: "IN", category: "tv", url: "https://d3eyhbo8st9bly.cloudfront.net/hls/wionLow/master.m3u8" },
-  { id: "republic-bharat", name: "Republic Bharat", country: "IN", category: "tv", url: "https://rbhlive-lh.akamaihd.net/i/RBH_1@174463/master.m3u8" },
-  { id: "ndtv-india", name: "NDTV India", country: "IN", category: "tv", url: "https://ndtv24x7elemarchana.akamaized.net/hls/live/2003682/ndtv24x7/master.m3u8" },
-  { id: "ndtv-247", name: "NDTV 24x7", country: "IN", category: "tv", url: "https://ndtv24x7elemarchana.akamaized.net/hls/live/2003680/ndtv24x7/master.m3u8" },
-  { id: "tv9-bharatvarsh", name: "TV9 Bharatvarsh", country: "IN", category: "tv", url: "https://tv9hindiwebhls.akamaized.net/hls/live/2034711/tv9bharatvarsh/master.m3u8" },
-  { id: "abp-news", name: "ABP News", country: "IN", category: "tv", url: "https://abplivetv.akamaized.net/hls/live/2043010/abpnews/index.m3u8" },
-  { id: "aaj-tak", name: "Aaj Tak", country: "IN", category: "tv", url: "https://feeds.intoday.in/aajtak/api/aajtakhd/master.m3u8" },
-  { id: "india-today", name: "India Today", country: "IN", category: "tv", url: "https://feeds.intoday.in/aajtak/api/indiatodaylive/master.m3u8" },
-  { id: "zee-news", name: "Zee News", country: "IN", category: "tv", url: "https://znlive-hls.zee5.com/zlive/zenglive_24x7/zenglive_24x7.m3u8" },
-
-  // ===== Other (popular) =====
-  { id: "aljazeera", name: "Al Jazeera English", country: "Other", category: "tv", url: "https://live-hls-web-aje.getaj.net/AJE/index.m3u8" },
-  { id: "aljazeera-ar", name: "Al Jazeera Arabic", country: "Other", category: "tv", url: "https://live-hls-web-aja.getaj.net/AJA/index.m3u8" },
-  { id: "trtworld", name: "TRT World", country: "Other", category: "tv", url: "https://tv-trtworld.medya.trt.com.tr/master.m3u8" },
-  { id: "france24", name: "France 24 English", country: "Other", category: "tv", url: "https://static.france24.com/live/F24_EN_LO_HLS/live_web.m3u8" },
-  { id: "france24-ar", name: "France 24 Arabic", country: "Other", category: "tv", url: "https://static.france24.com/live/F24_AR_LO_HLS/live_web.m3u8" },
-  { id: "dw-english", name: "DW English", country: "Other", category: "tv", url: "https://dwamdstream102.akamaized.net/hls/live/2015525/dwstream102/index.m3u8" },
-  { id: "cna", name: "CNA Singapore", country: "Other", category: "tv", url: "https://d2e1asnsl7br7b.cloudfront.net/7782e205e72f43aeb4a48ec97f66ebbe/index.m3u8" },
-  { id: "euronews", name: "Euronews English", country: "Other", category: "tv", url: "https://euronews-euronews-english-1-eu.rakuten.wurl.tv/playlist.m3u8" },
-  { id: "abc-au", name: "ABC News (Australia)", country: "Other", category: "tv", url: "https://abc-iview-mediapackagestreams-2.akamaized.net/out/v1/6e1cc6d25ec0480ea099a5399d73bc4b/index.m3u8" },
-  { id: "nhk-world", name: "NHK World Japan", country: "Other", category: "tv", url: "https://nhkwlive-ojp.akamaized.net/hls/live/2003459/nhkwlive-ojp-en/index.m3u8" },
-  { id: "rt-news", name: "RT News", country: "Other", category: "tv", url: "https://rt-glb.rttv.com/live/rtnews/playlist.m3u8" },
-
-  // ===== Bangladesh Radio =====
-  { id: "betar-dhaka", name: "Bangladesh Betar Dhaka", country: "BD", category: "radio", url: "https://stream.zeno.fm/0vbb1zv4y18uv" },
-  { id: "radio-foorti", name: "Radio Foorti 88.0", country: "BD", category: "radio", url: "https://stream.zeno.fm/cyfawjzn8u8tv" },
-  { id: "abc-radio", name: "ABC Radio 89.2", country: "BD", category: "radio", url: "https://stream.zeno.fm/i9ut5n2y4leuv" },
-  { id: "radio-today", name: "Radio Today 89.6", country: "BD", category: "radio", url: "https://stream.zeno.fm/cunxa4zbv2zuv" },
-  { id: "radio-bhumi", name: "Radio Bhumi 92.8", country: "BD", category: "radio", url: "https://stream.zeno.fm/4srtcsb7468uv" },
-  { id: "dhaka-fm", name: "Dhaka FM 90.4", country: "BD", category: "radio", url: "https://stream.zeno.fm/5ywvz9cs3v8uv" },
-  { id: "radio-amar", name: "Radio Amar 88.4", country: "BD", category: "radio", url: "https://stream.zeno.fm/zqyvdg8u8u8uv" },
-  { id: "peoples-radio", name: "Peoples Radio 91.6", country: "BD", category: "radio", url: "https://stream.zeno.fm/y6cwzsbq2k0uv" },
-  { id: "radio-shadhin", name: "Radio Shadhin 92.4", country: "BD", category: "radio", url: "https://stream.zeno.fm/g7e8r3w17fhvv" },
-  { id: "radio-din-raat", name: "Radio Din Raat 102.4", country: "BD", category: "radio", url: "https://stream.zeno.fm/g4ebq9wmfvxtv" },
-  { id: "jago-fm", name: "Jago FM 94.4", country: "BD", category: "radio", url: "https://stream.zeno.fm/x39d2qum9fhvv" },
-
-  // ===== India Radio =====
-  { id: "air-news", name: "AIR News 24x7", country: "IN", category: "radio", url: "https://airhlspush.pc.cdn.bitgravity.com/httppush/hlsslive/master.m3u8" },
-  { id: "radio-mirchi", name: "Radio Mirchi 98.3", country: "IN", category: "radio", url: "https://peridot.streamguys1.com:7150/Mirchi" },
-  { id: "radio-city", name: "Radio City 91.1", country: "IN", category: "radio", url: "https://prclive4.listenon.in/Hindi" },
-  { id: "big-fm", name: "Big FM 92.7", country: "IN", category: "radio", url: "https://stream.zeno.fm/7tutkqfc83zuv" },
-  { id: "akashvani-bangla", name: "Akashvani Bangla", country: "IN", category: "radio", url: "https://air.pc.cdn.bitgravity.com/air/live/pbaudio043/playlist.m3u8" },
-  { id: "fever-fm", name: "Fever 104 FM", country: "IN", category: "radio", url: "https://stream.zeno.fm/y5r2hgaczqxvv" },
-  { id: "radio-nasha", name: "Radio Nasha 107.2", country: "IN", category: "radio", url: "https://stream.zeno.fm/0ncgr8tpu98uv" },
-];
-
 const COUNTRY_ORDER: Channel["country"][] = ["BD", "IN", "Other"];
+
+// Curated reliable fallbacks that always render even if remote sources are temporarily down
+const FALLBACK_TV: Channel[] = [
+  { id: "aljazeera-en", name: "Al Jazeera English", country: "Other", category: "tv", url: "https://live-hls-web-aje.getaj.net/AJE/index.m3u8" },
+  { id: "dw-en", name: "DW English", country: "Other", category: "tv", url: "https://dwamdstream102.akamaized.net/hls/live/2015525/dwstream102/index.m3u8" },
+  { id: "france24-en", name: "France 24 English", country: "Other", category: "tv", url: "https://static.france24.com/live/F24_EN_LO_HLS/live_web.m3u8" },
+  { id: "nhk-world", name: "NHK World Japan", country: "Other", category: "tv", url: "https://nhkwlive-ojp.akamaized.net/hls/live/2003459/nhkwlive-ojp-en/index.m3u8" },
+];
 
 const LiveTV = () => {
   const { language } = useLanguage();
@@ -110,38 +34,138 @@ const LiveTV = () => {
   const [tab, setTab] = useState<"tv" | "radio">("tv");
   const [search, setSearch] = useState("");
   const [active, setActive] = useState<Channel | null>(null);
+  const [tvChannels, setTvChannels] = useState<Channel[]>([]);
+  const [radioChannels, setRadioChannels] = useState<Channel[]>([]);
+  const [loadingTv, setLoadingTv] = useState(true);
+  const [loadingRadio, setLoadingRadio] = useState(true);
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const hlsRef = useRef<Hls | null>(null);
 
+  // ----- Fetch live TV from iptv-org (free, community-maintained, working M3U8 streams) -----
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const [streamsRes, channelsRes] = await Promise.all([
+          fetch("https://iptv-org.github.io/api/streams.json"),
+          fetch("https://iptv-org.github.io/api/channels.json"),
+        ]);
+        const streams = await streamsRes.json();
+        const channels = await channelsRes.json();
+        const chMap = new Map<string, any>(channels.map((c: any) => [c.id, c]));
+        const list: Channel[] = [];
+        const seenName = new Set<string>();
+        for (const s of streams) {
+          if (!s.channel || !s.url) continue;
+          const meta = chMap.get(s.channel);
+          if (!meta) continue;
+          if (meta.is_nsfw) continue;
+          if (meta.country !== "BD" && meta.country !== "IN") continue;
+          // Skip streams that require special headers (won't play in browser)
+          if (s.user_agent || s.referrer) continue;
+          // Prefer https
+          if (!s.url.startsWith("https://")) continue;
+          const name = (s.title || meta.name || "").trim();
+          if (!name) continue;
+          const key = `${meta.country}:${name.toLowerCase()}`;
+          if (seenName.has(key)) continue;
+          seenName.add(key);
+          list.push({
+            id: `${meta.id}-${list.length}`,
+            name,
+            country: meta.country as "BD" | "IN",
+            category: "tv",
+            logo: meta.logo,
+            url: s.url,
+          });
+        }
+        if (!cancelled) {
+          // Sort: BD first, then IN, alphabetical
+          list.sort((a, b) =>
+            COUNTRY_ORDER.indexOf(a.country) - COUNTRY_ORDER.indexOf(b.country) ||
+            a.name.localeCompare(b.name)
+          );
+          setTvChannels([...list, ...FALLBACK_TV]);
+        }
+      } catch (e) {
+        console.error("iptv-org fetch failed", e);
+        if (!cancelled) setTvChannels(FALLBACK_TV);
+      } finally {
+        if (!cancelled) setLoadingTv(false);
+      }
+    })();
+    return () => { cancelled = true; };
+  }, []);
+
+  // ----- Fetch radio from radio-browser.info (free, open API, only working stations) -----
+  useEffect(() => {
+    let cancelled = false;
+    const fetchCountry = async (cc: "BD" | "IN") => {
+      // Try multiple mirrors for resilience
+      const mirrors = [
+        "https://de1.api.radio-browser.info",
+        "https://de2.api.radio-browser.info",
+        "https://nl1.api.radio-browser.info",
+      ];
+      for (const base of mirrors) {
+        try {
+          const r = await fetch(
+            `${base}/json/stations/bycountrycodeexact/${cc}?hidebroken=true&order=votes&reverse=true&limit=120`
+          );
+          if (!r.ok) continue;
+          return (await r.json()) as any[];
+        } catch {}
+      }
+      return [];
+    };
+    (async () => {
+      const [bd, ind] = await Promise.all([fetchCountry("BD"), fetchCountry("IN")]);
+      const map = (arr: any[], cc: "BD" | "IN"): Channel[] =>
+        arr
+          .filter((s) => s.url_resolved && s.lastcheckok === 1)
+          .map((s, i) => ({
+            id: `${cc}-${s.stationuuid || i}`,
+            name: s.name?.trim() || "Unknown",
+            country: cc,
+            category: "radio" as const,
+            logo: s.favicon || undefined,
+            url: s.url_resolved,
+          }));
+      if (!cancelled) {
+        setRadioChannels([...map(bd, "BD"), ...map(ind, "IN")]);
+        setLoadingRadio(false);
+      }
+    })();
+    return () => { cancelled = true; };
+  }, []);
+
+  const allChannels = tab === "tv" ? tvChannels : radioChannels;
+
   const filtered = useMemo(() => {
     const q = search.toLowerCase();
-    return CHANNELS.filter(
-      (c) => c.category === tab && (!q || c.name.toLowerCase().includes(q))
-    ).sort((a, b) => COUNTRY_ORDER.indexOf(a.country) - COUNTRY_ORDER.indexOf(b.country));
-  }, [tab, search]);
+    return allChannels.filter((c) => !q || c.name.toLowerCase().includes(q));
+  }, [allChannels, search]);
 
   useEffect(() => {
     if (!active) return;
-
-    // Cleanup previous
     hlsRef.current?.destroy();
     hlsRef.current = null;
-
     const isHls = active.url.includes(".m3u8");
     const mediaEl = active.category === "tv" ? videoRef.current : audioRef.current;
     if (!mediaEl) return;
-
-    if (isHls && Hls.isSupported()) {
-      const hls = new Hls();
+    if (isHls && Hls.isSupported() && active.category === "tv") {
+      const hls = new Hls({ enableWorker: true });
       hls.loadSource(active.url);
       hls.attachMedia(mediaEl as HTMLMediaElement);
+      hls.on(Hls.Events.ERROR, (_e, data) => {
+        if (data.fatal) console.warn("HLS fatal", data);
+      });
       hlsRef.current = hls;
     } else {
-      mediaEl.src = active.url;
+      (mediaEl as HTMLMediaElement).src = active.url;
     }
-    mediaEl.play().catch(() => {});
-
+    (mediaEl as HTMLMediaElement).play().catch(() => {});
     return () => {
       hlsRef.current?.destroy();
       hlsRef.current = null;
@@ -159,6 +183,8 @@ const LiveTV = () => {
     items: filtered.filter((ch) => ch.country === c),
   })).filter((g) => g.items.length > 0);
 
+  const loading = tab === "tv" ? loadingTv : loadingRadio;
+
   return (
     <div className="container py-8">
       <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
@@ -172,13 +198,12 @@ const LiveTV = () => {
           </h1>
           <p className="text-muted-foreground">
             {t(
-              "বাংলাদেশী ও ইন্ডিয়ান চ্যানেল — সরাসরি সম্প্রচার",
-              "Bangladeshi & Indian channels — live broadcast"
+              "বাংলাদেশী ও ইন্ডিয়ান চ্যানেল — অটো-আপডেট হওয়া ফ্রি সোর্স",
+              "Bangladeshi & Indian channels — auto-updated free sources"
             )}
           </p>
         </div>
 
-        {/* Tabs */}
         <div className="flex justify-center mb-5">
           <div className="inline-flex rounded-full bg-muted p-1">
             <button
@@ -196,13 +221,17 @@ const LiveTV = () => {
           </div>
         </div>
 
-        {/* Player */}
         {active && (
           <Card className="p-4 mb-6 overflow-hidden">
             <div className="flex items-center justify-between mb-3">
-              <div>
-                <p className="font-display font-bold text-lg">{active.name}</p>
-                <p className="text-xs text-muted-foreground">{countryLabel[active.country]}</p>
+              <div className="flex items-center gap-3">
+                {active.logo && (
+                  <img src={active.logo} alt="" className="w-10 h-10 rounded object-contain bg-muted" onError={(e) => ((e.target as HTMLImageElement).style.display = "none")} />
+                )}
+                <div>
+                  <p className="font-display font-bold text-lg">{active.name}</p>
+                  <p className="text-xs text-muted-foreground">{countryLabel[active.country]}</p>
+                </div>
               </div>
               <Button variant="ghost" size="sm" onClick={() => setActive(null)}>×</Button>
             </div>
@@ -220,10 +249,12 @@ const LiveTV = () => {
                 <audio ref={audioRef} controls autoPlay className="w-full max-w-md" />
               </div>
             )}
+            <p className="text-[11px] text-muted-foreground mt-2">
+              {t("স্ট্রিম না চললে অন্য চ্যানেল ট্রাই করুন — কিছু সোর্স জিও-ব্লকড।", "If a stream doesn't play, try another — some sources are geo-blocked.")}
+            </p>
           </Card>
         )}
 
-        {/* Search */}
         <div className="relative mb-5 max-w-md mx-auto">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
           <Input
@@ -234,8 +265,20 @@ const LiveTV = () => {
           />
         </div>
 
-        {/* Channel grid grouped by country */}
-        {groups.map((g) => (
+        {loading && (
+          <div className="flex flex-col items-center py-12 text-muted-foreground">
+            <Loader2 className="w-8 h-8 animate-spin mb-2" />
+            <p className="text-sm">{t("সর্বশেষ লাইভ চ্যানেল লোড হচ্ছে...", "Loading latest live channels...")}</p>
+          </div>
+        )}
+
+        {!loading && groups.length === 0 && (
+          <p className="text-center text-muted-foreground py-8">
+            {t("কোনো চ্যানেল পাওয়া যায়নি।", "No channels found.")}
+          </p>
+        )}
+
+        {!loading && groups.map((g) => (
           <section key={g.country} className="mb-8">
             <h2 className="text-lg font-display font-bold mb-3 flex items-center gap-2">
               <span className={`w-2 h-2 rounded-full ${g.country === "BD" ? "bg-green-600" : g.country === "IN" ? "bg-orange-500" : "bg-muted-foreground"}`} />
@@ -250,12 +293,16 @@ const LiveTV = () => {
                   className={`group relative p-4 rounded-2xl border bg-card hover:border-primary hover:shadow-elegant transition-smooth text-left ${active?.id === c.id ? "border-primary shadow-glow" : "border-border"}`}
                 >
                   <div className="flex items-center gap-2 mb-2">
-                    <div className={`w-8 h-8 rounded-lg flex items-center justify-center text-white ${c.category === "tv" ? "gradient-bg-primary" : "gradient-bg-warm"}`}>
-                      {c.category === "tv" ? <Tv className="w-4 h-4" /> : <Radio className="w-4 h-4" />}
-                    </div>
+                    {c.logo ? (
+                      <img src={c.logo} alt="" className="w-8 h-8 rounded object-contain bg-muted" onError={(e) => ((e.target as HTMLImageElement).style.visibility = "hidden")} />
+                    ) : (
+                      <div className={`w-8 h-8 rounded-lg flex items-center justify-center text-white ${c.category === "tv" ? "gradient-bg-primary" : "gradient-bg-warm"}`}>
+                        {c.category === "tv" ? <Tv className="w-4 h-4" /> : <Radio className="w-4 h-4" />}
+                      </div>
+                    )}
                     <Play className="w-4 h-4 text-muted-foreground group-hover:text-primary ml-auto" />
                   </div>
-                  <p className="font-semibold text-sm leading-tight">{c.name}</p>
+                  <p className="font-semibold text-sm leading-tight line-clamp-2">{c.name}</p>
                 </button>
               ))}
             </div>
@@ -264,8 +311,8 @@ const LiveTV = () => {
 
         <p className="text-xs text-center text-muted-foreground mt-6">
           {t(
-            "স্ট্রিম গুলো পাবলিক সোর্স থেকে — কখনো কখনো সাময়িকভাবে অফলাইন থাকতে পারে।",
-            "Streams come from public sources — they may occasionally be offline."
+            "সোর্স: iptv-org (টিভি) + radio-browser.info (রেডিও) — কমিউনিটি দ্বারা ক্রমাগত আপডেট।",
+            "Sources: iptv-org (TV) + radio-browser.info (radio) — continuously community-updated."
           )}
         </p>
       </motion.div>

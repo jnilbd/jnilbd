@@ -241,11 +241,12 @@ const LiveTV = () => {
   const filtered = useMemo(() => {
     const q = search.toLowerCase();
     return allChannels.filter((c) =>
+      !dead.has(c.id) &&
       (!q || c.name.toLowerCase().includes(q)) &&
       (countryFilter === "all" || c.country === countryFilter) &&
       (!onlyFavs || favs.has(c.id))
     );
-  }, [allChannels, search, countryFilter, onlyFavs, favs]);
+  }, [allChannels, search, countryFilter, onlyFavs, favs, dead]);
 
   // Auto health-check first 12 visible items
   useEffect(() => {

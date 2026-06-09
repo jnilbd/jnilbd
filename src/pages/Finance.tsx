@@ -418,6 +418,128 @@ const Finance = () => {
             </CardContent>
           </Card>
 
+          {/* Friendly persona-based tips */}
+          <Card className="border-secondary/30 bg-gradient-to-br from-secondary/5 via-background to-primary/5">
+            <CardContent className="p-5">
+              <div className="flex items-center gap-2 mb-3">
+                <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 text-white flex items-center justify-center">💡</div>
+                <div>
+                  <h3 className="font-display font-bold">{bn?"সবার জন্য আর্থিক গাইড":"Money Guide For Everyone"}</h3>
+                  <p className="text-[11px] text-muted-foreground">{bn?"আপনি যেই পেশারই হোন — আপনার জন্য সাহায্য":"Whoever you are — help tailored for you"}</p>
+                </div>
+              </div>
+              <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                {[
+                  {
+                    icon:"👔", title: bn?"চাকরিজীবী":"Salaried Employee", color:"from-blue-500/10 to-indigo-500/10 border-blue-500/30",
+                    tips: bn?[
+                      "৫০/৩০/২০ নিয়ম: ৫০% প্রয়োজন, ৩০% ইচ্ছা, ২০% সঞ্চয়",
+                      "জরুরি তহবিল: ৬ মাসের খরচ আলাদা রাখুন",
+                      "DPS/সঞ্চয়পত্র দিয়ে কর সাশ্রয় করুন",
+                      "EMI মোট আয়ের ৪০% এর বেশি নয়",
+                    ]:[
+                      "50/30/20 rule: 50% needs, 30% wants, 20% savings",
+                      "Emergency fund: keep 6 months of expenses",
+                      "Use DPS/savings certificates to save tax",
+                      "Keep EMIs under 40% of income",
+                    ],
+                  },
+                  {
+                    icon:"🏪", title: bn?"ব্যবসায়ী":"Business Owner", color:"from-amber-500/10 to-orange-500/10 border-amber-500/30",
+                    tips: bn?[
+                      "ব্যবসা ও ব্যক্তিগত হিসাব আলাদা রাখুন",
+                      "নগদ প্রবাহ (cash flow) সাপ্তাহিক ট্র্যাক করুন",
+                      "ইনভেন্টরি = টাকা; অলস স্টক বিক্রি করুন",
+                      "ভ্যাট/আয়কর সময়মতো; ৩-৬ মাসের চলতি মূলধন সংরক্ষণ",
+                    ]:[
+                      "Separate business and personal accounts",
+                      "Track cash flow weekly, not monthly",
+                      "Inventory = cash; liquidate dead stock",
+                      "Pay VAT/tax on time; keep 3-6 months working capital",
+                    ],
+                  },
+                  {
+                    icon:"🌾", title: bn?"কৃষক":"Farmer", color:"from-emerald-500/10 to-green-500/10 border-emerald-500/30",
+                    tips: bn?[
+                      "ফসল বিমা ও কৃষি ঋণ সুবিধা নিন (BKB, RAKUB)",
+                      "মৌসুমী আয় ভেবে বাৎসরিক বাজেট করুন",
+                      "শস্য বহুমুখীকরণ — সব ডিম এক ঝুড়িতে নয়",
+                      "সরকারি ভর্তুকি ও ন্যায্যমূল্য কেন্দ্র খোঁজ রাখুন",
+                    ]:[
+                      "Use crop insurance & agri loans (BKB, RAKUB)",
+                      "Budget yearly — income is seasonal",
+                      "Diversify crops — don't depend on one",
+                      "Track govt subsidies & fair-price centres",
+                    ],
+                  },
+                  {
+                    icon:"🎓", title: bn?"স্টুডেন্ট":"Student", color:"from-violet-500/10 to-purple-500/10 border-violet-500/30",
+                    tips: bn?[
+                      "মাসিক খরচ লিখুন — চা-নাস্তাও যোগ করুন",
+                      "টিউশন/ফ্রিল্যান্স দিয়ে ছোট আয়ের অভ্যাস",
+                      "প্রতি মাসে ১০০-৫০০ টাকা হলেও জমান",
+                      "অপ্রয়োজনীয় সাবস্ক্রিপশন বাদ দিন",
+                    ]:[
+                      "Log every expense — even small snacks",
+                      "Build small income via tutoring/freelance",
+                      "Save even 100-500 BDT every month",
+                      "Cancel unused subscriptions",
+                    ],
+                  },
+                  {
+                    icon:"🔍", title: bn?"বেকার/চাকরি খুঁজছেন":"Job Seeker", color:"from-rose-500/10 to-pink-500/10 border-rose-500/30",
+                    tips: bn?[
+                      "জরুরি খরচ আগে — খাবার, বাসা, যাতায়াত",
+                      "ছোট অনলাইন কাজ (Fiverr, Upwork) চেষ্টা করুন",
+                      "ফ্যামিলি/বন্ধুর ধার রেকর্ড রাখুন",
+                      "বিক্রয়যোগ্য সম্পদ চিহ্নিত করে নগদে আনুন",
+                    ]:[
+                      "Prioritise: food, rent, transport",
+                      "Try micro-gigs (Fiverr, Upwork, local)",
+                      "Track loans from family/friends",
+                      "Identify sellable assets to raise cash",
+                    ],
+                  },
+                  {
+                    icon:"🏠", title: bn?"গৃহিণী":"Homemaker", color:"from-pink-500/10 to-fuchsia-500/10 border-pink-500/30",
+                    tips: bn?[
+                      "মাসিক বাজার বাজেট আগে থেকে ঠিক করুন",
+                      "ছোট সঞ্চয় (সমিতি, DPS) দিয়ে শুরু করুন",
+                      "হোম-বেইজড আয়: সেলাই, রান্না, টিউশন",
+                      "সব রসিদ একসাথে রাখুন — খরচ যাচাইয়ের জন্য",
+                    ]:[
+                      "Set monthly grocery budget in advance",
+                      "Start small (samity, DPS) to save",
+                      "Home income: tailoring, cooking, tutoring",
+                      "Keep receipts together to review spending",
+                    ],
+                  },
+                ].map((p,i)=>(
+                  <div key={i} className={`p-3 rounded-xl border bg-gradient-to-br ${p.color}`}>
+                    <div className="flex items-center gap-2 mb-2">
+                      <span className="text-xl">{p.icon}</span>
+                      <p className="font-semibold text-sm">{p.title}</p>
+                    </div>
+                    <ul className="space-y-1 text-[11px] text-muted-foreground">
+                      {p.tips.map((tip,j)=>(<li key={j} className="flex gap-1.5"><span className="text-primary">•</span><span>{tip}</span></li>))}
+                    </ul>
+                  </div>
+                ))}
+              </div>
+
+              <div className="mt-4 p-3 rounded-xl bg-primary/5 border border-primary/20 text-xs">
+                <p className="font-semibold mb-1">🎯 {bn?"যেকোনো অবস্থায় ৫টি মূলনীতি":"5 rules for any situation"}</p>
+                <ol className="list-decimal list-inside space-y-0.5 text-muted-foreground">
+                  <li>{bn?"আয়ের চেয়ে কম খরচ করুন":"Spend less than you earn"}</li>
+                  <li>{bn?"প্রতি মাসে কিছু না কিছু সঞ্চয় করুন":"Save something every month"}</li>
+                  <li>{bn?"উচ্চ-সুদের ঋণ আগে শোধ করুন":"Pay off high-interest debt first"}</li>
+                  <li>{bn?"একাধিক আয়ের উৎস তৈরি করুন":"Build multiple income streams"}</li>
+                  <li>{bn?"স্বাস্থ্য ও জীবন বিমা নিন":"Get health & life insurance"}</li>
+                </ol>
+              </div>
+            </CardContent>
+          </Card>
+
           <div className="grid lg:grid-cols-2 gap-4">
             <Card><CardContent className="p-4">
               <div className="flex items-center justify-between mb-3">

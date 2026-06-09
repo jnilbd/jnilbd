@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, useMemo, useCallback } from "react";
 import { motion } from "framer-motion";
-import { Tv, Radio, Search, Play, Loader2, Trophy, Star, CheckCircle2, XCircle, Activity, Globe2 } from "lucide-react";
+import { Tv, Radio, Search, Play, Loader2, Trophy, Star, CheckCircle2, XCircle, Activity, Globe2, Flag } from "lucide-react";
 import Hls from "hls.js";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -8,6 +8,9 @@ import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { toast } from "sonner";
+import SportsSchedule from "@/components/SportsSchedule";
+
+const DEAD_KEY = "livetv:dead:v1";
 
 type Tab = "tv" | "sports" | "radio";
 type Health = "unknown" | "checking" | "live" | "dead";
@@ -69,7 +72,24 @@ const LiveTV = () => {
   const [favs, setFavs] = useState<Set<string>>(() => {
     try { return new Set(JSON.parse(localStorage.getItem(FAV_KEY) || "[]")); } catch { return new Set(); }
   });
+  const [dead, setDead] = useState<Set<string>>(() => {
+    try { return new Set(JSON.parse(localStorage.getItem(DEAD_KEY) || "[]")); } catch { return new Set(); }
+  });
   const [health, setHealth] = useState<Record<string, Health>>({});
+
+  useEffect(() => {
+    localStorage.setItem(DEAD_KEY, JSON.stringify([...dead]));
+  }, [dead]);
+
+  const reportDead = (id: string, name: string) => {
+    setDead(prev => new Set(prev).add(id));
+    setHealth(h => ({ ...h, [id]: "dead" }));
+    toast.success(t(`${name} ডেড হিসেবে রিপোর্ট হয়েছে`, `Reported ${name} as offline`));
+  };
+  const restoreDead = () => {
+    setDead(new Set());
+    toast.success(t("ডেড লিস্ট খালি করা হয়েছে", "Cleared dead list"));
+  };
 
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
@@ -221,11 +241,12 @@ const LiveTV = () => {
   const filtered = useMemo(() => {
     const q = search.toLowerCase();
     return allChannels.filter((c) =>
+      !dead.has(c.id) &&
       (!q || c.name.toLowerCase().includes(q)) &&
       (countryFilter === "all" || c.country === countryFilter) &&
       (!onlyFavs || favs.has(c.id))
     );
-  }, [allChannels, search, countryFilter, onlyFavs, favs]);
+  }, [allChannels, search, countryFilter, onlyFavs, favs, dead]);
 
   // Auto health-check first 12 visible items
   useEffect(() => {
@@ -350,6 +371,16 @@ const LiveTV = () => {
           </Button>
         </div>
 
+        {tab === "sports" && <SportsSchedule />}
+
+        {dead.size > 0 && (
+          <div className="flex justify-center mb-4">
+            <Button variant="ghost" size="sm" className="text-xs" onClick={restoreDead}>
+              {t(`${dead.size}টি রিপোর্ট করা চ্যানেল দেখান`, `Show ${dead.size} reported channel${dead.size>1?"s":""}`)}
+            </Button>
+          </div>
+        )}
+
         {loading && tab !== "radio" && (
           <div className="flex flex-col items-center py-12 text-muted-foreground">
             <Loader2 className="w-8 h-8 animate-spin mb-2" />
@@ -376,6 +407,14 @@ const LiveTV = () => {
                   aria-label="Favorite"
                 >
                   <Star className={`w-4 h-4 ${isFav ? "fill-yellow-400 text-yellow-400" : "text-muted-foreground"}`} />
+                </button>
+                <button
+                  onClick={(e) => { e.stopPropagation(); reportDead(c.id, c.name); }}
+                  className="absolute top-2 right-9 p-1 rounded-full hover:bg-rose-500/10 z-10 opacity-0 group-hover:opacity-100 transition-opacity"
+                  aria-label="Report dead"
+                  title={t("ডেড স্ট্রিম রিপোর্ট", "Report dead stream")}
+                >
+                  <Flag className="w-3.5 h-3.5 text-rose-500" />
                 </button>
                 <button onClick={() => setActive(c)} className="w-full text-left">
                   <div className="flex items-center gap-2 mb-2">

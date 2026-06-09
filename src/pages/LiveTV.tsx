@@ -408,6 +408,14 @@ const LiveTV = () => {
                 >
                   <Star className={`w-4 h-4 ${isFav ? "fill-yellow-400 text-yellow-400" : "text-muted-foreground"}`} />
                 </button>
+                <button
+                  onClick={(e) => { e.stopPropagation(); reportDead(c.id, c.name); }}
+                  className="absolute top-2 right-9 p-1 rounded-full hover:bg-rose-500/10 z-10 opacity-0 group-hover:opacity-100 transition-opacity"
+                  aria-label="Report dead"
+                  title={t("ডেড স্ট্রিম রিপোর্ট", "Report dead stream")}
+                >
+                  <Flag className="w-3.5 h-3.5 text-rose-500" />
+                </button>
                 <button onClick={() => setActive(c)} className="w-full text-left">
                   <div className="flex items-center gap-2 mb-2">
                     {c.logo ? (

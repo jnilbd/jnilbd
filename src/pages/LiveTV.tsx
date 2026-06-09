@@ -371,6 +371,16 @@ const LiveTV = () => {
           </Button>
         </div>
 
+        {tab === "sports" && <SportsSchedule />}
+
+        {dead.size > 0 && (
+          <div className="flex justify-center mb-4">
+            <Button variant="ghost" size="sm" className="text-xs" onClick={restoreDead}>
+              {t(`${dead.size}টি রিপোর্ট করা চ্যানেল দেখান`, `Show ${dead.size} reported channel${dead.size>1?"s":""}`)}
+            </Button>
+          </div>
+        )}
+
         {loading && tab !== "radio" && (
           <div className="flex flex-col items-center py-12 text-muted-foreground">
             <Loader2 className="w-8 h-8 animate-spin mb-2" />

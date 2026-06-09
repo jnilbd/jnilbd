@@ -350,6 +350,74 @@ const Finance = () => {
 
         {/* DASHBOARD */}
         <TabsContent value="dashboard" className="mt-4 space-y-4">
+          {/* Comprehensive financial snapshot */}
+          <Card className="border-primary/30 bg-gradient-to-br from-primary/5 via-background to-secondary/5">
+            <CardContent className="p-5">
+              <div className="flex items-center justify-between mb-4 flex-wrap gap-2">
+                <div className="flex items-center gap-2">
+                  <div className="w-9 h-9 rounded-xl gradient-bg-primary text-white flex items-center justify-center">
+                    <Wallet className="w-4 h-4" />
+                  </div>
+                  <div>
+                    <h3 className="font-display font-bold">{bn?"আর্থিক সারাংশ":"Financial Snapshot"}</h3>
+                    <p className="text-[11px] text-muted-foreground">{bn?"আপনার সব ডেটা একসাথে — জীবনের সম্পূর্ণ চিত্র":"All your data combined — full lifetime picture"}</p>
+                  </div>
+                </div>
+                <Badge variant="outline" className="text-[10px]">{bn?"স্বয়ংক্রিয় হিসাব":"Auto-calculated"}</Badge>
+              </div>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-sm">
+                <div className="p-3 rounded-xl bg-emerald-500/10">
+                  <div className="text-[10px] uppercase font-semibold text-emerald-700 dark:text-emerald-400 mb-1">{bn?"মোট আয় (সর্বমোট)":"Total Income (lifetime)"}</div>
+                  <div className="font-display font-bold text-lg">{cur(snapshot.totalIncome)}</div>
+                </div>
+                <div className="p-3 rounded-xl bg-rose-500/10">
+                  <div className="text-[10px] uppercase font-semibold text-rose-700 dark:text-rose-400 mb-1">{bn?"মোট ব্যয় (সর্বমোট)":"Total Expense (lifetime)"}</div>
+                  <div className="font-display font-bold text-lg">{cur(snapshot.totalExpense)}</div>
+                </div>
+                <div className={`p-3 rounded-xl ${snapshot.lifetimeNet>=0?"bg-blue-500/10":"bg-amber-500/10"}`}>
+                  <div className="text-[10px] uppercase font-semibold mb-1">{bn?"নেট সঞ্চয় (সর্বমোট)":"Net Saved (lifetime)"}</div>
+                  <div className={`font-display font-bold text-lg ${snapshot.lifetimeNet>=0?"text-blue-700 dark:text-blue-400":"text-amber-700 dark:text-amber-400"}`}>{cur(snapshot.lifetimeNet)}</div>
+                </div>
+                <div className="p-3 rounded-xl bg-violet-500/10">
+                  <div className="text-[10px] uppercase font-semibold text-violet-700 dark:text-violet-400 mb-1">{bn?"ধার-দেনা (নেট)":"Debts (net)"}</div>
+                  <div className="font-display font-bold text-lg">{cur(snapshot.debtNet)}</div>
+                  <div className="text-[10px] text-muted-foreground mt-0.5">
+                    {bn?"পাবো":"In"}: {cur(stats.lent)} • {bn?"দিবো":"Out"}: {cur(stats.borrowed)}
+                  </div>
+                </div>
+                <div className="p-3 rounded-xl bg-teal-500/10">
+                  <div className="text-[10px] uppercase font-semibold text-teal-700 dark:text-teal-400 mb-1">{bn?"বিক্রয়যোগ্য সম্পদ":"Sellable Assets"}</div>
+                  <div className="font-display font-bold text-lg">{cur(snapshot.liquidAssets)}</div>
+                  {assetSoldTotal>0 && <div className="text-[10px] text-muted-foreground mt-0.5">{bn?"ইতিমধ্যে বিক্রি":"Already sold"}: {cur(assetSoldTotal)}</div>}
+                </div>
+                <div className="p-3 rounded-xl bg-orange-500/10">
+                  <div className="text-[10px] uppercase font-semibold text-orange-700 dark:text-orange-400 mb-1">{bn?"পরিকল্পিত খরচ":"Planned Spend"}</div>
+                  <div className="font-display font-bold text-lg">{cur(planTotal)}</div>
+                </div>
+                <div className="p-3 rounded-xl bg-pink-500/10">
+                  <div className="text-[10px] uppercase font-semibold text-pink-700 dark:text-pink-400 mb-1">{bn?"লক্ষ্যে সঞ্চিত":"Saved for Goals"}</div>
+                  <div className="font-display font-bold text-lg">{cur(snapshot.goalsSaved)}</div>
+                  {snapshot.goalsTarget>0 && <div className="text-[10px] text-muted-foreground mt-0.5">/ {cur(snapshot.goalsTarget)}</div>}
+                </div>
+                <div className={`p-3 rounded-xl ${snapshot.estimatedNetWorth>=0?"bg-gradient-to-br from-primary/20 to-secondary/20":"bg-destructive/10"}`}>
+                  <div className="text-[10px] uppercase font-semibold mb-1">{bn?"আনুমানিক নেট ওয়ার্থ":"Est. Net Worth"}</div>
+                  <div className={`font-display font-bold text-lg ${snapshot.estimatedNetWorth>=0?"gradient-text":"text-destructive"}`}>{cur(snapshot.estimatedNetWorth)}</div>
+                  <div className="text-[10px] text-muted-foreground mt-0.5">{bn?"সঞ্চয় + পাবো + সম্পদ":"savings + receivable + assets"}</div>
+                </div>
+              </div>
+              {snapshot.debtNet < 0 && (
+                <div className="mt-3 text-xs p-2 rounded-lg bg-amber-500/10 text-amber-900 dark:text-amber-200">
+                  💡 {bn?`আপনার মোট দেনা পাওনার চেয়ে ${cur(Math.abs(snapshot.debtNet))} বেশি — পরিকল্পনা করে পরিশোধ করুন।`:`You owe ${cur(Math.abs(snapshot.debtNet))} more than you're owed — plan repayments.`}
+                </div>
+              )}
+              {stats.net < 0 && assetTotal > 0 && (
+                <div className="mt-2 text-xs p-2 rounded-lg bg-teal-500/10 text-teal-900 dark:text-teal-200">
+                  💡 {bn?`এই মাসে ঘাটতি ${cur(Math.abs(stats.net))} — সম্পদ বিক্রি করে ${cur(assetTotal)} তোলা সম্ভব।`:`Monthly shortfall ${cur(Math.abs(stats.net))} — you could liquidate ${cur(assetTotal)} from assets.`}
+                </div>
+              )}
+            </CardContent>
+          </Card>
+
           <div className="grid lg:grid-cols-2 gap-4">
             <Card><CardContent className="p-4">
               <div className="flex items-center justify-between mb-3">

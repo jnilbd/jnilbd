@@ -72,7 +72,24 @@ const LiveTV = () => {
   const [favs, setFavs] = useState<Set<string>>(() => {
     try { return new Set(JSON.parse(localStorage.getItem(FAV_KEY) || "[]")); } catch { return new Set(); }
   });
+  const [dead, setDead] = useState<Set<string>>(() => {
+    try { return new Set(JSON.parse(localStorage.getItem(DEAD_KEY) || "[]")); } catch { return new Set(); }
+  });
   const [health, setHealth] = useState<Record<string, Health>>({});
+
+  useEffect(() => {
+    localStorage.setItem(DEAD_KEY, JSON.stringify([...dead]));
+  }, [dead]);
+
+  const reportDead = (id: string, name: string) => {
+    setDead(prev => new Set(prev).add(id));
+    setHealth(h => ({ ...h, [id]: "dead" }));
+    toast.success(t(`${name} ডেড হিসেবে রিপোর্ট হয়েছে`, `Reported ${name} as offline`));
+  };
+  const restoreDead = () => {
+    setDead(new Set());
+    toast.success(t("ডেড লিস্ট খালি করা হয়েছে", "Cleared dead list"));
+  };
 
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);

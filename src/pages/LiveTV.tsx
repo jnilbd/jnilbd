@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, useMemo, useCallback } from "react";
 import { motion } from "framer-motion";
-import { Tv, Radio, Search, Play, Loader2, Trophy, Star, CheckCircle2, XCircle, Activity, Globe2 } from "lucide-react";
+import { Tv, Radio, Search, Play, Loader2, Trophy, Star, CheckCircle2, XCircle, Activity, Globe2, Flag } from "lucide-react";
 import Hls from "hls.js";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -8,6 +8,9 @@ import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { toast } from "sonner";
+import SportsSchedule from "@/components/SportsSchedule";
+
+const DEAD_KEY = "livetv:dead:v1";
 
 type Tab = "tv" | "sports" | "radio";
 type Health = "unknown" | "checking" | "live" | "dead";

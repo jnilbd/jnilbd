@@ -241,6 +241,20 @@ const Finance = () => {
 
   const planTotal = plans.filter(p=>!p.is_done).reduce((s,p)=>s+Number(p.est_price),0);
   const assetTotal = assets.filter(a=>!a.is_sold).reduce((s,a)=>s+Number(a.est_value),0);
+  const assetSoldTotal = assets.filter(a=>a.is_sold).reduce((s,a)=>s+Number(a.sold_amount||0),0);
+
+  // Comprehensive (all-time) snapshot
+  const snapshot = useMemo(() => {
+    const totalIncome = txs.filter(t=>t.type==="income").reduce((s,t)=>s+t.amount,0);
+    const totalExpense = txs.filter(t=>t.type==="expense").reduce((s,t)=>s+t.amount,0);
+    const lifetimeNet = totalIncome - totalExpense;
+    const debtNet = stats.lent - stats.borrowed; // +ve = others owe you
+    const liquidAssets = assetTotal; // could be turned into cash
+    const estimatedNetWorth = lifetimeNet + debtNet + liquidAssets;
+    const goalsSaved = goals.reduce((s,g)=>s+Number(g.saved_amount||0),0);
+    const goalsTarget = goals.reduce((s,g)=>s+Number(g.target_amount||0),0);
+    return { totalIncome, totalExpense, lifetimeNet, debtNet, liquidAssets, estimatedNetWorth, goalsSaved, goalsTarget };
+  }, [txs, stats.lent, stats.borrowed, assetTotal, goals]);
 
   const saveProfile = async () => {
     if (!user || !profile) return;

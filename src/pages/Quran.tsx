@@ -64,7 +64,7 @@ const Quran = () => {
     if (!audioRef.current) {
       const el = new Audio();
       el.preload = "auto";
-      el.crossOrigin = "anonymous";
+      // do NOT set crossOrigin — CDN doesn't return CORS headers and it causes play() rejection
       audioRef.current = el;
     }
     return audioRef.current;
@@ -79,16 +79,25 @@ const Quran = () => {
       setPlayingAyah(null);
       return;
     }
+    try { el.pause(); } catch {}
     el.src = url;
     el.onended = () => {
       const next = arabic.find(a => a.numberInSurah === ayah.numberInSurah + 1);
       if (next) playAyah(next); else setPlayingAyah(null);
     };
-    el.onerror = () => { toast.error(bn?"অডিও চালু করা যায়নি":"Audio failed"); setPlayingAyah(null); };
+    el.onerror = () => { toast.error(bn?"এই কারির অডিও সোর্সে সমস্যা — অন্য কারি বেছে নিন":"Reciter source error — try another reciter"); setPlayingAyah(null); };
     const p = el.play();
     if (p && typeof p.then === "function") {
       p.then(() => setPlayingAyah(ayah.numberInSurah))
-       .catch((err) => { console.error("Audio play failed", err); toast.error(bn?"প্লে করতে সমস্যা":"Tap again to play"); setPlayingAyah(null); });
+       .catch((err) => {
+         console.error("Audio play failed", err);
+         if (err?.name === "NotAllowedError") {
+           toast.error(bn?"প্লে করতে আবার ট্যাপ করুন":"Tap play again to start");
+         } else {
+           toast.error(bn?"অডিও লোড হয়নি — অন্য কারি ট্রাই করুন":"Audio failed — try another reciter");
+         }
+         setPlayingAyah(null);
+       });
     } else {
       setPlayingAyah(ayah.numberInSurah);
     }

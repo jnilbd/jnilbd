@@ -15,6 +15,7 @@ import VoiceEditor from "./pages/VoiceEditor";
 import LiveChat from "./pages/LiveChat";
 import NamazTime from "./pages/NamazTime";
 import Quran from "./pages/Quran";
+import Hadith from "./pages/Hadith";
 import Converter from "./pages/Converter";
 import LiveTV from "./pages/LiveTV";
 import Downloader from "./pages/Downloader";
@@ -87,6 +88,7 @@ const App = () => (
                 <Route path="/chat" element={<LiveChat />} />
                 <Route path="/namaz" element={<NamazTime />} />
                 <Route path="/quran" element={<Quran />} />
+                <Route path="/hadith" element={<Hadith />} />
                 <Route path="/converter" element={<Converter />} />
                 <Route path="/livetv" element={<LiveTV />} />
                 <Route path="/downloader" element={<Downloader />} />

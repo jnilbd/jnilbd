@@ -89,7 +89,15 @@ const Quran = () => {
     const p = el.play();
     if (p && typeof p.then === "function") {
       p.then(() => setPlayingAyah(ayah.numberInSurah))
-       .catch((err) => { console.error("Audio play failed", err); toast.error(bn?"প্লে করতে সমস্যা":"Tap again to play"); setPlayingAyah(null); });
+       .catch((err) => {
+         console.error("Audio play failed", err);
+         if (err?.name === "NotAllowedError") {
+           toast.error(bn?"প্লে করতে আবার ট্যাপ করুন":"Tap play again to start");
+         } else {
+           toast.error(bn?"অডিও লোড হয়নি — অন্য কারি ট্রাই করুন":"Audio failed — try another reciter");
+         }
+         setPlayingAyah(null);
+       });
     } else {
       setPlayingAyah(ayah.numberInSurah);
     }

@@ -9,6 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useLanguage } from "@/contexts/LanguageContext";
 import { toast } from "sonner";
 import SportsSchedule from "@/components/SportsSchedule";
+import WorldCupChannels from "@/components/WorldCupChannels";
 
 const DEAD_KEY = "livetv:dead:v1";
 
@@ -371,6 +372,7 @@ const LiveTV = () => {
           </Button>
         </div>
 
+        {tab === "sports" && <WorldCupChannels />}
         {tab === "sports" && <SportsSchedule />}
 
         {dead.size > 0 && (

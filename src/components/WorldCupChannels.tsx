@@ -2,15 +2,19 @@ import { useEffect, useRef, useState } from "react";
 import Hls from "hls.js";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Trophy, Play, RefreshCw, CheckCircle2, XCircle, Loader2 } from "lucide-react";
+import { Switch } from "@/components/ui/switch";
+import { Trophy, Play, RefreshCw, CheckCircle2, XCircle, Loader2, Shield, ShieldCheck } from "lucide-react";
 import { WORLD_CUP_CHANNELS, type WCChannel } from "@/data/worldCupChannels";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { toast } from "sonner";
 
+const PROXY_BASE = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/stream-proxy`;
+const proxify = (u: string) => `${PROXY_BASE}?u=${encodeURIComponent(u)}`;
+
 /**
- * World Cup / Football channels with auto-failover.
- * Each channel has multiple mirror URLs; if one fails, the player
- * automatically tries the next one.
+ * World Cup / Football channels with auto-failover + built-in
+ * server-side proxy ("Unblock Mode") that routes streams through
+ * an edge function to bypass CORS and many geo-blocks.
  */
 const WorldCupChannels = () => {
   const { language } = useLanguage();

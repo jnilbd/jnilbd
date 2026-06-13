@@ -23,21 +23,29 @@ const WorldCupChannels = () => {
   const [active, setActive] = useState<WCChannel | null>(null);
   const [urlIndex, setUrlIndex] = useState(0);
   const [status, setStatus] = useState<"loading" | "playing" | "error">("loading");
+  const [unblock, setUnblock] = useState<boolean>(() => {
+    try { return localStorage.getItem("wc_unblock") === "1"; } catch { return false; }
+  });
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const hlsRef = useRef<Hls | null>(null);
+
+  useEffect(() => {
+    try { localStorage.setItem("wc_unblock", unblock ? "1" : "0"); } catch {}
+  }, [unblock]);
 
   const tryUrl = (ch: WCChannel, idx: number) => {
     if (idx >= ch.urls.length) {
       setStatus("error");
       toast.error(t(
-        `সব মিরর ব্যর্থ — ${ch.name} অফলাইন থাকতে পারে`,
-        `All mirrors failed — ${ch.name} may be offline`
+        `সব মিরর ব্যর্থ — ${ch.name} অফলাইন থাকতে পারে। Unblock Mode চালু করে আবার চেষ্টা করুন।`,
+        `All mirrors failed — ${ch.name} may be offline. Try enabling Unblock Mode.`
       ));
       return;
     }
     setUrlIndex(idx);
     setStatus("loading");
-    const url = ch.urls[idx];
+    const raw = ch.urls[idx];
+    const url = unblock ? proxify(raw) : raw;
     const video = videoRef.current;
     if (!video) return;
 
@@ -45,7 +53,7 @@ const WorldCupChannels = () => {
     hlsRef.current = null;
 
     if (Hls.isSupported()) {
-      const hls = new Hls({ enableWorker: true, manifestLoadingTimeOut: 8000, manifestLoadingMaxRetry: 1 });
+      const hls = new Hls({ enableWorker: true, manifestLoadingTimeOut: 10000, manifestLoadingMaxRetry: 1 });
       hls.loadSource(url);
       hls.attachMedia(video);
       hls.on(Hls.Events.MANIFEST_PARSED, () => {
@@ -73,7 +81,7 @@ const WorldCupChannels = () => {
     if (active) tryUrl(active, 0);
     return () => { hlsRef.current?.destroy(); hlsRef.current = null; };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [active]);
+  }, [active, unblock]);
 
   return (
     <Card className="p-4 md:p-5 mb-6 bg-gradient-to-br from-amber-500/5 via-background to-emerald-500/5 border-amber-500/30">

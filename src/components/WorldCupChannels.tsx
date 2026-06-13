@@ -2,15 +2,19 @@ import { useEffect, useRef, useState } from "react";
 import Hls from "hls.js";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Trophy, Play, RefreshCw, CheckCircle2, XCircle, Loader2 } from "lucide-react";
+import { Switch } from "@/components/ui/switch";
+import { Trophy, Play, RefreshCw, CheckCircle2, XCircle, Loader2, Shield, ShieldCheck } from "lucide-react";
 import { WORLD_CUP_CHANNELS, type WCChannel } from "@/data/worldCupChannels";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { toast } from "sonner";
 
+const PROXY_BASE = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/stream-proxy`;
+const proxify = (u: string) => `${PROXY_BASE}?u=${encodeURIComponent(u)}`;
+
 /**
- * World Cup / Football channels with auto-failover.
- * Each channel has multiple mirror URLs; if one fails, the player
- * automatically tries the next one.
+ * World Cup / Football channels with auto-failover + built-in
+ * server-side proxy ("Unblock Mode") that routes streams through
+ * an edge function to bypass CORS and many geo-blocks.
  */
 const WorldCupChannels = () => {
   const { language } = useLanguage();
@@ -19,21 +23,29 @@ const WorldCupChannels = () => {
   const [active, setActive] = useState<WCChannel | null>(null);
   const [urlIndex, setUrlIndex] = useState(0);
   const [status, setStatus] = useState<"loading" | "playing" | "error">("loading");
+  const [unblock, setUnblock] = useState<boolean>(() => {
+    try { return localStorage.getItem("wc_unblock") === "1"; } catch { return false; }
+  });
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const hlsRef = useRef<Hls | null>(null);
+
+  useEffect(() => {
+    try { localStorage.setItem("wc_unblock", unblock ? "1" : "0"); } catch {}
+  }, [unblock]);
 
   const tryUrl = (ch: WCChannel, idx: number) => {
     if (idx >= ch.urls.length) {
       setStatus("error");
       toast.error(t(
-        `সব মিরর ব্যর্থ — ${ch.name} অফলাইন থাকতে পারে`,
-        `All mirrors failed — ${ch.name} may be offline`
+        `সব মিরর ব্যর্থ — ${ch.name} অফলাইন থাকতে পারে। Unblock Mode চালু করে আবার চেষ্টা করুন।`,
+        `All mirrors failed — ${ch.name} may be offline. Try enabling Unblock Mode.`
       ));
       return;
     }
     setUrlIndex(idx);
     setStatus("loading");
-    const url = ch.urls[idx];
+    const raw = ch.urls[idx];
+    const url = unblock ? proxify(raw) : raw;
     const video = videoRef.current;
     if (!video) return;
 
@@ -41,7 +53,7 @@ const WorldCupChannels = () => {
     hlsRef.current = null;
 
     if (Hls.isSupported()) {
-      const hls = new Hls({ enableWorker: true, manifestLoadingTimeOut: 8000, manifestLoadingMaxRetry: 1 });
+      const hls = new Hls({ enableWorker: true, manifestLoadingTimeOut: 10000, manifestLoadingMaxRetry: 1 });
       hls.loadSource(url);
       hls.attachMedia(video);
       hls.on(Hls.Events.MANIFEST_PARSED, () => {
@@ -69,7 +81,7 @@ const WorldCupChannels = () => {
     if (active) tryUrl(active, 0);
     return () => { hlsRef.current?.destroy(); hlsRef.current = null; };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [active]);
+  }, [active, unblock]);
 
   return (
     <Card className="p-4 md:p-5 mb-6 bg-gradient-to-br from-amber-500/5 via-background to-emerald-500/5 border-amber-500/30">
@@ -86,6 +98,23 @@ const WorldCupChannels = () => {
                "Each channel has multiple mirrors — if one fails, the next plays automatically")}
           </p>
         </div>
+      </div>
+
+      {/* Unblock Mode — server-side proxy (acts like a built-in VPN for streams) */}
+      <div className={`flex items-center justify-between gap-3 p-3 mb-3 rounded-xl border ${unblock ? "border-emerald-500/40 bg-emerald-500/5" : "border-border bg-muted/30"}`}>
+        <div className="flex items-center gap-2 min-w-0">
+          {unblock ? <ShieldCheck className="w-5 h-5 text-emerald-500 shrink-0" /> : <Shield className="w-5 h-5 text-muted-foreground shrink-0" />}
+          <div className="min-w-0">
+            <p className="font-semibold text-sm leading-tight">
+              {t("Unblock Mode (সার্ভার প্রক্সি)", "Unblock Mode (Server Proxy)")}
+            </p>
+            <p className="text-[11px] text-muted-foreground leading-tight">
+              {t("CORS ও geo-block বাইপাস — চ্যানেল সার্ভার দিয়ে রুট হবে। কিছুটা ধীর হতে পারে।",
+                 "Bypass CORS & geo-blocks — streams routed via our server. May be slightly slower.")}
+            </p>
+          </div>
+        </div>
+        <Switch checked={unblock} onCheckedChange={setUnblock} />
       </div>
 
       {active && (

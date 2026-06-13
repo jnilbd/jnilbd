@@ -5,3 +5,6 @@ verify_jwt = true
 
 [functions.check-train-availability]
 verify_jwt = false
+
+[functions.stream-proxy]
+verify_jwt = false

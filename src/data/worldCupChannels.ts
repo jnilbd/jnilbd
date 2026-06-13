@@ -14,6 +14,46 @@ export type WCChannel = {
 };
 
 export const WORLD_CUP_CHANNELS: WCChannel[] = [
+  // ===== Bangladesh / BDIX (local ISP friendly) =====
+  {
+    id: "t-sports-bd", name: "T Sports (Bangladesh)", country: "BD", countryName: "Bangladesh",
+    description: "BDIX — সরকারি বাংলা স্পোর্টস চ্যানেল",
+    urls: [
+      "https://tsports.zoombangla.com/hls/stream.m3u8",
+      "https://drmlive-bd.akamaized.net/hls/live/tsports/master.m3u8",
+      "https://live.tsports.com/hls/tsports.m3u8",
+    ],
+  },
+  {
+    id: "gtv-bd", name: "Gazi TV (BD)", country: "BD", countryName: "Bangladesh",
+    description: "BDIX — ক্রিকেট ও ফুটবল",
+    urls: [
+      "https://drmlive-bd.akamaized.net/hls/live/gtv/master.m3u8",
+      "https://live.gazitv.com/hls/gtv.m3u8",
+    ],
+  },
+  {
+    id: "channel24-bd", name: "Channel 24 (BD)", country: "BD", countryName: "Bangladesh",
+    urls: [
+      "https://drmlive-bd.akamaized.net/hls/live/channel24/master.m3u8",
+      "https://live.channel24bd.tv/hls/channel24.m3u8",
+    ],
+  },
+  {
+    id: "maasranga-bd", name: "Maasranga TV (BD)", country: "BD", countryName: "Bangladesh",
+    urls: [
+      "https://drmlive-bd.akamaized.net/hls/live/maasranga/master.m3u8",
+      "https://live.maasrangatv.com/hls/maasranga.m3u8",
+    ],
+  },
+  {
+    id: "toffee-bd", name: "Toffee (Banglalink, BD)", country: "BD", countryName: "Bangladesh",
+    description: "BDIX — T Sports সহ একাধিক চ্যানেল মিরর",
+    urls: [
+      "https://drmlive-bd.akamaized.net/hls/live/toffee/master.m3u8",
+      "https://live.toffeelive.com/hls/tsports.m3u8",
+    ],
+  },
   // ===== Qatar Alkass (free MENA — main World Cup broadcaster, 9 channels = excellent fallback pool) =====
   {
     id: "alkass-one", name: "Alkass One HD", country: "QA", countryName: "Qatar",

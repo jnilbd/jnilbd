@@ -100,6 +100,23 @@ const WorldCupChannels = () => {
         </div>
       </div>
 
+      {/* Unblock Mode — server-side proxy (acts like a built-in VPN for streams) */}
+      <div className={`flex items-center justify-between gap-3 p-3 mb-3 rounded-xl border ${unblock ? "border-emerald-500/40 bg-emerald-500/5" : "border-border bg-muted/30"}`}>
+        <div className="flex items-center gap-2 min-w-0">
+          {unblock ? <ShieldCheck className="w-5 h-5 text-emerald-500 shrink-0" /> : <Shield className="w-5 h-5 text-muted-foreground shrink-0" />}
+          <div className="min-w-0">
+            <p className="font-semibold text-sm leading-tight">
+              {t("Unblock Mode (সার্ভার প্রক্সি)", "Unblock Mode (Server Proxy)")}
+            </p>
+            <p className="text-[11px] text-muted-foreground leading-tight">
+              {t("CORS ও geo-block বাইপাস — চ্যানেল সার্ভার দিয়ে রুট হবে। কিছুটা ধীর হতে পারে।",
+                 "Bypass CORS & geo-blocks — streams routed via our server. May be slightly slower.")}
+            </p>
+          </div>
+        </div>
+        <Switch checked={unblock} onCheckedChange={setUnblock} />
+      </div>
+
       {active && (
         <div className="mb-4">
           <div className="flex items-center justify-between mb-2 gap-2">

@@ -57,6 +57,8 @@ Deno.serve(async (req) => {
         `Order ID: ${so.id}`;
     }
 
+    const { data: settings } = await supabase
+      .from('admin_notification_settings').select('*').limit(1).maybeSingle();
 
     const results: Record<string, unknown> = {};
 

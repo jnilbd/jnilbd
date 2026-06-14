@@ -512,6 +512,40 @@ const Navbar = () => {
               >
                 {isBn ? "বুক অ্যাপয়েন্টমেন্ট" : "Book Appointment"}
               </Link>
+
+              {/* Auth — mobile */}
+              {user ? (
+                <div className="mt-2 flex flex-col gap-2">
+                  <div className="px-4 py-2.5 rounded-lg bg-muted/60 border border-border/50">
+                    <div className="text-[10px] uppercase tracking-wider text-muted-foreground font-bold">{isBn ? "লগইন আছেন" : "Signed in"}</div>
+                    <div className="text-sm font-semibold truncate">{user.email}</div>
+                  </div>
+                  <button
+                    onClick={async () => { await signOut(); setMobileNavOpen(false); navigate("/"); }}
+                    className="px-4 py-3 rounded-lg font-semibold border border-destructive/40 text-destructive flex items-center justify-center gap-2"
+                  >
+                    <LogOut className="w-4 h-4" /> {isBn ? "লগআউট" : "Sign out"}
+                  </button>
+                </div>
+              ) : (
+                <div className="mt-2 grid grid-cols-2 gap-2">
+                  <Link
+                    to="/auth"
+                    onClick={() => setMobileNavOpen(false)}
+                    className="px-4 py-3 rounded-lg font-bold border-2 border-primary/50 text-primary text-center flex items-center justify-center gap-2"
+                  >
+                    <LogIn className="w-4 h-4" /> {isBn ? "লগইন" : "Login"}
+                  </Link>
+                  <Link
+                    to="/auth"
+                    onClick={() => setMobileNavOpen(false)}
+                    className="px-4 py-3 rounded-lg font-bold bg-gradient-to-br from-primary to-primary/80 text-primary-foreground text-center shadow-md flex items-center justify-center gap-2"
+                  >
+                    <UserPlus className="w-4 h-4" /> {isBn ? "রেজিস্টার" : "Register"}
+                  </Link>
+                </div>
+              )}
+
               <div className="mt-3 pt-3 border-t border-border/50 flex flex-col gap-2 text-xs text-muted-foreground px-2">
                 <a href="tel:01774585757" className="flex items-center gap-2"><Phone className="w-3.5 h-3.5 text-secondary" /> +880 1774-585757</a>
                 <a href="mailto:jnilbd@gmail.com" className="flex items-center gap-2"><Mail className="w-3.5 h-3.5 text-secondary" /> jnilbd@gmail.com</a>

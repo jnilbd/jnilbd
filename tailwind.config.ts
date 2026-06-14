@@ -14,9 +14,9 @@ export default {
     },
     extend: {
       fontFamily: {
-        display: ['Space Grotesk', 'Hind Siliguri', 'sans-serif'],
-        bangla: ['Hind Siliguri', 'sans-serif'],
-        sans: ['DM Sans', 'Hind Siliguri', 'sans-serif'],
+        display: ['Space Grotesk', 'Noto Sans Bengali', 'Hind Siliguri', 'sans-serif'],
+        bangla: ['Noto Sans Bengali', 'Hind Siliguri', 'sans-serif'],
+        sans: ['DM Sans', 'Noto Sans Bengali', 'Hind Siliguri', 'sans-serif'],
       },
       colors: {
         border: "hsl(var(--border))",

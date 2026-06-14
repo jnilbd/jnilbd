@@ -393,6 +393,7 @@ export default function Railway() {
                 >
                   {STATIONS.map((s) => <option key={s} value={s}>{s}</option>)}
                 </select>
+                {STATION_NOTES[from] && <p className="mt-1 text-[11px] text-muted-foreground">{STATION_NOTES[from]}</p>}
               </div>
               <div>
                 <Label className="text-xs">{isBn ? "কোথায়" : "To"}</Label>
@@ -406,13 +407,26 @@ export default function Railway() {
               </div>
               <div>
                 <Label className="text-xs">{isBn ? "তারিখ" : "Date"}</Label>
-                <Input type="date" value={date} onChange={(e) => setDate(e.target.value)} />
+                <Input type="date" value={date} min={todayIso} max={maxBookingDate} onChange={(e) => handleDateChange(e.target.value)} />
+                <p className="mt-1 text-[11px] text-muted-foreground">
+                  {isBn ? `আজসহ ${BOOKING_WINDOW_DAYS} দিনের মধ্যে টিকিট খোঁজা যাবে।` : `Tickets are searchable for ${BOOKING_WINDOW_DAYS} days including today.`}
+                </p>
               </div>
               <div className="flex items-end">
                 <Button onClick={handleSearch} className="w-full">
                   <Search className="h-4 w-4 mr-2" />{isBn ? "ট্রেন খুঁজুন" : "Find Trains"}
                 </Button>
               </div>
+            </div>
+            <div className="mt-4 grid gap-2 rounded-md border border-primary/20 bg-primary/5 p-3 text-xs text-muted-foreground sm:grid-cols-[1fr_auto] sm:items-center">
+              <span>
+                {isBn
+                  ? "চূড়ান্ত লগইন, সিট সিলেকশন ও পেমেন্ট সব অফিসিয়াল Bangladesh Railway eTicket সাইটে হবে — এখানে ভুল ৩০ দিনের নিয়ম আর নেই।"
+                  : "Final login, seat selection and payment happen on the official Bangladesh Railway eTicket site — no outdated 30-day rule here."}
+              </span>
+              <Button type="button" variant="outline" size="sm" onClick={openOfficialSearch}>
+                {isBn ? "অফিসিয়াল সার্চ খুলুন" : "Open official search"} <ExternalLink className="ml-1 h-3 w-3" />
+              </Button>
             </div>
           </Card>
 
@@ -426,7 +440,10 @@ export default function Railway() {
               </div>
               {matches.length === 0 && (
                 <Card className="p-8 text-center text-muted-foreground">
-                  {isBn ? "এই রুটে সরাসরি ট্রেন নেই। বিকল্প রুট চেক করুন।" : "No direct train on this route. Check alternative routes."}
+                  <p>{isBn ? "আমাদের সংরক্ষিত তালিকায় এই রুটের সরাসরি ট্রেন নেই।" : "This route is not in our saved quick list."}</p>
+                  <Button type="button" variant="outline" size="sm" className="mt-3" onClick={openOfficialSearch}>
+                    {isBn ? "অফিসিয়াল eTicket-এ লাইভ সার্চ করুন" : "Search live on official eTicket"} <ExternalLink className="ml-1 h-3 w-3" />
+                  </Button>
                 </Card>
               )}
               {matches.map((t) => {

@@ -227,18 +227,16 @@ const Navbar = () => {
 
             <button
               onClick={toggle}
-              aria-label="Switch language"
-              className="group relative flex items-center gap-1.5 h-9 px-1.5 sm:pr-3 rounded-full border border-border/60 bg-gradient-to-r from-background to-muted/40 hover:border-primary/50 hover:shadow-md transition-all"
+              aria-label={`Switch language (current: ${language === "bn" ? "Bangla" : "English"})`}
+              title={language === "bn" ? "Switch to English" : "বাংলায় দেখুন"}
+              className="group relative flex items-center justify-center w-9 h-9 rounded-full border border-border/60 bg-gradient-to-br from-primary/15 to-secondary/15 ring-1 ring-primary/30 hover:border-primary/60 hover:shadow-md hover:scale-105 transition-all"
             >
-              <span className="relative flex items-center justify-center w-7 h-7 rounded-full bg-gradient-to-br from-primary/20 to-secondary/20 ring-1 ring-primary/30">
-                <Globe className="w-3.5 h-3.5 text-primary" strokeWidth={2.5} />
-              </span>
-              <span className="flex items-center text-[11px] font-bold tracking-wider pr-1 sm:pr-0">
-                <span className={language === "en" ? "text-primary" : "text-muted-foreground/60"}>EN</span>
-                <span className="mx-1 text-muted-foreground/40">|</span>
-                <span className={language === "bn" ? "text-primary font-display" : "text-muted-foreground/60 font-display"}>বাং</span>
+              <Globe className="w-4 h-4 text-primary" strokeWidth={2.5} />
+              <span className="absolute -bottom-1 -right-1 text-[8px] font-bold bg-primary text-primary-foreground rounded-full px-1 leading-tight ring-1 ring-background">
+                {language === "bn" ? "বাং" : "EN"}
               </span>
             </button>
+
 
             {/* Auth: Login + Register (desktop) or user menu */}
             {user ? (

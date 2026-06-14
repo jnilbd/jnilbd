@@ -110,20 +110,20 @@
 
   body {
     @apply bg-background text-foreground antialiased;
-    font-family: 'DM Sans', 'Hind Siliguri', sans-serif;
+    font-family: 'DM Sans', 'Noto Sans Bengali', 'Hind Siliguri', sans-serif;
   }
 
   h1, h2, h3, h4, h5, h6 {
-    font-family: 'Space Grotesk', 'Hind Siliguri', sans-serif;
+    font-family: 'Space Grotesk', 'Noto Sans Bengali', 'Hind Siliguri', sans-serif;
     @apply font-bold tracking-tight;
   }
 
   .font-bangla {
-    font-family: 'Hind Siliguri', sans-serif;
+    font-family: 'Noto Sans Bengali', 'Hind Siliguri', sans-serif;
   }
 
   .font-display {
-    font-family: 'Space Grotesk', 'Hind Siliguri', sans-serif;
+    font-family: 'Space Grotesk', 'Noto Sans Bengali', 'Hind Siliguri', sans-serif;
   }
 }
 

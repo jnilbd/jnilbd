@@ -53,15 +53,24 @@ const Hadith = () => {
         {filtered.map((h, i) => (
           <motion.div key={h.id} initial={{opacity:0,y:8}} animate={{opacity:1,y:0}} transition={{delay:Math.min(i*0.02,0.3)}}>
             <Card className="border-l-4 border-l-primary/60">
-              <CardContent className="p-4 space-y-2">
+              <CardContent className="p-4 space-y-3">
                 <div className="flex items-center justify-between flex-wrap gap-2">
                   <Badge variant="secondary" className="text-[10px]">{h.cat}</Badge>
                   <span className="text-[11px] text-muted-foreground font-semibold">📖 {h.source}</span>
                 </div>
-                <p className="text-base leading-relaxed">{h.bn}</p>
+                {h.ar && (
+                  <p dir="rtl" className="text-xl lg:text-2xl leading-loose text-right font-arabic text-foreground/90 bg-emerald-500/5 rounded-md p-3 border-r-2 border-emerald-500/40"
+                     style={{ fontFamily: "'Amiri Quran','Scheherazade New','Noto Naskh Arabic',serif" }}>
+                    {h.ar}
+                  </p>
+                )}
+                <p className="text-base leading-relaxed">
+                  <span className="text-[11px] uppercase tracking-wider text-muted-foreground font-bold mr-1">তরজমা:</span>
+                  {h.bn}
+                </p>
                 {h.tafsir && (
-                  <div className="text-xs text-muted-foreground bg-muted/40 rounded-md p-2.5 border-l-2 border-primary/40">
-                    <span className="font-bold text-primary">💡 ব্যাখ্যা: </span>{h.tafsir}
+                  <div className="text-sm text-foreground/80 bg-muted/40 rounded-md p-3 border-l-2 border-primary/40 leading-relaxed">
+                    <span className="font-bold text-primary">💡 বিস্তারিত ব্যাখ্যা: </span>{h.tafsir}
                   </div>
                 )}
               </CardContent>

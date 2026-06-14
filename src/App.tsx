@@ -43,6 +43,7 @@ import ProductDetail from "./pages/ProductDetail";
 import Services from "./pages/Services";
 import ServiceDetail from "./pages/ServiceDetail";
 import Portfolio from "./pages/Portfolio";
+import Profile from "./pages/Profile";
 import Blog from "./pages/Blog";
 import BlogDetail from "./pages/BlogDetail";
 import Marketplace from "./pages/Marketplace";
@@ -136,6 +137,7 @@ const App = () => (
                 <Route path="/offers" element={<Offers />} />
                 <Route path="/cart" element={<Cart />} />
                 <Route path="/checkout" element={<Checkout />} />
+                <Route path="/profile" element={<Profile />} />
                 <Route path="/order-confirmation/:id" element={<OrderConfirmation />} />
                 <Route path="*" element={<NotFound />} />
               </Route>

@@ -1,5 +1,5 @@
-import { useEffect, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useEffect, useMemo, useState } from "react";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Wallet, Mail, Lock, User as UserIcon, ArrowRight } from "lucide-react";
 import { z } from "zod";
@@ -23,6 +23,12 @@ const Auth = () => {
   const { language } = useLanguage();
   const { user } = useAuth();
   const nav = useNavigate();
+  const [params] = useSearchParams();
+  const next = useMemo(() => {
+    const n = params.get("next");
+    if (!n || !n.startsWith("/") || n.startsWith("//")) return "/finance";
+    return n;
+  }, [params]);
   const [mode, setMode] = useState<"login" | "signup">("login");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -30,8 +36,8 @@ const Auth = () => {
   const [busy, setBusy] = useState(false);
 
   useEffect(() => {
-    if (user) nav("/finance", { replace: true });
-  }, [user, nav]);
+    if (user) nav(next, { replace: true });
+  }, [user, nav, next]);
 
   const handle = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -47,7 +53,7 @@ const Auth = () => {
           email,
           password,
           options: {
-            emailRedirectTo: `${window.location.origin}/finance`,
+            emailRedirectTo: `${window.location.origin}${next}`,
             data: { full_name: fullName },
           },
         });
@@ -57,7 +63,7 @@ const Auth = () => {
         const { error } = await supabase.auth.signInWithPassword({ email, password });
         if (error) throw error;
         toast.success(language === "bn" ? "স্বাগতম!" : "Welcome back!");
-        nav("/finance");
+        nav(next, { replace: true });
       }
     } catch (err: any) {
       toast.error(err.message || "Error");
@@ -68,7 +74,7 @@ const Auth = () => {
 
   const google = async () => {
     setBusy(true);
-    const r = await lovable.auth.signInWithOAuth("google", { redirect_uri: `${window.location.origin}/finance` });
+    const r = await lovable.auth.signInWithOAuth("google", { redirect_uri: `${window.location.origin}${next}` });
     if (r.error) {
       toast.error(r.error.message || "Google sign-in failed");
       setBusy(false);

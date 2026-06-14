@@ -126,6 +126,11 @@
     font-family: 'Space Grotesk', 'Noto Sans Bengali', 'Hind Siliguri', sans-serif;
   }
 
+  html:lang(bn) body,
+  html:lang(bn) body :where(h1, h2, h3, h4, h5, h6, .font-display, .font-bangla, .font-sans) {
+    font-family: 'Noto Sans Bengali', 'Hind Siliguri', sans-serif !important;
+  }
+
   html:lang(bn),
   html:lang(bn) body,
   html:lang(bn) body :where(*) {
@@ -133,12 +138,19 @@
     text-rendering: optimizeLegibility;
   }
 
+  html:lang(bn) body :where(.gradient-text) {
+    display: inline-block;
+    line-height: 1.45 !important;
+    padding-block: 0.08em 0.18em;
+    margin-block: -0.08em -0.18em;
+  }
+
   html:lang(bn) body :where(.leading-none) {
-    line-height: 1.25 !important;
+    line-height: 1.45 !important;
   }
 
   html:lang(bn) body :where(.leading-tight, .leading-snug) {
-    line-height: 1.4 !important;
+    line-height: 1.5 !important;
   }
 }
 

@@ -54,6 +54,7 @@ import About from "./pages/About";
 import Appointment from "./pages/Appointment";
 import Policies from "./pages/Policies";
 import NotFound from "./pages/NotFound.tsx";
+import Admin from "./pages/Admin";
 
 const queryClient = new QueryClient();
 

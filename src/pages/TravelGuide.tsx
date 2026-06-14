@@ -250,6 +250,74 @@ export default function TravelGuide() {
     }
   };
 
+  // Abroad — visa guide
+  const ABROAD_COUNTRIES = ["Saudi Arabia", "UAE (Dubai)", "Qatar", "Kuwait", "Oman", "Bahrain", "Malaysia", "Singapore", "Maldives", "South Korea (EPS)", "Japan", "Italy", "Romania", "Poland", "Germany", "UK", "Canada", "Australia", "USA", "Russia", "Mauritius", "Brunei", "Cyprus", "Portugal"];
+  const VISA_TYPES = [
+    { v: "work", label: isBn ? "ওয়ার্ক ভিসা" : "Work visa" },
+    { v: "student", label: isBn ? "স্টুডেন্ট ভিসা" : "Student visa" },
+    { v: "skilled migration", label: isBn ? "স্কিলড মাইগ্রেশন" : "Skilled migration" },
+    { v: "business", label: isBn ? "ব্যবসা ভিসা" : "Business visa" },
+    { v: "family", label: isBn ? "ফ্যামিলি ভিসা" : "Family visa" },
+  ];
+  const SECTORS = [
+    { v: "any", label: isBn ? "যেকোনো খাত" : "Any sector" },
+    { v: "construction", label: isBn ? "কনস্ট্রাকশন" : "Construction" },
+    { v: "driving", label: isBn ? "ড্রাইভিং" : "Driving" },
+    { v: "hospitality / cleaner", label: isBn ? "হোটেল / ক্লিনার" : "Hospitality / Cleaner" },
+    { v: "security guard", label: isBn ? "সিকিউরিটি গার্ড" : "Security guard" },
+    { v: "factory / garments", label: isBn ? "ফ্যাক্টরি / গার্মেন্টস" : "Factory / Garments" },
+    { v: "healthcare / nurse", label: isBn ? "নার্স / কেয়ারগিভার" : "Nurse / Caregiver" },
+    { v: "IT / software", label: "IT / Software" },
+    { v: "agriculture / farm", label: isBn ? "কৃষি / খামার" : "Agriculture / Farm" },
+    { v: "domestic helper", label: isBn ? "গৃহকর্মী" : "Domestic helper" },
+  ];
+  const [country, setCountry] = useState("Saudi Arabia");
+  const [visaType, setVisaType] = useState("work");
+  const [sector, setSector] = useState("any");
+  const [abroadLoading, setAbroadLoading] = useState(false);
+  const [abroadAnswer, setAbroadAnswer] = useState("");
+
+  const searchAbroad = async () => {
+    setAbroadLoading(true);
+    setAbroadAnswer("");
+    try {
+      const { data, error } = await supabase.functions.invoke("travel-advisor", {
+        body: { mode: "abroad", country, visaType, sector, language },
+      });
+      if (error) throw error;
+      if (data?.error) throw new Error(data.error);
+      setAbroadAnswer(data.content);
+    } catch (e: any) {
+      toast.error(isBn ? "তথ্য আনতে সমস্যা" : "Failed", { description: e.message });
+    } finally {
+      setAbroadLoading(false);
+    }
+  };
+
+  // Remittance
+  const [sendFrom, setSendFrom] = useState("Saudi Arabia");
+  const [sendTo, setSendTo] = useState("Bangladesh");
+  const [remitLoading, setRemitLoading] = useState(false);
+  const [remitAnswer, setRemitAnswer] = useState("");
+
+  const searchRemit = async () => {
+    setRemitLoading(true);
+    setRemitAnswer("");
+    try {
+      const { data, error } = await supabase.functions.invoke("travel-advisor", {
+        body: { mode: "remittance", sendFrom, sendTo, language },
+      });
+      if (error) throw error;
+      if (data?.error) throw new Error(data.error);
+      setRemitAnswer(data.content);
+    } catch (e: any) {
+      toast.error(isBn ? "তথ্য আনতে সমস্যা" : "Failed", { description: e.message });
+    } finally {
+      setRemitLoading(false);
+    }
+  };
+
+
   return (
     <div className="container mx-auto px-4 py-8 max-w-6xl">
       <div className="mb-8 text-center">

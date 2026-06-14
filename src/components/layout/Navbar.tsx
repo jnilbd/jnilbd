@@ -1,11 +1,13 @@
 import { Link, NavLink, useNavigate } from "react-router-dom";
-import { Menu, X, ShoppingCart, Globe, Phone, Mail, MapPin, LayoutGrid, CalendarClock, Sparkles, CloudSun, HeartPulse, Calculator, ShieldCheck, Wifi, Tv, Newspaper, Wallet, Search, Home, BookOpen, ScrollText, Compass, Store, Gift, Wand2, Briefcase } from "lucide-react";
+import { Menu, X, ShoppingCart, Globe, Phone, Mail, MapPin, LayoutGrid, CalendarClock, Sparkles, CloudSun, HeartPulse, Calculator, ShieldCheck, Wifi, Tv, Newspaper, Wallet, Search, Home, BookOpen, ScrollText, Compass, Store, Gift, Wand2, Briefcase, LogIn, UserPlus, LogOut, User as UserIcon } from "lucide-react";
 import { useState, useMemo, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useCart } from "@/contexts/CartContext";
 import { useMenu } from "@/contexts/MenuContext";
+import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { ALL_CATEGORIES } from "@/lib/categories";
 import logoMark from "@/assets/logo-mark.png";
 
@@ -13,6 +15,7 @@ const Navbar = () => {
   const { t, language, toggle } = useLanguage();
   const { count } = useCart();
   const { openMenu, toggleMenu, setOpenMenu } = useMenu();
+  const { user, signOut } = useAuth();
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [searchOpen, setSearchOpen] = useState(false);
@@ -225,17 +228,72 @@ const Navbar = () => {
             <button
               onClick={toggle}
               aria-label="Switch language"
-              className="group relative flex items-center gap-1.5 h-9 px-1 pr-3 rounded-full border border-border/60 bg-gradient-to-r from-background to-muted/40 hover:border-primary/50 hover:shadow-md transition-all"
+              className="group relative flex items-center gap-1.5 h-9 px-1.5 sm:pr-3 rounded-full border border-border/60 bg-gradient-to-r from-background to-muted/40 hover:border-primary/50 hover:shadow-md transition-all"
             >
               <span className="relative flex items-center justify-center w-7 h-7 rounded-full bg-gradient-to-br from-primary/20 to-secondary/20 ring-1 ring-primary/30">
                 <Globe className="w-3.5 h-3.5 text-primary" strokeWidth={2.5} />
               </span>
-              <span className="flex items-center text-[11px] font-bold tracking-wider">
+              <span className="flex items-center text-[11px] font-bold tracking-wider pr-1 sm:pr-0">
                 <span className={language === "en" ? "text-primary" : "text-muted-foreground/60"}>EN</span>
                 <span className="mx-1 text-muted-foreground/40">|</span>
                 <span className={language === "bn" ? "text-primary font-display" : "text-muted-foreground/60 font-display"}>বাং</span>
               </span>
             </button>
+
+            {/* Auth: Login + Register (desktop) or user menu */}
+            {user ? (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <button
+                    aria-label="Account"
+                    className="flex items-center justify-center w-9 h-9 rounded-full bg-gradient-to-br from-primary to-primary/70 text-primary-foreground font-bold text-xs uppercase shadow-md ring-1 ring-primary/40 hover:scale-105 transition-transform"
+                  >
+                    {(user.email?.[0] || "U").toUpperCase()}
+                  </button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-56">
+                  <DropdownMenuLabel className="font-normal">
+                    <div className="text-[10px] uppercase tracking-wider text-muted-foreground">{isBn ? "লগইন আছেন" : "Signed in"}</div>
+                    <div className="text-sm font-semibold truncate">{user.email}</div>
+                  </DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={() => navigate("/portfolio")}>
+                    <UserIcon className="w-4 h-4 mr-2" /> {isBn ? "প্রোফাইল" : "Profile"}
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => navigate("/cart")}>
+                    <ShoppingCart className="w-4 h-4 mr-2" /> {isBn ? "কার্ট" : "Cart"}
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={async () => { await signOut(); navigate("/"); }} className="text-destructive focus:text-destructive">
+                    <LogOut className="w-4 h-4 mr-2" /> {isBn ? "লগআউট" : "Sign out"}
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            ) : (
+              <div className="hidden sm:flex items-center gap-1.5">
+                <Link to="/auth">
+                  <Button variant="ghost" size="sm" className="rounded-full h-9 px-3 text-[12px] font-semibold gap-1.5">
+                    <LogIn className="w-3.5 h-3.5" />
+                    {isBn ? "লগইন" : "Login"}
+                  </Button>
+                </Link>
+                <Link to="/auth">
+                  <Button size="sm" className="rounded-full h-9 px-3.5 text-[12px] font-bold gap-1.5 bg-gradient-to-br from-primary to-primary/85 hover:from-primary hover:to-primary text-primary-foreground shadow-md">
+                    <UserPlus className="w-3.5 h-3.5" />
+                    {isBn ? "রেজিস্টার" : "Register"}
+                  </Button>
+                </Link>
+              </div>
+            )}
+
+            {!user && (
+              <Link to="/auth" className="sm:hidden">
+                <Button variant="ghost" size="icon" className="rounded-full" aria-label="Login">
+                  <LogIn className="w-[18px] h-[18px]" />
+                </Button>
+              </Link>
+            )}
+
 
             <Link to="/cart" className="relative" onClick={() => setOpenMenu(null)}>
               <Button variant="ghost" size="icon" className="rounded-full">
@@ -454,6 +512,40 @@ const Navbar = () => {
               >
                 {isBn ? "বুক অ্যাপয়েন্টমেন্ট" : "Book Appointment"}
               </Link>
+
+              {/* Auth — mobile */}
+              {user ? (
+                <div className="mt-2 flex flex-col gap-2">
+                  <div className="px-4 py-2.5 rounded-lg bg-muted/60 border border-border/50">
+                    <div className="text-[10px] uppercase tracking-wider text-muted-foreground font-bold">{isBn ? "লগইন আছেন" : "Signed in"}</div>
+                    <div className="text-sm font-semibold truncate">{user.email}</div>
+                  </div>
+                  <button
+                    onClick={async () => { await signOut(); setMobileNavOpen(false); navigate("/"); }}
+                    className="px-4 py-3 rounded-lg font-semibold border border-destructive/40 text-destructive flex items-center justify-center gap-2"
+                  >
+                    <LogOut className="w-4 h-4" /> {isBn ? "লগআউট" : "Sign out"}
+                  </button>
+                </div>
+              ) : (
+                <div className="mt-2 grid grid-cols-2 gap-2">
+                  <Link
+                    to="/auth"
+                    onClick={() => setMobileNavOpen(false)}
+                    className="px-4 py-3 rounded-lg font-bold border-2 border-primary/50 text-primary text-center flex items-center justify-center gap-2"
+                  >
+                    <LogIn className="w-4 h-4" /> {isBn ? "লগইন" : "Login"}
+                  </Link>
+                  <Link
+                    to="/auth"
+                    onClick={() => setMobileNavOpen(false)}
+                    className="px-4 py-3 rounded-lg font-bold bg-gradient-to-br from-primary to-primary/80 text-primary-foreground text-center shadow-md flex items-center justify-center gap-2"
+                  >
+                    <UserPlus className="w-4 h-4" /> {isBn ? "রেজিস্টার" : "Register"}
+                  </Link>
+                </div>
+              )}
+
               <div className="mt-3 pt-3 border-t border-border/50 flex flex-col gap-2 text-xs text-muted-foreground px-2">
                 <a href="tel:01774585757" className="flex items-center gap-2"><Phone className="w-3.5 h-3.5 text-secondary" /> +880 1774-585757</a>
                 <a href="mailto:jnilbd@gmail.com" className="flex items-center gap-2"><Mail className="w-3.5 h-3.5 text-secondary" /> jnilbd@gmail.com</a>

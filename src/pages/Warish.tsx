@@ -17,13 +17,28 @@ import { useLanguage } from "@/contexts/LanguageContext";
  * - Daughters only: 1 daughter = 1/2, 2+ daughters = 2/3 (split equally), residue back to other heirs
  */
 
+type AssetMode = "money" | "land";
+type LandUnit = "bigha" | "katha" | "decimal" | "kani" | "acre";
+
+// 1 Bigha = 33 Decimal = 20 Katha; 1 Katha = 1.65 Decimal; 1 Acre = 100 Decimal; 1 Kani = 120 Decimal
+const TO_DECIMAL: Record<LandUnit, number> = {
+  decimal: 1,
+  katha: 1.65,
+  bigha: 33,
+  acre: 100,
+  kani: 120,
+};
+
 const Warish = () => {
   const { language } = useLanguage();
   const t = (bn: string, en: string) => (language === "bn" ? bn : en);
 
+  const [mode, setMode] = useState<AssetMode>("money");
   const [estate, setEstate] = useState("1000000");
+  const [landAmount, setLandAmount] = useState("10");
+  const [landUnit, setLandUnit] = useState<LandUnit>("bigha");
   const [gender, setGender] = useState<"male" | "female">("male");
-  const [spouse, setSpouse] = useState(1); // for male: number of wives; for female: 0 or 1 husband
+  const [spouse, setSpouse] = useState(1);
   const [sons, setSons] = useState(0);
   const [daughters, setDaughters] = useState(0);
   const [father, setFather] = useState(false);

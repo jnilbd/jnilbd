@@ -4,8 +4,8 @@ import { motion, AnimatePresence } from "framer-motion";
 import { MessageCircle, Send, Trash2, Users, Phone } from "lucide-react";
 
 // ⚙️ আপনার নাম্বার/ইউজারনেম এখানে এডিট করুন
-const OWNER_WHATSAPP = "8801XXXXXXXXX"; // country code সহ, + ছাড়া
-const OWNER_TELEGRAM = "johnnil";        // @ ছাড়া username
+const OWNER_WHATSAPP = "8801774585757"; // country code সহ, + ছাড়া
+const OWNER_TELEGRAM = "jnilbd";        // @ ছাড়া username
 const OWNER_DEFAULT_MSG = "Hi! Johnnil সাইট থেকে যোগাযোগ করছি 🙂";
 import { toast } from "sonner";
 import { z } from "zod";

@@ -120,14 +120,31 @@ const Warish = () => {
       residue = 0;
     }
 
-    // Round
-    shares.forEach((s) => (s.amount = Math.round(s.amount)));
+    // Round money to whole, keep land precise
+    if (mode === "money") shares.forEach((s) => (s.amount = Math.round(s.amount)));
     const totalDistributed = shares.reduce((s, x) => s + x.amount, 0);
 
-    return { shares, residue, totalDistributed };
-  }, [estate, gender, spouse, sons, daughters, father, mother, language]);
+    return { shares, residue, totalDistributed, total };
+  }, [mode, estate, landAmount, landUnit, gender, spouse, sons, daughters, father, mother, language]);
 
-  const fmt = (n: number) => "৳ " + n.toLocaleString("en-IN");
+  const fmtMoney = (n: number) => "৳ " + n.toLocaleString("en-IN");
+
+  // Convert decimal -> Bigha + Katha + Decimal breakdown (Bangladesh)
+  const fmtLand = (dec: number) => {
+    if (dec <= 0) return "0";
+    const bigha = Math.floor(dec / 33);
+    let rem = dec - bigha * 33;
+    const katha = Math.floor(rem / 1.65);
+    rem = rem - katha * 1.65;
+    const decRemain = rem; // remaining decimal
+    const parts: string[] = [];
+    if (bigha) parts.push(`${bigha} ${t("বিঘা", "Bigha")}`);
+    if (katha) parts.push(`${katha} ${t("কাঠা", "Katha")}`);
+    if (decRemain >= 0.01) parts.push(`${decRemain.toFixed(2)} ${t("শতক", "Decimal")}`);
+    return parts.length ? parts.join(" ") : `${dec.toFixed(3)} ${t("শতক", "Decimal")}`;
+  };
+
+  const fmt = (n: number) => (mode === "money" ? fmtMoney(n) : fmtLand(n));
 
   return (
     <div className="container py-8 max-w-3xl">

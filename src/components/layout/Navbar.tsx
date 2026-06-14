@@ -238,6 +238,17 @@ const Navbar = () => {
             </button>
 
 
+            <Link to="/cart" className="relative" onClick={() => setOpenMenu(null)}>
+              <Button variant="ghost" size="icon" className="rounded-full">
+                <ShoppingCart className="w-[18px] h-[18px]" />
+                {count > 0 && (
+                  <span className="absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] px-1 rounded-full bg-secondary text-secondary-foreground text-[10px] flex items-center justify-center font-bold">
+                    {count}
+                  </span>
+                )}
+              </Button>
+            </Link>
+
             {/* Auth: Login + Register (desktop) or user menu */}
             {user ? (
               <DropdownMenu>
@@ -291,18 +302,6 @@ const Navbar = () => {
                 </Button>
               </Link>
             )}
-
-
-            <Link to="/cart" className="relative" onClick={() => setOpenMenu(null)}>
-              <Button variant="ghost" size="icon" className="rounded-full">
-                <ShoppingCart className="w-[18px] h-[18px]" />
-                {count > 0 && (
-                  <span className="absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] px-1 rounded-full bg-secondary text-secondary-foreground text-[10px] flex items-center justify-center font-bold">
-                    {count}
-                  </span>
-                )}
-              </Button>
-            </Link>
 
             <Button
               variant="ghost"

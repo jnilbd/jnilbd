@@ -196,9 +196,11 @@ const Admin = () => {
     <div className="container py-10">
       <h1 className="text-4xl font-display font-bold mb-6">Shop Admin Panel</h1>
       <Tabs defaultValue="products">
-        <TabsList className="grid grid-cols-3 max-w-md">
+        <TabsList className="grid grid-cols-2 md:grid-cols-5 max-w-3xl">
           <TabsTrigger value="products"><Package className="w-4 h-4 mr-1" />Products</TabsTrigger>
           <TabsTrigger value="orders"><ShoppingBag className="w-4 h-4 mr-1" />Orders</TabsTrigger>
+          <TabsTrigger value="services"><Wrench className="w-4 h-4 mr-1" />Services</TabsTrigger>
+          <TabsTrigger value="service-orders"><Inbox className="w-4 h-4 mr-1" />Svc Orders</TabsTrigger>
           <TabsTrigger value="settings"><Bell className="w-4 h-4 mr-1" />Notify</TabsTrigger>
         </TabsList>
 

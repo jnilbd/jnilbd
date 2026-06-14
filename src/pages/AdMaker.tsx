@@ -78,6 +78,12 @@ export default function AdMaker() {
   const [pack, setPack] = useState<Pack | null>(null);
   const [generatedImage, setGeneratedImage] = useState<string | null>(null);
   const [activePlat, setActivePlat] = useState("facebook");
+  const [regenLoading, setRegenLoading] = useState(false);
+  const [videoLoading, setVideoLoading] = useState(false);
+  const [videoFrames, setVideoFrames] = useState<string[]>([]);
+  const [videoShots, setVideoShots] = useState<string[]>([]);
+  const [videoFrameIdx, setVideoFrameIdx] = useState(0);
+  const [videoPlaying, setVideoPlaying] = useState(false);
 
   const handleGenerate = async () => {
     if (idea.trim().length < 5) {

@@ -57,15 +57,16 @@ const Navbar = () => {
 
   // Inline primary links (top priority — always visible on lg+)
   const primary = [
-    { to: "/", key: "nav.home" },
-    { to: "/quran", key: "nav.quran" },
-    { to: "/hadith", key: "nav.hadith" },
-    { to: "/namaz", key: "nav.namaz" },
-    { to: "/shop", key: "nav.shop" },
-    { to: "/offers", key: "nav.offers" },
-    { to: "/ad-maker", key: "nav.adMaker" },
-    { to: "/services", key: "nav.services" },
+    { to: "/", key: "nav.home", icon: Home },
+    { to: "/quran", key: "nav.quran", icon: BookOpen },
+    { to: "/hadith", key: "nav.hadith", icon: ScrollText },
+    { to: "/namaz", key: "nav.namaz", icon: Compass },
+    { to: "/shop", key: "nav.shop", icon: Store },
+    { to: "/offers", key: "nav.offers", icon: Gift },
+    { to: "/ad-maker", key: "nav.adMaker", icon: Wand2 },
+    { to: "/services", key: "nav.services", icon: Briefcase },
   ];
+
 
   // Categories panel = all categories (priority order, Appointment last/highlighted)
   const categories = ALL_CATEGORIES;

@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import { Send, Clock, MessageSquare, Phone, Trash2, ExternalLink, CheckCircle2, AlertCircle, Hourglass } from "lucide-react";
+import { Send, Clock, MessageSquare, Phone, Trash2, ExternalLink, CheckCircle2, AlertCircle, Hourglass, Sparkles, Loader2, Copy, RefreshCw } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -11,6 +11,51 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+
+const OCCASIONS = [
+  { value: "birthday",        bn: "জন্মদিন",                 en: "Birthday",            emoji: "🎂" },
+  { value: "anniversary",     bn: "বিবাহ বার্ষিকী",         en: "Anniversary",         emoji: "💍" },
+  { value: "love",            bn: "ভালোবাসা / প্রিয়তম(া)",  en: "Love / Sweetheart",   emoji: "❤️" },
+  { value: "valentine",       bn: "ভ্যালেন্টাইন ডে",         en: "Valentine's Day",     emoji: "💘" },
+  { value: "miss_you",        bn: "তোমাকে মিস করছি",         en: "Miss You",            emoji: "🥺" },
+  { value: "good_morning",    bn: "শুভ সকাল",                 en: "Good Morning",        emoji: "🌅" },
+  { value: "good_night",      bn: "শুভ রাত্রি",               en: "Good Night",          emoji: "🌙" },
+  { value: "sorry",           bn: "ক্ষমা চাওয়া",             en: "Sorry / Apology",     emoji: "🙏" },
+  { value: "thank_you",       bn: "ধন্যবাদ",                  en: "Thank You",           emoji: "🌸" },
+  { value: "get_well",        bn: "সুস্থতা কামনা",            en: "Get Well Soon",       emoji: "🌿" },
+  { value: "condolence",      bn: "শোক বার্তা",               en: "Condolence",          emoji: "🤍" },
+  { value: "congratulations", bn: "অভিনন্দন",                 en: "Congratulations",     emoji: "🎉" },
+  { value: "new_job",         bn: "নতুন চাকরি",               en: "New Job",             emoji: "💼" },
+  { value: "exam_result",     bn: "পরীক্ষার ফলাফল",           en: "Exam Result",         emoji: "📚" },
+  { value: "engagement",      bn: "বাগদান",                   en: "Engagement",          emoji: "💞" },
+  { value: "wedding",         bn: "বিয়ে",                    en: "Wedding",             emoji: "👰" },
+  { value: "baby_born",       bn: "নবজাতক",                   en: "New Baby",            emoji: "👶" },
+  { value: "eid",             bn: "ঈদ মোবারক",               en: "Eid Mubarak",         emoji: "🌙" },
+  { value: "ramadan",         bn: "রমজান শুভেচ্ছা",           en: "Ramadan Kareem",      emoji: "🕌" },
+  { value: "puja",            bn: "পূজা শুভেচ্ছা",            en: "Puja Greetings",      emoji: "🪔" },
+  { value: "new_year",        bn: "নববর্ষ",                   en: "New Year",            emoji: "🎊" },
+  { value: "pohela_boishakh", bn: "পহেলা বৈশাখ",              en: "Pohela Boishakh",     emoji: "🌼" },
+  { value: "mothers_day",     bn: "মা দিবস",                  en: "Mother's Day",        emoji: "👩" },
+  { value: "fathers_day",     bn: "বাবা দিবস",                en: "Father's Day",        emoji: "👨" },
+  { value: "friendship",      bn: "বন্ধুত্ব দিবস",            en: "Friendship Day",      emoji: "🤝" },
+  { value: "meeting_reminder",bn: "মিটিং রিমাইন্ডার",         en: "Meeting Reminder",    emoji: "📅" },
+  { value: "payment_reminder",bn: "পেমেন্ট রিমাইন্ডার",       en: "Payment Reminder",    emoji: "💸" },
+];
+
+const RELATIONSHIPS = [
+  { value: "lover",     bn: "প্রিয়তম(া)",    en: "Sweetheart" },
+  { value: "spouse",    bn: "স্ত্রী/স্বামী",  en: "Spouse" },
+  { value: "friend",    bn: "বন্ধু",          en: "Friend" },
+  { value: "family",    bn: "পরিবার",         en: "Family" },
+  { value: "parent",    bn: "বাবা/মা",        en: "Parent" },
+  { value: "sibling",   bn: "ভাই/বোন",       en: "Sibling" },
+  { value: "child",     bn: "সন্তান",         en: "Child" },
+  { value: "colleague", bn: "সহকর্মী",        en: "Colleague" },
+  { value: "client",    bn: "ক্লায়েন্ট",      en: "Client" },
+  { value: "teacher",   bn: "শিক্ষক",         en: "Teacher" },
+];
+
+type AITemplate = { title: string; text: string };
 
 type ScheduledMessage = {
   id: string;

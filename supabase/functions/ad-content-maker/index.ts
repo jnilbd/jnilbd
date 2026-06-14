@@ -14,7 +14,35 @@ type Body = {
   imageUrl?: string;
   generateImage?: boolean;
   imagePrompt?: string;
+  mode?: "full" | "regenerate_image" | "video_frames";
+  storyboard?: string[];
 };
+
+async function generateOneImage(prompt: string): Promise<string | null> {
+  const imgPrompt = `${prompt}
+
+STRICT RULES — MUST FOLLOW:
+- DO NOT render any text, letters, words, numbers, captions, logos, watermarks, signs, labels, price tags or typography ANYWHERE in the image.
+- NO Bengali / Bangla / English / Arabic script of any kind.
+- Pure clean product / lifestyle photography only. Photorealistic, bright commercial lighting, eye-catching composition, leave clean negative space on one side for text to be added later in post-production.`;
+  try {
+    const imgRes = await fetch(`${GATEWAY}/chat/completions`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "Lovable-API-Key": LOVABLE_API_KEY! },
+      body: JSON.stringify({
+        model: "google/gemini-2.5-flash-image",
+        messages: [{ role: "user", content: imgPrompt }],
+        modalities: ["image", "text"],
+      }),
+    });
+    if (!imgRes.ok) return null;
+    const imgData = await imgRes.json();
+    const imgUrl = imgData?.choices?.[0]?.message?.images?.[0]?.image_url?.url
+      || imgData?.choices?.[0]?.message?.content;
+    if (typeof imgUrl === "string" && (imgUrl.startsWith("data:") || imgUrl.startsWith("http"))) return imgUrl;
+    return null;
+  } catch { return null; }
+}
 
 function buildSystem(b: Body) {
   return `You are an elite Bangladeshi/Bengali ad copywriter, performance marketer, and creative director with 10+ years experience running profitable Facebook, Instagram, TikTok, YouTube, Google, and LinkedIn ads in Bangladesh and globally. You write conversion-focused copy that combines emotional hooks, social proof, and clear CTAs.

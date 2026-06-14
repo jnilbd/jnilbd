@@ -99,11 +99,11 @@ const Navbar = () => {
                 />
               </div>
             </div>
-            <div className="flex flex-col leading-none">
+            <div className="flex flex-col leading-none whitespace-nowrap">
               <span className="font-display font-bold text-[24px] tracking-tight bg-gradient-to-r from-foreground via-foreground to-foreground/80 bg-clip-text text-transparent">
                 JohnNil<span className="bg-gradient-to-br from-secondary to-secondary/60 bg-clip-text text-transparent">.</span>
               </span>
-              <span className="flex items-center gap-1.5 text-[9px] tracking-[0.28em] uppercase text-muted-foreground font-semibold mt-1.5">
+              <span className="flex items-center gap-1 text-[8.5px] tracking-[0.22em] uppercase text-muted-foreground font-semibold mt-1.5 whitespace-nowrap">
                 <span className="text-secondary">{isBn ? "মান" : "Quality"}</span>
                 <span className="opacity-40">•</span>
                 <span className="text-secondary">{isBn ? "বিশ্বাস" : "Trust"}</span>

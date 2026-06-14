@@ -5,7 +5,7 @@ Deno.serve(async (req) => {
 
   try {
     const body = await req.json();
-    const { mode, from, to, destination, language } = body;
+    const { mode, from, to, destination, country, visaType, sector, sendFrom, sendTo, language } = body;
     const lang = language === "bn" ? "Bangla (বাংলা)" : "English";
     const today = new Date().toISOString().slice(0, 10);
 

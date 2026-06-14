@@ -573,8 +573,8 @@ const LiveTV = () => {
                         {c.logo ? (
                           <img src={c.logo} alt="" className="w-8 h-8 rounded object-contain bg-muted" onError={(e) => ((e.target as HTMLImageElement).style.visibility = "hidden")} />
                         ) : (
-                          <div className={`w-8 h-8 rounded-lg flex items-center justify-center text-white ${c.category === "radio" ? "gradient-bg-warm" : c.category === "sports" ? "bg-gradient-to-br from-amber-500 to-orange-600" : (c.category as string) === "bdix" ? "bg-gradient-to-br from-emerald-500 to-teal-600" : "gradient-bg-primary"}`}>
-                            {c.category === "sports" ? <Trophy className="w-4 h-4" /> : c.category === "radio" ? <Radio className="w-4 h-4" /> : (c.category as string) === "bdix" ? <Wifi className="w-4 h-4" /> : <Tv className="w-4 h-4" />}
+                          <div className={`w-8 h-8 rounded-lg flex items-center justify-center text-white ${c.category === "radio" ? "gradient-bg-warm" : c.category === "sports" ? "bg-gradient-to-br from-amber-500 to-orange-600" : (c.category as string) === "bdix" ? "bg-gradient-to-br from-emerald-500 to-teal-600" : (c.category as string) === "direct" ? "bg-gradient-to-br from-yellow-400 to-pink-500" : "gradient-bg-primary"}`}>
+                            {c.category === "sports" ? <Trophy className="w-4 h-4" /> : c.category === "radio" ? <Radio className="w-4 h-4" /> : (c.category as string) === "bdix" ? <Wifi className="w-4 h-4" /> : (c.category as string) === "direct" ? <Zap className="w-4 h-4" /> : <Tv className="w-4 h-4" />}
                           </div>
                         )}
                         <Play className="w-4 h-4 text-muted-foreground group-hover:text-primary ml-auto" />

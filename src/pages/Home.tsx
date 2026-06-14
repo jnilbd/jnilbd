@@ -21,9 +21,26 @@ const badgeColorMap: Record<string, string> = {
 
 const Home = () => {
   const { t, language } = useLanguage();
+  const isBn = language === "bn";
   const [featured, setFeatured] = useState<DbProduct[]>([]);
   const [reviews, setReviews] = useState<DbReview[]>([]);
   const [featuredServices, setFeaturedServices] = useState<DbService[]>([]);
+  const [now, setNow] = useState<Date>(new Date());
+
+  useEffect(() => {
+    const id = setInterval(() => setNow(new Date()), 1000);
+    return () => clearInterval(id);
+  }, []);
+
+  const toBnDigits = (s: string | number) =>
+    String(s).replace(/[0-9]/g, (d) => "০১২৩৪৫৬৭৮৯"[Number(d)]);
+  const dhakaTime = new Intl.DateTimeFormat(isBn ? "bn-BD" : "en-US", {
+    hour: "2-digit", minute: "2-digit", second: "2-digit", hour12: true, timeZone: "Asia/Dhaka",
+  }).format(now);
+  const dhakaDate = new Intl.DateTimeFormat(isBn ? "bn-BD" : "en-US", {
+    weekday: "long", day: "numeric", month: "long", year: "numeric", timeZone: "Asia/Dhaka",
+  }).format(now);
+
 
   useEffect(() => {
     (async () => {

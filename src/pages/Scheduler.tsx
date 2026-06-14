@@ -275,6 +275,7 @@ const Scheduler = () => {
           <div>
             <label className="text-sm font-medium mb-1.5 block">{t("মেসেজ", "Message")}</label>
             <Textarea
+              id="scheduler-message"
               value={message}
               onChange={(e) => setMessage(e.target.value)}
               placeholder={t("শুভ জন্মদিন! অনেক অনেক শুভেচ্ছা...", "Happy birthday! Wishing you all the best...")}

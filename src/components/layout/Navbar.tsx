@@ -138,9 +138,10 @@ const Navbar = () => {
               </div>
             </div>
             <div className="flex flex-col leading-none whitespace-nowrap">
-              <span className="font-display font-bold text-[24px] tracking-tight bg-gradient-to-r from-foreground via-foreground to-foreground/80 bg-clip-text text-transparent">
-                JohnNil
+              <span className="font-display font-bold text-[24px] tracking-[0.08em] bg-gradient-to-r from-foreground via-foreground to-foreground/80 bg-clip-text text-transparent">
+                JOHN NIL
               </span>
+
 
               <span className="flex items-center gap-1 text-[8.5px] tracking-[0.22em] uppercase text-muted-foreground font-semibold mt-1.5 whitespace-nowrap">
                 <span className="text-secondary">{isBn ? "মান" : "Quality"}</span>

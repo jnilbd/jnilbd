@@ -57,6 +57,7 @@ import NotFound from "./pages/NotFound.tsx";
 import Admin from "./pages/Admin";
 import AdminPortfolio from "./pages/AdminPortfolio";
 import BusinessGuide from "./pages/BusinessGuide";
+import Politics from "./pages/Politics";
 
 const queryClient = new QueryClient();
 
@@ -117,6 +118,7 @@ const App = () => (
                 <Route path="/phone-lookup" element={<PhoneLookup />} />
                 <Route path="/travel" element={<TravelGuide />} />
                 <Route path="/business-guide" element={<BusinessGuide />} />
+                <Route path="/politics" element={<Politics />} />
                 <Route path="/cart" element={<Cart />} />
                 <Route path="/checkout" element={<Checkout />} />
                 <Route path="/order-confirmation/:id" element={<OrderConfirmation />} />

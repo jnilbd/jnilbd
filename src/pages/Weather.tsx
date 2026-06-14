@@ -390,6 +390,7 @@ const Weather = () => {
           </CardContent>
         </Card>
 
+
         <div className="flex gap-2 mb-4 flex-wrap">
           <Input placeholder={isBn ? "শহর খুঁজুন..." : "Search city..."} value={search} onChange={(e) => setSearch(e.target.value)} onKeyDown={(e) => e.key === "Enter" && handleSearch()} className="flex-1 min-w-[200px]" />
           <Button onClick={handleSearch}><Search className="w-4 h-4" /></Button>

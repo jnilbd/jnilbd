@@ -68,10 +68,10 @@ const Footer = () => {
           </p>
           <div className="flex gap-2.5">
             {[
-              { Icon: Facebook, href: "https://facebook.com", color: "hover:bg-[#1877F2]" },
-              { Icon: Instagram, href: "https://instagram.com", color: "hover:bg-gradient-to-br hover:from-[#F58529] hover:to-[#DD2A7B]" },
-              { Icon: Youtube, href: "https://youtube.com", color: "hover:bg-[#FF0000]" },
-              { Icon: Linkedin, href: "https://linkedin.com", color: "hover:bg-[#0A66C2]" },
+              { Icon: Facebook, href: "https://www.facebook.com/jnilbd", color: "hover:bg-[#1877F2]" },
+              { Icon: Instagram, href: "https://www.instagram.com/jnil.us", color: "hover:bg-gradient-to-br hover:from-[#F58529] hover:to-[#DD2A7B]" },
+              { Icon: Youtube, href: "https://youtube.com/@jnilbd", color: "hover:bg-[#FF0000]" },
+              { Icon: Linkedin, href: "https://www.linkedin.com/in/jnilit", color: "hover:bg-[#0A66C2]" },
               { Icon: MessageCircle, href: "https://wa.me/8801774585757", color: "hover:bg-[#25D366]" },
             ].map(({ Icon, href, color }, i) => (
               <a

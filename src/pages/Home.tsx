@@ -1,20 +1,41 @@
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { ArrowRight, Sparkles, ShoppingBag, Briefcase, FolderKanban, BookOpen, Tag, Home as HomeIcon, Star, Facebook, Instagram, MessageCircle, Youtube, Linkedin, CalendarClock, Wallet, Image as ImageIcon, Mic, Compass, FileType, Tv, Download, Clock, Map, Ruler, HeartPulse, Sun, Lock, Receipt, Scale, Percent, CloudRain, Smartphone, Wifi, Send, Film } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
 import Marquee from "@/components/Marquee";
-import ProductCard from "@/components/ProductCard";
 import ServiceCard from "@/components/ServiceCard";
-import { products, services, reviews } from "@/data/mockData";
-import { displayImage, fallbackImageHandler, PAGE_BANNERS } from "@/lib/siteImages";
+import { services } from "@/data/mockData";
+import { PAGE_BANNERS } from "@/lib/siteImages";
 import DailyWidgets from "@/components/DailyWidgets";
+import { supabase } from "@/integrations/supabase/client";
 
+type DbProduct = { id: string; name: string; name_bn?: string | null; price: number; discount_price?: number | null; image?: string | null; category?: string | null; badge?: string | null; badge_color?: string | null };
+type DbReview = { id: string; reviewer_name: string | null; rating: number; comment: string | null; created_at: string };
+
+const badgeColorMap: Record<string, string> = {
+  red: "bg-red-500", green: "bg-green-500", blue: "bg-blue-500",
+  orange: "bg-orange-500", purple: "bg-purple-500", pink: "bg-pink-500",
+};
 
 const Home = () => {
   const { t, language } = useLanguage();
-  const featured = products.filter((p) => p.featured).slice(0, 4);
   const featuredServices = services.slice(0, 3);
+  const [featured, setFeatured] = useState<DbProduct[]>([]);
+  const [reviews, setReviews] = useState<DbReview[]>([]);
+
+  useEffect(() => {
+    (async () => {
+      const [prodRes, revRes] = await Promise.all([
+        supabase.from("shop_products").select("id,name,name_bn,price,discount_price,image,category,badge,badge_color").eq("is_active", true).eq("is_featured", true).order("created_at", { ascending: false }).limit(4),
+        supabase.from("product_reviews").select("id,reviewer_name,rating,comment,created_at").eq("is_approved", true).order("created_at", { ascending: false }).limit(4),
+      ]);
+      setFeatured((prodRes.data as any) || []);
+      setReviews((revRes.data as any) || []);
+    })();
+  }, []);
 
   const sectionCards = [
     // Sensitive / spiritual first

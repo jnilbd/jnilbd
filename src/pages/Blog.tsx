@@ -10,6 +10,12 @@ import { Button } from "@/components/ui/button";
 
 const AUTHOR_AVATAR = "https://api.dicebear.com/7.x/initials/svg?seed=John%20Nil&backgroundColor=6366f1,a855f7,ec4899&backgroundType=gradientLinear";
 
+// Upgrade unsplash thumbnails to high-res editorial quality
+const hq = (url: string, w = 1600) =>
+  url?.includes("images.unsplash.com")
+    ? url.replace(/[?&]w=\d+/, "").replace(/[?&]q=\d+/, "") + (url.includes("?") ? "&" : "?") + `w=${w}&q=85&auto=format&fit=crop`
+    : url;
+
 const Blog = () => {
   const { language } = useLanguage();
   const bn = language === "bn";

@@ -14,9 +14,46 @@ const Navbar = () => {
   const { count } = useCart();
   const { openMenu, toggleMenu, setOpenMenu } = useMenu();
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [searchOpen, setSearchOpen] = useState(false);
+  const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
+  const searchRef = useRef<HTMLDivElement>(null);
+  const navigate = useNavigate();
 
   const isBn = language === "bn";
   const topOpen = openMenu === "top";
+
+  const searchResults = useMemo(() => {
+    const q = searchQuery.trim().toLowerCase();
+    if (!q) return [];
+    return ALL_CATEGORIES.filter(
+      (c) => c.en.toLowerCase().includes(q) || c.bn.includes(q) || c.to.includes(q)
+    ).slice(0, 8);
+  }, [searchQuery]);
+
+  useEffect(() => {
+    const onClick = (e: MouseEvent) => {
+      if (searchRef.current && !searchRef.current.contains(e.target as Node)) {
+        setSearchOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", onClick);
+    return () => document.removeEventListener("mousedown", onClick);
+  }, []);
+
+  const goToResult = (to: string) => {
+    setSearchQuery("");
+    setSearchOpen(false);
+    setMobileSearchOpen(false);
+    setMobileNavOpen(false);
+    navigate(to);
+  };
+
+  const handleSearchSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (searchResults.length > 0) goToResult(searchResults[0].to);
+  };
+
 
   // Inline primary links (top priority — always visible on lg+)
   const primary = [

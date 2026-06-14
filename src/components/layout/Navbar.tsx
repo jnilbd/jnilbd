@@ -255,7 +255,7 @@ const Navbar = () => {
                 <DropdownMenuTrigger asChild>
                   <button
                     aria-label="Account"
-                    className="flex items-center justify-center w-9 h-9 rounded-full bg-gradient-to-br from-primary to-primary/70 text-primary-foreground font-bold text-xs uppercase shadow-md ring-1 ring-primary/40 hover:scale-105 transition-transform"
+                    className="flex items-center justify-center w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-gradient-to-br from-primary to-primary/70 text-primary-foreground font-bold text-xs uppercase shadow-md ring-1 ring-primary/40 hover:scale-105 transition-transform"
                   >
                     {(user.email?.[0] || "U").toUpperCase()}
                   </button>

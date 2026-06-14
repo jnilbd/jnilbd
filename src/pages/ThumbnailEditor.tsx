@@ -309,27 +309,6 @@ const ThumbnailEditor = () => {
           </ol>
         </CardContent>
       </Card>
-        <CardContent className="p-4 space-y-1.5">
-          <p className="font-display font-bold text-sm flex items-center gap-1.5"><Sparkles className="w-4 h-4 text-secondary" />{bn?"সহজ গাইডলাইন (A-Z)":"Quick Guide"}</p>
-          <ol className="text-xs text-muted-foreground space-y-0.5 list-decimal list-inside">
-            {bn ? (<>
-              <li>উপরে থেকে সাইজ প্রিসেট সিলেক্ট করুন (যেমন YouTube 16:9)</li>
-              <li>"আপলোড" বাটনে ক্লিক করে ব্যাকগ্রাউন্ড ছবি দিন (JPG/PNG, ২০MB পর্যন্ত)</li>
-              <li>"টেক্সট" ট্যাব থেকে টাইটেল/সাবটাইটেল লিখুন, ফন্ট ও কালার বেছে নিন</li>
-              <li>"ফিল্টার" থেকে brightness/contrast ঠিক করুন, ওভারলে দিন স্পষ্টতার জন্য</li>
-              <li>চাইলে "ব্যাজ" অন করে NEW/HOT/SALE লিখুন</li>
-              <li>সবশেষে "ডাউনলোড" বাটনে ক্লিক করে HD PNG সেভ করুন ✅</li>
-            </>) : (<>
-              <li>Pick a size preset (e.g. YouTube 16:9)</li>
-              <li>Click "Upload" to add a background image</li>
-              <li>Set title/subtitle, font and color in the Text tab</li>
-              <li>Adjust filters and overlay for clarity</li>
-              <li>Optionally add a NEW/HOT/SALE badge</li>
-              <li>Click Download to save HD PNG ✅</li>
-            </>)}
-          </ol>
-        </CardContent>
-      </Card>
 
       <div className="grid lg:grid-cols-[1fr_360px] gap-4">
         {/* Canvas preview */}

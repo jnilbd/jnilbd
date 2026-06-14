@@ -21,27 +21,29 @@ const corsHeaders = {
 
 const BR_SEARCH_URL = "https://railspaapi.shohoz.com/v1.0/web/bookings/search-trips-v2";
 
-// Map our display station names → BR API station codes
+const BOOKING_WINDOW_DAYS = 10;
+
+// Map our display station names → current Bangladesh Railway eTicket city values
 const STATION_MAP: Record<string, string> = {
   "Dhaka (Kamalapur)": "Dhaka",
-  "Dhaka (Bimanbandar)": "Dhaka Airport",
-  "Dhaka (Tejgaon)": "Tejgaon",
+  "Dhaka (Bimanbandar)": "Biman_Bandar",
+  "Dhaka (Tejgaon)": "Dhaka",
   "Chattogram": "Chattogram",
   "Sylhet": "Sylhet",
   "Khulna": "Khulna",
   "Rajshahi": "Rajshahi",
   "Rangpur": "Rangpur",
   "Dinajpur": "Dinajpur",
-  "Cox's Bazar": "Cox's Bazar Icon",
+  "Cox's Bazar": "Coxs_Bazar",
   "Mymensingh": "Mymensingh",
   "Jamalpur": "Jamalpur",
   "Bogura": "Bogura",
   "Cumilla": "Cumilla",
-  "Brahmanbaria": "B Baria",
+  "Brahmanbaria": "B_Baria",
   "Akhaura": "Akhaura",
-  "Ishwardi": "Ishwardi By Pass",
+  "Ishwardi": "Ishwardi_By_Pass",
   "Pabna": "Pabna",
-  "Chapainawabganj": "Chapai Nawabganj",
+  "Chapainawabganj": "Chapai_Nawabganj",
   "Joydebpur": "Joydebpur",
   "Tangail": "Tangail",
   "Saidpur": "Saidpur",
@@ -57,14 +59,14 @@ const STATION_MAP: Record<string, string> = {
   "Kushtia Court": "Kushtia Court",
   "Faridpur": "Faridpur",
   "Feni": "Feni",
-  "Bhairab Bazar": "Bhairab Bazar",
+  "Bhairab Bazar": "Bhairab_Bazar",
   "Narsingdi": "Narsingdi",
   "Srimangal": "Srimangal",
   "Maulvibazar": "Maulvi Bazar",
   "Joypurhat": "Joypurhat",
   "Santahar": "Santahar",
-  "Sirajganj Bazar": "Sirajganj Bazar",
-  "Bangabandhu Bridge East": "B B East",
+  "Sirajganj Bazar": "Sirajganj_Bazar",
+  "Bangabandhu Bridge East": "B_B_East",
 };
 
 function mapStation(name: string): string {
@@ -100,6 +102,11 @@ function intermediatesFor(from: string, to: string): string[] {
 
 async function checkRoute(from: string, to: string, date: string) {
   const d = new Date(date + "T00:00:00");
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const max = new Date(today);
+  max.setDate(max.getDate() + BOOKING_WINDOW_DAYS - 1);
+  if (d < today || d > max) return { ok: false, status: 400, trips: [] as any[], error: "Journey date is outside BR 10-day booking window" };
   const months = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
   const formatted = `${String(d.getDate()).padStart(2,"0")}-${months[d.getMonth()]}-${d.getFullYear()}`;
   const url = `${BR_SEARCH_URL}?from_city=${encodeURIComponent(mapStation(from))}&to_city=${encodeURIComponent(mapStation(to))}&date_of_journey=${encodeURIComponent(formatted)}&seat_class=S_CHAIR`;

@@ -14,9 +14,31 @@ import StationDisplayBoard from "@/components/StationDisplayBoard";
 import { MonitorPlay, Info } from "lucide-react";
 
 
-// Curated Bangladesh Railway data — major stations & popular intercity trains.
-// Data is approximate and based on public BR schedule (Nov 2024 print).
-// For live availability we deep-link to the official eticket portal.
+// Bangladesh Railway eTicket currently uses Shohoz/CCSRTS web flow.
+// Search links must use the official city values (e.g. Biman_Bandar) and the
+// current BR booking window is 10 days for domestic journeys.
+
+const BOOKING_WINDOW_DAYS = 10;
+
+const OFFICIAL_STATION_MAP: Record<string, string> = {
+  "Dhaka (Kamalapur)": "Dhaka",
+  "Dhaka (Bimanbandar)": "Biman_Bandar",
+  "Dhaka (Tejgaon)": "Dhaka",
+  "Chattogram": "Chattogram",
+  "Cox's Bazar": "Coxs_Bazar",
+  "Brahmanbaria": "B_Baria",
+  "Chapainawabganj": "Chapai_Nawabganj",
+  "Bhairab Bazar": "Bhairab_Bazar",
+  "Dewanganj": "Dewanganj_Bazar",
+};
+
+const DHAKA_AREA_STATIONS = new Set(["Dhaka (Kamalapur)", "Dhaka (Bimanbandar)", "Dhaka (Tejgaon)"]);
+
+const STATION_NOTES: Record<string, string> = {
+  "Dhaka (Kamalapur)": "Official eTicket city: Dhaka",
+  "Dhaka (Bimanbandar)": "Official eTicket city: Biman_Bandar",
+  "Dhaka (Tejgaon)": "Tejgaon is not listed as a separate eTicket city right now; booking opens with Dhaka/Kamalapur when applicable.",
+};
 
 const STATIONS = [
   "Dhaka (Kamalapur)", "Dhaka (Bimanbandar)", "Dhaka (Tejgaon)",
@@ -80,14 +102,25 @@ const OFFICIAL_BR_CHANNELS = [
 
 const todayDay = () => new Date().toLocaleDateString("en-US", { weekday: "long" });
 
+const formatOfficialDate = (isoDate: string) => {
+  const d = new Date(`${isoDate}T00:00:00`);
+  return d.toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" }).replace(/ /g, "-");
+};
+
 export default function Railway() {
   const { language } = useLanguage();
   const isBn = language === "bn";
   const { toast } = useToast();
+  const todayIso = new Date().toISOString().slice(0, 10);
+  const maxBookingDate = useMemo(() => {
+    const d = new Date();
+    d.setDate(d.getDate() + BOOKING_WINDOW_DAYS - 1);
+    return d.toISOString().slice(0, 10);
+  }, []);
 
   const [from, setFrom] = useState("Dhaka (Kamalapur)");
   const [to, setTo] = useState("Chattogram");
-  const [date, setDate] = useState(new Date().toISOString().slice(0, 10));
+  const [date, setDate] = useState(todayIso);
   const [phone, setPhone] = useState("");
   const [alertName, setAlertName] = useState("");
   const [alertChannel, setAlertChannel] = useState<"browser" | "sms" | "whatsapp">("browser");
@@ -101,26 +134,79 @@ export default function Railway() {
 
   const matches = useMemo(() => {
     if (!searchedPair) return [];
+    const origins = DHAKA_AREA_STATIONS.has(searchedPair.from)
+      ? ["Dhaka (Kamalapur)", "Dhaka (Bimanbandar)"]
+      : [searchedPair.from];
     return TRAINS.filter(
       (t) =>
-        t.from.toLowerCase().includes(searchedPair.from.toLowerCase()) &&
+        origins.some((s) => t.from.toLowerCase().includes(s.toLowerCase())) &&
         t.to.toLowerCase().includes(searchedPair.to.toLowerCase())
     );
   }, [searchedPair]);
 
   const today = todayDay();
 
-  const eticketUrl = (t: Train) => {
+  const officialStation = (name: string) => OFFICIAL_STATION_MAP[name] ?? name.replace(/\s+/g, "_");
+
+  const officialSearchUrl = (origin = from, destination = to, seatClass = "S_CHAIR") => {
     const params = new URLSearchParams({
-      fromcity: t.from.split(" ")[0],
-      tocity: t.to.split(" ")[0],
-      doj: date.split("-").reverse().join("-"),
-      class: t.classes[0] || "S_CHAIR",
+      fromcity: officialStation(origin),
+      tocity: officialStation(destination),
+      doj: formatOfficialDate(date),
+      class: seatClass,
     });
     return `https://eticket.railway.gov.bd/booking/train/search?${params}`;
   };
 
-  const handleSearch = () => setSearchedPair({ from, to });
+  const eticketUrl = (t: Train) => officialSearchUrl(t.from, t.to, t.classes[0] || "S_CHAIR");
+
+  const dateStatus = useMemo(() => {
+    if (date < todayIso) return "past";
+    if (date > maxBookingDate) return "tooFar";
+    return "ok";
+  }, [date, maxBookingDate, todayIso]);
+
+  const handleDateChange = (value: string) => {
+    if (value > maxBookingDate) {
+      setDate(maxBookingDate);
+      toast({
+        title: isBn ? "১০ দিনের বেশি আগে বুকিং হয় না" : "Only 10 days are bookable",
+        description: isBn
+          ? "বাংলাদেশ রেলওয়ের বর্তমান নিয়ম অনুযায়ী আজসহ সর্বোচ্চ ১০ দিনের টিকিট খোঁজা যাবে।"
+          : "Bangladesh Railway currently allows domestic ticket search up to 10 days including today.",
+      });
+      return;
+    }
+    setDate(value);
+  };
+
+  const handleSearch = () => {
+    if (from === to) {
+      toast({ title: isBn ? "একই স্টেশন নির্বাচন করা যাবে না" : "Choose different stations", variant: "destructive" });
+      return;
+    }
+    if (dateStatus !== "ok") {
+      toast({
+        title: isBn ? "তারিখ ঠিক করুন" : "Fix the date",
+        description: isBn ? "আজ থেকে পরবর্তী ১০ দিনের মধ্যে যাত্রার তারিখ দিন।" : "Pick a journey date within the next 10 days.",
+        variant: "destructive",
+      });
+      return;
+    }
+    setSearchedPair({ from, to });
+  };
+
+  const openOfficialSearch = () => {
+    if (dateStatus !== "ok") {
+      toast({
+        title: isBn ? "তারিখ ঠিক করুন" : "Fix the date",
+        description: isBn ? "আজ থেকে পরবর্তী ১০ দিনের মধ্যে যাত্রার তারিখ দিন।" : "Pick a journey date within the next 10 days.",
+        variant: "destructive",
+      });
+      return;
+    }
+    window.open(officialSearchUrl(), "_blank", "noopener,noreferrer");
+  };
 
   // Restore subscription from localStorage so refresh keeps the active alert
   useEffect(() => {
@@ -137,43 +223,41 @@ export default function Railway() {
     if (typeof Notification !== "undefined" && Notification.permission === "default") {
       Notification.requestPermission().catch(() => {});
     }
-    // Load any recent existing notifications
-    supabase
-      .from("train_alert_notifications")
-      .select("*")
-      .eq("phone", subscribed.phone)
-      .order("created_at", { ascending: false })
-      .limit(10)
-      .then(({ data }) => { if (data) setLiveAlerts(data); });
-
-    channelRef.current = supabase
-      .channel(`train-alerts-${subscribed.phone}`)
-      .on(
-        "postgres_changes",
-        { event: "INSERT", schema: "public", table: "train_alert_notifications", filter: `phone=eq.${subscribed.phone}` },
-        (payload) => {
-          const n: any = payload.new;
-          setLiveAlerts((prev) => [n, ...prev].slice(0, 20));
+    let lastSeenId: string | null = null;
+    const loadAlerts = async () => {
+      const { data } = await supabase
+        .from("train_alert_notifications")
+        .select("*")
+        .order("created_at", { ascending: false })
+        .limit(10);
+      if (!data) return;
+      setLiveAlerts(data);
+      const newest = data[0];
+      if (newest && lastSeenId && newest.id !== lastSeenId) {
           // Browser notification
           if (typeof Notification !== "undefined" && Notification.permission === "granted") {
             try {
               new Notification(isBn ? "🚆 ট্রেন টিকেট পাওয়া যাচ্ছে!" : "🚆 Train tickets available!", {
-                body: n.message,
+                body: newest.message,
                 icon: "/placeholder.svg",
-                tag: `train-${n.id}`,
+                tag: `train-${newest.id}`,
               });
             } catch { /* ignore */ }
           }
           // Toast fallback
           toast({
             title: isBn ? "🚆 টিকেট পাওয়া যাচ্ছে!" : "🚆 Tickets available!",
-            description: n.message,
+            description: newest.message,
           });
-        }
-      )
-      .subscribe();
+      }
+      if (newest) lastSeenId = newest.id;
+    };
+
+    loadAlerts();
+    const poll = window.setInterval(loadAlerts, 15_000);
 
     return () => {
+      window.clearInterval(poll);
       if (channelRef.current) supabase.removeChannel(channelRef.current);
       channelRef.current = null;
     };
@@ -190,6 +274,14 @@ export default function Railway() {
   };
 
   const handleAlertSubscribe = async () => {
+    if (dateStatus !== "ok") {
+      toast({
+        title: isBn ? "তারিখ ঠিক করুন" : "Fix the date",
+        description: isBn ? "আজ থেকে পরবর্তী ১০ দিনের মধ্যে যাত্রার তারিখ দিন।" : "Pick a journey date within the next 10 days.",
+        variant: "destructive",
+      });
+      return;
+    }
     const normalized = normalizeBdPhone(phone);
     if (!normalized) {
       toast({
@@ -203,11 +295,22 @@ export default function Railway() {
     }
     setSubscribing(true);
     const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+      setSubscribing(false);
+      toast({
+        title: isBn ? "অ্যালার্টের জন্য লগইন করুন" : "Sign in for alerts",
+        description: isBn
+          ? "নিরাপত্তার কারণে SMS/ব্রাউজার টিকেট অ্যালার্ট এখন শুধু লগইন করা ইউজারের জন্য চালু হবে।"
+          : "For privacy and reliable delivery, ticket alerts now require sign-in.",
+        variant: "destructive",
+      });
+      return;
+    }
 
     const { data, error } = await supabase
       .from("train_alert_subscribers")
       .insert({
-        user_id: user?.id ?? null,
+        user_id: user.id,
         name: alertName || null,
         phone: normalized,
         channel: alertChannel,
@@ -296,6 +399,7 @@ export default function Railway() {
                 >
                   {STATIONS.map((s) => <option key={s} value={s}>{s}</option>)}
                 </select>
+                {STATION_NOTES[from] && <p className="mt-1 text-[11px] text-muted-foreground">{STATION_NOTES[from]}</p>}
               </div>
               <div>
                 <Label className="text-xs">{isBn ? "কোথায়" : "To"}</Label>
@@ -309,13 +413,26 @@ export default function Railway() {
               </div>
               <div>
                 <Label className="text-xs">{isBn ? "তারিখ" : "Date"}</Label>
-                <Input type="date" value={date} onChange={(e) => setDate(e.target.value)} />
+                <Input type="date" value={date} min={todayIso} max={maxBookingDate} onChange={(e) => handleDateChange(e.target.value)} />
+                <p className="mt-1 text-[11px] text-muted-foreground">
+                  {isBn ? `আজসহ ${BOOKING_WINDOW_DAYS} দিনের মধ্যে টিকিট খোঁজা যাবে।` : `Tickets are searchable for ${BOOKING_WINDOW_DAYS} days including today.`}
+                </p>
               </div>
               <div className="flex items-end">
                 <Button onClick={handleSearch} className="w-full">
                   <Search className="h-4 w-4 mr-2" />{isBn ? "ট্রেন খুঁজুন" : "Find Trains"}
                 </Button>
               </div>
+            </div>
+            <div className="mt-4 grid gap-2 rounded-md border border-primary/20 bg-primary/5 p-3 text-xs text-muted-foreground sm:grid-cols-[1fr_auto] sm:items-center">
+              <span>
+                {isBn
+                  ? "চূড়ান্ত লগইন, সিট সিলেকশন ও পেমেন্ট সব অফিসিয়াল Bangladesh Railway eTicket সাইটে হবে — এখানে ভুল ৩০ দিনের নিয়ম আর নেই।"
+                  : "Final login, seat selection and payment happen on the official Bangladesh Railway eTicket site — no outdated 30-day rule here."}
+              </span>
+              <Button type="button" variant="outline" size="sm" onClick={openOfficialSearch}>
+                {isBn ? "অফিসিয়াল সার্চ খুলুন" : "Open official search"} <ExternalLink className="ml-1 h-3 w-3" />
+              </Button>
             </div>
           </Card>
 
@@ -329,7 +446,10 @@ export default function Railway() {
               </div>
               {matches.length === 0 && (
                 <Card className="p-8 text-center text-muted-foreground">
-                  {isBn ? "এই রুটে সরাসরি ট্রেন নেই। বিকল্প রুট চেক করুন।" : "No direct train on this route. Check alternative routes."}
+                  <p>{isBn ? "আমাদের সংরক্ষিত তালিকায় এই রুটের সরাসরি ট্রেন নেই।" : "This route is not in our saved quick list."}</p>
+                  <Button type="button" variant="outline" size="sm" className="mt-3" onClick={openOfficialSearch}>
+                    {isBn ? "অফিসিয়াল eTicket-এ লাইভ সার্চ করুন" : "Search live on official eTicket"} <ExternalLink className="ml-1 h-3 w-3" />
+                  </Button>
                 </Card>
               )}
               {matches.map((t) => {
@@ -467,6 +587,7 @@ export default function Railway() {
                     <select value={from} onChange={(e) => setFrom(e.target.value)} className="w-full h-10 rounded-md border border-input bg-background px-3 text-sm">
                       {STATIONS.map((s) => <option key={s} value={s}>{s}</option>)}
                     </select>
+                    {STATION_NOTES[from] && <p className="mt-1 text-[11px] text-muted-foreground">{STATION_NOTES[from]}</p>}
                   </div>
                   <div>
                     <Label>{isBn ? "কোথায়" : "To"}</Label>
@@ -476,7 +597,10 @@ export default function Railway() {
                   </div>
                   <div>
                     <Label>{isBn ? "যাত্রার তারিখ" : "Journey date"}</Label>
-                    <Input type="date" value={date} onChange={(e) => setDate(e.target.value)} />
+                    <Input type="date" value={date} min={todayIso} max={maxBookingDate} onChange={(e) => handleDateChange(e.target.value)} />
+                    <p className="mt-1 text-[11px] text-muted-foreground">
+                      {isBn ? `বর্তমান BR নিয়ম: আজসহ ${BOOKING_WINDOW_DAYS} দিন।` : `Current BR rule: ${BOOKING_WINDOW_DAYS} days including today.`}
+                    </p>
                   </div>
                   <div>
                     <Label>{isBn ? "ট্রেন (ঐচ্ছিক)" : "Train (optional)"}</Label>

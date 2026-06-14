@@ -6,14 +6,13 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import Marquee from "@/components/Marquee";
-import ServiceCard from "@/components/ServiceCard";
-import { services } from "@/data/mockData";
 import { PAGE_BANNERS } from "@/lib/siteImages";
 import DailyWidgets from "@/components/DailyWidgets";
 import { supabase } from "@/integrations/supabase/client";
 
 type DbProduct = { id: string; name: string; name_bn?: string | null; price: number; discount_price?: number | null; image?: string | null; category?: string | null; badge?: string | null; badge_color?: string | null };
 type DbReview = { id: string; reviewer_name: string | null; rating: number; comment: string | null; created_at: string };
+type DbService = { id: string; name: string; name_bn?: string | null; short_description?: string | null; short_description_bn?: string | null; image?: string | null; badge?: string | null; badge_color?: string | null };
 
 const badgeColorMap: Record<string, string> = {
   red: "bg-red-500", green: "bg-green-500", blue: "bg-blue-500",
@@ -22,18 +21,20 @@ const badgeColorMap: Record<string, string> = {
 
 const Home = () => {
   const { t, language } = useLanguage();
-  const featuredServices = services.slice(0, 3);
   const [featured, setFeatured] = useState<DbProduct[]>([]);
   const [reviews, setReviews] = useState<DbReview[]>([]);
+  const [featuredServices, setFeaturedServices] = useState<DbService[]>([]);
 
   useEffect(() => {
     (async () => {
-      const [prodRes, revRes] = await Promise.all([
+      const [prodRes, revRes, svcRes] = await Promise.all([
         supabase.from("shop_products").select("id,name,name_bn,price,discount_price,image,category,badge,badge_color").eq("is_active", true).eq("is_featured", true).order("created_at", { ascending: false }).limit(4),
         supabase.from("product_reviews").select("id,reviewer_name,rating,comment,created_at").eq("is_approved", true).order("created_at", { ascending: false }).limit(4),
+        supabase.from("services_catalog").select("id,name,name_bn,short_description,short_description_bn,image,badge,badge_color").eq("is_active", true).order("display_order", { ascending: true }).limit(3),
       ]);
       setFeatured((prodRes.data as any) || []);
       setReviews((revRes.data as any) || []);
+      setFeaturedServices((svcRes.data as any) || []);
     })();
   }, []);
 
@@ -223,28 +224,53 @@ const Home = () => {
         </section>
       )}
 
-      {/* Featured Services */}
-      <section className="py-12 md:py-20 bg-gradient-to-br from-muted/40 via-background to-muted/40">
-        <div className="container">
-          <div className="flex items-end justify-between mb-8 md:mb-10 gap-4 flex-wrap">
-            <div>
-              <h2 className="text-3xl md:text-5xl font-display font-bold mb-2">
-                <span className="gradient-text">{t("section.services")}</span>
-              </h2>
-              <p className="text-muted-foreground text-base md:text-lg">{t("section.servicesDesc")}</p>
+      {/* Featured Services — only shown when real services exist */}
+      {featuredServices.length > 0 && (
+        <section className="py-12 md:py-20 bg-gradient-to-br from-muted/40 via-background to-muted/40">
+          <div className="container">
+            <div className="flex items-end justify-between mb-8 md:mb-10 gap-4 flex-wrap">
+              <div>
+                <h2 className="text-3xl md:text-5xl font-display font-bold mb-2">
+                  <span className="gradient-text">{t("section.services")}</span>
+                </h2>
+                <p className="text-muted-foreground text-base md:text-lg">{t("section.servicesDesc")}</p>
+              </div>
+              <Link to="/services">
+                <Button variant="outline" size="sm" className="rounded-full">
+                  {t("btn.viewAll")} <ArrowRight className="ml-1 w-4 h-4" />
+                </Button>
+              </Link>
             </div>
-            <Link to="/services">
-              <Button variant="outline" size="sm" className="rounded-full">
-                {t("btn.viewAll")} <ArrowRight className="ml-1 w-4 h-4" />
-              </Button>
-            </Link>
-          </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 md:gap-6">
-            {featuredServices.map((s, i) => <ServiceCard key={s.id} service={s} index={i} />)}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 md:gap-6">
+              {featuredServices.map((s, i) => {
+                const name = language === "bn" && s.name_bn ? s.name_bn : s.name;
+                const desc = language === "bn" && s.short_description_bn ? s.short_description_bn : s.short_description;
+                return (
+                  <motion.div key={s.id} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.05 }}>
+                    <Link to={`/services/${s.id}`}>
+                      <Card className="overflow-hidden h-full hover:shadow-elegant transition-smooth group">
+                        <div className="relative aspect-video bg-muted overflow-hidden">
+                          {s.image && <img src={s.image} alt={name} className="w-full h-full object-cover group-hover:scale-105 transition-smooth" />}
+                          {s.badge && (
+                            <span className={`absolute top-3 left-3 px-3 py-1 rounded-full ${badgeColorMap[s.badge_color || "red"]} text-white text-xs font-bold shadow-lg`}>
+                              {s.badge}
+                            </span>
+                          )}
+                        </div>
+                        <div className="p-5">
+                          <h3 className="font-display font-bold text-lg mb-2 line-clamp-2 group-hover:text-primary transition-smooth">{name}</h3>
+                          {desc && <p className="text-sm text-muted-foreground line-clamp-2">{desc}</p>}
+                        </div>
+                      </Card>
+                    </Link>
+                  </motion.div>
+                );
+              })}
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
+      )}
 
       <Marquee variant="cool" />
 

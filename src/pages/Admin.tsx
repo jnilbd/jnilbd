@@ -45,13 +45,45 @@ const emptyProduct: Product = {
   related_ids: [], addon_ids: [], gallery: [],
 };
 
+type Service = {
+  id?: string;
+  name: string;
+  name_bn?: string;
+  short_description?: string;
+  short_description_bn?: string;
+  full_description?: string;
+  full_description_bn?: string;
+  starting_price: number;
+  category?: string;
+  image?: string;
+  features?: string[];
+  features_bn?: string[];
+  badge?: string;
+  badge_color?: string;
+  delivery_days?: number | null;
+  is_active?: boolean;
+  is_featured?: boolean;
+  display_order?: number;
+};
+
+const emptyService: Service = {
+  name: "", name_bn: "", short_description: "", short_description_bn: "",
+  full_description: "", full_description_bn: "", starting_price: 0,
+  category: "", image: "", features: [], features_bn: [],
+  badge: "", badge_color: "red", delivery_days: null,
+  is_active: true, is_featured: false, display_order: 0,
+};
+
 const Admin = () => {
   const { user, loading } = useAuth();
   const navigate = useNavigate();
   const [isAdmin, setIsAdmin] = useState<boolean | null>(null);
   const [products, setProducts] = useState<Product[]>([]);
   const [orders, setOrders] = useState<any[]>([]);
+  const [services, setServices] = useState<Service[]>([]);
+  const [serviceOrders, setServiceOrders] = useState<any[]>([]);
   const [editing, setEditing] = useState<Product>(emptyProduct);
+  const [editingService, setEditingService] = useState<Service>(emptyService);
   const [settings, setSettings] = useState<any>({
     whatsapp_number: "", sms_number: "", telegram_chat_id: "",
     enable_whatsapp: true, enable_sms: false, enable_telegram: false,
@@ -72,14 +104,40 @@ const Admin = () => {
   }, [isAdmin]);
 
   const loadAll = async () => {
-    const [pRes, oRes, sRes] = await Promise.all([
+    const [pRes, oRes, sRes, svcRes, svcOrdRes] = await Promise.all([
       supabase.from("shop_products").select("*").order("created_at", { ascending: false }),
       supabase.from("shop_orders").select("*").order("created_at", { ascending: false }).limit(100),
       supabase.from("admin_notification_settings").select("*").eq("admin_user_id", user!.id).maybeSingle(),
+      supabase.from("services_catalog").select("*").order("display_order", { ascending: true }),
+      supabase.from("service_orders").select("*").order("created_at", { ascending: false }).limit(100),
     ]);
     setProducts((pRes.data as any) || []);
     setOrders(oRes.data || []);
+    setServices((svcRes.data as any) || []);
+    setServiceOrders(svcOrdRes.data || []);
     if (sRes.data) setSettings(sRes.data);
+  };
+
+  const saveService = async () => {
+    const payload: any = { ...editingService };
+    payload.starting_price = Number(payload.starting_price) || 0;
+    payload.delivery_days = payload.delivery_days ? Number(payload.delivery_days) : null;
+    payload.display_order = Number(payload.display_order) || 0;
+    if (typeof payload.features === "string") payload.features = (payload.features as any).split("\n").map((s: string) => s.trim()).filter(Boolean);
+    if (typeof payload.features_bn === "string") payload.features_bn = (payload.features_bn as any).split("\n").map((s: string) => s.trim()).filter(Boolean);
+    const { error } = editingService.id
+      ? await supabase.from("services_catalog").update(payload).eq("id", editingService.id)
+      : await supabase.from("services_catalog").insert(payload);
+    if (error) { toast.error(error.message); return; }
+    toast.success("Service saved");
+    setEditingService(emptyService);
+    loadAll();
+  };
+
+  const deleteService = async (id: string) => {
+    if (!confirm("Delete this service?")) return;
+    await supabase.from("services_catalog").delete().eq("id", id);
+    loadAll();
   };
 
   const saveProduct = async () => {

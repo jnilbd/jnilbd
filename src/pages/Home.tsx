@@ -1,20 +1,41 @@
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { ArrowRight, Sparkles, ShoppingBag, Briefcase, FolderKanban, BookOpen, Tag, Home as HomeIcon, Star, Facebook, Instagram, MessageCircle, Youtube, Linkedin, CalendarClock, Wallet, Image as ImageIcon, Mic, Compass, FileType, Tv, Download, Clock, Map, Ruler, HeartPulse, Sun, Lock, Receipt, Scale, Percent, CloudRain, Smartphone, Wifi, Send, Film } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
 import Marquee from "@/components/Marquee";
-import ProductCard from "@/components/ProductCard";
 import ServiceCard from "@/components/ServiceCard";
-import { products, services, reviews } from "@/data/mockData";
-import { displayImage, fallbackImageHandler, PAGE_BANNERS } from "@/lib/siteImages";
+import { services } from "@/data/mockData";
+import { PAGE_BANNERS } from "@/lib/siteImages";
 import DailyWidgets from "@/components/DailyWidgets";
+import { supabase } from "@/integrations/supabase/client";
 
+type DbProduct = { id: string; name: string; name_bn?: string | null; price: number; discount_price?: number | null; image?: string | null; category?: string | null; badge?: string | null; badge_color?: string | null };
+type DbReview = { id: string; reviewer_name: string | null; rating: number; comment: string | null; created_at: string };
+
+const badgeColorMap: Record<string, string> = {
+  red: "bg-red-500", green: "bg-green-500", blue: "bg-blue-500",
+  orange: "bg-orange-500", purple: "bg-purple-500", pink: "bg-pink-500",
+};
 
 const Home = () => {
   const { t, language } = useLanguage();
-  const featured = products.filter((p) => p.featured).slice(0, 4);
   const featuredServices = services.slice(0, 3);
+  const [featured, setFeatured] = useState<DbProduct[]>([]);
+  const [reviews, setReviews] = useState<DbReview[]>([]);
+
+  useEffect(() => {
+    (async () => {
+      const [prodRes, revRes] = await Promise.all([
+        supabase.from("shop_products").select("id,name,name_bn,price,discount_price,image,category,badge,badge_color").eq("is_active", true).eq("is_featured", true).order("created_at", { ascending: false }).limit(4),
+        supabase.from("product_reviews").select("id,reviewer_name,rating,comment,created_at").eq("is_approved", true).order("created_at", { ascending: false }).limit(4),
+      ]);
+      setFeatured((prodRes.data as any) || []);
+      setReviews((revRes.data as any) || []);
+    })();
+  }, []);
 
   const sectionCards = [
     // Sensitive / spiritual first
@@ -153,26 +174,54 @@ const Home = () => {
 
       <Marquee variant="warm" />
 
-      {/* Featured Products */}
-      <section className="py-12 md:py-20 container">
-        <div className="flex items-end justify-between mb-8 md:mb-10 gap-4 flex-wrap">
-          <div>
-            <h2 className="text-3xl md:text-5xl font-display font-bold mb-2">
-              <span className="gradient-text">{t("section.featured")}</span>
-            </h2>
-            <p className="text-muted-foreground text-base md:text-lg">{t("section.featuredDesc")}</p>
+      {/* Featured Products — only shown when real products exist */}
+      {featured.length > 0 && (
+        <section className="py-12 md:py-20 container">
+          <div className="flex items-end justify-between mb-8 md:mb-10 gap-4 flex-wrap">
+            <div>
+              <h2 className="text-3xl md:text-5xl font-display font-bold mb-2">
+                <span className="gradient-text">{t("section.featured")}</span>
+              </h2>
+              <p className="text-muted-foreground text-base md:text-lg">{t("section.featuredDesc")}</p>
+            </div>
+            <Link to="/shop">
+              <Button variant="outline" size="sm" className="rounded-full">
+                {t("btn.viewAll")} <ArrowRight className="ml-1 w-4 h-4" />
+              </Button>
+            </Link>
           </div>
-          <Link to="/shop">
-            <Button variant="outline" size="sm" className="rounded-full">
-              {t("btn.viewAll")} <ArrowRight className="ml-1 w-4 h-4" />
-            </Button>
-          </Link>
-        </div>
 
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
-          {featured.map((p, i) => <ProductCard key={p.id} product={p} index={i} />)}
-        </div>
-      </section>
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
+            {featured.map((p, i) => {
+              const name = language === "bn" && p.name_bn ? p.name_bn : p.name;
+              const finalPrice = p.discount_price || p.price;
+              return (
+                <motion.div key={p.id} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.05 }}>
+                  <Link to={`/shop/${p.id}`}>
+                    <Card className="overflow-hidden h-full hover:shadow-elegant transition-smooth group">
+                      <div className="relative aspect-square bg-muted overflow-hidden">
+                        {p.image && <img src={p.image} alt={name} className="w-full h-full object-cover group-hover:scale-105 transition-smooth" />}
+                        {p.badge && (
+                          <span className={`absolute top-3 left-3 px-3 py-1 rounded-full ${badgeColorMap[p.badge_color || "red"]} text-white text-xs font-bold shadow-lg`}>
+                            {p.badge}
+                          </span>
+                        )}
+                      </div>
+                      <div className="p-4">
+                        <h3 className="font-display font-bold text-base line-clamp-2 mb-2 group-hover:text-primary transition-smooth">{name}</h3>
+                        <div className="flex items-baseline gap-2">
+                          <span className="text-lg font-bold gradient-text">৳{finalPrice.toLocaleString()}</span>
+                          {p.discount_price && <span className="text-sm text-muted-foreground line-through">৳{p.price.toLocaleString()}</span>}
+                        </div>
+                      </div>
+                    </Card>
+                  </Link>
+                </motion.div>
+              );
+            })}
+          </div>
+        </section>
+      )}
 
       {/* Featured Services */}
       <section className="py-12 md:py-20 bg-gradient-to-br from-muted/40 via-background to-muted/40">
@@ -199,46 +248,45 @@ const Home = () => {
 
       <Marquee variant="cool" />
 
-      {/* Reviews */}
-      <section className="py-12 md:py-20 container">
-        <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="text-center mb-8 md:mb-12 max-w-2xl mx-auto">
-          <h2 className="text-3xl md:text-5xl font-display font-bold mb-3">
-            <span className="gradient-text">{t("section.reviews")}</span>
-          </h2>
-          <p className="text-muted-foreground text-base md:text-lg">{t("section.reviewsDesc")}</p>
-        </motion.div>
+      {/* Reviews — only shown when approved reviews exist */}
+      {reviews.length > 0 && (
+        <section className="py-12 md:py-20 container">
+          <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="text-center mb-8 md:mb-12 max-w-2xl mx-auto">
+            <h2 className="text-3xl md:text-5xl font-display font-bold mb-3">
+              <span className="gradient-text">{t("section.reviews")}</span>
+            </h2>
+            <p className="text-muted-foreground text-base md:text-lg">{t("section.reviewsDesc")}</p>
+          </motion.div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
-          {reviews.map((r, i) => {
-            const SourceIcon = r.source === "facebook" ? Facebook : r.source === "instagram" ? Instagram : MessageCircle;
-            return (
-              <motion.div
-                key={r.id}
-                initial={{ opacity: 0, y: 30 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: i * 0.08 }}
-                whileHover={{ y: -6 }}
-                className="bg-card p-5 md:p-6 rounded-2xl shadow-card border border-border/50 h-full flex flex-col"
-              >
-                <div className="flex gap-1 mb-3">
-                  {Array.from({ length: r.rating }).map((_, j) => (
-                    <Star key={j} className="w-4 h-4 fill-yellow-400 text-yellow-400" />
-                  ))}
-                </div>
-                <p className="text-sm text-foreground/80 mb-4 leading-relaxed line-clamp-4 flex-1">"{language === "bn" ? r.textBn : r.text}"</p>
-                <div className="flex items-center justify-between pt-4 border-t border-border/50 mt-auto">
-                  <div className="flex items-center gap-2 min-w-0">
-                    <img src={displayImage(r.avatar, r.id, r.name, "Review")} alt={r.name} onError={fallbackImageHandler(r.id, r.name, "Review")} className="w-9 h-9 rounded-full object-cover flex-shrink-0" />
-                    <span className="font-semibold text-sm truncate">{r.name}</span>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
+            {reviews.map((r, i) => {
+              const reviewerName = r.reviewer_name || (language === "bn" ? "ক্রেতা" : "Customer");
+              return (
+                <motion.div
+                  key={r.id}
+                  initial={{ opacity: 0, y: 30 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: i * 0.08 }}
+                  whileHover={{ y: -6 }}
+                  className="bg-card p-5 md:p-6 rounded-2xl shadow-card border border-border/50 h-full flex flex-col"
+                >
+                  <div className="flex gap-1 mb-3">
+                    {Array.from({ length: r.rating }).map((_, j) => (
+                      <Star key={j} className="w-4 h-4 fill-yellow-400 text-yellow-400" />
+                    ))}
                   </div>
-                  <SourceIcon className="w-4 h-4 text-muted-foreground flex-shrink-0" />
-                </div>
-              </motion.div>
-            );
-          })}
-        </div>
-      </section>
+                  <p className="text-sm text-foreground/80 mb-4 leading-relaxed line-clamp-4 flex-1">"{r.comment}"</p>
+                  <div className="flex items-center justify-between pt-4 border-t border-border/50 mt-auto">
+                    <span className="font-semibold text-sm truncate">{reviewerName}</span>
+                    <MessageCircle className="w-4 h-4 text-muted-foreground flex-shrink-0" />
+                  </div>
+                </motion.div>
+              );
+            })}
+          </div>
+        </section>
+      )}
 
       {/* Social section */}
       <section className="py-12 md:py-20 bg-gradient-to-br from-primary/5 via-secondary/5 to-accent/5">

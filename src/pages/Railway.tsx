@@ -102,6 +102,11 @@ const OFFICIAL_BR_CHANNELS = [
 
 const todayDay = () => new Date().toLocaleDateString("en-US", { weekday: "long" });
 
+const formatOfficialDate = (isoDate: string) => {
+  const d = new Date(`${isoDate}T00:00:00`);
+  return d.toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" }).replace(/ /g, "-");
+};
+
 export default function Railway() {
   const { language } = useLanguage();
   const isBn = language === "bn";
@@ -127,19 +132,17 @@ export default function Railway() {
   const [searchedPair, setSearchedPair] = useState<{ from: string; to: string } | null>(null);
   const channelRef = useRef<ReturnType<typeof supabase.channel> | null>(null);
 
-  const relatedFromStations = useMemo(() => {
-    if (!DHAKA_AREA_STATIONS.has(from)) return [from];
-    return ["Dhaka (Kamalapur)", "Dhaka (Bimanbandar)"];
-  }, [from]);
-
   const matches = useMemo(() => {
     if (!searchedPair) return [];
+    const origins = DHAKA_AREA_STATIONS.has(searchedPair.from)
+      ? ["Dhaka (Kamalapur)", "Dhaka (Bimanbandar)"]
+      : [searchedPair.from];
     return TRAINS.filter(
       (t) =>
-        relatedFromStations.some((s) => t.from.toLowerCase().includes(s.toLowerCase())) &&
+        origins.some((s) => t.from.toLowerCase().includes(s.toLowerCase())) &&
         t.to.toLowerCase().includes(searchedPair.to.toLowerCase())
     );
-  }, [searchedPair, relatedFromStations]);
+  }, [searchedPair]);
 
   const today = todayDay();
 

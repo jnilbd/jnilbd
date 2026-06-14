@@ -132,6 +132,14 @@
     letter-spacing: 0 !important;
     text-rendering: optimizeLegibility;
   }
+
+  html:lang(bn) body :where(.leading-none) {
+    line-height: 1.25 !important;
+  }
+
+  html:lang(bn) body :where(.leading-tight, .leading-snug) {
+    line-height: 1.4 !important;
+  }
 }
 
 @layer utilities {

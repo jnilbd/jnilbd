@@ -1,22 +1,40 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import { Search } from "lucide-react";
-import { products } from "@/data/mockData";
+import { Link } from "react-router-dom";
+import { Search, ShoppingBag } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
-import ProductCard from "@/components/ProductCard";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+
+type Product = {
+  id: string; name: string; name_bn?: string; short_description?: string; short_description_bn?: string;
+  price: number; discount_price?: number; image?: string; category?: string; badge?: string; badge_color?: string;
+};
+
+const badgeColorMap: Record<string, string> = {
+  red: "bg-red-500", green: "bg-green-500", blue: "bg-blue-500",
+  orange: "bg-orange-500", purple: "bg-purple-500", pink: "bg-pink-500",
+};
 
 const Shop = () => {
   const { t, language } = useLanguage();
-  const [filter, setFilter] = useState<"all" | "digital" | "physical">("all");
   const [search, setSearch] = useState("");
+  const [products, setProducts] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    (async () => {
+      const { data } = await supabase.from("shop_products").select("*").eq("is_active", true).order("created_at", { ascending: false });
+      setProducts((data as any) || []);
+      setLoading(false);
+    })();
+  }, []);
 
   const filtered = products.filter((p) => {
-    const matchCat = filter === "all" || p.category === filter;
     const q = search.toLowerCase();
-    const matchSearch = !q || p.name.toLowerCase().includes(q) || p.nameBn.includes(search);
-    return matchCat && matchSearch;
+    return !q || p.name.toLowerCase().includes(q) || (p.name_bn || "").includes(search);
   });
 
   return (
@@ -27,40 +45,72 @@ const Shop = () => {
           <motion.h1 initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="text-5xl md:text-6xl font-display font-bold mb-3">
             {t("nav.shop")}
           </motion.h1>
-          <p className="text-xl text-white/90">{language === "bn" ? "ডিজিটাল ও ফিজিক্যাল প্রোডাক্টস" : "Digital & Physical Products"}</p>
+          <p className="text-xl text-white/90">{language === "bn" ? "আমাদের প্রিমিয়াম প্রোডাক্ট সংগ্রহ" : "Our Premium Product Collection"}</p>
         </div>
       </section>
 
       <section className="container py-12">
-        <div className="flex flex-col md:flex-row gap-4 mb-10">
-          <div className="relative flex-1">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
-            <Input
-              placeholder={t("common.search")}
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              className="pl-12 h-12 rounded-full"
-            />
-          </div>
-          <div className="flex gap-2">
-            {(["all", "digital", "physical"] as const).map((cat) => (
-              <Button
-                key={cat}
-                onClick={() => setFilter(cat)}
-                variant={filter === cat ? "default" : "outline"}
-                className={`rounded-full ${filter === cat ? "gradient-bg-primary text-white border-0" : ""}`}
-              >
-                {cat === "all" ? (language === "bn" ? "সব" : "All") : cat === "digital" ? (language === "bn" ? "ডিজিটাল" : "Digital") : (language === "bn" ? "ফিজিক্যাল" : "Physical")}
-              </Button>
-            ))}
-          </div>
+        <div className="relative max-w-xl mx-auto mb-10">
+          <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+          <Input
+            placeholder={t("common.search")}
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="pl-12 h-12 rounded-full"
+          />
         </div>
 
-        {filtered.length === 0 ? (
-          <p className="text-center text-muted-foreground py-20">{t("common.empty")}</p>
+        {loading ? (
+          <p className="text-center text-muted-foreground py-20">Loading...</p>
+        ) : filtered.length === 0 ? (
+          <div className="text-center py-20 space-y-3">
+            <ShoppingBag className="w-16 h-16 text-muted-foreground mx-auto" />
+            <p className="text-xl text-muted-foreground">
+              {language === "bn" ? "এখনো কোনো প্রোডাক্ট যোগ করা হয়নি" : "No products yet"}
+            </p>
+            <p className="text-sm text-muted-foreground">
+              {language === "bn" ? "শীঘ্রই আসছে — অপেক্ষা করুন!" : "Coming soon — stay tuned!"}
+            </p>
+          </div>
         ) : (
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-            {filtered.map((p, i) => <ProductCard key={p.id} product={p} index={i} />)}
+            {filtered.map((p, i) => {
+              const name = language === "bn" && p.name_bn ? p.name_bn : p.name;
+              const desc = language === "bn" && p.short_description_bn ? p.short_description_bn : p.short_description;
+              const finalPrice = p.discount_price || p.price;
+              return (
+                <motion.div key={p.id} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05 }}>
+                  <Link to={`/shop/${p.id}`}>
+                    <Card className="overflow-hidden h-full hover:shadow-elegant transition-smooth group">
+                      <div className="relative aspect-square bg-muted overflow-hidden">
+                        {p.image && <img src={p.image} alt={name} className="w-full h-full object-cover group-hover:scale-105 transition-smooth" />}
+                        {p.badge && (
+                          <span className={`absolute top-3 left-3 px-3 py-1 rounded-full ${badgeColorMap[p.badge_color || "red"]} text-white text-xs font-bold shadow-lg`}>
+                            {p.badge}
+                          </span>
+                        )}
+                        {p.discount_price && p.discount_price < p.price && (
+                          <span className="absolute top-3 right-3 px-2 py-1 rounded-full bg-yellow-400 text-black text-xs font-bold">
+                            -{Math.round((1 - p.discount_price / p.price) * 100)}%
+                          </span>
+                        )}
+                      </div>
+                      <div className="p-4">
+                        {p.category && <p className="text-xs text-muted-foreground mb-1">{p.category}</p>}
+                        <h3 className="font-display font-bold mb-1 line-clamp-1">{name}</h3>
+                        {desc && <p className="text-xs text-muted-foreground mb-2 line-clamp-2">{desc}</p>}
+                        <div className="flex items-baseline gap-2">
+                          <span className="text-lg font-bold gradient-text">৳{finalPrice.toLocaleString()}</span>
+                          {p.discount_price && p.discount_price < p.price && (
+                            <span className="text-xs text-muted-foreground line-through">৳{p.price.toLocaleString()}</span>
+                          )}
+                        </div>
+                      </div>
+                    </Card>
+                  </Link>
+                </motion.div>
+              );
+            })}
           </div>
         )}
       </section>

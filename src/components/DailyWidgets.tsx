@@ -104,105 +104,105 @@ export default function DailyWidgets() {
   const bnWeekday = BN_WEEKDAYS[now.getDay()];
 
   return (
-    <section className="container py-6 md:py-8">
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-3 md:gap-4">
-        {/* Occasion / Quote */}
-        <AnimatePresence mode="wait">
-          <motion.div
-            key={occasion?.title ?? "quote"}
-            initial={{ opacity: 0, y: 12 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.45 }}
-            className={`relative overflow-hidden rounded-2xl p-4 md:p-5 text-white shadow-elegant ${
-              occasion ? `bg-gradient-to-br ${occasion.gradient}` : "bg-gradient-to-br from-slate-700 via-slate-800 to-slate-900"
-            }`}
-          >
-            <div className="absolute -top-6 -right-6 w-24 h-24 rounded-full bg-white/10" />
-            <div className="absolute -bottom-8 -left-8 w-32 h-32 rounded-full bg-white/5" />
-            {occasion ? (
-              <div className="relative">
-                <div className="text-3xl md:text-4xl mb-1">{occasion.emoji}</div>
-                <h3 className="text-lg md:text-xl font-bold leading-tight">{occasion.title}</h3>
-                <p className="text-xs md:text-sm text-white/90 mt-1 leading-relaxed">{occasion.subtitle}</p>
-              </div>
-            ) : (
-              <div className="relative">
-                <Quote className="w-6 h-6 mb-2 text-white/70" />
-                <p className="text-sm md:text-base font-medium leading-relaxed">"{QUOTES[quoteIdx].t}"</p>
-                <p className="text-xs text-white/70 mt-2">{QUOTES[quoteIdx].a}</p>
-              </div>
-            )}
-            <Sparkles className="absolute top-3 right-3 w-4 h-4 text-white/60" />
-          </motion.div>
-        </AnimatePresence>
+    <section className="container py-6 md:py-10">
+      <motion.div
+        initial={{ opacity: 0, y: 16 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true }}
+        transition={{ duration: 0.5 }}
+        className="relative overflow-hidden rounded-3xl border border-border/60 bg-gradient-to-br from-primary/95 via-primary to-primary/85 shadow-elegant"
+      >
+        {/* Decorative orbs */}
+        <div className="absolute -top-24 -right-24 w-72 h-72 rounded-full bg-secondary/20 blur-3xl pointer-events-none" />
+        <div className="absolute -bottom-20 -left-20 w-64 h-64 rounded-full bg-white/10 blur-3xl pointer-events-none" />
+        <div className="absolute inset-0 opacity-[0.05] bg-[linear-gradient(to_right,white_1px,transparent_1px),linear-gradient(to_bottom,white_1px,transparent_1px)] bg-[size:40px_40px] pointer-events-none" />
 
-        {/* Tri-Calendar */}
-        <motion.div
-          initial={{ opacity: 0, y: 12 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.45, delay: 0.05 }}
-          className="rounded-2xl p-4 md:p-5 bg-card border border-border/60 shadow-card"
-        >
-          <div className="flex items-center gap-2 text-muted-foreground text-xs mb-3">
-            <Calendar className="w-4 h-4" />
-            <span>আজকের তারিখ</span>
-          </div>
-          <div className="space-y-2.5">
-            <div>
-              <div className="text-[10px] uppercase tracking-wider text-muted-foreground">বাংলা</div>
-              <div className="font-display font-bold text-base md:text-lg leading-tight">
-                {toBn(bn.day)} {bn.month} {toBn(bn.year)}
-              </div>
-              <div className="text-xs text-muted-foreground">{bnWeekday}</div>
-            </div>
-            <div className="h-px bg-border/60" />
-            <div>
-              <div className="text-[10px] uppercase tracking-wider text-muted-foreground">English</div>
-              <div className="font-semibold text-sm md:text-base">{engDate}</div>
-            </div>
-            <div className="h-px bg-border/60" />
-            <div>
-              <div className="text-[10px] uppercase tracking-wider text-muted-foreground">হিজরি</div>
-              <div className="font-semibold text-sm md:text-base text-right" dir="rtl">{hijri}</div>
-            </div>
-          </div>
-        </motion.div>
-
-        {/* Weather */}
-        <Link to="/weather">
-          <motion.div
-            initial={{ opacity: 0, y: 12 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.45, delay: 0.1 }}
-            whileHover={{ y: -4 }}
-            className="relative overflow-hidden rounded-2xl p-4 md:p-5 text-white shadow-elegant bg-gradient-to-br from-sky-500 via-blue-500 to-indigo-600 h-full block cursor-pointer"
-          >
-            <div className="absolute -top-8 -right-8 w-32 h-32 rounded-full bg-white/10" />
-            <div className="flex items-center gap-2 text-white/80 text-xs mb-3 relative">
-              <CloudSun className="w-4 h-4" />
+        <div className="relative grid grid-cols-1 lg:grid-cols-[1.1fr_1.4fr_1fr] divide-y lg:divide-y-0 lg:divide-x divide-white/15">
+          {/* Weather */}
+          <Link to="/weather" className="group p-5 md:p-6 hover:bg-white/5 transition-colors">
+            <div className="flex items-center gap-2 text-white/70 text-[10px] font-bold uppercase tracking-[0.18em] mb-3">
+              <CloudSun className="w-3.5 h-3.5 text-secondary" />
               <span>বর্তমান আবহাওয়া</span>
             </div>
             {weather ? (
-              <div className="relative">
-                <div className="flex items-baseline gap-2">
-                  <span className="text-5xl md:text-6xl font-display font-bold">{toBn(weather.temp)}°</span>
-                  <span className="text-2xl">{WMO[weather.code]?.icon ?? "🌡️"}</span>
+              <>
+                <div className="flex items-end gap-3">
+                  <span className="text-6xl md:text-7xl font-display font-bold text-white leading-none tabular-nums">
+                    {toBn(weather.temp)}°
+                  </span>
+                  <span className="text-4xl mb-1">{WMO[weather.code]?.icon ?? "🌡️"}</span>
                 </div>
-                <div className="text-sm md:text-base font-medium mt-1">{WMO[weather.code]?.bn ?? "—"}</div>
-                <div className="flex items-center gap-1 text-xs text-white/80 mt-2">
-                  <MapPin className="w-3 h-3" /> {weather.city} • বিস্তারিত দেখুন →
+                <div className="mt-2 text-sm font-semibold text-white/95">{WMO[weather.code]?.bn ?? "—"}</div>
+                <div className="mt-3 flex items-center gap-1.5 text-xs text-white/70 group-hover:text-secondary transition-colors">
+                  <MapPin className="w-3 h-3" /> {weather.city} <span className="opacity-50">•</span>
+                  <span className="font-medium">বিস্তারিত →</span>
                 </div>
-              </div>
+              </>
             ) : (
-              <div className="relative">
-                <div className="text-4xl">⛅</div>
-                <div className="text-sm mt-2 text-white/80">লোড হচ্ছে...</div>
-              </div>
+              <div className="text-4xl text-white/70">⛅</div>
             )}
-          </motion.div>
-        </Link>
-      </div>
+          </Link>
+
+          {/* Tri-Calendar */}
+          <div className="p-5 md:p-6">
+            <div className="flex items-center gap-2 text-white/70 text-[10px] font-bold uppercase tracking-[0.18em] mb-3">
+              <Calendar className="w-3.5 h-3.5 text-secondary" />
+              <span>আজকের তারিখ</span>
+            </div>
+            <div className="grid grid-cols-3 gap-2.5">
+              <div className="rounded-xl bg-white/10 backdrop-blur-md border border-white/15 p-3">
+                <div className="text-[9px] uppercase tracking-wider text-secondary font-bold mb-1">বাংলা</div>
+                <div className="font-display font-bold text-white text-sm leading-tight">{toBn(bn.day)} {bn.month}</div>
+                <div className="text-[10px] text-white/70 mt-0.5">{toBn(bn.year)} • {bnWeekday}</div>
+              </div>
+              <div className="rounded-xl bg-white/10 backdrop-blur-md border border-white/15 p-3">
+                <div className="text-[9px] uppercase tracking-wider text-secondary font-bold mb-1">English</div>
+                <div className="font-semibold text-white text-sm leading-tight">
+                  {now.toLocaleDateString("en-GB", { day: "numeric", month: "short" })}
+                </div>
+                <div className="text-[10px] text-white/70 mt-0.5">
+                  {now.toLocaleDateString("en-GB", { year: "numeric", weekday: "long" })}
+                </div>
+              </div>
+              <div className="rounded-xl bg-white/10 backdrop-blur-md border border-white/15 p-3">
+                <div className="text-[9px] uppercase tracking-wider text-secondary font-bold mb-1">হিজরি</div>
+                <div className="font-semibold text-white text-sm leading-tight text-right" dir="rtl">{hijri}</div>
+              </div>
+            </div>
+          </div>
+
+          {/* Occasion / Quote */}
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={occasion?.title ?? "quote"}
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.4 }}
+              className="p-5 md:p-6 relative"
+            >
+              <div className="flex items-center gap-2 text-white/70 text-[10px] font-bold uppercase tracking-[0.18em] mb-3">
+                <Sparkles className="w-3.5 h-3.5 text-secondary" />
+                <span>{occasion ? "আজকের বিশেষ" : "আজকের অনুপ্রেরণা"}</span>
+              </div>
+              {occasion ? (
+                <div>
+                  <div className="text-3xl mb-1.5">{occasion.emoji}</div>
+                  <h3 className="text-base font-display font-bold text-white leading-tight">{occasion.title}</h3>
+                  <p className="text-xs text-white/80 mt-1 leading-relaxed line-clamp-2">{occasion.subtitle}</p>
+                </div>
+              ) : (
+                <div>
+                  <Quote className="w-5 h-5 text-secondary/80 mb-2" />
+                  <p className="text-sm font-medium text-white leading-snug line-clamp-3">"{QUOTES[quoteIdx].t}"</p>
+                  <p className="text-[11px] text-white/60 mt-2">{QUOTES[quoteIdx].a}</p>
+                </div>
+              )}
+            </motion.div>
+          </AnimatePresence>
+        </div>
+      </motion.div>
     </section>
   );
 }
+

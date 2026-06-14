@@ -5,7 +5,7 @@ Deno.serve(async (req) => {
 
   try {
     const body = await req.json();
-    const { mode, from, to, destination, language } = body;
+    const { mode, from, to, destination, country, visaType, sector, sendFrom, sendTo, language } = body;
     const lang = language === "bn" ? "Bangla (বাংলা)" : "English";
     const today = new Date().toISOString().slice(0, 10);
 
@@ -142,6 +142,114 @@ Columns: Item | Price (৳) | Notes.
 Then 3 bullets: cheapest combo total, comfortable combo total, luxury combo total — each with **৳ amount** for 3 days/2 nights per person.
 
 End with: "${language === "bn" ? "*আজকের তারিখ অনুযায়ী আনুমানিক।*" : "*Approximate as of today.*"}"`;
+    } else if (mode === "abroad") {
+      if (!country) {
+        return new Response(JSON.stringify({ error: "country required" }), {
+          status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+      const vt = visaType || "any";
+      const sc = sector || "any";
+      userPrompt = `A Bangladeshi person wants to go to **${country}** on **${vt} visa**${sc !== "any" ? `, sector: ${sc}` : ""}.
+Provide a complete, current, structured guide with EXACTLY these sections separated by \`---\`:
+
+## 🛂 ${language === "bn" ? "ভিসার ধরন ও যোগ্যতা" : "Visa Type & Eligibility"}
+- Which visa categories apply (student/work/business/family/skilled migration).
+- Eligibility: age, education, IELTS/language, experience, funds.
+- Application steps in order.
+
+---
+
+## 📞 ${language === "bn" ? "কোথায় যোগাযোগ করবেন (নিরাপদ চ্যানেল)" : "Where to Apply (Safe Channels)"}
+Markdown table: Channel | What it does | Cost (৳) | Risk level.
+Include BMET, BOESL, embassy, government-licensed RA agencies, university DSW offices, official scholarship portals. Warn against unverified middlemen ("দালাল").
+
+---
+
+## 💰 ${language === "bn" ? "মোট খরচ ভাঙানো" : "Cost Breakdown"}
+Markdown table: Item | Cost (৳) | Notes.
+Rows: visa fee, agency/processing, medical, police clearance, IELTS/language test, ticket, first-month rent, food, total upfront, hidden costs.
+
+---
+
+## 💵 ${language === "bn" ? "আয় ও কর্মক্ষেত্র" : "Earnings & Job Market"}
+Markdown table: Job/Sector | Monthly salary (BDT equivalent) | Working hours/week | Typical contract length | Skill required.
+Add a "realistic first-year savings" line in **bold**.
+
+---
+
+## 🔥 ${language === "bn" ? "পরিশ্রম ও চ্যালেঞ্জ" : "Hard Work & Challenges"}
+Bullets: physical workload, weather, language barrier, homesickness, contract abuse, kafala system if applicable, racism, accommodation crowding, food halal availability.
+
+---
+
+## 📅 ${language === "bn" ? "কত দিনে কত টাকা — টাইমলাইন" : "Timeline: How Much in How Long"}
+Markdown table: Period | Realistic net savings (৳) | Notes.
+Rows: 0-3 months, 3-6 months, 6-12 months, 1-2 years, 2-5 years.
+
+---
+
+## ⚠️ ${language === "bn" ? "সাধারণ ভুল ও প্রতারণা" : "Common Mistakes & Scams"}
+Numbered list: fake job offers, "ভিজিট ভিসায় গিয়ে কাজ", forged demand letters, overpaying middlemen, signing contracts without reading, surrendering passport, "ফ্রি ভিসা" trap.
+
+---
+
+## 🚫 ${language === "bn" ? "অবৈধ পথে যাওয়ার ভয়াবহতা" : "Dangers of Illegal Migration"}
+Strong, plain language about: Mediterranean boat deaths, Libya/Tunisia detention, human trafficking, jail/deportation, family losing land & money, lifetime ban. Use **bold** for life-threatening risks. End with: "${language === "bn" ? "অবৈধ পথে কখনো নয় — শুধু সরকার-অনুমোদিত চ্যানেল।" : "Never go illegally — only government-approved channels."}"
+
+---
+
+## ✅ ${language === "bn" ? "করণীয় চেকলিস্ট" : "Action Checklist"}
+Numbered checklist a person should follow today to safely start the process.
+
+End with: "${language === "bn" ? "*সব তথ্য আনুমানিক — দূতাবাস ও BMET ওয়েবসাইট থেকে চূড়ান্ত যাচাই করুন।*" : "*All info indicative — verify with embassy & BMET before acting.*"}"`;
+    } else if (mode === "remittance") {
+      const sf = sendFrom || "any country";
+      const st = sendTo || "Bangladesh";
+      userPrompt = `Guide for sending money: **${sf} → ${st}**.
+Provide current, practical information with EXACTLY these sections separated by \`---\`:
+
+## 🏦 ${language === "bn" ? "টাকা পাঠানোর সেরা মাধ্যম" : "Best Remittance Channels"}
+Markdown table: Service | Type | Fee | Exchange rate | Speed | Govt 2.5% incentive eligible?
+Include: bKash Remittance, Nagad Remittance, Rocket, Wise, Western Union, MoneyGram, RIA, Taptap Send, Remitly, Sonali Bank, Islami Bank, Agrani, Janata, NRB Bank, City Bank.
+
+---
+
+## 🎁 ${language === "bn" ? "সরকারি ২.৫% প্রণোদনা" : "Govt 2.5% Incentive"}
+- Who qualifies, how to claim, which channels auto-credit it.
+- Documents needed.
+
+---
+
+## 📲 ${language === "bn" ? "মোবাইলে টাকা পাঠানো (সবচেয়ে দ্রুত)" : "Mobile Money (Fastest)"}
+Numbered steps for bKash/Nagad remittance: setup, sender side, receiver side, limits per day/month.
+
+---
+
+## 💱 ${language === "bn" ? "সর্বনিম্ন খরচে পাঠানোর কৌশল" : "Cheapest Way Tips"}
+- Compare hundi vs legal — explain why legal is safer and now competitive.
+- Best timing, batching, currency tips.
+- Why hundi is illegal & risky (no incentive, account freeze, no proof).
+
+---
+
+## 📞 ${language === "bn" ? "পরস্পরের সাথে যোগাযোগ" : "Staying in Touch"}
+Bullets: WhatsApp, IMO, Messenger, Viber free calling tips; cheap international SIM/eSIM (Airalo, Holafly); local calling cards; video call etiquette; sending documents via email/Google Drive.
+
+---
+
+## 🆘 ${language === "bn" ? "জরুরি যোগাযোগ" : "Emergency Contacts"}
+- BD embassy/high commission in ${sf}.
+- Probashi Kallyan helpline 16135.
+- BMET, Wage Earners' Welfare Board.
+- What to do if salary unpaid, passport seized, or arrested.
+
+---
+
+## ⚠️ ${language === "bn" ? "প্রতারণা থেকে বাঁচুন" : "Avoid Scams"}
+Bullets: fake remittance SMS, OTP phishing, "double your money" hundi agents, fake exchange rate apps.
+
+End with: "${language === "bn" ? "*রেট ও ফি প্রতিদিন বদলায় — পাঠানোর আগে অ্যাপে যাচাই করুন।*" : "*Rates & fees change daily — verify in-app before sending.*"}"`;
     } else {
       return new Response(JSON.stringify({ error: "invalid mode" }), {
         status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" },

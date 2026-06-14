@@ -64,7 +64,7 @@ const Navbar = () => {
             </span>
             <span className="hidden xl:inline-block w-px h-3.5 bg-primary-foreground/25" />
             <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-secondary/15 border border-secondary/30 text-secondary text-[10px] font-bold tracking-[0.18em]">
-              <ShieldCheck className="w-3 h-3" /> EST. 2018
+              <ShieldCheck className="w-3 h-3" /> EST. 2014
             </span>
           </div>
         </div>

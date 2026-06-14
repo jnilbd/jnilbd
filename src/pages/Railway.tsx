@@ -106,10 +106,16 @@ export default function Railway() {
   const { language } = useLanguage();
   const isBn = language === "bn";
   const { toast } = useToast();
+  const todayIso = new Date().toISOString().slice(0, 10);
+  const maxBookingDate = useMemo(() => {
+    const d = new Date();
+    d.setDate(d.getDate() + BOOKING_WINDOW_DAYS - 1);
+    return d.toISOString().slice(0, 10);
+  }, []);
 
   const [from, setFrom] = useState("Dhaka (Kamalapur)");
   const [to, setTo] = useState("Chattogram");
-  const [date, setDate] = useState(new Date().toISOString().slice(0, 10));
+  const [date, setDate] = useState(todayIso);
   const [phone, setPhone] = useState("");
   const [alertName, setAlertName] = useState("");
   const [alertChannel, setAlertChannel] = useState<"browser" | "sms" | "whatsapp">("browser");
@@ -121,28 +127,71 @@ export default function Railway() {
   const [searchedPair, setSearchedPair] = useState<{ from: string; to: string } | null>(null);
   const channelRef = useRef<ReturnType<typeof supabase.channel> | null>(null);
 
+  const relatedFromStations = useMemo(() => {
+    if (!DHAKA_AREA_STATIONS.has(from)) return [from];
+    return ["Dhaka (Kamalapur)", "Dhaka (Bimanbandar)"];
+  }, [from]);
+
   const matches = useMemo(() => {
     if (!searchedPair) return [];
     return TRAINS.filter(
       (t) =>
-        t.from.toLowerCase().includes(searchedPair.from.toLowerCase()) &&
+        relatedFromStations.some((s) => t.from.toLowerCase().includes(s.toLowerCase())) &&
         t.to.toLowerCase().includes(searchedPair.to.toLowerCase())
     );
-  }, [searchedPair]);
+  }, [searchedPair, relatedFromStations]);
 
   const today = todayDay();
 
-  const eticketUrl = (t: Train) => {
+  const officialStation = (name: string) => OFFICIAL_STATION_MAP[name] ?? name.replace(/\s+/g, "_");
+
+  const officialSearchUrl = (origin = from, destination = to, seatClass = "S_CHAIR") => {
     const params = new URLSearchParams({
-      fromcity: t.from.split(" ")[0],
-      tocity: t.to.split(" ")[0],
-      doj: date.split("-").reverse().join("-"),
-      class: t.classes[0] || "S_CHAIR",
+      fromcity: officialStation(origin),
+      tocity: officialStation(destination),
+      doj: formatOfficialDate(date),
+      class: seatClass,
     });
     return `https://eticket.railway.gov.bd/booking/train/search?${params}`;
   };
 
-  const handleSearch = () => setSearchedPair({ from, to });
+  const eticketUrl = (t: Train) => officialSearchUrl(t.from, t.to, t.classes[0] || "S_CHAIR");
+
+  const dateStatus = useMemo(() => {
+    if (date < todayIso) return "past";
+    if (date > maxBookingDate) return "tooFar";
+    return "ok";
+  }, [date, maxBookingDate, todayIso]);
+
+  const handleDateChange = (value: string) => {
+    if (value > maxBookingDate) {
+      setDate(maxBookingDate);
+      toast({
+        title: isBn ? "১০ দিনের বেশি আগে বুকিং হয় না" : "Only 10 days are bookable",
+        description: isBn
+          ? "বাংলাদেশ রেলওয়ের বর্তমান নিয়ম অনুযায়ী আজসহ সর্বোচ্চ ১০ দিনের টিকিট খোঁজা যাবে।"
+          : "Bangladesh Railway currently allows domestic ticket search up to 10 days including today.",
+      });
+      return;
+    }
+    setDate(value);
+  };
+
+  const handleSearch = () => {
+    if (from === to) {
+      toast({ title: isBn ? "একই স্টেশন নির্বাচন করা যাবে না" : "Choose different stations", variant: "destructive" });
+      return;
+    }
+    if (dateStatus !== "ok") {
+      toast({
+        title: isBn ? "তারিখ ঠিক করুন" : "Fix the date",
+        description: isBn ? "আজ থেকে পরবর্তী ১০ দিনের মধ্যে যাত্রার তারিখ দিন।" : "Pick a journey date within the next 10 days.",
+        variant: "destructive",
+      });
+      return;
+    }
+    setSearchedPair({ from, to });
+  };
 
   // Restore subscription from localStorage so refresh keeps the active alert
   useEffect(() => {

@@ -10,7 +10,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Switch } from "@/components/ui/switch";
 import { Card } from "@/components/ui/card";
 import { toast } from "sonner";
-import { Trash2, Plus, Edit, ShoppingBag, Bell, Package } from "lucide-react";
+import { Trash2, Plus, Edit, ShoppingBag, Bell, Package, Wrench, Inbox } from "lucide-react";
 
 type Product = {
   id?: string;
@@ -45,13 +45,45 @@ const emptyProduct: Product = {
   related_ids: [], addon_ids: [], gallery: [],
 };
 
+type Service = {
+  id?: string;
+  name: string;
+  name_bn?: string;
+  short_description?: string;
+  short_description_bn?: string;
+  full_description?: string;
+  full_description_bn?: string;
+  starting_price: number;
+  category?: string;
+  image?: string;
+  features?: string[];
+  features_bn?: string[];
+  badge?: string;
+  badge_color?: string;
+  delivery_days?: number | null;
+  is_active?: boolean;
+  is_featured?: boolean;
+  display_order?: number;
+};
+
+const emptyService: Service = {
+  name: "", name_bn: "", short_description: "", short_description_bn: "",
+  full_description: "", full_description_bn: "", starting_price: 0,
+  category: "", image: "", features: [], features_bn: [],
+  badge: "", badge_color: "red", delivery_days: null,
+  is_active: true, is_featured: false, display_order: 0,
+};
+
 const Admin = () => {
   const { user, loading } = useAuth();
   const navigate = useNavigate();
   const [isAdmin, setIsAdmin] = useState<boolean | null>(null);
   const [products, setProducts] = useState<Product[]>([]);
   const [orders, setOrders] = useState<any[]>([]);
+  const [services, setServices] = useState<Service[]>([]);
+  const [serviceOrders, setServiceOrders] = useState<any[]>([]);
   const [editing, setEditing] = useState<Product>(emptyProduct);
+  const [editingService, setEditingService] = useState<Service>(emptyService);
   const [settings, setSettings] = useState<any>({
     whatsapp_number: "", sms_number: "", telegram_chat_id: "",
     enable_whatsapp: true, enable_sms: false, enable_telegram: false,
@@ -72,14 +104,40 @@ const Admin = () => {
   }, [isAdmin]);
 
   const loadAll = async () => {
-    const [pRes, oRes, sRes] = await Promise.all([
+    const [pRes, oRes, sRes, svcRes, svcOrdRes] = await Promise.all([
       supabase.from("shop_products").select("*").order("created_at", { ascending: false }),
       supabase.from("shop_orders").select("*").order("created_at", { ascending: false }).limit(100),
       supabase.from("admin_notification_settings").select("*").eq("admin_user_id", user!.id).maybeSingle(),
+      supabase.from("services_catalog").select("*").order("display_order", { ascending: true }),
+      supabase.from("service_orders").select("*").order("created_at", { ascending: false }).limit(100),
     ]);
     setProducts((pRes.data as any) || []);
     setOrders(oRes.data || []);
+    setServices((svcRes.data as any) || []);
+    setServiceOrders(svcOrdRes.data || []);
     if (sRes.data) setSettings(sRes.data);
+  };
+
+  const saveService = async () => {
+    const payload: any = { ...editingService };
+    payload.starting_price = Number(payload.starting_price) || 0;
+    payload.delivery_days = payload.delivery_days ? Number(payload.delivery_days) : null;
+    payload.display_order = Number(payload.display_order) || 0;
+    if (typeof payload.features === "string") payload.features = (payload.features as any).split("\n").map((s: string) => s.trim()).filter(Boolean);
+    if (typeof payload.features_bn === "string") payload.features_bn = (payload.features_bn as any).split("\n").map((s: string) => s.trim()).filter(Boolean);
+    const { error } = editingService.id
+      ? await supabase.from("services_catalog").update(payload).eq("id", editingService.id)
+      : await supabase.from("services_catalog").insert(payload);
+    if (error) { toast.error(error.message); return; }
+    toast.success("Service saved");
+    setEditingService(emptyService);
+    loadAll();
+  };
+
+  const deleteService = async (id: string) => {
+    if (!confirm("Delete this service?")) return;
+    await supabase.from("services_catalog").delete().eq("id", id);
+    loadAll();
   };
 
   const saveProduct = async () => {
@@ -138,9 +196,11 @@ const Admin = () => {
     <div className="container py-10">
       <h1 className="text-4xl font-display font-bold mb-6">Shop Admin Panel</h1>
       <Tabs defaultValue="products">
-        <TabsList className="grid grid-cols-3 max-w-md">
+        <TabsList className="grid grid-cols-2 md:grid-cols-5 max-w-3xl">
           <TabsTrigger value="products"><Package className="w-4 h-4 mr-1" />Products</TabsTrigger>
           <TabsTrigger value="orders"><ShoppingBag className="w-4 h-4 mr-1" />Orders</TabsTrigger>
+          <TabsTrigger value="services"><Wrench className="w-4 h-4 mr-1" />Services</TabsTrigger>
+          <TabsTrigger value="service-orders"><Inbox className="w-4 h-4 mr-1" />Svc Orders</TabsTrigger>
           <TabsTrigger value="settings"><Bell className="w-4 h-4 mr-1" />Notify</TabsTrigger>
         </TabsList>
 
@@ -225,6 +285,83 @@ const Admin = () => {
           ))}
           {orders.length === 0 && <p className="text-muted-foreground">No orders yet.</p>}
         </TabsContent>
+
+        <TabsContent value="services" className="space-y-6 mt-6">
+          <Card className="p-6 space-y-3">
+            <h2 className="text-xl font-bold">{editingService.id ? "Edit Service" : "Add New Service"}</h2>
+            <div className="grid md:grid-cols-2 gap-3">
+              <div><Label>Name (EN)</Label><Input value={editingService.name} onChange={e => setEditingService({...editingService, name: e.target.value})} /></div>
+              <div><Label>Name (BN)</Label><Input value={editingService.name_bn || ""} onChange={e => setEditingService({...editingService, name_bn: e.target.value})} /></div>
+              <div><Label>Category</Label><Input value={editingService.category || ""} onChange={e => setEditingService({...editingService, category: e.target.value})} /></div>
+              <div><Label>Starting Price (৳)</Label><Input type="number" value={editingService.starting_price} onChange={e => setEditingService({...editingService, starting_price: Number(e.target.value)})} /></div>
+              <div><Label>Delivery days (optional)</Label><Input type="number" value={editingService.delivery_days || ""} onChange={e => setEditingService({...editingService, delivery_days: e.target.value ? Number(e.target.value) : null})} /></div>
+              <div><Label>Display order</Label><Input type="number" value={editingService.display_order || 0} onChange={e => setEditingService({...editingService, display_order: Number(e.target.value)})} /></div>
+              <div><Label>Image URL</Label><Input value={editingService.image || ""} onChange={e => setEditingService({...editingService, image: e.target.value})} /></div>
+              <div><Label>Badge text</Label><Input value={editingService.badge || ""} onChange={e => setEditingService({...editingService, badge: e.target.value})} /></div>
+              <div><Label>Badge color</Label>
+                <select className="w-full h-10 rounded-md border bg-background px-3" value={editingService.badge_color || "red"} onChange={e => setEditingService({...editingService, badge_color: e.target.value})}>
+                  <option value="red">Red</option><option value="green">Green</option><option value="blue">Blue</option>
+                  <option value="orange">Orange</option><option value="purple">Purple</option><option value="pink">Pink</option>
+                </select>
+              </div>
+            </div>
+            <div><Label>Short Description (EN)</Label><Textarea rows={2} value={editingService.short_description || ""} onChange={e => setEditingService({...editingService, short_description: e.target.value})} /></div>
+            <div><Label>Short Description (BN)</Label><Textarea rows={2} value={editingService.short_description_bn || ""} onChange={e => setEditingService({...editingService, short_description_bn: e.target.value})} /></div>
+            <div><Label>Full Description (EN) — Markdown supported</Label><Textarea rows={5} value={editingService.full_description || ""} onChange={e => setEditingService({...editingService, full_description: e.target.value})} /></div>
+            <div><Label>Full Description (BN)</Label><Textarea rows={5} value={editingService.full_description_bn || ""} onChange={e => setEditingService({...editingService, full_description_bn: e.target.value})} /></div>
+            <div><Label>Features / What's included (EN — one per line)</Label><Textarea rows={4} value={Array.isArray(editingService.features) ? editingService.features.join("\n") : (editingService.features || "")} onChange={e => setEditingService({...editingService, features: e.target.value as any})} /></div>
+            <div><Label>Features (BN — one per line)</Label><Textarea rows={4} value={Array.isArray(editingService.features_bn) ? editingService.features_bn.join("\n") : (editingService.features_bn || "")} onChange={e => setEditingService({...editingService, features_bn: e.target.value as any})} /></div>
+            <div className="flex flex-wrap gap-6">
+              <label className="flex items-center gap-2"><Switch checked={editingService.is_active ?? true} onCheckedChange={v => setEditingService({...editingService, is_active: v})} /> Active</label>
+              <label className="flex items-center gap-2"><Switch checked={editingService.is_featured ?? false} onCheckedChange={v => setEditingService({...editingService, is_featured: v})} /> Featured</label>
+            </div>
+            <div className="flex gap-2">
+              <Button onClick={saveService} className="gradient-bg-primary text-white"><Plus className="w-4 h-4 mr-1" />{editingService.id ? "Update" : "Add"} Service</Button>
+              {editingService.id && <Button variant="outline" onClick={() => setEditingService(emptyService)}>Cancel</Button>}
+            </div>
+          </Card>
+
+          <h2 className="text-xl font-bold">All Services ({services.length})</h2>
+          <div className="grid gap-3">
+            {services.map(s => (
+              <Card key={s.id} className="p-4 flex items-center gap-3">
+                {s.image && <img src={s.image} alt="" className="w-16 h-16 rounded object-cover" />}
+                <div className="flex-1 min-w-0">
+                  <p className="font-semibold truncate">{s.name} <span className="text-xs text-muted-foreground">from ৳{s.starting_price}</span></p>
+                  <p className="text-xs text-muted-foreground truncate">{s.short_description}</p>
+                </div>
+                <Button size="sm" variant="outline" onClick={() => setEditingService(s as any)}><Edit className="w-4 h-4" /></Button>
+                <Button size="sm" variant="destructive" onClick={() => deleteService(s.id!)}><Trash2 className="w-4 h-4" /></Button>
+              </Card>
+            ))}
+            {services.length === 0 && <p className="text-muted-foreground">No services yet — add your first one above.</p>}
+          </div>
+        </TabsContent>
+
+        <TabsContent value="service-orders" className="space-y-3 mt-6">
+          <h2 className="text-xl font-bold">Service Orders ({serviceOrders.length})</h2>
+          {serviceOrders.map(o => (
+            <Card key={o.id} className="p-4">
+              <div className="flex justify-between flex-wrap gap-2">
+                <div className="flex-1 min-w-0">
+                  <p className="font-semibold">{o.service_name}</p>
+                  <p className="text-sm">{o.customer_name} — {o.customer_phone}</p>
+                  {o.customer_email && <p className="text-xs text-muted-foreground">{o.customer_email}</p>}
+                  {o.customer_address && <p className="text-xs">{o.customer_address}</p>}
+                  {o.project_details && <p className="text-sm mt-2 p-2 bg-muted/40 rounded">{o.project_details}</p>}
+                </div>
+                <div className="text-right">
+                  <p className="font-bold text-primary">৳{o.quoted_amount}</p>
+                  <p className="text-xs">{new Date(o.created_at).toLocaleString()}</p>
+                  <span className="text-xs px-2 py-0.5 rounded bg-muted">{o.status}</span>
+                  {o.notified && <span className="ml-1 text-xs text-green-600">✓ notified</span>}
+                </div>
+              </div>
+            </Card>
+          ))}
+          {serviceOrders.length === 0 && <p className="text-muted-foreground">No service orders yet.</p>}
+        </TabsContent>
+
 
         <TabsContent value="settings" className="mt-6">
           <Card className="p-6 space-y-4 max-w-2xl">

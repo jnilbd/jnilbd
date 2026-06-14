@@ -5,9 +5,10 @@ Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response('ok', { headers: corsHeaders });
 
   try {
-    const { order_id } = await req.json();
-    if (!order_id) {
-      return new Response(JSON.stringify({ error: 'order_id required' }), {
+    const body = await req.json();
+    const { order_id, service_order_id } = body;
+    if (!order_id && !service_order_id) {
+      return new Response(JSON.stringify({ error: 'order_id or service_order_id required' }), {
         status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
     }
@@ -17,24 +18,47 @@ Deno.serve(async (req) => {
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
     );
 
-    const { data: order, error: orderErr } = await supabase
-      .from('shop_orders').select('*').eq('id', order_id).maybeSingle();
-    if (orderErr || !order) throw new Error(orderErr?.message || 'Order not found');
+    let msg = '';
+    let updateTable = '';
+    let updateId = '';
+
+    if (order_id) {
+      const { data: order, error: orderErr } = await supabase
+        .from('shop_orders').select('*').eq('id', order_id).maybeSingle();
+      if (orderErr || !order) throw new Error(orderErr?.message || 'Order not found');
+      updateTable = 'shop_orders';
+      updateId = order_id;
+      msg =
+        `🛒 *New Product Order!*\n` +
+        `Product: ${order.product_name}\n` +
+        `Qty: ${order.quantity}\n` +
+        `Total: ৳${order.total_amount}\n` +
+        `Customer: ${order.customer_name}\n` +
+        `Phone: ${order.customer_phone}\n` +
+        (order.customer_email ? `Email: ${order.customer_email}\n` : '') +
+        (order.customer_address ? `Address: ${order.customer_address}\n` : '') +
+        (order.notes ? `Notes: ${order.notes}\n` : '') +
+        `Order ID: ${order.id}`;
+    } else {
+      const { data: so, error: soErr } = await supabase
+        .from('service_orders').select('*').eq('id', service_order_id).maybeSingle();
+      if (soErr || !so) throw new Error(soErr?.message || 'Service order not found');
+      updateTable = 'service_orders';
+      updateId = service_order_id;
+      msg =
+        `🔧 *New Service Request!*\n` +
+        `Service: ${so.service_name}\n` +
+        `Amount: ৳${so.quoted_amount}\n` +
+        `Customer: ${so.customer_name}\n` +
+        `Phone: ${so.customer_phone}\n` +
+        (so.customer_email ? `Email: ${so.customer_email}\n` : '') +
+        (so.customer_address ? `Address: ${so.customer_address}\n` : '') +
+        (so.project_details ? `Details: ${so.project_details}\n` : '') +
+        `Order ID: ${so.id}`;
+    }
 
     const { data: settings } = await supabase
       .from('admin_notification_settings').select('*').limit(1).maybeSingle();
-
-    const msg =
-      `🛒 *New Order!*\n` +
-      `Product: ${order.product_name}\n` +
-      `Qty: ${order.quantity}\n` +
-      `Total: ৳${order.total_amount}\n` +
-      `Customer: ${order.customer_name}\n` +
-      `Phone: ${order.customer_phone}\n` +
-      (order.customer_email ? `Email: ${order.customer_email}\n` : '') +
-      (order.customer_address ? `Address: ${order.customer_address}\n` : '') +
-      (order.notes ? `Notes: ${order.notes}\n` : '') +
-      `Order ID: ${order.id}`;
 
     const results: Record<string, unknown> = {};
 
@@ -103,7 +127,7 @@ Deno.serve(async (req) => {
       } catch (e) { results.telegram = { error: String(e) }; }
     }
 
-    await supabase.from('shop_orders').update({ notified: true }).eq('id', order_id);
+    await supabase.from(updateTable).update({ notified: true }).eq('id', updateId);
 
     return new Response(JSON.stringify({ ok: true, results }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },

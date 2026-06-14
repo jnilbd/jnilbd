@@ -484,6 +484,62 @@ export type Database = {
         }
         Relationships: []
       }
+      service_orders: {
+        Row: {
+          created_at: string
+          customer_address: string | null
+          customer_email: string | null
+          customer_name: string
+          customer_phone: string
+          id: string
+          notified: boolean | null
+          project_details: string | null
+          quoted_amount: number
+          service_id: string | null
+          service_name: string
+          status: string
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          customer_address?: string | null
+          customer_email?: string | null
+          customer_name: string
+          customer_phone: string
+          id?: string
+          notified?: boolean | null
+          project_details?: string | null
+          quoted_amount: number
+          service_id?: string | null
+          service_name: string
+          status?: string
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          customer_address?: string | null
+          customer_email?: string | null
+          customer_name?: string
+          customer_phone?: string
+          id?: string
+          notified?: boolean | null
+          project_details?: string | null
+          quoted_amount?: number
+          service_id?: string | null
+          service_name?: string
+          status?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "service_orders_service_id_fkey"
+            columns: ["service_id"]
+            isOneToOne: false
+            referencedRelation: "services_catalog"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       service_requests: {
         Row: {
           budget: string | null
@@ -526,6 +582,78 @@ export type Database = {
           updated_at?: string
           urgent?: boolean
           user_id?: string | null
+        }
+        Relationships: []
+      }
+      services_catalog: {
+        Row: {
+          badge: string | null
+          badge_color: string | null
+          category: string | null
+          created_at: string
+          delivery_days: number | null
+          display_order: number | null
+          features: Json | null
+          features_bn: Json | null
+          full_description: string | null
+          full_description_bn: string | null
+          gallery: Json | null
+          id: string
+          image: string | null
+          is_active: boolean | null
+          is_featured: boolean | null
+          name: string
+          name_bn: string | null
+          short_description: string | null
+          short_description_bn: string | null
+          starting_price: number
+          updated_at: string
+        }
+        Insert: {
+          badge?: string | null
+          badge_color?: string | null
+          category?: string | null
+          created_at?: string
+          delivery_days?: number | null
+          display_order?: number | null
+          features?: Json | null
+          features_bn?: Json | null
+          full_description?: string | null
+          full_description_bn?: string | null
+          gallery?: Json | null
+          id?: string
+          image?: string | null
+          is_active?: boolean | null
+          is_featured?: boolean | null
+          name: string
+          name_bn?: string | null
+          short_description?: string | null
+          short_description_bn?: string | null
+          starting_price?: number
+          updated_at?: string
+        }
+        Update: {
+          badge?: string | null
+          badge_color?: string | null
+          category?: string | null
+          created_at?: string
+          delivery_days?: number | null
+          display_order?: number | null
+          features?: Json | null
+          features_bn?: Json | null
+          full_description?: string | null
+          full_description_bn?: string | null
+          gallery?: Json | null
+          id?: string
+          image?: string | null
+          is_active?: boolean | null
+          is_featured?: boolean | null
+          name?: string
+          name_bn?: string | null
+          short_description?: string | null
+          short_description_bn?: string | null
+          starting_price?: number
+          updated_at?: string
         }
         Relationships: []
       }

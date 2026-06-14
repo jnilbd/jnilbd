@@ -218,14 +218,15 @@ function PrayerAlertCard({ data, bn }: { data: any; bn: boolean }) {
     }
     setSubmitting(true);
     try {
-      const prayers: [string, string, string][] = [
-        ["Fajr", data.timings.Fajr, bn ? "ফজর" : "Fajr"],
-        ["Dhuhr", data.timings.Dhuhr, bn ? "যুহর" : "Dhuhr"],
-        ["Asr", data.timings.Asr, bn ? "আসর" : "Asr"],
-        ["Maghrib", data.timings.Maghrib, bn ? "মাগরিব" : "Maghrib"],
-        ["Isha", data.timings.Isha, bn ? "ইশা" : "Isha"],
+      const prayers: [string, string, string, string][] = [
+        ["Sehri", data.timings.Imsak || data.timings.Fajr, bn ? "সেহরি" : "Sehri", bn ? "🌙 সেহরির সময় শেষ হচ্ছে। খাওয়া শেষ করুন। — JohnNil.com" : "🌙 Sehri ending soon. Finish eating. — JohnNil.com"],
+        ["Fajr", data.timings.Fajr, bn ? "ফজর" : "Fajr", ""],
+        ["Dhuhr", data.timings.Dhuhr, bn ? "যুহর" : "Dhuhr", ""],
+        ["Asr", data.timings.Asr, bn ? "আসর" : "Asr", ""],
+        ["Iftar", data.timings.Maghrib, bn ? "ইফতার" : "Iftar", bn ? "🌅 ইফতারের সময় হয়েছে। আল্লাহ আপনার রোজা কবুল করুন। — JohnNil.com" : "🌅 Iftar time! May Allah accept your fast. — JohnNil.com"],
+        ["Isha", data.timings.Isha, bn ? "ইশা" : "Isha", ""],
       ];
-      const rows = prayers.map(([_, t, label]) => {
+      const rows = prayers.map(([_, t, label, customMsg]) => {
         const [h, m] = t.split(":").map(Number);
         const dt = new Date(); dt.setHours(h, m, 0, 0);
         if (dt < new Date()) dt.setDate(dt.getDate() + 1);
@@ -234,9 +235,9 @@ function PrayerAlertCard({ data, bn }: { data: any; bn: boolean }) {
           recipient_name: bn ? "নামাজ অ্যালার্ট" : "Prayer Alert",
           recipient_phone: cleanPhone,
           channel,
-          message: bn
+          message: customMsg || (bn
             ? `🕌 ${label}-এর সময় হয়েছে। নামাজের জন্য প্রস্তুত হোন। — JohnNil.com`
-            : `🕌 It's time for ${label} prayer. Please prepare. — JohnNil.com`,
+            : `🕌 It's time for ${label} prayer. Please prepare. — JohnNil.com`),
           send_at: dt.toISOString(),
           status: "pending",
         };

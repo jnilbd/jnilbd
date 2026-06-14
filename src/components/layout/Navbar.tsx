@@ -150,6 +150,64 @@ const Navbar = () => {
             </div>
           </Link>
 
+          {/* Search bar — desktop/tablet */}
+          <div ref={searchRef} className="hidden md:flex flex-1 max-w-md mx-2 relative">
+            <form onSubmit={handleSearchSubmit} className="w-full">
+              <div className="relative group">
+                <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground group-focus-within:text-primary transition-colors" />
+                <input
+                  type="text"
+                  value={searchQuery}
+                  onChange={(e) => {
+                    setSearchQuery(e.target.value);
+                    setSearchOpen(true);
+                  }}
+                  onFocus={() => setSearchOpen(true)}
+                  placeholder={isBn ? "টুল, ক্যাটাগরি বা পেজ খুঁজুন..." : "Search tools, categories or pages..."}
+                  className="w-full h-10 pl-10 pr-4 rounded-full bg-muted/50 border border-border/60 text-sm placeholder:text-muted-foreground/70 focus:outline-none focus:bg-background focus:border-primary/50 focus:ring-2 focus:ring-primary/15 transition-all"
+                />
+              </div>
+            </form>
+            <AnimatePresence>
+              {searchOpen && searchResults.length > 0 && (
+                <motion.div
+                  initial={{ opacity: 0, y: -6 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -6 }}
+                  className="absolute top-full left-0 right-0 mt-2 rounded-2xl border border-border/60 bg-background/98 backdrop-blur-xl shadow-elegant overflow-hidden z-50"
+                >
+                  <ul className="max-h-80 overflow-y-auto py-1.5">
+                    {searchResults.map((r) => (
+                      <li key={r.to}>
+                        <button
+                          type="button"
+                          onClick={() => goToResult(r.to)}
+                          className="w-full flex items-center gap-3 px-4 py-2.5 text-left hover:bg-primary/10 hover:text-primary transition-colors"
+                        >
+                          <r.icon className="w-4 h-4 text-secondary" />
+                          <span className="text-sm font-medium">{isBn ? r.bn : r.en}</span>
+                          <span className="ml-auto text-[11px] text-muted-foreground">{r.to}</span>
+                        </button>
+                      </li>
+                    ))}
+                  </ul>
+                </motion.div>
+              )}
+              {searchOpen && searchQuery.trim() && searchResults.length === 0 && (
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  className="absolute top-full left-0 right-0 mt-2 rounded-2xl border border-border/60 bg-background/98 backdrop-blur-xl shadow-elegant z-50 px-4 py-3 text-sm text-muted-foreground"
+                >
+                  {isBn ? "কোনো ফলাফল পাওয়া যায়নি" : "No results found"}
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
+
+
+
 
           <nav className="hidden lg:flex items-center gap-0.5">
             {primary.map((l) => (

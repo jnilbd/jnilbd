@@ -335,7 +335,7 @@ export default function TravelGuide() {
       </div>
 
       <Tabs defaultValue="route" className="w-full">
-        <TabsList className="grid w-full grid-cols-3 mb-6 h-auto">
+        <TabsList className="grid w-full grid-cols-2 sm:grid-cols-4 mb-6 h-auto">
           <TabsTrigger value="route" className="flex flex-col sm:flex-row gap-1 py-2">
             <Search className="h-4 w-4" /> <span className="text-xs sm:text-sm">{isBn ? "রুট খরচ" : "Route"}</span>
           </TabsTrigger>
@@ -344,6 +344,9 @@ export default function TravelGuide() {
           </TabsTrigger>
           <TabsTrigger value="destinations" className="flex flex-col sm:flex-row gap-1 py-2">
             <MapPin className="h-4 w-4" /> <span className="text-xs sm:text-sm">{isBn ? "গন্তব্য" : "Destinations"}</span>
+          </TabsTrigger>
+          <TabsTrigger value="abroad" className="flex flex-col sm:flex-row gap-1 py-2">
+            <Briefcase className="h-4 w-4" /> <span className="text-xs sm:text-sm">{isBn ? "বিদেশ যাওয়া" : "Go Abroad"}</span>
           </TabsTrigger>
         </TabsList>
 

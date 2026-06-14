@@ -60,6 +60,7 @@ import BusinessGuide from "./pages/BusinessGuide";
 import Politics from "./pages/Politics";
 import WarUpdates from "./pages/WarUpdates";
 import Stocks from "./pages/Stocks";
+import Newspapers from "./pages/Newspapers";
 
 const queryClient = new QueryClient();
 
@@ -123,6 +124,7 @@ const App = () => (
                 <Route path="/politics" element={<Politics />} />
                 <Route path="/war" element={<WarUpdates />} />
                 <Route path="/stocks" element={<Stocks />} />
+                <Route path="/newspapers" element={<Newspapers />} />
                 <Route path="/cart" element={<Cart />} />
                 <Route path="/checkout" element={<Checkout />} />
                 <Route path="/order-confirmation/:id" element={<OrderConfirmation />} />

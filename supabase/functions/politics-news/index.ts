@@ -37,6 +37,31 @@ const FEEDS: Record<string, { q: string; hl: string; gl: string; ceid: string }>
   stock_india: { q: "Sensex Nifty Indian stock market", hl: "en", gl: "IN", ceid: "IN:en" },
   stock_crypto: { q: "Bitcoin Ethereum crypto market", hl: "en", gl: "US", ceid: "US:en" },
   stock_ipo_bd: { q: "Bangladesh IPO new listing share", hl: "en", gl: "BD", ceid: "BD:en" },
+  // Bangladeshi newspapers — today's headlines via site: filter
+  np_prothomalo: { q: "site:prothomalo.com", hl: "bn", gl: "BD", ceid: "BD:bn" },
+  np_bdpratidin: { q: "site:bd-pratidin.com", hl: "bn", gl: "BD", ceid: "BD:bn" },
+  np_kalerkantho: { q: "site:kalerkantho.com", hl: "bn", gl: "BD", ceid: "BD:bn" },
+  np_jugantor: { q: "site:jugantor.com", hl: "bn", gl: "BD", ceid: "BD:bn" },
+  np_ittefaq: { q: "site:ittefaq.com.bd", hl: "bn", gl: "BD", ceid: "BD:bn" },
+  np_samakal: { q: "site:samakal.com", hl: "bn", gl: "BD", ceid: "BD:bn" },
+  np_manabzamin: { q: "site:mzamin.com", hl: "bn", gl: "BD", ceid: "BD:bn" },
+  np_inqilab: { q: "site:dailyinqilab.com", hl: "bn", gl: "BD", ceid: "BD:bn" },
+  np_nayadiganta: { q: "site:dailynayadiganta.com", hl: "bn", gl: "BD", ceid: "BD:bn" },
+  np_amaderorshomoy: { q: "site:dainikamadershomoy.com", hl: "bn", gl: "BD", ceid: "BD:bn" },
+  np_jaijaidin: { q: "site:jaijaidinbd.com", hl: "bn", gl: "BD", ceid: "BD:bn" },
+  np_jagonews24: { q: "site:jagonews24.com", hl: "bn", gl: "BD", ceid: "BD:bn" },
+  np_banglatribune: { q: "site:banglatribune.com", hl: "bn", gl: "BD", ceid: "BD:bn" },
+  np_bdnews24: { q: "site:bangla.bdnews24.com", hl: "bn", gl: "BD", ceid: "BD:bn" },
+  np_dailystar: { q: "site:thedailystar.net", hl: "en", gl: "BD", ceid: "BD:en" },
+  np_dailystar_bn: { q: "site:bangla.thedailystar.net", hl: "bn", gl: "BD", ceid: "BD:bn" },
+  np_bbcbangla: { q: "site:bbc.com/bengali", hl: "bn", gl: "BD", ceid: "BD:bn" },
+  np_dhakatribune: { q: "site:dhakatribune.com", hl: "en", gl: "BD", ceid: "BD:en" },
+  np_newage: { q: "site:newagebd.net", hl: "en", gl: "BD", ceid: "BD:en" },
+  np_observer: { q: "site:observerbd.com", hl: "en", gl: "BD", ceid: "BD:en" },
+  np_financialexpress: { q: "site:thefinancialexpress.com.bd", hl: "en", gl: "BD", ceid: "BD:en" },
+  np_businessstandard: { q: "site:tbsnews.net", hl: "en", gl: "BD", ceid: "BD:en" },
+  // Top headlines aggregate
+  np_today_top: { q: "বাংলাদেশ আজকের সংবাদ", hl: "bn", gl: "BD", ceid: "BD:bn" },
 };
 
 function decode(s: string) {

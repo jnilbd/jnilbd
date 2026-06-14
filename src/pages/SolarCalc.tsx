@@ -201,6 +201,71 @@ const SolarCalc = () => {
             )}
           </p>
         </Card>
+
+        {/* ============== Live Equipment Price Lookup (AI) ============== */}
+        <Card className="p-5 mt-6 border-primary/30 bg-gradient-to-br from-primary/5 to-amber-500/5">
+          <div className="flex items-center gap-2 mb-1">
+            <ShoppingBag className="w-5 h-5 text-primary" />
+            <h3 className="font-display font-bold text-lg">
+              {t("লাইভ ইকুইপমেন্ট প্রাইস — বাংলাদেশ", "Live Equipment Price — Bangladesh")}
+            </h3>
+            <span className="ml-auto inline-flex items-center gap-1 text-[10px] px-2 py-0.5 rounded-full bg-primary/15 text-primary font-semibold">
+              <Sparkles className="w-3 h-3" /> AI
+            </span>
+          </div>
+          <p className="text-xs text-muted-foreground mb-3">
+            {t(
+              "সোলার ইকুইপমেন্ট, ইলেকট্রনিক্স, AC, ফ্রিজ, IPS, জেনারেটর — যেকোনো আইটেমের সর্বশেষ বাজার মূল্য জিজ্ঞেস করুন।",
+              "Ask current Bangladesh market price for solar, electronics, AC, fridge, IPS, generator — anything."
+            )}
+          </p>
+
+          <div className="flex gap-2 mb-3">
+            <Input
+              placeholder={t("যেমন: ২০০W সোলার প্যানেল, ১.৫ টন AC, ১০০Ah ব্যাটারি…", "e.g. 200W solar panel, 1.5 ton AC, 100Ah battery…")}
+              value={priceQuery}
+              onChange={(e) => setPriceQuery(e.target.value)}
+              onKeyDown={(e) => e.key === "Enter" && lookupPrice()}
+              disabled={priceLoading}
+            />
+            <Button onClick={() => lookupPrice()} disabled={priceLoading || !priceQuery.trim()} className="shrink-0">
+              {priceLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Search className="w-4 h-4" />}
+              <span className="ml-1.5 hidden sm:inline">{t("দেখুন", "Check")}</span>
+            </Button>
+          </div>
+
+          <div className="flex flex-wrap gap-1.5 mb-3">
+            {quickItems.map((q) => (
+              <button
+                key={q}
+                onClick={() => lookupPrice(q)}
+                disabled={priceLoading}
+                className="px-2.5 py-1 rounded-full bg-muted text-xs font-medium hover:bg-primary hover:text-primary-foreground transition-smooth disabled:opacity-50"
+              >
+                {q}
+              </button>
+            ))}
+          </div>
+
+          {priceLoading && (
+            <div className="flex items-center gap-2 p-4 text-sm text-muted-foreground">
+              <Loader2 className="w-4 h-4 animate-spin" />
+              {t("সর্বশেষ বাজার মূল্য আনা হচ্ছে…", "Fetching latest market prices…")}
+            </div>
+          )}
+
+          {priceAnswer && !priceLoading && (
+            <div className="p-4 rounded-xl bg-card border prose prose-sm dark:prose-invert max-w-none">
+              <ReactMarkdown remarkPlugins={[remarkGfm]}>{priceAnswer}</ReactMarkdown>
+              <p className="text-[10px] text-muted-foreground border-t pt-2 mt-3 not-prose">
+                {t(
+                  "⚠️ AI দ্বারা প্রদত্ত আনুমানিক মূল্য। কেনার আগে অবশ্যই দোকানে কনফার্ম করুন।",
+                  "⚠️ AI-estimated prices. Always confirm with the shop before purchase."
+                )}
+              </p>
+            </div>
+          )}
+        </Card>
       </motion.div>
     </div>
   );

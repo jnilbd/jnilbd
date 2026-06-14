@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { Map, Calculator, ExternalLink, FileText, Search, Landmark, ScrollText } from "lucide-react";
+import { Map, Calculator, ExternalLink, FileText, Search, Landmark, ScrollText, Home, ShoppingCart, Tag, Receipt, UserCheck, AlertTriangle, Shield, Phone } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";

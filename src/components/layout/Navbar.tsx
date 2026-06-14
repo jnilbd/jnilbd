@@ -262,7 +262,58 @@ const Navbar = () => {
         </div>
       </div>
 
+      {/* Secondary nav strip — stylish category boxes */}
+      <div className="hidden lg:block border-b border-border/60 bg-gradient-to-b from-background/95 via-muted/30 to-background/80 backdrop-blur-xl">
+        <div className="container py-2.5">
+          <div className="flex items-center justify-center gap-2 flex-wrap">
+            {primary.map((l) => (
+              <NavLink
+                key={l.to}
+                to={l.to}
+                end={l.to === "/"}
+                onClick={() => setOpenMenu(null)}
+                className={({ isActive }) =>
+                  `group relative flex items-center gap-2 px-4 py-2 rounded-xl border text-[12.5px] font-semibold tracking-wide transition-all duration-300 ${
+                    isActive
+                      ? "bg-gradient-to-br from-primary/15 to-secondary/10 border-secondary/50 text-primary shadow-[0_4px_14px_-6px_hsl(var(--secondary)/0.4)]"
+                      : "bg-background/70 border-border/50 text-foreground/75 hover:text-primary hover:border-secondary/40 hover:bg-gradient-to-br hover:from-primary/5 hover:to-secondary/5 hover:-translate-y-0.5 hover:shadow-[0_6px_16px_-8px_hsl(var(--primary)/0.3)]"
+                  }`
+                }
+              >
+                <l.icon className="w-3.5 h-3.5 text-secondary group-hover:scale-110 transition-transform" />
+                <span>{t(l.key)}</span>
+              </NavLink>
+            ))}
+
+            {/* Categories trigger */}
+            <button
+              onClick={() => toggleMenu("top")}
+              aria-expanded={topOpen}
+              className={`group flex items-center gap-2 px-4 py-2 rounded-xl border text-[12.5px] font-semibold tracking-wide transition-all duration-300 ${
+                topOpen
+                  ? "bg-primary text-primary-foreground border-primary shadow-elegant"
+                  : "bg-background/70 border-border/50 text-foreground/75 hover:text-primary hover:border-secondary/40 hover:-translate-y-0.5 hover:shadow-[0_6px_16px_-8px_hsl(var(--primary)/0.3)]"
+              }`}
+            >
+              <LayoutGrid className="w-3.5 h-3.5 group-hover:scale-110 transition-transform" />
+              <span>{isBn ? "সব ক্যাটাগরি" : "All Categories"}</span>
+            </button>
+
+            {/* Appointment CTA — highlighted */}
+            <Link
+              to="/appointment"
+              onClick={() => setOpenMenu(null)}
+              className="group ml-1 flex items-center gap-2 px-4 py-2 rounded-xl text-[12.5px] font-bold gradient-bg-warm text-white shadow-pink hover:scale-[1.04] hover:-translate-y-0.5 transition-all duration-300"
+            >
+              <CalendarClock className="w-3.5 h-3.5 group-hover:rotate-12 transition-transform" />
+              <span>{isBn ? "বুক অ্যাপয়েন্টমেন্ট" : "Book Appointment"}</span>
+            </Link>
+          </div>
+        </div>
+      </div>
+
       {/* Mobile search panel */}
+
       <AnimatePresence>
         {mobileSearchOpen && (
           <motion.div

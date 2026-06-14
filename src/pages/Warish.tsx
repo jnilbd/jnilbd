@@ -164,12 +164,47 @@ const Warish = () => {
 
         <Card className="p-6 space-y-4">
           <div>
-            <label className="text-sm font-medium mb-1.5 block">{t("মোট সম্পত্তি (৳)", "Total estate (BDT)")}</label>
-            <Input type="number" value={estate} onChange={(e) => setEstate(e.target.value)} />
-            <p className="text-xs text-muted-foreground mt-1">
-              {t("দাফন খরচ, ঋণ ও ওসিয়ত (১/৩ পর্যন্ত) বাদ দেওয়ার পর", "After funeral, debts and bequests (up to 1/3)")}
-            </p>
+            <label className="text-sm font-medium mb-1.5 block">{t("সম্পত্তির ধরন", "Asset Type")}</label>
+            <div className="grid grid-cols-2 gap-2">
+              <button onClick={() => setMode("money")} className={`py-2 rounded-lg text-sm font-semibold border ${mode === "money" ? "border-primary bg-primary/10 text-primary" : "border-border"}`}>
+                💰 {t("টাকা/সম্পদ", "Money / Cash")}
+              </button>
+              <button onClick={() => setMode("land")} className={`py-2 rounded-lg text-sm font-semibold border ${mode === "land" ? "border-primary bg-primary/10 text-primary" : "border-border"}`}>
+                🌾 {t("জমি", "Land")}
+              </button>
+            </div>
           </div>
+
+          {mode === "money" ? (
+            <div>
+              <label className="text-sm font-medium mb-1.5 block">{t("মোট সম্পত্তি (৳)", "Total estate (BDT)")}</label>
+              <Input type="number" value={estate} onChange={(e) => setEstate(e.target.value)} />
+              <p className="text-xs text-muted-foreground mt-1">
+                {t("দাফন খরচ, ঋণ ও ওসিয়ত (১/৩ পর্যন্ত) বাদ দেওয়ার পর", "After funeral, debts and bequests (up to 1/3)")}
+              </p>
+            </div>
+          ) : (
+            <div className="space-y-2">
+              <label className="text-sm font-medium mb-1.5 block">{t("মোট জমির পরিমাণ", "Total land amount")}</label>
+              <div className="grid grid-cols-2 gap-2">
+                <Input type="number" value={landAmount} onChange={(e) => setLandAmount(e.target.value)} />
+                <select value={landUnit} onChange={(e) => setLandUnit(e.target.value as LandUnit)} className="h-10 rounded-md border border-input bg-background px-3 text-sm">
+                  <option value="bigha">{t("বিঘা", "Bigha")} (33 dec)</option>
+                  <option value="katha">{t("কাঠা", "Katha")} (1.65 dec)</option>
+                  <option value="decimal">{t("শতক/ডেসিমেল", "Decimal / Shotok")}</option>
+                  <option value="acre">{t("একর", "Acre")} (100 dec)</option>
+                  <option value="kani">{t("কানি", "Kani")} (120 dec)</option>
+                </select>
+              </div>
+              <p className="text-xs text-muted-foreground mt-1">
+                {t(
+                  `মোট = ${((parseFloat(landAmount) || 0) * TO_DECIMAL[landUnit]).toFixed(2)} শতক (Decimal)। দাফন/ঋণ/ওসিয়ত বাদ দেওয়ার পর হিসাব।`,
+                  `Total = ${((parseFloat(landAmount) || 0) * TO_DECIMAL[landUnit]).toFixed(2)} decimal. After funeral/debts/bequests.`
+                )}
+              </p>
+            </div>
+          )}
+
 
           <div>
             <label className="text-sm font-medium mb-1.5 block">{t("মৃত ব্যক্তি", "Deceased was")}</label>

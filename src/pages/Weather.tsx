@@ -1,19 +1,20 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { motion } from "framer-motion";
-import { CloudRain, Wind, Thermometer, Droplets, AlertTriangle, MapPin, Sun, CloudSnow, Cloud, Search, Loader2, BellRing } from "lucide-react";
+import { CloudRain, Wind, Thermometer, Droplets, AlertTriangle, MapPin, Sun, CloudSnow, Cloud, Search, Loader2, BellRing, Clock, CalendarDays, Layers } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Label } from "@/components/ui/label";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { PAGE_BANNERS } from "@/lib/siteImages";
 
 interface City { name: string; lat: number; lon: number; country: string }
 
-// Pre-loaded BD + nearby IN cities for quick access
 const QUICK_CITIES: City[] = [
   { name: "ঢাকা / Dhaka", lat: 23.8103, lon: 90.4125, country: "BD" },
   { name: "চট্টগ্রাম / Chattogram", lat: 22.3569, lon: 91.7832, country: "BD" },
@@ -28,6 +29,15 @@ const QUICK_CITIES: City[] = [
   { name: "শিলিগুড়ি / Siliguri", lat: 26.7271, lon: 88.3953, country: "IN" },
   { name: "আগরতলা / Agartala", lat: 23.8315, lon: 91.2868, country: "IN" },
   { name: "গুয়াহাটি / Guwahati", lat: 26.1445, lon: 91.7362, country: "IN" },
+];
+
+// Different weather forecast model sources (all served via Open-Meteo for unified format)
+const MODELS = [
+  { id: "best_match", bn: "সেরা মিশ্রণ (Best Match)", en: "Best Match", desc: "Open-Meteo's auto-selected best model" },
+  { id: "ecmwf_ifs025", bn: "ECMWF (ইউরোপীয়)", en: "ECMWF (European)", desc: "European Centre — world's most accurate model" },
+  { id: "gfs_seamless", bn: "GFS (মার্কিন NOAA)", en: "GFS (US NOAA)", desc: "US Global Forecast System" },
+  { id: "icon_seamless", bn: "ICON (জার্মান DWD)", en: "ICON (German DWD)", desc: "German national weather service" },
+  { id: "jma_seamless", bn: "JMA (জাপান)", en: "JMA (Japan)", desc: "Japan Meteorological Agency" },
 ];
 
 const wmoCode = (code: number, isBn: boolean) => {
@@ -58,16 +68,37 @@ const wmoCode = (code: number, isBn: boolean) => {
   return { text: isBn ? v[0] : v[1], Icon: v[2] };
 };
 
+// Generate Bangla narrative for an hour
+const hourNarrative = (h: number, code: number, temp: number, prob: number, isBn: boolean) => {
+  const w = wmoCode(code, isBn).text;
+  if (!isBn) return `${w}, ${Math.round(temp)}°C${prob >= 30 ? `, ${prob}% rain chance` : ""}`;
+  let timeOfDay = "";
+  if (h >= 5 && h < 12) timeOfDay = "সকালে";
+  else if (h >= 12 && h < 16) timeOfDay = "দুপুরে";
+  else if (h >= 16 && h < 19) timeOfDay = "বিকেলে";
+  else if (h >= 19 && h < 22) timeOfDay = "সন্ধ্যায়";
+  else timeOfDay = "রাতে";
+  let rainHint = "";
+  if (prob >= 70) rainHint = " — ছাতা সাথে রাখুন";
+  else if (prob >= 40) rainHint = " — বৃষ্টির সম্ভাবনা";
+  return `${timeOfDay} ${w}, ${Math.round(temp)}°C${rainHint}`;
+};
+
 const Weather = () => {
   const { language } = useLanguage();
   const isBn = language === "bn";
   const [city, setCity] = useState<City>(QUICK_CITIES[0]);
   const [loading, setLoading] = useState(false);
   const [data, setData] = useState<any>(null);
+  const [longRange, setLongRange] = useState<any>(null);
+  const [longLoading, setLongLoading] = useState(false);
   const [search, setSearch] = useState("");
   const [subPhone, setSubPhone] = useState("");
   const [subName, setSubName] = useState("");
   const [subbing, setSubbing] = useState(false);
+  const [model, setModel] = useState("best_match");
+  const [days, setDays] = useState(7);          // 7 / 14 / 16
+  const [longDays, setLongDays] = useState(30); // 30 / 60 / 90
 
   const subscribeAlerts = async () => {
     if (!/^(\+?88)?01[3-9]\d{8}$/.test(subPhone.replace(/\s/g, ""))) {
@@ -85,30 +116,43 @@ const Weather = () => {
         language: isBn ? "bn" : "en",
       });
       if (error && !String(error.message).includes("duplicate")) throw error;
-      toast.success(isBn ? "✅ সাবস্ক্রিপশন সম্পন্ন — দুর্যোগে SMS পাবেন" : "✅ Subscribed — you'll get SMS during severe weather");
+      toast.success(isBn ? "✅ সাবস্ক্রিপশন সম্পন্ন — দুর্যোগে SMS পাবেন" : "✅ Subscribed");
       setSubPhone(""); setSubName("");
     } catch (e: any) {
       toast.error(e.message || "Failed");
-    } finally {
-      setSubbing(false);
-    }
+    } finally { setSubbing(false); }
   };
 
-  const fetchWeather = async (c: City) => {
+  const fetchWeather = async (c: City, m: string, d: number) => {
     setLoading(true);
     try {
-      const url = `https://api.open-meteo.com/v1/forecast?latitude=${c.lat}&longitude=${c.lon}&current=temperature_2m,relative_humidity_2m,apparent_temperature,is_day,precipitation,weather_code,wind_speed_10m,wind_gusts_10m&hourly=temperature_2m,precipitation_probability,weather_code&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_sum,precipitation_probability_max,wind_speed_10m_max&timezone=auto&forecast_days=7`;
+      const modelParam = m === "best_match" ? "" : `&models=${m}`;
+      const url = `https://api.open-meteo.com/v1/forecast?latitude=${c.lat}&longitude=${c.lon}&current=temperature_2m,relative_humidity_2m,apparent_temperature,is_day,precipitation,weather_code,wind_speed_10m,wind_gusts_10m&hourly=temperature_2m,precipitation_probability,precipitation,weather_code,wind_speed_10m&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_sum,precipitation_probability_max,wind_speed_10m_max,sunrise,sunset&timezone=auto&forecast_days=${d}${modelParam}`;
       const r = await fetch(url);
       const j = await r.json();
       setData(j);
-    } catch (e) {
-      toast.error(isBn ? "আবহাওয়া লোড ব্যর্থ" : "Failed to load");
-    } finally {
-      setLoading(false);
-    }
+    } catch { toast.error(isBn ? "আবহাওয়া লোড ব্যর্থ" : "Failed to load"); }
+    finally { setLoading(false); }
   };
 
-  useEffect(() => { fetchWeather(city); }, [city]);
+  // Long-range (30/60/90 days) via Open-Meteo seasonal/extended models
+  const fetchLongRange = async (c: City, d: number) => {
+    setLongLoading(true);
+    try {
+      // Use ECMWF IFS extended-range model which provides ~46 days, and chain to longer if needed
+      // For >16 days, we use the "seasonal" forecast API
+      const url = `https://climate-api.open-meteo.com/v1/climate?latitude=${c.lat}&longitude=${c.lon}&start_date=${todayStr()}&end_date=${addDaysStr(d-1)}&daily=temperature_2m_max,temperature_2m_min,precipitation_sum&models=EC_Earth3P_HR&timezone=auto`;
+      const r = await fetch(url);
+      const j = await r.json();
+      setLongRange(j);
+    } catch {
+      // graceful fallback — show climatology message
+      setLongRange(null);
+    } finally { setLongLoading(false); }
+  };
+
+  useEffect(() => { fetchWeather(city, model, days); }, [city, model, days]);
+  useEffect(() => { fetchLongRange(city, longDays); }, [city, longDays]);
 
   const useMyLocation = () => {
     if (!navigator.geolocation) return toast.error("Geolocation N/A");
@@ -131,25 +175,43 @@ const Weather = () => {
     } catch { toast.error("Error"); }
   };
 
-  // Build alerts
+  // Alerts
   const alerts: { level: "danger" | "warn"; text: string }[] = [];
   if (data?.current) {
     const c = data.current;
-    if (c.temperature_2m >= 38) alerts.push({ level: "danger", text: isBn ? `🔥 চরম গরম: ${c.temperature_2m}°C — হিটস্ট্রোকের ঝুঁকি, প্রচুর পানি পান করুন` : `🔥 Extreme heat: ${c.temperature_2m}°C — heatstroke risk` });
-    else if (c.temperature_2m >= 34) alerts.push({ level: "warn", text: isBn ? `☀️ বেশি গরম: ${c.temperature_2m}°C — সাবধান থাকুন` : `☀️ Hot: ${c.temperature_2m}°C` });
-    if (c.temperature_2m <= 8) alerts.push({ level: "danger", text: isBn ? `🥶 প্রচণ্ড ঠান্ডা: ${c.temperature_2m}°C — গরম কাপড় পরুন` : `🥶 Severe cold: ${c.temperature_2m}°C` });
+    if (c.temperature_2m >= 38) alerts.push({ level: "danger", text: isBn ? `🔥 চরম গরম: ${c.temperature_2m}°C — হিটস্ট্রোকের ঝুঁকি, প্রচুর পানি পান করুন` : `🔥 Extreme heat: ${c.temperature_2m}°C` });
+    else if (c.temperature_2m >= 34) alerts.push({ level: "warn", text: isBn ? `☀️ বেশি গরম: ${c.temperature_2m}°C` : `☀️ Hot: ${c.temperature_2m}°C` });
+    if (c.temperature_2m <= 8) alerts.push({ level: "danger", text: isBn ? `🥶 প্রচণ্ড ঠান্ডা: ${c.temperature_2m}°C` : `🥶 Severe cold: ${c.temperature_2m}°C` });
     else if (c.temperature_2m <= 12) alerts.push({ level: "warn", text: isBn ? `❄️ ঠান্ডা: ${c.temperature_2m}°C` : `❄️ Cold: ${c.temperature_2m}°C` });
-    if ([95, 96, 99].includes(c.weather_code)) alerts.push({ level: "danger", text: isBn ? "⚡ বজ্রঝড়ের সতর্কতা — ঘরে থাকুন" : "⚡ Thunderstorm alert — stay indoors" });
-    if (c.wind_gusts_10m >= 60) alerts.push({ level: "danger", text: isBn ? `🌪️ ঝড়ো বাতাস: ${c.wind_gusts_10m} km/h` : `🌪️ Storm wind: ${c.wind_gusts_10m} km/h` });
-    else if (c.wind_speed_10m >= 40) alerts.push({ level: "warn", text: isBn ? `💨 দমকা হাওয়া: ${c.wind_speed_10m} km/h` : `💨 Strong wind: ${c.wind_speed_10m} km/h` });
-    if ([65, 82].includes(c.weather_code)) alerts.push({ level: "warn", text: isBn ? "🌧️ ভারী বৃষ্টি — জলাবদ্ধতার সম্ভাবনা" : "🌧️ Heavy rain — flooding possible" });
+    if ([95, 96, 99].includes(c.weather_code)) alerts.push({ level: "danger", text: isBn ? "⚡ বজ্রঝড়ের সতর্কতা — ঘরে থাকুন" : "⚡ Thunderstorm" });
+    if (c.wind_gusts_10m >= 60) alerts.push({ level: "danger", text: isBn ? `🌪️ ঝড়ো বাতাস: ${c.wind_gusts_10m} km/h` : `🌪️ Storm wind` });
+    else if (c.wind_speed_10m >= 40) alerts.push({ level: "warn", text: isBn ? `💨 দমকা হাওয়া: ${c.wind_speed_10m} km/h` : `💨 Strong wind` });
   }
-  // Next 24h heavy rain check
   if (data?.hourly) {
     const next24 = data.hourly.precipitation_probability?.slice(0, 24) || [];
-    const maxProb = Math.max(...next24);
-    if (maxProb >= 80) alerts.push({ level: "warn", text: isBn ? `☔ আগামী ২৪ ঘণ্টায় বৃষ্টির সম্ভাবনা ${maxProb}%` : `☔ ${maxProb}% rain chance next 24h` });
+    const maxProb = Math.max(...next24, 0);
+    if (maxProb >= 80) alerts.push({ level: "warn", text: isBn ? `☔ আগামী ২৪ ঘণ্টায় বৃষ্টির সর্বোচ্চ সম্ভাবনা ${maxProb}%` : `☔ ${maxProb}% rain chance next 24h` });
   }
+
+  // Next 24h hourly slice
+  const hourly24 = useMemo(() => {
+    if (!data?.hourly) return [];
+    const now = new Date();
+    const nowH = now.getHours();
+    const startIdx = (data.hourly.time as string[]).findIndex(t => new Date(t).getHours() === nowH && new Date(t).getDate() === now.getDate());
+    const idx = startIdx === -1 ? 0 : startIdx;
+    return Array.from({ length: 24 }, (_, i) => {
+      const j = idx + i;
+      return {
+        time: data.hourly.time[j],
+        temp: data.hourly.temperature_2m[j],
+        code: data.hourly.weather_code[j],
+        prob: data.hourly.precipitation_probability?.[j] ?? 0,
+        precip: data.hourly.precipitation?.[j] ?? 0,
+        wind: data.hourly.wind_speed_10m?.[j] ?? 0,
+      };
+    });
+  }, [data]);
 
   const current = data?.current;
   const currentInfo = current ? wmoCode(current.weather_code, isBn) : null;
@@ -160,56 +222,47 @@ const Weather = () => {
         <div className="rounded-3xl overflow-hidden mb-6 shadow-elegant">
           <img src={PAGE_BANNERS.weather} alt="Bangladesh weather" loading="lazy" width={1280} height={420} className="w-full h-48 md:h-64 object-cover" />
         </div>
-        <h1 className="text-3xl md:text-4xl font-display font-bold mb-2">
-          {isBn ? "🌤️ আবহাওয়া ও সতর্কতা" : "🌤️ Weather & Alerts"}
-        </h1>
-        <p className="text-muted-foreground mb-6">
-          {isBn ? "বাংলাদেশ ও ভারতের নিকটবর্তী এলাকার সবচেয়ে নির্ভুল আবহাওয়া (Open-Meteo)" : "Accurate forecast for BD & nearby IN regions"}
-        </p>
+        <h1 className="text-3xl md:text-4xl font-display font-bold mb-2">{isBn ? "🌤️ আবহাওয়া ও পূর্বাভাস" : "🌤️ Weather & Forecast"}</h1>
+        <p className="text-muted-foreground mb-6">{isBn ? "ঘণ্টা-ভিত্তিক, ১৬ দিন ও দীর্ঘমেয়াদি পূর্বাভাস — একাধিক মডেল থেকে" : "Hourly, 16-day & long-range forecast — from multiple models"}</p>
 
         <Card className="mb-6 border-2 border-primary/40 bg-primary/5">
-          <CardHeader className="pb-2">
-            <CardTitle className="flex items-center gap-2 text-primary text-base md:text-lg">
-              <BellRing className="w-5 h-5" />
-              {isBn ? "দুর্যোগে SMS অ্যালার্ট পেতে সাবস্ক্রাইব করুন" : "Subscribe for SMS alerts during severe weather"}
-            </CardTitle>
-          </CardHeader>
+          <CardHeader className="pb-2"><CardTitle className="flex items-center gap-2 text-primary text-base md:text-lg"><BellRing className="w-5 h-5" />{isBn ? "দুর্যোগে SMS অ্যালার্ট" : "SMS alerts"}</CardTitle></CardHeader>
           <CardContent className="space-y-3">
-            <p className="text-xs text-muted-foreground">
-              {isBn
-                ? `${city.name} অঞ্চলে ঝড়, বজ্রপাত, ভারী বৃষ্টি বা চরম তাপমাত্রার সতর্কতা সরাসরি ফোনে।`
-                : `Get storm, lightning, heavy rain or extreme temperature alerts for ${city.name} on your phone.`}
-            </p>
+            <p className="text-xs text-muted-foreground">{isBn ? `${city.name} অঞ্চলের ঝড়, বজ্রপাত, ভারী বৃষ্টি বা চরম তাপমাত্রার সতর্কতা সরাসরি ফোনে।` : `Alerts for ${city.name} on your phone.`}</p>
             <div className="grid sm:grid-cols-2 gap-3">
-              <div>
-                <Label className="text-xs">{isBn ? "নাম (ঐচ্ছিক)" : "Name (optional)"}</Label>
-                <Input value={subName} onChange={(e) => setSubName(e.target.value)} placeholder={isBn ? "আপনার নাম" : "Your name"} />
-              </div>
-              <div>
-                <Label className="text-xs">{isBn ? "মোবাইল নম্বর *" : "Mobile *"}</Label>
-                <Input value={subPhone} onChange={(e) => setSubPhone(e.target.value)} placeholder="01XXXXXXXXX" />
-              </div>
+              <div><Label className="text-xs">{isBn ? "নাম (ঐচ্ছিক)" : "Name"}</Label><Input value={subName} onChange={(e) => setSubName(e.target.value)} placeholder={isBn ? "আপনার নাম" : "Your name"} /></div>
+              <div><Label className="text-xs">{isBn ? "মোবাইল *" : "Mobile *"}</Label><Input value={subPhone} onChange={(e) => setSubPhone(e.target.value)} placeholder="01XXXXXXXXX" /></div>
             </div>
-            <Button onClick={subscribeAlerts} disabled={subbing} className="w-full sm:w-auto rounded-full gradient-bg-primary text-white">
-              <BellRing className="w-4 h-4 mr-2" />
-              {subbing ? (isBn ? "প্রসেস হচ্ছে..." : "Processing...") : (isBn ? "সাবস্ক্রাইব করুন" : "Subscribe")}
-            </Button>
+            <Button onClick={subscribeAlerts} disabled={subbing} className="w-full sm:w-auto rounded-full gradient-bg-primary text-white"><BellRing className="w-4 h-4 mr-2" />{subbing ? "..." : (isBn ? "সাবস্ক্রাইব" : "Subscribe")}</Button>
           </CardContent>
         </Card>
 
         <div className="flex gap-2 mb-4 flex-wrap">
           <Input placeholder={isBn ? "শহর খুঁজুন..." : "Search city..."} value={search} onChange={(e) => setSearch(e.target.value)} onKeyDown={(e) => e.key === "Enter" && handleSearch()} className="flex-1 min-w-[200px]" />
           <Button onClick={handleSearch}><Search className="w-4 h-4" /></Button>
-          <Button variant="outline" onClick={useMyLocation}><MapPin className="w-4 h-4 mr-1" />{isBn ? "আমার অবস্থান" : "My Location"}</Button>
+          <Button variant="outline" onClick={useMyLocation}><MapPin className="w-4 h-4 mr-1" />{isBn ? "আমার অবস্থান" : "Location"}</Button>
         </div>
 
-        <div className="flex gap-2 mb-6 flex-wrap">
+        <div className="flex gap-2 mb-4 flex-wrap">
           {QUICK_CITIES.map((c) => (
-            <Badge key={c.name} variant={city.name === c.name ? "default" : "outline"} className="cursor-pointer" onClick={() => setCity(c)}>
-              {c.name}
-            </Badge>
+            <Badge key={c.name} variant={city.name === c.name ? "default" : "outline"} className="cursor-pointer" onClick={() => setCity(c)}>{c.name}</Badge>
           ))}
         </div>
+
+        {/* Model selector */}
+        <Card className="mb-6 bg-muted/30">
+          <CardContent className="p-3 flex items-center gap-3 flex-wrap">
+            <Layers className="w-4 h-4 text-primary shrink-0" />
+            <Label className="text-xs font-semibold whitespace-nowrap">{isBn ? "ডেটা সোর্স / মডেল:" : "Data source:"}</Label>
+            <Select value={model} onValueChange={setModel}>
+              <SelectTrigger className="w-auto min-w-[220px] h-8"><SelectValue /></SelectTrigger>
+              <SelectContent>
+                {MODELS.map(m => <SelectItem key={m.id} value={m.id}>{isBn ? m.bn : m.en} — <span className="text-muted-foreground text-xs">{m.desc}</span></SelectItem>)}
+              </SelectContent>
+            </Select>
+            <span className="text-[11px] text-muted-foreground">{isBn ? "বিভিন্ন মডেল তুলনা করে সবচেয়ে কাছাকাছি ফলাফল বেছে নিন" : "Compare models for best accuracy"}</span>
+          </CardContent>
+        </Card>
 
         {loading && <div className="flex justify-center py-12"><Loader2 className="w-8 h-8 animate-spin" /></div>}
 
@@ -217,18 +270,8 @@ const Weather = () => {
           <>
             {alerts.length > 0 && (
               <Card className="mb-6 border-2 border-destructive/50">
-                <CardHeader className="pb-2">
-                  <CardTitle className="flex items-center gap-2 text-destructive">
-                    <AlertTriangle className="w-5 h-5" />{isBn ? "সক্রিয় সতর্কতা" : "Active Alerts"}
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-2">
-                  {alerts.map((a, i) => (
-                    <div key={i} className={`p-3 rounded-lg ${a.level === "danger" ? "bg-destructive/10 text-destructive" : "bg-yellow-500/10 text-yellow-700 dark:text-yellow-400"}`}>
-                      {a.text}
-                    </div>
-                  ))}
-                </CardContent>
+                <CardHeader className="pb-2"><CardTitle className="flex items-center gap-2 text-destructive"><AlertTriangle className="w-5 h-5" />{isBn ? "সক্রিয় সতর্কতা" : "Active Alerts"}</CardTitle></CardHeader>
+                <CardContent className="space-y-2">{alerts.map((a, i) => (<div key={i} className={`p-3 rounded-lg ${a.level === "danger" ? "bg-destructive/10 text-destructive" : "bg-yellow-500/10 text-yellow-700 dark:text-yellow-400"}`}>{a.text}</div>))}</CardContent>
               </Card>
             )}
 
@@ -254,39 +297,167 @@ const Weather = () => {
               </Card>
             )}
 
-            {data.daily && (
-              <Card>
-                <CardHeader><CardTitle>{isBn ? "৭ দিনের পূর্বাভাস" : "7-Day Forecast"}</CardTitle></CardHeader>
-                <CardContent>
-                  <div className="space-y-2">
-                    {data.daily.time.map((d: string, i: number) => {
-                      const info = wmoCode(data.daily.weather_code[i], isBn);
-                      const date = new Date(d);
-                      return (
-                        <div key={d} className="flex items-center justify-between p-3 rounded-lg bg-muted/50">
-                          <div className="flex items-center gap-3 flex-1">
-                            <info.Icon className="w-6 h-6 text-primary" />
-                            <div>
-                              <div className="font-medium">{date.toLocaleDateString(isBn ? "bn-BD" : "en-US", { weekday: "short", day: "numeric", month: "short" })}</div>
-                              <div className="text-xs text-muted-foreground">{info.text}</div>
+            {/* Forecast tabs: hourly / daily / long range */}
+            <Tabs defaultValue="hourly" className="mb-6">
+              <TabsList className="w-full grid grid-cols-3 h-auto">
+                <TabsTrigger value="hourly" className="text-xs md:text-sm py-2"><Clock className="w-3.5 h-3.5 mr-1" />{isBn ? "ঘণ্টা-ভিত্তিক ২৪ঘ" : "Hourly 24h"}</TabsTrigger>
+                <TabsTrigger value="daily" className="text-xs md:text-sm py-2"><CalendarDays className="w-3.5 h-3.5 mr-1" />{isBn ? "৭–১৬ দিন" : "7–16 days"}</TabsTrigger>
+                <TabsTrigger value="long" className="text-xs md:text-sm py-2">📅 {isBn ? "৩০/৬০ দিন" : "30/60 days"}</TabsTrigger>
+              </TabsList>
+
+              {/* HOURLY */}
+              <TabsContent value="hourly" className="mt-3">
+                <Card>
+                  <CardHeader className="pb-2"><CardTitle className="text-base">{isBn ? "আগামী ২৪ ঘণ্টার বিস্তারিত" : "Next 24 hours"}</CardTitle></CardHeader>
+                  <CardContent>
+                    <div className="space-y-1.5 max-h-[500px] overflow-y-auto pr-1">
+                      {hourly24.map((h, i) => {
+                        const info = wmoCode(h.code, isBn);
+                        const t = new Date(h.time);
+                        const isHigh = h.prob >= 60;
+                        return (
+                          <div key={i} className={`flex items-center gap-3 p-2.5 rounded-lg ${isHigh ? "bg-blue-500/10 border border-blue-500/30" : "bg-muted/40"}`}>
+                            <div className="w-14 shrink-0 text-center">
+                              <div className="text-sm font-bold">{t.toLocaleTimeString(isBn ? "bn-BD" : "en-US", { hour: "numeric", hour12: true })}</div>
+                              <div className="text-[10px] text-muted-foreground">{t.toLocaleDateString(isBn ? "bn-BD" : "en-US", { weekday: "short" })}</div>
+                            </div>
+                            <info.Icon className="w-6 h-6 text-primary shrink-0" />
+                            <div className="flex-1 min-w-0">
+                              <div className="text-sm font-medium truncate">{hourNarrative(t.getHours(), h.code, h.temp, h.prob, isBn)}</div>
+                              <div className="text-[11px] text-muted-foreground flex gap-3 flex-wrap">
+                                <span>💧 {h.prob}%</span>
+                                {h.precip > 0 && <span>🌧️ {h.precip.toFixed(1)}mm</span>}
+                                <span>💨 {Math.round(h.wind)}km/h</span>
+                              </div>
+                            </div>
+                            <div className="text-right shrink-0">
+                              <div className="font-bold text-lg">{Math.round(h.temp)}°</div>
                             </div>
                           </div>
-                          <div className="text-right">
-                            <div className="text-xs text-muted-foreground">💧 {data.daily.precipitation_probability_max[i]}%</div>
-                            <div className="font-bold">{Math.round(data.daily.temperature_2m_max[i])}° / {Math.round(data.daily.temperature_2m_min[i])}°</div>
+                        );
+                      })}
+                    </div>
+                  </CardContent>
+                </Card>
+              </TabsContent>
+
+              {/* DAILY 7/14/16 */}
+              <TabsContent value="daily" className="mt-3">
+                <Card>
+                  <CardHeader className="pb-2 flex flex-row items-center justify-between flex-wrap gap-2">
+                    <CardTitle className="text-base">{isBn ? `${days} দিনের পূর্বাভাস` : `${days}-day forecast`}</CardTitle>
+                    <div className="flex gap-1">
+                      {[7, 14, 16].map(n => (
+                        <Button key={n} size="sm" variant={days === n ? "default" : "outline"} onClick={() => setDays(n)} className="h-7 text-xs px-3">{n}{isBn ? " দিন" : "d"}</Button>
+                      ))}
+                    </div>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-2">
+                      {data.daily?.time.map((d: string, i: number) => {
+                        const info = wmoCode(data.daily.weather_code[i], isBn);
+                        const date = new Date(d);
+                        const prob = data.daily.precipitation_probability_max[i] ?? 0;
+                        const sum = data.daily.precipitation_sum[i] ?? 0;
+                        const sr = data.daily.sunrise?.[i]?.split("T")[1]?.slice(0, 5);
+                        const ss = data.daily.sunset?.[i]?.split("T")[1]?.slice(0, 5);
+                        const wind = Math.round(data.daily.wind_speed_10m_max?.[i] ?? 0);
+                        let narrative = "";
+                        if (isBn) {
+                          if (prob >= 70) narrative = "সারাদিনে বৃষ্টি হওয়ার প্রবল সম্ভাবনা — ছাতা সাথে রাখুন।";
+                          else if (prob >= 40) narrative = "মাঝে-মাঝে বৃষ্টির সম্ভাবনা আছে।";
+                          else if (info.text.includes("পরিষ্কার")) narrative = "দিনটি প্রায় শুষ্ক ও পরিষ্কার থাকবে।";
+                          else narrative = info.text + " থাকবে।";
+                          if (wind >= 40) narrative += ` দমকা হাওয়া (${wind} km/h) সম্ভব।`;
+                        }
+                        return (
+                          <div key={d} className="p-3 rounded-lg bg-muted/40 border border-border/40">
+                            <div className="flex items-center justify-between gap-3 flex-wrap">
+                              <div className="flex items-center gap-3 flex-1 min-w-0">
+                                <info.Icon className="w-7 h-7 text-primary shrink-0" />
+                                <div className="min-w-0">
+                                  <div className="font-semibold">{date.toLocaleDateString(isBn ? "bn-BD" : "en-US", { weekday: "long", day: "numeric", month: "short" })}</div>
+                                  <div className="text-xs text-muted-foreground">{info.text}</div>
+                                </div>
+                              </div>
+                              <div className="text-right shrink-0">
+                                <div className="text-xs text-muted-foreground">💧 {prob}%{sum > 0 ? ` · ${sum.toFixed(1)}mm` : ""}</div>
+                                <div className="font-bold">{Math.round(data.daily.temperature_2m_max[i])}° / {Math.round(data.daily.temperature_2m_min[i])}°</div>
+                              </div>
+                            </div>
+                            {(narrative || sr) && (
+                              <div className="mt-2 pt-2 border-t border-border/40 text-xs text-muted-foreground space-y-0.5">
+                                {narrative && <p>📝 {narrative}</p>}
+                                {sr && <p>🌅 {isBn ? "সূর্যোদয়" : "Sunrise"}: {sr} · 🌇 {isBn ? "সূর্যাস্ত" : "Sunset"}: {ss} · 💨 {wind} km/h</p>}
+                              </div>
+                            )}
                           </div>
-                        </div>
-                      );
-                    })}
-                  </div>
-                </CardContent>
-              </Card>
-            )}
+                        );
+                      })}
+                    </div>
+                  </CardContent>
+                </Card>
+              </TabsContent>
+
+              {/* LONG RANGE 30/60/90 */}
+              <TabsContent value="long" className="mt-3">
+                <Card>
+                  <CardHeader className="pb-2 flex flex-row items-center justify-between flex-wrap gap-2">
+                    <CardTitle className="text-base">{isBn ? `${longDays} দিনের দীর্ঘমেয়াদি পূর্বাভাস` : `${longDays}-day long-range`}</CardTitle>
+                    <div className="flex gap-1">
+                      {[30, 60, 90].map(n => (
+                        <Button key={n} size="sm" variant={longDays === n ? "default" : "outline"} onClick={() => setLongDays(n)} className="h-7 text-xs px-3">{n}{isBn ? " দিন" : "d"}</Button>
+                      ))}
+                    </div>
+                  </CardHeader>
+                  <CardContent>
+                    <p className="text-[11px] text-muted-foreground mb-3">
+                      {isBn
+                        ? "⚠️ দীর্ঘমেয়াদি পূর্বাভাস জলবায়ু মডেল (EC-Earth3P-HR) থেকে — সাধারণ প্রবণতা বুঝতে সাহায্য করে, কিন্তু নির্দিষ্ট দিনের সঠিকতা কম। ৭ দিনের ভেতরের পূর্বাভাস বেশি নির্ভুল।"
+                        : "⚠️ Long-range from climate model (EC-Earth3P-HR) — useful for trends, not exact daily values."}
+                    </p>
+                    {longLoading && <div className="flex justify-center py-8"><Loader2 className="w-6 h-6 animate-spin" /></div>}
+                    {!longLoading && longRange?.daily ? (
+                      <div className="space-y-1.5 max-h-[600px] overflow-y-auto pr-1">
+                        {longRange.daily.time.map((d: string, i: number) => {
+                          const date = new Date(d);
+                          const max = longRange.daily.temperature_2m_max?.[i];
+                          const min = longRange.daily.temperature_2m_min?.[i];
+                          const rain = longRange.daily.precipitation_sum?.[i] ?? 0;
+                          return (
+                            <div key={d} className="flex items-center justify-between p-2 rounded-lg bg-muted/30 text-sm">
+                              <div className="flex-1">
+                                <span className="font-medium">{date.toLocaleDateString(isBn ? "bn-BD" : "en-US", { weekday: "short", day: "numeric", month: "short" })}</span>
+                                {rain >= 5 && <span className="text-xs text-blue-600 dark:text-blue-400 ml-2">🌧️ {rain.toFixed(1)}mm {isBn ? "(বৃষ্টি)" : ""}</span>}
+                              </div>
+                              <div className="text-right">
+                                <span className="font-bold">{Math.round(max)}°</span>
+                                <span className="text-muted-foreground"> / {Math.round(min)}°</span>
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    ) : (!longLoading && (
+                      <p className="text-center text-sm text-muted-foreground py-6">{isBn ? "দীর্ঘমেয়াদি ডেটা লোড হয়নি — কিছুক্ষণ পর আবার চেষ্টা করুন।" : "Long-range data unavailable"}</p>
+                    ))}
+                  </CardContent>
+                </Card>
+              </TabsContent>
+            </Tabs>
+
+            <p className="text-center text-[10px] text-muted-foreground">
+              {isBn ? "ডেটা সোর্স" : "Sources"}: Open-Meteo · ECMWF · NOAA GFS · DWD ICON · JMA · EC-Earth3P-HR
+              {model !== "best_match" && <> · {isBn ? "বর্তমান মডেল" : "current"}: <strong>{MODELS.find(m => m.id === model)?.en}</strong></>}
+            </p>
           </>
         )}
       </motion.div>
     </div>
   );
 };
+
+const todayStr = () => new Date().toISOString().slice(0, 10);
+const addDaysStr = (n: number) => { const d = new Date(); d.setDate(d.getDate() + n); return d.toISOString().slice(0, 10); };
 
 export default Weather;

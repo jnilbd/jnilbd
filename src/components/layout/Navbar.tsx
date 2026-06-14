@@ -218,7 +218,7 @@ const Navbar = () => {
             <Button
               variant="ghost"
               size="icon"
-              className="md:hidden rounded-full"
+              className="md:hidden rounded-full h-8 w-8 sm:h-9 sm:w-9"
               onClick={() => setMobileSearchOpen((o) => !o)}
               aria-label="Search"
             >
@@ -229,7 +229,7 @@ const Navbar = () => {
               onClick={toggle}
               aria-label={`Switch language (current: ${language === "bn" ? "Bangla" : "English"})`}
               title={language === "bn" ? "Switch to English" : "বাংলায় দেখুন"}
-              className="group relative flex items-center justify-center w-9 h-9 rounded-full border border-border/60 bg-gradient-to-br from-primary/15 to-secondary/15 ring-1 ring-primary/30 hover:border-primary/60 hover:shadow-md hover:scale-105 transition-all"
+              className="group relative flex items-center justify-center w-8 h-8 sm:w-9 sm:h-9 rounded-full border border-border/60 bg-gradient-to-br from-primary/15 to-secondary/15 ring-1 ring-primary/30 hover:border-primary/60 hover:shadow-md hover:scale-105 transition-all"
             >
               <Globe className="w-4 h-4 text-primary" strokeWidth={2.5} />
               <span className="absolute -bottom-1 -right-1 text-[8px] font-bold bg-primary text-primary-foreground rounded-full px-1 leading-tight ring-1 ring-background">
@@ -239,7 +239,7 @@ const Navbar = () => {
 
 
             <Link to="/cart" className="relative" onClick={() => setOpenMenu(null)}>
-              <Button variant="ghost" size="icon" className="rounded-full">
+              <Button variant="ghost" size="icon" className="rounded-full h-8 w-8 sm:h-9 sm:w-9">
                 <ShoppingCart className="w-[18px] h-[18px]" />
                 {count > 0 && (
                   <span className="absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] px-1 rounded-full bg-secondary text-secondary-foreground text-[10px] flex items-center justify-center font-bold">

@@ -14,6 +14,21 @@ const FEEDS: Record<string, { q: string; hl: string; gl: string; ceid: string }>
   pakistan: { q: "Pakistan politics", hl: "en", gl: "PK", ceid: "PK:en" },
   china: { q: "China politics", hl: "en", gl: "US", ceid: "US:en" },
   middleeast: { q: "Middle East politics Israel Palestine", hl: "en", gl: "US", ceid: "US:en" },
+  // War / conflict feeds
+  war_overview: { q: "active wars conflicts ceasefire", hl: "en", gl: "US", ceid: "US:en" },
+  war_ukraine: { q: "Russia Ukraine war frontline", hl: "en", gl: "US", ceid: "US:en" },
+  war_gaza: { q: "Israel Gaza Hamas war ceasefire", hl: "en", gl: "US", ceid: "US:en" },
+  war_lebanon: { q: "Israel Lebanon Hezbollah conflict", hl: "en", gl: "US", ceid: "US:en" },
+  war_iran: { q: "Iran Israel strike conflict", hl: "en", gl: "US", ceid: "US:en" },
+  war_yemen: { q: "Yemen Houthi Red Sea conflict", hl: "en", gl: "US", ceid: "US:en" },
+  war_sudan: { q: "Sudan civil war RSF", hl: "en", gl: "US", ceid: "US:en" },
+  war_myanmar: { q: "Myanmar civil war junta resistance", hl: "en", gl: "US", ceid: "US:en" },
+  war_africa: { q: "Africa conflict Congo Sahel", hl: "en", gl: "US", ceid: "US:en" },
+  war_taiwan: { q: "Taiwan China tension military", hl: "en", gl: "US", ceid: "US:en" },
+  war_kashmir: { q: "India Pakistan border tension Kashmir", hl: "en", gl: "IN", ceid: "IN:en" },
+  war_ceasefire: { q: "ceasefire peace talks negotiations", hl: "en", gl: "US", ceid: "US:en" },
+  war_humanitarian: { q: "war humanitarian crisis refugees casualties", hl: "en", gl: "US", ceid: "US:en" },
+  war_bangla: { q: "যুদ্ধ সংঘাত আন্তর্জাতিক", hl: "bn", gl: "BD", ceid: "BD:bn" },
 };
 
 function decode(s: string) {

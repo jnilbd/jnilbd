@@ -58,6 +58,7 @@ import Admin from "./pages/Admin";
 import AdminPortfolio from "./pages/AdminPortfolio";
 import BusinessGuide from "./pages/BusinessGuide";
 import Politics from "./pages/Politics";
+import WarUpdates from "./pages/WarUpdates";
 
 const queryClient = new QueryClient();
 
@@ -119,6 +120,7 @@ const App = () => (
                 <Route path="/travel" element={<TravelGuide />} />
                 <Route path="/business-guide" element={<BusinessGuide />} />
                 <Route path="/politics" element={<Politics />} />
+                <Route path="/war" element={<WarUpdates />} />
                 <Route path="/cart" element={<Cart />} />
                 <Route path="/checkout" element={<Checkout />} />
                 <Route path="/order-confirmation/:id" element={<OrderConfirmation />} />

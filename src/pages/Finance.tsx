@@ -22,6 +22,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
+import FinanceCalculator from "@/components/finance/FinanceCalculator";
 
 const EXPENSE_CATS_BN = ["খাবার ও বাজার","পরিবহন","ভাড়া","বিল","স্বাস্থ্য","শিক্ষা","কেনাকাটা","বিনোদন","পরিবার","অন্যান্য"];
 const EXPENSE_CATS_EN = ["Food & Groceries","Transport","Rent","Bills","Health","Education","Shopping","Entertainment","Family","Other"];
@@ -337,7 +338,7 @@ const Finance = () => {
       </div>
 
       <Tabs defaultValue="dashboard" className="w-full">
-        <TabsList className="grid grid-cols-3 lg:grid-cols-8 w-full h-auto">
+        <TabsList className="grid grid-cols-3 lg:grid-cols-9 w-full h-auto">
           <TabsTrigger value="dashboard">{bn?"ড্যাশবোর্ড":"Dashboard"}</TabsTrigger>
           <TabsTrigger value="tx">{bn?"লেনদেন":"Transactions"}</TabsTrigger>
           <TabsTrigger value="plans">{bn?"পরিকল্পনা":"Plans"}</TabsTrigger>
@@ -345,8 +346,15 @@ const Finance = () => {
           <TabsTrigger value="debts">{bn?"ধার-দেনা":"Debts"}</TabsTrigger>
           <TabsTrigger value="budget">{bn?"বাজেট":"Budgets"}</TabsTrigger>
           <TabsTrigger value="goals">{bn?"লক্ষ্য":"Goals"}</TabsTrigger>
+          <TabsTrigger value="calc">{bn?"ক্যালকুলেটর":"Calculator"}</TabsTrigger>
           <TabsTrigger value="profile">{bn?"প্রোফাইল":"Profile"}</TabsTrigger>
         </TabsList>
+
+        <TabsContent value="calc" className="mt-4">
+          <FinanceCalculator />
+        </TabsContent>
+
+
 
         {/* DASHBOARD */}
         <TabsContent value="dashboard" className="mt-4 space-y-4">

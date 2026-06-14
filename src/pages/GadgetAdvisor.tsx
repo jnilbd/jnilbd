@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { Smartphone, Laptop, Monitor, Tablet, Headphones, Watch, Loader2, Sparkles } from "lucide-react";
+import { Smartphone, Laptop, Monitor, Tablet, Headphones, Watch, Loader2, Sparkles, Globe2 } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Button } from "@/components/ui/button";
@@ -30,6 +30,59 @@ const GadgetAdvisor = () => {
   const [requirements, setRequirements] = useState("");
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState("");
+
+  // Global price comparison state
+  const COUNTRIES = [
+    { id: "Bangladesh", bn: "বাংলাদেশ" },
+    { id: "India", bn: "ইন্ডিয়া" },
+    { id: "Nepal", bn: "নেপাল" },
+    { id: "China", bn: "চায়না" },
+    { id: "USA", bn: "আমেরিকা" },
+    { id: "UAE", bn: "দুবাই/UAE" },
+    { id: "UK", bn: "ইউকে" },
+    { id: "Japan", bn: "জাপান" },
+    { id: "Singapore", bn: "সিঙ্গাপুর" },
+    { id: "Malaysia", bn: "মালয়েশিয়া" },
+    { id: "Saudi Arabia", bn: "সৌদি আরব" },
+    { id: "Pakistan", bn: "পাকিস্তান" },
+  ];
+  const [product, setProduct] = useState("");
+  const [selectedCountries, setSelectedCountries] = useState<string[]>([
+    "Bangladesh", "India", "Nepal", "China", "USA", "UAE",
+  ]);
+  const [cmpLoading, setCmpLoading] = useState(false);
+  const [cmpResult, setCmpResult] = useState("");
+
+  const toggleCountry = (c: string) => {
+    setSelectedCountries((prev) =>
+      prev.includes(c) ? prev.filter((x) => x !== c) : [...prev, c]
+    );
+  };
+
+  const handleCompare = async () => {
+    if (!product.trim()) {
+      toast.error(isBn ? "প্রোডাক্ট/মডেল লিখুন" : "Enter product/model");
+      return;
+    }
+    if (selectedCountries.length < 2) {
+      toast.error(isBn ? "কমপক্ষে ২টি দেশ বাছুন" : "Pick at least 2 countries");
+      return;
+    }
+    setCmpLoading(true);
+    setCmpResult("");
+    try {
+      const { data, error } = await supabase.functions.invoke("global-price-compare", {
+        body: { product, countries: selectedCountries, language },
+      });
+      if (error) throw error;
+      if (data.error) throw new Error(data.error);
+      setCmpResult(data.comparison);
+    } catch (e: any) {
+      toast.error(e.message || "Failed");
+    } finally {
+      setCmpLoading(false);
+    }
+  };
 
   const handleAnalyze = async () => {
     if (!budget || Number(budget) < 1000) {
@@ -159,6 +212,111 @@ const GadgetAdvisor = () => {
             </CardContent>
           </Card>
         )}
+
+        {/* Global Price Comparison */}
+        <Card className="mt-8">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Globe2 className="w-5 h-5 text-primary" />
+              {isBn ? "🌍 গ্লোবাল প্রাইস তুলনা (AI)" : "🌍 Global Price Comparison (AI)"}
+            </CardTitle>
+            <p className="text-sm text-muted-foreground">
+              {isBn
+                ? "একই গ্যাজেট/প্রোডাক্ট বিভিন্ন দেশে কত দামে পাওয়া যাচ্ছে — বাংলাদেশ, ইন্ডিয়া, নেপাল, চায়না, আমেরিকাসহ পার্থক্য দেখুন।"
+                : "Compare the same gadget/product price across Bangladesh, India, Nepal, China, USA and more."}
+            </p>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div>
+              <label className="text-sm font-medium mb-2 block">
+                {isBn ? "প্রোডাক্ট/মডেল" : "Product / Model"}
+              </label>
+              <Input
+                placeholder={
+                  isBn
+                    ? "যেমন: iPhone 16 Pro 256GB, MacBook Air M3, Samsung 55\" QLED TV, RTX 4070..."
+                    : "e.g. iPhone 16 Pro 256GB, MacBook Air M3, Samsung 55\" QLED TV, RTX 4070..."
+                }
+                value={product}
+                onChange={(e) => setProduct(e.target.value)}
+              />
+              <div className="flex flex-wrap gap-2 mt-2">
+                {[
+                  "iPhone 16 Pro 256GB",
+                  "Samsung Galaxy S24 Ultra",
+                  "MacBook Air M3",
+                  "Dell XPS 15",
+                  'Sony 65" Bravia TV',
+                  "iPad Air M2",
+                  "PS5 Slim",
+                  "RTX 4070 GPU",
+                ].map((p) => (
+                  <Badge
+                    key={p}
+                    variant="outline"
+                    className="cursor-pointer"
+                    onClick={() => setProduct(p)}
+                  >
+                    {p}
+                  </Badge>
+                ))}
+              </div>
+            </div>
+
+            <div>
+              <label className="text-sm font-medium mb-2 block">
+                {isBn ? "দেশ বাছুন (২+)" : "Select Countries (2+)"}
+              </label>
+              <div className="flex flex-wrap gap-2">
+                {COUNTRIES.map((c) => (
+                  <Badge
+                    key={c.id}
+                    variant={selectedCountries.includes(c.id) ? "default" : "outline"}
+                    className="cursor-pointer"
+                    onClick={() => toggleCountry(c.id)}
+                  >
+                    {isBn ? c.bn : c.id}
+                  </Badge>
+                ))}
+              </div>
+            </div>
+
+            <Button onClick={handleCompare} disabled={cmpLoading} className="w-full" size="lg">
+              {cmpLoading ? (
+                <><Loader2 className="w-4 h-4 mr-2 animate-spin" />{isBn ? "তুলনা হচ্ছে..." : "Comparing..."}</>
+              ) : (
+                <><Globe2 className="w-4 h-4 mr-2" />{isBn ? "প্রাইস তুলনা দেখুন" : "Compare Prices"}</>
+              )}
+            </Button>
+
+            {cmpResult && (
+              <div className="mt-4 border-t pt-4">
+                <div className="prose prose-sm dark:prose-invert max-w-none overflow-x-auto">
+                  <ReactMarkdown
+                    components={{
+                      table: ({ node, ...props }) => (
+                        <table className="w-full border-collapse text-xs md:text-sm" {...props} />
+                      ),
+                      th: ({ node, ...props }) => (
+                        <th className="border border-border px-2 py-1 bg-muted text-left" {...props} />
+                      ),
+                      td: ({ node, ...props }) => (
+                        <td className="border border-border px-2 py-1" {...props} />
+                      ),
+                    }}
+                  >
+                    {cmpResult}
+                  </ReactMarkdown>
+                </div>
+                <p className="text-xs text-muted-foreground mt-3 italic">
+                  {isBn
+                    ? "⚠️ দাম আনুমানিক — ট্যাক্স, কাস্টমস ও কারেন্সি রেট পরিবর্তনশীল। কেনার আগে অফিসিয়াল রিটেইলার থেকে যাচাই করুন।"
+                    : "⚠️ Prices are approximate — taxes, customs & FX rates vary. Verify with official retailers before buying."}
+                </p>
+              </div>
+            )}
+          </CardContent>
+        </Card>
       </motion.div>
     </div>
   );

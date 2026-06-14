@@ -12,7 +12,7 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/
 import {
   Sparkles, Loader2, Copy, Check, Download, Wand2, Megaphone, Target,
   DollarSign, Palette, Image as ImageIcon, AlertTriangle, Facebook, Instagram,
-  Youtube, Linkedin, Twitter, Globe,
+  Youtube, Linkedin, Twitter, Globe, RefreshCw, Film,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";

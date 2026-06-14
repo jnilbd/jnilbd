@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { motion } from "framer-motion";
-import { Image as ImageIcon, Type, Download, Wand2, Layers, Sparkles, Upload } from "lucide-react";
+import { Image as ImageIcon, Type, Download, Wand2, Layers, Sparkles, Upload, Loader2, Bot } from "lucide-react";
 import { toast } from "sonner";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Button } from "@/components/ui/button";
@@ -10,6 +10,8 @@ import { Slider } from "@/components/ui/slider";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { Textarea } from "@/components/ui/textarea";
+import { supabase } from "@/integrations/supabase/client";
 
 const PRESETS = [
   { name: "YouTube 16:9", w: 1280, h: 720 },
@@ -55,6 +57,36 @@ const ThumbnailEditor = () => {
   const [badge, setBadge] = useState("NEW");
   const [badgeColor, setBadgeColor] = useState("#ef4444");
   const [showBadge, setShowBadge] = useState(false);
+
+  // AI generator state
+  const [aiPrompt, setAiPrompt] = useState("");
+  const [aiStyle, setAiStyle] = useState("youtube");
+  const [aiBusy, setAiBusy] = useState(false);
+
+  const generateAI = async () => {
+    if (!aiPrompt.trim()) { toast.error(bn ? "প্রম্পট লিখুন" : "Enter a prompt"); return; }
+    setAiBusy(true);
+    try {
+      const p = PRESETS[preset];
+      const aspect = p.w === p.h ? "1:1" : p.w > p.h ? "16:9" : "9:16";
+      const { data, error } = await supabase.functions.invoke("ai-thumbnail", {
+        body: { prompt: aiPrompt.trim(), style: aiStyle, aspect, title },
+      });
+      if (error) throw error;
+      if (!data?.image) throw new Error(data?.error || "Failed");
+      const i = new Image();
+      i.crossOrigin = "anonymous";
+      i.onload = () => {
+        setImg(i);
+        toast.success(bn ? "AI থাম্বনেইল তৈরি হয়েছে — এখন এডিট করুন!" : "AI thumbnail ready — now customize!");
+      };
+      i.src = data.image;
+    } catch (e: any) {
+      toast.error(e?.message || (bn ? "ব্যর্থ" : "Failed"));
+    } finally {
+      setAiBusy(false);
+    }
+  };
 
   const onUpload = (f: File) => {
     if (f.size > 20*1024*1024) { toast.error("Max 20MB"); return; }
@@ -184,10 +216,75 @@ const ThumbnailEditor = () => {
           <ImageIcon className="w-6 h-6" />
         </div>
         <div>
-          <h1 className="font-display text-2xl lg:text-3xl font-bold">{bn?"থাম্বনেইল এডিটর":"Thumbnail Editor"}</h1>
-          <p className="text-xs text-muted-foreground">{bn?"YouTube, Facebook, Insta — সব সাইজে এক ক্লিকে":"YouTube, Facebook, Insta — one-click presets"}</p>
+          <h1 className="font-display text-2xl lg:text-3xl font-bold">{bn?"থাম্বনেইল মেকার":"Thumbnail Maker"}</h1>
+          <p className="text-xs text-muted-foreground">{bn?"AI দিয়ে তৈরি করুন, তারপর মন মতো এডিট করুন":"Generate with AI, then customize freely"}</p>
         </div>
       </motion.div>
+
+      {/* AI Thumbnail Generator */}
+      <Card className="border-2 border-primary/30 bg-gradient-to-br from-primary/10 via-secondary/5 to-background">
+        <CardContent className="p-4 space-y-3">
+          <div className="flex items-center gap-2">
+            <div className="w-8 h-8 rounded-xl gradient-bg-primary text-white flex items-center justify-center">
+              <Bot className="w-4 h-4" />
+            </div>
+            <div className="flex-1">
+              <p className="font-display font-bold text-sm">{bn ? "AI থাম্বনেইল মেকার (অ্যাডভান্স)" : "AI Thumbnail Maker (Advanced)"}</p>
+              <p className="text-[11px] text-muted-foreground">{bn ? "শুধু বর্ণনা লিখুন — AI জেনারেট করার পর পুরোপুরি এডিট করতে পারবেন" : "Describe your scene — AI generates, then you can fully edit & extend"}</p>
+            </div>
+          </div>
+          <Textarea
+            value={aiPrompt}
+            onChange={(e) => setAiPrompt(e.target.value)}
+            placeholder={bn
+              ? "যেমন: একজন তরুণ ছেলে অবাক চেহারায় ল্যাপটপের সামনে, পেছনে বিস্ফোরণ ও সোনার কয়েন উড়ছে, dramatic lighting"
+              : "e.g. A shocked young man in front of a laptop, explosions and gold coins flying behind, dramatic lighting"}
+            rows={3}
+            maxLength={500}
+            className="resize-none text-sm"
+          />
+          <div className="grid grid-cols-2 gap-2">
+            <Select value={aiStyle} onValueChange={setAiStyle}>
+              <SelectTrigger><SelectValue /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="youtube">YouTube Viral</SelectItem>
+                <SelectItem value="cinematic">Cinematic Poster</SelectItem>
+                <SelectItem value="minimal">Minimal / Editorial</SelectItem>
+                <SelectItem value="tech">Tech / Product</SelectItem>
+                <SelectItem value="vlog">Vlog / Lifestyle</SelectItem>
+                <SelectItem value="gaming">Gaming</SelectItem>
+                <SelectItem value="educational">Educational</SelectItem>
+                <SelectItem value="news">News / Documentary</SelectItem>
+              </SelectContent>
+            </Select>
+            <Button onClick={generateAI} disabled={aiBusy} className="gradient-bg-primary text-white">
+              {aiBusy ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Sparkles className="w-4 h-4 mr-2" />}
+              {bn ? "AI দিয়ে তৈরি করুন" : "Generate with AI"}
+            </Button>
+          </div>
+          <div className="flex flex-wrap gap-1.5">
+            {[
+              bn ? "ব্যবসা সফলতার গল্প, dramatic" : "Business success story, dramatic",
+              bn ? "নতুন প্রোডাক্ট রিভিউ, studio light" : "New product review, studio light",
+              bn ? "ভ্রমণ ভ্লগ, কক্সবাজার সমুদ্র" : "Travel vlog, Bali beach sunset",
+              bn ? "গেমিং highlight, neon RGB" : "Gaming highlight, neon RGB",
+            ].map((s) => (
+              <button
+                key={s}
+                onClick={() => setAiPrompt(s)}
+                className="text-[11px] px-2 py-1 rounded-full bg-muted hover:bg-primary/20"
+              >
+                {s}
+              </button>
+            ))}
+          </div>
+          <p className="text-[10px] text-muted-foreground italic">
+            {bn
+              ? "টিপ: AI ইমেজে টেক্সট লেখা হবে না — নিচের টেক্সট ট্যাব দিয়ে টাইটেল বসান এবং ফিল্টার/ওভারলে দিয়ে আরো সাজান।"
+              : "Tip: AI won't add text — use the Text tab below to add titles and Filter/Overlay to refine further."}
+          </p>
+        </CardContent>
+      </Card>
 
       {/* Bangla guideline card */}
       <Card className="bg-gradient-to-br from-primary/5 to-secondary/5 border-primary/20">
@@ -195,19 +292,19 @@ const ThumbnailEditor = () => {
           <p className="font-display font-bold text-sm flex items-center gap-1.5"><Sparkles className="w-4 h-4 text-secondary" />{bn?"সহজ গাইডলাইন (A-Z)":"Quick Guide"}</p>
           <ol className="text-xs text-muted-foreground space-y-0.5 list-decimal list-inside">
             {bn ? (<>
-              <li>উপরে থেকে সাইজ প্রিসেট সিলেক্ট করুন (যেমন YouTube 16:9)</li>
-              <li>"আপলোড" বাটনে ক্লিক করে ব্যাকগ্রাউন্ড ছবি দিন (JPG/PNG, ২০MB পর্যন্ত)</li>
-              <li>"টেক্সট" ট্যাব থেকে টাইটেল/সাবটাইটেল লিখুন, ফন্ট ও কালার বেছে নিন</li>
-              <li>"ফিল্টার" থেকে brightness/contrast ঠিক করুন, ওভারলে দিন স্পষ্টতার জন্য</li>
-              <li>চাইলে "ব্যাজ" অন করে NEW/HOT/SALE লিখুন</li>
-              <li>সবশেষে "ডাউনলোড" বাটনে ক্লিক করে HD PNG সেভ করুন ✅</li>
+              <li>উপরে সাইজ প্রিসেট সিলেক্ট করুন (YouTube 16:9 ইত্যাদি)</li>
+              <li>"AI দিয়ে তৈরি করুন" — বা নিজের ছবি "আপলোড" করুন</li>
+              <li>"টেক্সট" ট্যাব থেকে টাইটেল/সাবটাইটেল, ফন্ট, কালার দিন</li>
+              <li>"ফিল্টার" দিয়ে brightness/contrast ঠিক করুন, ওভারলে দিন</li>
+              <li>"ব্যাজ" অন করে NEW/HOT/SALE লেখা যোগ করুন</li>
+              <li>"ডাউনলোড HD" বাটনে ক্লিক করে PNG সেভ করুন ✅</li>
             </>) : (<>
-              <li>Pick a size preset (e.g. YouTube 16:9)</li>
-              <li>Click "Upload" to add a background image</li>
-              <li>Set title/subtitle, font and color in the Text tab</li>
+              <li>Pick a size preset (YouTube 16:9, etc.)</li>
+              <li>Generate with AI — or upload your own image</li>
+              <li>Add title/subtitle, font and color in the Text tab</li>
               <li>Adjust filters and overlay for clarity</li>
               <li>Optionally add a NEW/HOT/SALE badge</li>
-              <li>Click Download to save HD PNG ✅</li>
+              <li>Click Download HD to save PNG ✅</li>
             </>)}
           </ol>
         </CardContent>

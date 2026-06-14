@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Wallet, Mail, Lock, User as UserIcon, ArrowRight } from "lucide-react";
+import { Wallet, Mail, Lock, User as UserIcon, ArrowRight, MessageCircle } from "lucide-react";
 import { z } from "zod";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
@@ -29,6 +29,8 @@ const Auth = () => {
     if (!n || !n.startsWith("/") || n.startsWith("//")) return "/finance";
     return n;
   }, [params]);
+  const isChatAuth = next === "/chat";
+  const AuthIcon = isChatAuth ? MessageCircle : Wallet;
   const [mode, setMode] = useState<"login" | "signup">("login");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -89,14 +91,16 @@ const Auth = () => {
         className="w-full max-w-md"
       >
         <div className="text-center mb-6">
-          <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl gradient-bg-primary text-white shadow-glow mb-3">
-            <Wallet className="w-7 h-7" />
+          <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl gradient-bg-primary text-primary-foreground shadow-glow mb-3">
+            <AuthIcon className="w-7 h-7" />
           </div>
           <h1 className="font-display text-3xl font-bold">
-            {language === "bn" ? "ফিন্যান্স ম্যানেজার" : "Finance Manager"}
+            {isChatAuth ? (language === "bn" ? "লাইভ চ্যাট" : "Live Chat") : (language === "bn" ? "ফিন্যান্স ম্যানেজার" : "Finance Manager")}
           </h1>
           <p className="text-sm text-muted-foreground mt-1">
-            {language === "bn" ? "আপনার দৈনন্দিন হিসাব, এক জায়গায়।" : "Your daily money, all in one place."}
+            {isChatAuth
+              ? (language === "bn" ? "চ্যাটে যেতে আগে লগইন করুন।" : "Log in first to open chat.")
+              : (language === "bn" ? "আপনার দৈনন্দিন হিসাব, এক জায়গায়।" : "Your daily money, all in one place.")}
           </p>
         </div>
 

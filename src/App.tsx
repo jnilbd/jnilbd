@@ -54,6 +54,7 @@ import About from "./pages/About";
 import Appointment from "./pages/Appointment";
 import Policies from "./pages/Policies";
 import NotFound from "./pages/NotFound.tsx";
+import Admin from "./pages/Admin";
 
 const queryClient = new QueryClient();
 
@@ -72,6 +73,7 @@ const App = () => (
                 <Route path="/" element={<Home />} />
                 <Route path="/shop" element={<Shop />} />
                 <Route path="/shop/:id" element={<ProductDetail />} />
+                <Route path="/admin" element={<Admin />} />
                 <Route path="/services" element={<Services />} />
                 <Route path="/services/:id" element={<ServiceDetail />} />
                 <Route path="/portfolio" element={<Portfolio />} />

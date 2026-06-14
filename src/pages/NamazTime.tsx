@@ -138,7 +138,58 @@ const NamazTime = () => {
           })}
         </div>
 
+        {/* Sehri & Iftar — Ramadan & daily fasting */}
+        <Card className="bg-gradient-to-br from-amber-500/10 via-background to-rose-500/10 border-amber-500/30">
+          <CardContent className="p-4">
+            <p className="font-display text-lg font-bold mb-3 flex items-center gap-2">
+              🌙 {bn ? "সেহরি ও ইফতার" : "Sehri & Iftar"}
+            </p>
+            <div className="grid grid-cols-2 gap-3">
+              <div className="rounded-xl bg-gradient-to-br from-amber-500/15 to-orange-500/10 p-4 border border-amber-500/30">
+                <div className="flex items-center gap-2 mb-1">
+                  <Coffee className="w-4 h-4 text-amber-600" />
+                  <span className="text-[11px] uppercase tracking-wider font-semibold text-amber-700 dark:text-amber-400">{bn ? "সেহরির শেষ সময়" : "Sehri Ends"}</span>
+                </div>
+                <div className="font-display font-bold text-2xl">{fmt(data.timings.Imsak || data.timings.Fajr, bn)}</div>
+                <p className="text-[10px] text-muted-foreground mt-1">{bn ? "এই সময়ের আগে খাওয়া শেষ করুন" : "Stop eating before this time"}</p>
+              </div>
+              <div className="rounded-xl bg-gradient-to-br from-rose-500/15 to-pink-500/10 p-4 border border-rose-500/30">
+                <div className="flex items-center gap-2 mb-1">
+                  <UtensilsCrossed className="w-4 h-4 text-rose-600" />
+                  <span className="text-[11px] uppercase tracking-wider font-semibold text-rose-700 dark:text-rose-400">{bn ? "ইফতারের সময়" : "Iftar Time"}</span>
+                </div>
+                <div className="font-display font-bold text-2xl">{fmt(data.timings.Maghrib, bn)}</div>
+                <p className="text-[10px] text-muted-foreground mt-1">{bn ? "মাগরিবের আযানের সাথে রোজা ভাঙুন" : "Break fast at Maghrib adhan"}</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
         <PrayerAlertCard data={data} bn={bn} />
+
+        {/* Namaz guideline & importance */}
+        <Card className="bg-gradient-to-br from-emerald-500/10 via-background to-teal-500/5 border-emerald-500/30">
+          <CardContent className="p-4">
+            <h2 className="font-display text-xl font-bold mb-1 flex items-center gap-2">
+              📖 {bn ? "নামাজ — সম্পূর্ণ গাইডলাইন" : "Namaz — Complete Guide"}
+            </h2>
+            <p className="text-xs text-muted-foreground mb-3">{bn ? "গুরুত্ব, শর্ত, অজুর নিয়ম, অনুপ্রেরণা — সবকিছু এক জায়গায়" : "Importance, conditions, wudu, motivation — all in one place"}</p>
+            <Accordion type="multiple" className="w-full">
+              {NAMAZ_GUIDE.map(sec => (
+                <AccordionItem key={sec.id} value={sec.id}>
+                  <AccordionTrigger className="text-left">
+                    <span className="flex items-center gap-2"><span className="text-xl">{sec.icon}</span><span className="font-semibold">{sec.title}</span></span>
+                  </AccordionTrigger>
+                  <AccordionContent>
+                    <div className="space-y-2 text-sm leading-relaxed pl-2 border-l-2 border-primary/30 pt-1">
+                      {sec.content.map((p, i) => <p key={i} className="text-foreground/85">{p}</p>)}
+                    </div>
+                  </AccordionContent>
+                </AccordionItem>
+              ))}
+            </Accordion>
+          </CardContent>
+        </Card>
 
         <p className="text-center text-[11px] text-muted-foreground">{bn?"ডেটা সোর্স":"Source"}: aladhan.com (ISNA method)</p>
       </>)}

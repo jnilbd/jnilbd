@@ -14,9 +14,31 @@ import StationDisplayBoard from "@/components/StationDisplayBoard";
 import { MonitorPlay, Info } from "lucide-react";
 
 
-// Curated Bangladesh Railway data — major stations & popular intercity trains.
-// Data is approximate and based on public BR schedule (Nov 2024 print).
-// For live availability we deep-link to the official eticket portal.
+// Bangladesh Railway eTicket currently uses Shohoz/CCSRTS web flow.
+// Search links must use the official city values (e.g. Biman_Bandar) and the
+// current BR booking window is 10 days for domestic journeys.
+
+const BOOKING_WINDOW_DAYS = 10;
+
+const OFFICIAL_STATION_MAP: Record<string, string> = {
+  "Dhaka (Kamalapur)": "Dhaka",
+  "Dhaka (Bimanbandar)": "Biman_Bandar",
+  "Dhaka (Tejgaon)": "Dhaka",
+  "Chattogram": "Chattogram",
+  "Cox's Bazar": "Coxs_Bazar",
+  "Brahmanbaria": "B_Baria",
+  "Chapainawabganj": "Chapai_Nawabganj",
+  "Bhairab Bazar": "Bhairab_Bazar",
+  "Dewanganj": "Dewanganj_Bazar",
+};
+
+const DHAKA_AREA_STATIONS = new Set(["Dhaka (Kamalapur)", "Dhaka (Bimanbandar)", "Dhaka (Tejgaon)"]);
+
+const STATION_NOTES: Record<string, string> = {
+  "Dhaka (Kamalapur)": "Official eTicket city: Dhaka",
+  "Dhaka (Bimanbandar)": "Official eTicket city: Biman_Bandar",
+  "Dhaka (Tejgaon)": "Tejgaon is not listed as a separate eTicket city right now; booking opens with Dhaka/Kamalapur when applicable.",
+};
 
 const STATIONS = [
   "Dhaka (Kamalapur)", "Dhaka (Bimanbandar)", "Dhaka (Tejgaon)",

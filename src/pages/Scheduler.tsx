@@ -298,10 +298,118 @@ const Scheduler = () => {
           </p>
         </Card>
 
+        {/* AI Message Templates */}
+        <Card className="p-6 space-y-4 mb-8 border-primary/30 bg-gradient-to-br from-primary/5 via-background to-secondary/5">
+          <div className="flex items-start justify-between gap-3 flex-wrap">
+            <div>
+              <h2 className="text-xl font-display font-bold flex items-center gap-2">
+                <Sparkles className="w-5 h-5 text-primary" />
+                {t("AI মেসেজ সাজেশন", "AI Message Suggestions")}
+              </h2>
+              <p className="text-xs text-muted-foreground mt-0.5">
+                {t(
+                  "অনুষ্ঠান ও সম্পর্ক বেছে নিন — ১৫–২০টি রেডি মেসেজ পাবেন, এক ক্লিকে ব্যবহার করুন",
+                  "Pick occasion & relation — get 15–20 ready messages, use with one click"
+                )}
+              </p>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+            <div>
+              <label className="text-xs font-medium mb-1 block">{t("অনুষ্ঠান", "Occasion")}</label>
+              <Select value={aiOccasion} onValueChange={setAiOccasion}>
+                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectContent className="max-h-72">
+                  {OCCASIONS.map((o) => (
+                    <SelectItem key={o.value} value={o.value}>
+                      {o.emoji} {language === "bn" ? o.bn : o.en}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <label className="text-xs font-medium mb-1 block">{t("সম্পর্ক", "Relationship")}</label>
+              <Select value={aiRelation} onValueChange={setAiRelation}>
+                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  {RELATIONSHIPS.map((r) => (
+                    <SelectItem key={r.value} value={r.value}>
+                      {language === "bn" ? r.bn : r.en}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <label className="text-xs font-medium mb-1 block">{t("টোন", "Tone")}</label>
+              <Select value={aiTone} onValueChange={setAiTone}>
+                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="warm">{t("আন্তরিক", "Warm")}</SelectItem>
+                  <SelectItem value="romantic">{t("রোমান্টিক", "Romantic")}</SelectItem>
+                  <SelectItem value="funny">{t("মজার", "Funny")}</SelectItem>
+                  <SelectItem value="formal">{t("ফরমাল", "Formal")}</SelectItem>
+                  <SelectItem value="poetic">{t("কাব্যিক", "Poetic")}</SelectItem>
+                  <SelectItem value="islamic">{t("ইসলামিক / দোয়া", "Islamic / Dua")}</SelectItem>
+                  <SelectItem value="short">{t("সংক্ষিপ্ত", "Short")}</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+
+          <div className="flex flex-wrap gap-2 pt-1">
+            {OCCASIONS.slice(0, 10).map((o) => (
+              <button
+                key={o.value}
+                onClick={() => setAiOccasion(o.value)}
+                className={`px-2.5 py-1 rounded-full text-xs border transition ${
+                  aiOccasion === o.value ? "bg-primary text-primary-foreground border-primary" : "bg-muted/40 hover:bg-muted"
+                }`}
+              >
+                {o.emoji} {language === "bn" ? o.bn : o.en}
+              </button>
+            ))}
+          </div>
+
+          <Button onClick={generateTemplates} disabled={aiBusy} size="lg" className="w-full">
+            {aiBusy ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Sparkles className="w-4 h-4 mr-2" />}
+            {aiBusy ? t("জেনারেট হচ্ছে...", "Generating...") : t("১৫–২০টি মেসেজ তৈরি করো", "Generate 15–20 messages")}
+          </Button>
+
+          {aiTemplates.length > 0 && (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+              {aiTemplates.map((tpl, i) => (
+                <div key={i} className="p-3 rounded-lg border bg-card hover:border-primary/50 transition group">
+                  <p className="text-[11px] font-semibold text-primary mb-1">{tpl.title || `#${i + 1}`}</p>
+                  <p className="text-sm whitespace-pre-wrap mb-2">{tpl.text}</p>
+                  <div className="flex gap-1.5">
+                    <Button size="sm" variant="default" className="h-7 text-xs flex-1" onClick={() => useTemplate(tpl.text)}>
+                      <Send className="w-3 h-3 mr-1" />
+                      {t("ব্যবহার করো", "Use")}
+                    </Button>
+                    <Button size="sm" variant="outline" className="h-7 text-xs" onClick={() => copyTemplate(tpl.text)}>
+                      <Copy className="w-3 h-3" />
+                    </Button>
+                  </div>
+                </div>
+              ))}
+              <div className="md:col-span-2">
+                <Button onClick={generateTemplates} disabled={aiBusy} variant="outline" size="sm" className="w-full">
+                  <RefreshCw className="w-3 h-3 mr-1" />
+                  {t("আরও জেনারেট করো", "Generate more")}
+                </Button>
+              </div>
+            </div>
+          )}
+        </Card>
+
         <h2 className="text-xl font-display font-bold mb-3 flex items-center gap-2">
           <MessageSquare className="w-5 h-5" />
           {t("আপনার শিডিউল", "Your schedule")} ({items.length})
         </h2>
+
 
         {items.length === 0 ? (
           <p className="text-muted-foreground text-sm text-center py-8">

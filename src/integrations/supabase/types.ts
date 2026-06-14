@@ -14,6 +14,48 @@ export type Database = {
   }
   public: {
     Tables: {
+      admin_notification_settings: {
+        Row: {
+          admin_user_id: string
+          enable_sms: boolean | null
+          enable_telegram: boolean | null
+          enable_whatsapp: boolean | null
+          id: string
+          shop_hero_subtitle: string | null
+          shop_hero_title: string | null
+          sms_number: string | null
+          telegram_chat_id: string | null
+          updated_at: string
+          whatsapp_number: string | null
+        }
+        Insert: {
+          admin_user_id: string
+          enable_sms?: boolean | null
+          enable_telegram?: boolean | null
+          enable_whatsapp?: boolean | null
+          id?: string
+          shop_hero_subtitle?: string | null
+          shop_hero_title?: string | null
+          sms_number?: string | null
+          telegram_chat_id?: string | null
+          updated_at?: string
+          whatsapp_number?: string | null
+        }
+        Update: {
+          admin_user_id?: string
+          enable_sms?: boolean | null
+          enable_telegram?: boolean | null
+          enable_whatsapp?: boolean | null
+          id?: string
+          shop_hero_subtitle?: string | null
+          shop_hero_title?: string | null
+          sms_number?: string | null
+          telegram_chat_id?: string | null
+          updated_at?: string
+          whatsapp_number?: string | null
+        }
+        Relationships: []
+      }
       budgets: {
         Row: {
           category: string
@@ -193,6 +235,47 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      product_reviews: {
+        Row: {
+          comment: string | null
+          created_at: string
+          id: string
+          is_approved: boolean | null
+          product_id: string
+          rating: number
+          reviewer_name: string | null
+          user_id: string | null
+        }
+        Insert: {
+          comment?: string | null
+          created_at?: string
+          id?: string
+          is_approved?: boolean | null
+          product_id: string
+          rating: number
+          reviewer_name?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          comment?: string | null
+          created_at?: string
+          id?: string
+          is_approved?: boolean | null
+          product_id?: string
+          rating?: number
+          reviewer_name?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "product_reviews_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "shop_products"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       profiles: {
         Row: {
@@ -446,6 +529,152 @@ export type Database = {
         }
         Relationships: []
       }
+      shop_orders: {
+        Row: {
+          addons: Json | null
+          created_at: string
+          customer_address: string | null
+          customer_email: string | null
+          customer_name: string
+          customer_phone: string
+          id: string
+          notes: string | null
+          notified: boolean | null
+          product_id: string | null
+          product_name: string
+          quantity: number
+          status: string
+          total_amount: number
+          unit_price: number
+          user_id: string | null
+        }
+        Insert: {
+          addons?: Json | null
+          created_at?: string
+          customer_address?: string | null
+          customer_email?: string | null
+          customer_name: string
+          customer_phone: string
+          id?: string
+          notes?: string | null
+          notified?: boolean | null
+          product_id?: string | null
+          product_name: string
+          quantity?: number
+          status?: string
+          total_amount: number
+          unit_price: number
+          user_id?: string | null
+        }
+        Update: {
+          addons?: Json | null
+          created_at?: string
+          customer_address?: string | null
+          customer_email?: string | null
+          customer_name?: string
+          customer_phone?: string
+          id?: string
+          notes?: string | null
+          notified?: boolean | null
+          product_id?: string | null
+          product_name?: string
+          quantity?: number
+          status?: string
+          total_amount?: number
+          unit_price?: number
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "shop_orders_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "shop_products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      shop_products: {
+        Row: {
+          addon_ids: Json | null
+          badge: string | null
+          badge_color: string | null
+          category: string | null
+          created_at: string
+          discount_price: number | null
+          full_description: string | null
+          full_description_bn: string | null
+          gallery: Json | null
+          id: string
+          image: string | null
+          is_active: boolean | null
+          is_featured: boolean | null
+          name: string
+          name_bn: string | null
+          offer_enabled: boolean | null
+          offer_started_at: string | null
+          price: number
+          related_ids: Json | null
+          short_description: string | null
+          short_description_bn: string | null
+          slug: string | null
+          stock: number | null
+          updated_at: string
+        }
+        Insert: {
+          addon_ids?: Json | null
+          badge?: string | null
+          badge_color?: string | null
+          category?: string | null
+          created_at?: string
+          discount_price?: number | null
+          full_description?: string | null
+          full_description_bn?: string | null
+          gallery?: Json | null
+          id?: string
+          image?: string | null
+          is_active?: boolean | null
+          is_featured?: boolean | null
+          name: string
+          name_bn?: string | null
+          offer_enabled?: boolean | null
+          offer_started_at?: string | null
+          price?: number
+          related_ids?: Json | null
+          short_description?: string | null
+          short_description_bn?: string | null
+          slug?: string | null
+          stock?: number | null
+          updated_at?: string
+        }
+        Update: {
+          addon_ids?: Json | null
+          badge?: string | null
+          badge_color?: string | null
+          category?: string | null
+          created_at?: string
+          discount_price?: number | null
+          full_description?: string | null
+          full_description_bn?: string | null
+          gallery?: Json | null
+          id?: string
+          image?: string | null
+          is_active?: boolean | null
+          is_featured?: boolean | null
+          name?: string
+          name_bn?: string | null
+          offer_enabled?: boolean | null
+          offer_started_at?: string | null
+          price?: number
+          related_ids?: Json | null
+          short_description?: string | null
+          short_description_bn?: string | null
+          slug?: string | null
+          stock?: number | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       train_alert_notifications: {
         Row: {
           created_at: string
@@ -604,6 +833,27 @@ export type Database = {
         }
         Relationships: []
       }
+      user_roles: {
+        Row: {
+          created_at: string
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
       vault_items: {
         Row: {
           category: string
@@ -681,10 +931,16 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
     }
     Enums: {
-      [_ in never]: never
+      app_role: "admin" | "user"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -811,6 +1067,8 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_role: ["admin", "user"],
+    },
   },
 } as const

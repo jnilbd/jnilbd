@@ -34,10 +34,6 @@ const SolarCalc = () => {
   const [autonomyDays, setAutonomyDays] = useState("1");
   const [systemVoltage, setSystemVoltage] = useState("24");
 
-  const [sunHours, setSunHours] = useState("4.5"); // BD avg
-  const [autonomyDays, setAutonomyDays] = useState("1");
-  const [systemVoltage, setSystemVoltage] = useState("24");
-
   // Equipment price lookup
   const [priceQuery, setPriceQuery] = useState("");
   const [priceLoading, setPriceLoading] = useState(false);
@@ -78,12 +74,10 @@ const SolarCalc = () => {
       setPriceLoading(false);
     }
   };
-  type _Patch = Partial<Appliance>;
-  const update = (id: string, patch: _Patch) =>
+
+  const update = (id: string, patch: Partial<Appliance>) =>
     setItems((arr) => arr.map((a) => (a.id === id ? { ...a, ...patch } : a)));
   const remove = (id: string) => setItems((arr) => arr.filter((a) => a.id !== id));
-  const add = (p: Omit<Appliance, "id">) =>
-    setItems((arr) => [...arr, { ...p, id: crypto.randomUUID() }]);
   const add = (p: Omit<Appliance, "id">) =>
     setItems((arr) => [...arr, { ...p, id: crypto.randomUUID() }]);
 

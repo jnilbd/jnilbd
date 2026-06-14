@@ -236,6 +236,96 @@ export type Database = {
         }
         Relationships: []
       }
+      portfolio_experience: {
+        Row: {
+          company: string | null
+          created_at: string
+          description: string | null
+          description_bn: string | null
+          id: string
+          is_active: boolean
+          sort_order: number
+          title: string
+          title_bn: string | null
+          updated_at: string
+          year: string | null
+        }
+        Insert: {
+          company?: string | null
+          created_at?: string
+          description?: string | null
+          description_bn?: string | null
+          id?: string
+          is_active?: boolean
+          sort_order?: number
+          title: string
+          title_bn?: string | null
+          updated_at?: string
+          year?: string | null
+        }
+        Update: {
+          company?: string | null
+          created_at?: string
+          description?: string | null
+          description_bn?: string | null
+          id?: string
+          is_active?: boolean
+          sort_order?: number
+          title?: string
+          title_bn?: string | null
+          updated_at?: string
+          year?: string | null
+        }
+        Relationships: []
+      }
+      portfolio_projects: {
+        Row: {
+          category: string | null
+          created_at: string
+          description: string | null
+          description_bn: string | null
+          id: string
+          image: string | null
+          is_active: boolean
+          link: string | null
+          sort_order: number
+          title: string
+          title_bn: string | null
+          updated_at: string
+          year: string | null
+        }
+        Insert: {
+          category?: string | null
+          created_at?: string
+          description?: string | null
+          description_bn?: string | null
+          id?: string
+          image?: string | null
+          is_active?: boolean
+          link?: string | null
+          sort_order?: number
+          title: string
+          title_bn?: string | null
+          updated_at?: string
+          year?: string | null
+        }
+        Update: {
+          category?: string | null
+          created_at?: string
+          description?: string | null
+          description_bn?: string | null
+          id?: string
+          image?: string | null
+          is_active?: boolean
+          link?: string | null
+          sort_order?: number
+          title?: string
+          title_bn?: string | null
+          updated_at?: string
+          year?: string | null
+        }
+        Relationships: []
+      }
       product_reviews: {
         Row: {
           comment: string | null

@@ -378,17 +378,6 @@ const Weather = () => {
         <h1 className="text-3xl md:text-4xl font-display font-bold mb-2">{isBn ? "🌤️ আবহাওয়া ও পূর্বাভাস" : "🌤️ Weather & Forecast"}</h1>
         <p className="text-muted-foreground mb-6">{isBn ? "ঘণ্টা-ভিত্তিক, ১৬ দিন ও দীর্ঘমেয়াদি পূর্বাভাস — একাধিক মডেল থেকে" : "Hourly, 16-day & long-range forecast — from multiple models"}</p>
 
-        <Card className="mb-6 border-2 border-primary/40 bg-primary/5">
-          <CardHeader className="pb-2"><CardTitle className="flex items-center gap-2 text-primary text-base md:text-lg"><BellRing className="w-5 h-5" />{isBn ? "দুর্যোগে SMS অ্যালার্ট" : "SMS alerts"}</CardTitle></CardHeader>
-          <CardContent className="space-y-3">
-            <p className="text-xs text-muted-foreground">{isBn ? `${city.name} অঞ্চলের ঝড়, বজ্রপাত, ভারী বৃষ্টি বা চরম তাপমাত্রার সতর্কতা সরাসরি ফোনে।` : `Alerts for ${city.name} on your phone.`}</p>
-            <div className="grid sm:grid-cols-2 gap-3">
-              <div><Label className="text-xs">{isBn ? "নাম (ঐচ্ছিক)" : "Name"}</Label><Input value={subName} onChange={(e) => setSubName(e.target.value)} placeholder={isBn ? "আপনার নাম" : "Your name"} /></div>
-              <div><Label className="text-xs">{isBn ? "মোবাইল *" : "Mobile *"}</Label><Input value={subPhone} onChange={(e) => setSubPhone(e.target.value)} placeholder="01XXXXXXXXX" /></div>
-            </div>
-            <Button onClick={subscribeAlerts} disabled={subbing} className="w-full sm:w-auto rounded-full gradient-bg-primary text-white"><BellRing className="w-4 h-4 mr-2" />{subbing ? "..." : (isBn ? "সাবস্ক্রাইব" : "Subscribe")}</Button>
-          </CardContent>
-        </Card>
 
 
         <div className="flex gap-2 mb-4 flex-wrap">

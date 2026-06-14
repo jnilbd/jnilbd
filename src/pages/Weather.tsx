@@ -423,8 +423,34 @@ const Weather = () => {
           <>
             {alerts.length > 0 && (
               <Card className="mb-6 border-2 border-destructive/50">
-                <CardHeader className="pb-2"><CardTitle className="flex items-center gap-2 text-destructive"><AlertTriangle className="w-5 h-5" />{isBn ? "সক্রিয় সতর্কতা" : "Active Alerts"}</CardTitle></CardHeader>
-                <CardContent className="space-y-2">{alerts.map((a, i) => (<div key={i} className={`p-3 rounded-lg ${a.level === "danger" ? "bg-destructive/10 text-destructive" : "bg-yellow-500/10 text-yellow-700 dark:text-yellow-400"}`}>{a.text}</div>))}</CardContent>
+                <CardHeader className="pb-2">
+                  <CardTitle className="flex items-center gap-2 text-destructive">
+                    <AlertTriangle className="w-5 h-5" />
+                    {isBn ? "সক্রিয় আবহাওয়া সতর্কতা" : "Active Weather Alerts"}
+                    <Badge variant="outline" className="ml-auto text-xs">{alerts.length}</Badge>
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  {alerts.map((a, i) => (
+                    <div key={i} className={`p-4 rounded-lg border-l-4 ${sevStyle(a.severity)}`}>
+                      <div className="flex items-center justify-between gap-2 mb-1 flex-wrap">
+                        <div className="font-bold text-sm md:text-base flex items-center gap-2">
+                          <span className="text-xl">{a.icon}</span>{a.title}
+                        </div>
+                        <Badge variant="outline" className="text-[10px] font-bold tracking-wider">{sevLabel(a.severity)}</Badge>
+                      </div>
+                      <p className="text-xs md:text-sm mb-2 opacity-90">{a.detail}</p>
+                      <div className="bg-background/40 rounded-md p-2 mt-2">
+                        <div className="text-[11px] font-semibold mb-1 uppercase tracking-wide opacity-70">
+                          {isBn ? "✅ করণীয়" : "✅ Recommended actions"}
+                        </div>
+                        <ul className="text-xs space-y-0.5 list-disc list-inside marker:opacity-50">
+                          {a.actions.map((ac, j) => <li key={j}>{ac}</li>)}
+                        </ul>
+                      </div>
+                    </div>
+                  ))}
+                </CardContent>
               </Card>
             )}
 

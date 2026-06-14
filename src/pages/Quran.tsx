@@ -71,8 +71,9 @@ const Quran = () => {
   };
 
   const playAyah = (ayah: Ayah) => {
-    const url = ayah.audio;
-    if (!url) { toast.error(bn?"অডিও পাওয়া যায়নি":"No audio available"); return; }
+    // Build a reliable CDN URL using the global ayah number — works even when ayah.audio is missing
+    const url = ayah.audio || `https://cdn.islamic.network/quran/audio/128/${reciter}/${ayah.number}.mp3`;
+    const fallbackUrl = `https://cdn.islamic.network/quran/audio/64/${reciter}/${ayah.number}.mp3`;
     const el = ensureAudio();
     if (playingAyah === ayah.numberInSurah && !el.paused) {
       el.pause();
@@ -85,7 +86,20 @@ const Quran = () => {
       const next = arabic.find(a => a.numberInSurah === ayah.numberInSurah + 1);
       if (next) playAyah(next); else setPlayingAyah(null);
     };
-    el.onerror = () => { toast.error(bn?"এই কারির অডিও সোর্সে সমস্যা — অন্য কারি বেছে নিন":"Reciter source error — try another reciter"); setPlayingAyah(null); };
+    let triedFallback = false;
+    el.onerror = () => {
+      if (!triedFallback) {
+        triedFallback = true;
+        el.src = fallbackUrl;
+        el.play().then(() => setPlayingAyah(ayah.numberInSurah)).catch(() => {
+          toast.error(bn?"অডিও সোর্সে সমস্যা — অন্য কারি বেছে নিন":"Audio source error — try another reciter");
+          setPlayingAyah(null);
+        });
+      } else {
+        toast.error(bn?"অডিও সোর্সে সমস্যা — অন্য কারি বেছে নিন":"Audio source error — try another reciter");
+        setPlayingAyah(null);
+      }
+    };
     const p = el.play();
     if (p && typeof p.then === "function") {
       p.then(() => setPlayingAyah(ayah.numberInSurah))

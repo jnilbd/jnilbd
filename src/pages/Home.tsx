@@ -8,7 +8,7 @@ import ProductCard from "@/components/ProductCard";
 import ServiceCard from "@/components/ServiceCard";
 import { products, services, reviews } from "@/data/mockData";
 import { displayImage, fallbackImageHandler, PAGE_BANNERS } from "@/lib/siteImages";
-import EidGreetingCard from "@/components/EidGreetingCard";
+import DailyWidgets from "@/components/DailyWidgets";
 
 
 const Home = () => {
@@ -117,7 +117,7 @@ const Home = () => {
 
       <Marquee variant="primary" />
 
-      <EidGreetingCard />
+      <DailyWidgets />
 
 
       {/* About teaser removed — keep focus on tools */}

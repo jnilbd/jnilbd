@@ -14,6 +14,8 @@ export const ALL_CATEGORIES: CategoryItem[] = [
   { to: "/", icon: Home, bn: "হোম", en: "Home" },
   // Spiritual (highest priority)
   { to: "/quran", icon: BookOpen, bn: "কুরআন", en: "Quran" },
+  { to: "/hadith", icon: BookOpen, bn: "হাদিস", en: "Hadith" },
+  { to: "/ruqyah", icon: ShieldCheck, bn: "রুকইয়া", en: "Ruqyah" },
   { to: "/namaz", icon: Compass, bn: "নামাজ", en: "Namaz" },
   // Daily essentials
   { to: "/weather", icon: CloudRain, bn: "আবহাওয়া", en: "Weather" },

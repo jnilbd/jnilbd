@@ -566,6 +566,105 @@ export default function TravelGuide() {
             ))}
           </Tabs>
         </TabsContent>
+
+        {/* GO ABROAD */}
+        <TabsContent value="abroad" className="space-y-4">
+          <Tabs defaultValue="visa" className="w-full">
+            <TabsList className="grid w-full grid-cols-2 mb-4">
+              <TabsTrigger value="visa"><Briefcase className="h-4 w-4 mr-1" />{isBn ? "ভিসা ও কাজ" : "Visa & Work"}</TabsTrigger>
+              <TabsTrigger value="remit"><Send className="h-4 w-4 mr-1" />{isBn ? "টাকা পাঠানো" : "Remittance"}</TabsTrigger>
+            </TabsList>
+
+            <TabsContent value="visa" className="space-y-4">
+              <Card className="p-5">
+                <h2 className="font-bold text-lg mb-1">{isBn ? "কোথায়, কীভাবে, কত খরচে বিদেশ যাবেন" : "Where, how & how much to go abroad"}</h2>
+                <p className="text-sm text-muted-foreground mb-4">
+                  {isBn ? "দেশ, ভিসার ধরন ও খাত বাছাই করুন — সম্পূর্ণ গাইড, খরচ, আয়, ঝুঁকি ও চেকলিস্ট পাবেন।" : "Pick country, visa type & sector — get complete guide, costs, earnings, risks & checklist."}
+                </p>
+                <div className="grid sm:grid-cols-3 gap-2">
+                  <Select value={country} onValueChange={setCountry}>
+                    <SelectTrigger><SelectValue /></SelectTrigger>
+                    <SelectContent className="max-h-72">{ABROAD_COUNTRIES.map(c => <SelectItem key={c} value={c}>{c}</SelectItem>)}</SelectContent>
+                  </Select>
+                  <Select value={visaType} onValueChange={setVisaType}>
+                    <SelectTrigger><SelectValue /></SelectTrigger>
+                    <SelectContent>{VISA_TYPES.map(v => <SelectItem key={v.v} value={v.v}>{v.label}</SelectItem>)}</SelectContent>
+                  </Select>
+                  <Select value={sector} onValueChange={setSector}>
+                    <SelectTrigger><SelectValue /></SelectTrigger>
+                    <SelectContent className="max-h-72">{SECTORS.map(s => <SelectItem key={s.v} value={s.v}>{s.label}</SelectItem>)}</SelectContent>
+                  </Select>
+                </div>
+                <Button onClick={searchAbroad} disabled={abroadLoading} className="w-full mt-3">
+                  {abroadLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />}
+                  <span className="ml-2">{isBn ? "সম্পূর্ণ গাইড পাও" : "Get complete guide"}</span>
+                </Button>
+
+                <div className="mt-4 p-3 rounded-md bg-destructive/10 border border-destructive/30 text-xs flex gap-2">
+                  <AlertTriangle className="h-4 w-4 text-destructive flex-shrink-0 mt-0.5" />
+                  <span>
+                    {isBn
+                      ? "সতর্কতা: অবৈধ পথে (লিবিয়া-ইতালি বোট, ভিজিট ভিসায় কাজ, ফ্রি ভিসা) কখনো নয় — জীবন ও পরিবার দুটোই শেষ হয়। শুধু BMET, BOESL ও সরকার-অনুমোদিত RA এজেন্সি ব্যবহার করুন।"
+                      : "Warning: Never go illegally (Libya boats, work on visit visa, ‘free visa’ traps) — it costs lives. Use only BMET, BOESL and govt-licensed RA agencies."}
+                  </span>
+                </div>
+              </Card>
+
+              {abroadLoading && (
+                <Card className="p-8 flex items-center justify-center gap-2 text-muted-foreground">
+                  <Loader2 className="h-5 w-5 animate-spin" />
+                  {isBn ? "বিস্তারিত গাইড তৈরি হচ্ছে..." : "Building detailed guide..."}
+                </Card>
+              )}
+
+              {abroadAnswer && (
+                <Card className="p-5">
+                  <article className={markdownClass}>
+                    <ReactMarkdown remarkPlugins={[remarkGfm]}>{abroadAnswer}</ReactMarkdown>
+                  </article>
+                </Card>
+              )}
+            </TabsContent>
+
+            <TabsContent value="remit" className="space-y-4">
+              <Card className="p-5">
+                <h2 className="font-bold text-lg mb-1">{isBn ? "বিদেশ থেকে টাকা পাঠানো ও যোগাযোগ" : "Remittance & Staying in Touch"}</h2>
+                <p className="text-sm text-muted-foreground mb-4">
+                  {isBn ? "সেরা মাধ্যম, সরকারি ২.৫% প্রণোদনা, সবচেয়ে কম খরচে, প্রতারণা থেকে বাঁচার উপায় ও ফ্রি যোগাযোগের টিপস।" : "Best channels, govt 2.5% incentive, cheapest options, scam protection & free communication tips."}
+                </p>
+                <div className="grid sm:grid-cols-2 gap-2">
+                  <div>
+                    <label className="text-xs text-muted-foreground">{isBn ? "যে দেশ থেকে পাঠাবেন" : "Sending from"}</label>
+                    <Input value={sendFrom} onChange={(e) => setSendFrom(e.target.value)} placeholder="Saudi Arabia" />
+                  </div>
+                  <div>
+                    <label className="text-xs text-muted-foreground">{isBn ? "যে দেশে পাঠাবেন" : "Sending to"}</label>
+                    <Input value={sendTo} onChange={(e) => setSendTo(e.target.value)} placeholder="Bangladesh" />
+                  </div>
+                </div>
+                <Button onClick={searchRemit} disabled={remitLoading} className="w-full mt-3">
+                  {remitLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
+                  <span className="ml-2">{isBn ? "গাইড দেখাও" : "Show guide"}</span>
+                </Button>
+              </Card>
+
+              {remitLoading && (
+                <Card className="p-8 flex items-center justify-center gap-2 text-muted-foreground">
+                  <Loader2 className="h-5 w-5 animate-spin" />
+                  {isBn ? "তথ্য আনা হচ্ছে..." : "Fetching info..."}
+                </Card>
+              )}
+
+              {remitAnswer && (
+                <Card className="p-5">
+                  <article className={markdownClass}>
+                    <ReactMarkdown remarkPlugins={[remarkGfm]}>{remitAnswer}</ReactMarkdown>
+                  </article>
+                </Card>
+              )}
+            </TabsContent>
+          </Tabs>
+        </TabsContent>
       </Tabs>
 
       <Card className="mt-6 p-4 bg-muted/30">

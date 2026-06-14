@@ -322,11 +322,113 @@ export default function AdMaker() {
               )}
 
               {generatedImage && (
-                <BanglaImageOverlay
-                  imageSrc={generatedImage}
-                  defaultHeadline={pack?.headlines?.[0] || ""}
-                  defaultCta={pack?.ctas?.[0] || "অর্ডার করুন"}
-                />
+                <div className="space-y-3">
+                  <BanglaImageOverlay
+                    imageSrc={generatedImage}
+                    defaultHeadline={pack?.headlines?.[0] || ""}
+                    defaultCta={pack?.ctas?.[0] || "অর্ডার করুন"}
+                  />
+                  <Card className="p-3 bg-gradient-to-br from-primary/5 to-accent/5 border-primary/20">
+                    <div className="flex flex-col sm:flex-row gap-2">
+                      <Button
+                        onClick={handleRegenerateImage}
+                        disabled={regenLoading || videoLoading}
+                        variant="outline"
+                        className="flex-1 gap-2"
+                      >
+                        {regenLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <RefreshCw className="h-4 w-4" />}
+                        {regenLoading ? "নতুন ইমেজ আসছে..." : "আরেকটা ইমেজ জেনারেট করো"}
+                      </Button>
+                      <Button
+                        onClick={handleGenerateVideo}
+                        disabled={videoLoading || regenLoading}
+                        className="flex-1 gap-2 bg-gradient-to-r from-primary to-accent"
+                      >
+                        {videoLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Film className="h-4 w-4" />}
+                        {videoLoading ? "ভিডিও তৈরি হচ্ছে..." : "প্রমোশনাল ভিডিও বানাও"}
+                      </Button>
+                    </div>
+                    <p className="text-[11px] text-muted-foreground mt-2 text-center">
+                      পছন্দ না হলে নতুন ভ্যারিয়েশন তৈরি করুন, অথবা ৪–৬ সিনের প্রমোশনাল ভিডিও বানান
+                    </p>
+                  </Card>
+
+                  {videoLoading && (
+                    <Card className="p-6 text-center">
+                      <Loader2 className="h-8 w-8 mx-auto text-primary animate-spin mb-2" />
+                      <p className="text-sm font-semibold">প্রমোশনাল ভিডিওর ফ্রেম তৈরি হচ্ছে...</p>
+                      <p className="text-xs text-muted-foreground mt-1">৪–৬টি সিনেমাটিক শট তৈরি হবে (৩০–৬০ সে.)</p>
+                    </Card>
+                  )}
+
+                  {videoFrames.length > 0 && (
+                    <Card className="p-4 space-y-3">
+                      <div className="flex items-center justify-between">
+                        <h3 className="font-semibold flex items-center gap-2">
+                          <Film className="h-4 w-4 text-primary" />প্রমোশনাল ভিডিও প্রিভিউ
+                        </h3>
+                        <Button size="sm" variant="ghost" onClick={() => setVideoPlaying((p) => !p)}>
+                          {videoPlaying ? "⏸ Pause" : "▶ Play"}
+                        </Button>
+                      </div>
+                      <div className="relative aspect-video w-full rounded-lg overflow-hidden bg-black">
+                        <img
+                          src={videoFrames[videoFrameIdx]}
+                          alt={`Frame ${videoFrameIdx + 1}`}
+                          className="w-full h-full object-cover transition-opacity duration-500"
+                        />
+                        <div className="absolute bottom-0 left-0 right-0 p-3 bg-gradient-to-t from-black/80 to-transparent">
+                          <p className="text-white text-sm font-medium line-clamp-2">
+                            শট {videoFrameIdx + 1}/{videoFrames.length}: {videoShots[videoFrameIdx] || ""}
+                          </p>
+                        </div>
+                        <div className="absolute top-2 right-2 bg-black/60 text-white text-xs px-2 py-1 rounded">
+                          {videoFrameIdx + 1} / {videoFrames.length}
+                        </div>
+                      </div>
+                      <div className="grid grid-cols-3 sm:grid-cols-6 gap-2">
+                        {videoFrames.map((f, i) => (
+                          <button
+                            key={i}
+                            onClick={() => { setVideoFrameIdx(i); setVideoPlaying(false); }}
+                            className={`relative aspect-video rounded overflow-hidden border-2 transition-all ${i === videoFrameIdx ? "border-primary scale-105" : "border-transparent opacity-60 hover:opacity-100"}`}
+                          >
+                            <img src={f} alt={`Thumb ${i + 1}`} className="w-full h-full object-cover" />
+                          </button>
+                        ))}
+                      </div>
+                      <div className="flex flex-col sm:flex-row gap-2">
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={handleGenerateVideo}
+                          disabled={videoLoading}
+                          className="flex-1 gap-2"
+                        >
+                          <RefreshCw className="h-3 w-3" />নতুন ফ্রেমে রিজেনারেট
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => {
+                            videoFrames.forEach((f, i) => {
+                              const a = document.createElement("a");
+                              a.href = f;
+                              a.download = `ad-video-frame-${i + 1}.png`;
+                              a.click();
+                            });
+                          }}
+                          className="flex-1 gap-2"
+                        >
+                          <Download className="h-3 w-3" />সব ফ্রেম ডাউনলোড
+                        </Button>
+                      </div>
+                      <p className="text-[11px] text-muted-foreground text-center">
+                        💡 টিপস: ফ্রেমগুলো CapCut/InShot-এ ইম্পোর্ট করে মিউজিক ও ট্রানজিশন যোগ করলেই রেডি প্রমোশনাল ভিডিও
+                      </p>
+                    </Card>
+                  )}
+                </div>
               )}
 
               {/* Hook angles & headlines */}

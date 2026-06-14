@@ -127,7 +127,7 @@ Deno.serve(async (req) => {
       } catch (e) { results.telegram = { error: String(e) }; }
     }
 
-    await supabase.from('shop_orders').update({ notified: true }).eq('id', order_id);
+    await supabase.from(updateTable).update({ notified: true }).eq('id', updateId);
 
     return new Response(JSON.stringify({ ok: true, results }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },

@@ -208,56 +208,6 @@ const Navbar = () => {
 
 
 
-
-          <nav className="hidden lg:flex items-center gap-0.5">
-            {primary.map((l) => (
-              <NavLink
-                key={l.to}
-                to={l.to}
-                end={l.to === "/"}
-                onClick={() => setOpenMenu(null)}
-                className={({ isActive }) =>
-                  `relative px-3 py-2 rounded-md text-[13px] font-medium tracking-wide transition-smooth ${
-                    isActive ? "text-foreground" : "text-foreground/65 hover:text-foreground"
-                  } group`
-                }
-              >
-                {({ isActive }) => (
-                  <>
-                    {t(l.key)}
-                    <span
-                      className={`absolute left-3 right-3 -bottom-0.5 h-[2px] bg-secondary transition-all duration-300 ${
-                        isActive ? "opacity-100 scale-x-100" : "opacity-0 scale-x-0 group-hover:opacity-60 group-hover:scale-x-100"
-                      }`}
-                    />
-                  </>
-                )}
-              </NavLink>
-            ))}
-
-            {/* Categories trigger */}
-            <button
-              onClick={() => toggleMenu("top")}
-              className={`flex items-center gap-1.5 px-3 py-2 rounded-md text-[13px] font-semibold tracking-wide transition-smooth ${
-                topOpen ? "bg-primary/10 text-primary" : "text-foreground/65 hover:text-foreground"
-              }`}
-              aria-expanded={topOpen}
-            >
-              <LayoutGrid className="w-4 h-4" />
-              {isBn ? "সব ক্যাটাগরি" : "All Categories"}
-            </button>
-
-            {/* Highlighted Appointment CTA — last */}
-            <Link
-              to="/appointment"
-              onClick={() => setOpenMenu(null)}
-              className="ml-2 flex items-center gap-1.5 px-3.5 py-2 rounded-full text-[12px] font-bold gradient-bg-warm text-white shadow-pink hover:scale-105 transition-bounce"
-            >
-              <CalendarClock className="w-3.5 h-3.5" />
-              {isBn ? "বুক অ্যাপয়েন্টমেন্ট" : "Book Appointment"}
-            </Link>
-          </nav>
-
           <div className="flex items-center gap-1.5">
             <Button
               variant="ghost"

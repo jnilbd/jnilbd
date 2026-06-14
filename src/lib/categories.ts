@@ -1,4 +1,4 @@
-import { Home, Store, BookOpen, Compass, CloudRain, Wifi, HeartPulse, Wallet, Lock, Receipt, Scale, Percent, Map, Ruler, Sun, Smartphone, FileType, Download, Image as ImageIcon, Mic, Clock, Tv, MessageCircle, Briefcase, Tag, Home as HomeIcon, FolderKanban, User, ShieldCheck, CalendarClock, Send, Film, Train, Phone, Plane, Rocket, Newspaper, Swords, BarChart3 } from "lucide-react";
+import { Home, Store, BookOpen, Compass, CloudRain, Wifi, HeartPulse, Wallet, Lock, Receipt, Scale, Percent, Map, Ruler, Sun, Smartphone, FileType, Download, Image as ImageIcon, Mic, Clock, Tv, MessageCircle, Briefcase, Tag, Home as HomeIcon, FolderKanban, User, ShieldCheck, CalendarClock, Send, Film, Train, Phone, Plane, Rocket, Newspaper, Swords, BarChart3, NewspaperIcon } from "lucide-react";
 
 export type CategoryItem = {
   to: string;
@@ -23,6 +23,7 @@ export const ALL_CATEGORIES: CategoryItem[] = [
   { to: "/politics", icon: Newspaper, bn: "রাজনীতি আপডেট", en: "Politics Update" },
   { to: "/war", icon: Swords, bn: "যুদ্ধ আপডেট", en: "War Updates" },
   { to: "/stocks", icon: BarChart3, bn: "স্টক আপডেট", en: "Stock Update" },
+  { to: "/newspapers", icon: NewspaperIcon, bn: "সংবাদপত্র", en: "Newspapers" },
   { to: "/railway", icon: Train, bn: "রেলওয়ে টিকেট", en: "Railway" },
   { to: "/travel", icon: Plane, bn: "ভ্রমণ গাইড", en: "Travel Guide" },
   { to: "/phone-lookup", icon: Phone, bn: "ফোন লুকআপ", en: "Phone Lookup" },

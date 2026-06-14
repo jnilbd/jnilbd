@@ -45,7 +45,9 @@ const Warish = () => {
   const [mother, setMother] = useState(false);
 
   const calc = useMemo(() => {
-    const total = parseFloat(estate) || 0;
+    const total = mode === "money"
+      ? (parseFloat(estate) || 0)
+      : (parseFloat(landAmount) || 0) * TO_DECIMAL[landUnit];
     if (total <= 0) return null;
 
     const hasChildren = sons + daughters > 0;

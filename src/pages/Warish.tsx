@@ -268,8 +268,8 @@ const Warish = () => {
               </div>
               {calc.residue > 0.01 && (
                 <p className="text-xs text-amber-600 pt-1">
-                  {t(`অবশিষ্ট ৳ ${Math.round(calc.residue).toLocaleString()} — অন্য আত্মীয়দের (চাচা/ভাই) মধ্যে যাবে; আলেমের পরামর্শ নিন।`,
-                     `Residue ৳ ${Math.round(calc.residue).toLocaleString()} — goes to other relatives (asaba); consult a scholar.`)}
+                  {t(`অবশিষ্ট ${fmt(calc.residue)} — অন্য আত্মীয়দের (চাচা/ভাই) মধ্যে যাবে; আলেমের পরামর্শ নিন।`,
+                     `Residue ${fmt(calc.residue)} — goes to other relatives (asaba); consult a scholar.`)}
                 </p>
               )}
             </div>

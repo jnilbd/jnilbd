@@ -185,7 +185,7 @@ const Blog = () => {
                   <Link to={`/blog/${post.id}`} className="relative overflow-hidden rounded-2xl mb-5 shadow-card hover:shadow-elegant transition-smooth">
                     <div className="aspect-[5/4]">
                       <img
-                        src={displayImage(post.image, post.id, bn ? post.titleBn : post.title, post.category)}
+                        src={hq(displayImage(post.image, post.id, bn ? post.titleBn : post.title, post.category), 1000)}
                         alt={post.title}
                         onError={fallbackImageHandler(post.id, bn ? post.titleBn : post.title, post.category)}
                         className="w-full h-full object-cover group-hover:scale-110 transition-[transform] duration-700"

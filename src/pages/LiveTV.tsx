@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, useMemo, useCallback } from "react";
 import { motion } from "framer-motion";
-import { Tv, Radio, Search, Play, Loader2, Trophy, Star, CheckCircle2, XCircle, Activity, Globe2, Flag, Wifi, Layers, ChevronDown } from "lucide-react";
+import { Tv, Radio, Search, Play, Loader2, Trophy, Star, CheckCircle2, XCircle, Activity, Globe2, Flag, Wifi, Layers, ChevronDown, Zap } from "lucide-react";
 import Hls from "hls.js";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";

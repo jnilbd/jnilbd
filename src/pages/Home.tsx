@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
-import { ArrowRight, Sparkles, ShoppingBag, Briefcase, FolderKanban, BookOpen, Tag, Home as HomeIcon, Star, Facebook, Instagram, MessageCircle, Youtube, Linkedin, CalendarClock, Wallet, Image as ImageIcon, Mic, Compass, FileType, Tv, Download, Clock, Map, Ruler, HeartPulse, Sun, Lock, Receipt, Scale, Percent, CloudRain, Smartphone, Wifi, Send, Film } from "lucide-react";
+import { ArrowRight, Sparkles, ShoppingBag, Briefcase, FolderKanban, BookOpen, Tag, Home as HomeIcon, Star, Facebook, Instagram, MessageCircle, Youtube, Linkedin, CalendarClock, Wallet, Image as ImageIcon, Mic, Compass, FileType, Tv, Download, Clock, Map, Ruler, HeartPulse, Sun, Lock, Receipt, Scale, Percent, CloudRain, Smartphone, Wifi, Send, Film, ShieldCheck, Zap, Users, Award, TrendingUp, Globe2, PlayCircle } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -21,9 +21,26 @@ const badgeColorMap: Record<string, string> = {
 
 const Home = () => {
   const { t, language } = useLanguage();
+  const isBn = language === "bn";
   const [featured, setFeatured] = useState<DbProduct[]>([]);
   const [reviews, setReviews] = useState<DbReview[]>([]);
   const [featuredServices, setFeaturedServices] = useState<DbService[]>([]);
+  const [now, setNow] = useState<Date>(new Date());
+
+  useEffect(() => {
+    const id = setInterval(() => setNow(new Date()), 1000);
+    return () => clearInterval(id);
+  }, []);
+
+  const toBnDigits = (s: string | number) =>
+    String(s).replace(/[0-9]/g, (d) => "০১২৩৪৫৬৭৮৯"[Number(d)]);
+  const dhakaTime = new Intl.DateTimeFormat(isBn ? "bn-BD" : "en-US", {
+    hour: "2-digit", minute: "2-digit", second: "2-digit", hour12: true, timeZone: "Asia/Dhaka",
+  }).format(now);
+  const dhakaDate = new Intl.DateTimeFormat(isBn ? "bn-BD" : "en-US", {
+    weekday: "long", day: "numeric", month: "long", year: "numeric", timeZone: "Asia/Dhaka",
+  }).format(now);
+
 
   useEffect(() => {
     (async () => {
@@ -78,64 +95,182 @@ const Home = () => {
 
   return (
     <div>
-      {/* Hero */}
-      <section className="relative overflow-hidden min-h-[78vh] md:min-h-[88vh] flex items-center">
-        <img src={PAGE_BANNERS.hero} alt="Bangladesh — Dhaka skyline at golden hour" className="absolute inset-0 w-full h-full object-cover" width={1920} height={1080} />
-        <div className="absolute inset-0 animated-gradient opacity-80 mix-blend-multiply" />
-        <div className="absolute inset-0 bg-background/30" />
-        <div className="blob w-[320px] h-[320px] md:w-[500px] md:h-[500px] bg-white/30 top-10 -left-20 animate-float" />
-        <div className="blob w-[260px] h-[260px] md:w-[400px] md:h-[400px] bg-secondary/40 bottom-10 right-10 animate-float" style={{ animationDelay: "2s" }} />
+      {/* Hero — premium informative */}
+      <section className="relative overflow-hidden min-h-[88vh] flex items-center">
+        <img src={PAGE_BANNERS.hero} alt="Bangladesh — Dhaka skyline at golden hour" className="absolute inset-0 w-full h-full object-cover scale-105" width={1920} height={1080} />
+        <div className="absolute inset-0 bg-gradient-to-br from-primary/85 via-primary/60 to-background/70 mix-blend-multiply" />
+        <div className="absolute inset-0 bg-gradient-to-t from-background/80 via-transparent to-background/20" />
+        <div className="blob w-[400px] h-[400px] md:w-[560px] md:h-[560px] bg-secondary/30 -top-20 -left-20 animate-float" />
+        <div className="blob w-[300px] h-[300px] md:w-[440px] md:h-[440px] bg-primary/40 bottom-0 right-0 animate-float" style={{ animationDelay: "2s" }} />
 
-        <div className="container relative z-10 py-14 md:py-20">
-          <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7 }} className="max-w-3xl text-white">
-            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full glass-card text-white border-white/40 text-xs md:text-sm font-medium mb-5">
-              <Sparkles className="w-4 h-4" />
-              <span>{t("hero.tagline")}</span>
-            </div>
-            <p className="text-xl md:text-3xl font-light mb-1.5">{t("hero.greeting")}</p>
-            <h1 className="text-4xl sm:text-5xl md:text-7xl lg:text-8xl font-display font-bold mb-5 leading-[1.05]">
-              {t("hero.name")}
-            </h1>
-            <p className="text-base md:text-xl mb-7 text-white/90 max-w-2xl leading-relaxed">{t("hero.description")}</p>
-            <div className="flex flex-wrap gap-2.5">
-              <Link to="/quran">
-                <Button size="lg" className="rounded-full bg-white text-primary hover:bg-white/90 font-semibold shadow-2xl border-0">
-                  {t("hero.cta2")} <ArrowRight className="ml-2 w-5 h-5" />
-                </Button>
-              </Link>
-              <a href="#explore">
-                <Button size="lg" variant="outline" className="rounded-full border-2 border-white text-white bg-white/10 hover:bg-white hover:text-primary font-semibold backdrop-blur-sm">
-                  {t("hero.cta1")} <ArrowRight className="ml-2 w-5 h-5" />
-                </Button>
-              </a>
-              <Link to="/weather">
-                <Button size="lg" variant="outline" className="rounded-full border-2 border-white/70 text-white bg-transparent hover:bg-white hover:text-primary font-semibold backdrop-blur-sm">
-                  {t("hero.cta3")}
-                </Button>
-              </Link>
-              <Link to="/services">
-                <Button size="lg" variant="outline" className="rounded-full border-2 border-white/70 text-white bg-transparent hover:bg-white hover:text-primary font-semibold backdrop-blur-sm">
-                  {t("hero.cta4")}
-                </Button>
-              </Link>
-            </div>
+        {/* Subtle grid overlay */}
+        <div className="absolute inset-0 opacity-[0.06] bg-[linear-gradient(to_right,white_1px,transparent_1px),linear-gradient(to_bottom,white_1px,transparent_1px)] bg-[size:48px_48px]" />
 
-            {/* Hero stats */}
-            <div className="mt-7 grid grid-cols-4 gap-2 max-w-xl">
-              {[
-                { v: t("hero.stat1") },
-                { v: t("hero.stat2") },
-                { v: t("hero.stat3") },
-                { v: t("hero.stat4") },
-              ].map((s, i) => (
-                <div key={i} className="glass-card border-white/30 rounded-2xl px-2 py-2.5 text-center">
-                  <div className="text-xs md:text-sm font-display font-bold text-white leading-tight">{s.v}</div>
+        <div className="container relative z-10 py-12 md:py-16">
+          <div className="grid lg:grid-cols-[1.4fr_1fr] gap-8 lg:gap-10 items-center">
+            {/* LEFT — copy + CTAs */}
+            <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7 }} className="text-white">
+              {/* Live status bar */}
+              <div className="inline-flex items-center gap-2.5 px-3 py-1.5 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-[11px] md:text-xs font-medium mb-4 shadow-lg">
+                <span className="relative flex h-2 w-2">
+                  <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75" />
+                  <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-400" />
+                </span>
+                <span className="text-emerald-200 font-bold tracking-wider uppercase">{isBn ? "লাইভ" : "Live"}</span>
+                <span className="w-px h-3 bg-white/30" />
+                <Clock className="w-3 h-3 text-secondary" />
+                <span className="tabular-nums font-mono">{dhakaTime}</span>
+                <span className="hidden sm:inline opacity-60">• {dhakaDate}</span>
+              </div>
+
+              <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full glass-card text-white border-secondary/40 text-xs md:text-sm font-medium mb-5 shadow-pink">
+                <Sparkles className="w-4 h-4 text-secondary" />
+                <span>{t("hero.tagline")}</span>
+              </div>
+
+              <p className="text-lg md:text-2xl font-light mb-1 text-white/90">{t("hero.greeting")}</p>
+              <h1 className="text-5xl sm:text-6xl md:text-7xl lg:text-[88px] font-display font-bold mb-4 leading-[1.02] drop-shadow-2xl">
+                <span className="bg-gradient-to-br from-white via-white to-secondary/80 bg-clip-text text-transparent">
+                  {t("hero.name")}
+                </span>
+              </h1>
+
+              {/* Trust pills row */}
+              <div className="flex flex-wrap gap-1.5 mb-5">
+                {[
+                  { icon: ShieldCheck, label: isBn ? "প্রতিষ্ঠিত ২০১৪" : "EST. 2014", color: "text-secondary" },
+                  { icon: Award, label: isBn ? "ভেরিফাইড" : "Verified", color: "text-emerald-300" },
+                  { icon: Zap, label: isBn ? "১০০% ফ্রি" : "100% Free", color: "text-amber-300" },
+                  { icon: Globe2, label: isBn ? "বাংলা + English" : "BN + EN", color: "text-sky-300" },
+                ].map((p, i) => (
+                  <span key={i} className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-[11px] font-semibold">
+                    <p.icon className={`w-3 h-3 ${p.color}`} />
+                    <span className="text-white/95">{p.label}</span>
+                  </span>
+                ))}
+              </div>
+
+              <p className="text-sm md:text-base mb-6 text-white/85 max-w-2xl leading-relaxed">{t("hero.description")}</p>
+
+              <div className="flex flex-wrap gap-2.5">
+                <Link to="/quran">
+                  <Button size="lg" className="rounded-full bg-white text-primary hover:bg-white/90 font-semibold shadow-2xl border-0 group">
+                    <BookOpen className="mr-2 w-4 h-4" />
+                    {t("hero.cta2")} <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                  </Button>
+                </Link>
+                <a href="#explore">
+                  <Button size="lg" className="rounded-full gradient-bg-warm text-white font-semibold shadow-pink border-0 group">
+                    <Sparkles className="mr-2 w-4 h-4" />
+                    {t("hero.cta1")} <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                  </Button>
+                </a>
+                <Link to="/weather">
+                  <Button size="lg" variant="outline" className="rounded-full border-2 border-white/70 text-white bg-white/5 hover:bg-white hover:text-primary font-semibold backdrop-blur-md">
+                    <CloudRain className="mr-2 w-4 h-4" />
+                    {t("hero.cta3")}
+                  </Button>
+                </Link>
+                <Link to="/services">
+                  <Button size="lg" variant="outline" className="rounded-full border-2 border-white/70 text-white bg-white/5 hover:bg-white hover:text-primary font-semibold backdrop-blur-md">
+                    <Briefcase className="mr-2 w-4 h-4" />
+                    {t("hero.cta4")}
+                  </Button>
+                </Link>
+              </div>
+
+              {/* Premium stat strip */}
+              <div className="mt-7 grid grid-cols-2 sm:grid-cols-4 gap-2.5 max-w-2xl">
+                {[
+                  { v: t("hero.stat1"), icon: Sparkles, sub: isBn ? "স্মার্ট" : "Smart" },
+                  { v: t("hero.stat2"), icon: BookOpen, sub: isBn ? "কুরআন" : "Quran" },
+                  { v: t("hero.stat3"), icon: Users, sub: isBn ? "সাহায্য" : "Support" },
+                  { v: t("hero.stat4"), icon: Zap, sub: isBn ? "ফ্রি" : "Free" },
+                ].map((s, i) => (
+                  <motion.div
+                    key={i}
+                    initial={{ opacity: 0, y: 12 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.3 + i * 0.08 }}
+                    className="group relative overflow-hidden rounded-2xl bg-gradient-to-br from-white/15 to-white/5 backdrop-blur-xl border border-white/25 px-3 py-3 hover:border-secondary/60 hover:from-secondary/20 hover:to-white/5 transition-all duration-300"
+                  >
+                    <div className="absolute -top-6 -right-6 w-16 h-16 rounded-full bg-secondary/20 blur-2xl group-hover:bg-secondary/40 transition-colors" />
+                    <s.icon className="w-4 h-4 text-secondary mb-1 relative z-10" />
+                    <div className="text-base md:text-lg font-display font-bold text-white leading-tight relative z-10">{s.v}</div>
+                    <div className="text-[10px] uppercase tracking-wider text-white/60 font-semibold relative z-10">{s.sub}</div>
+                  </motion.div>
+                ))}
+              </div>
+            </motion.div>
+
+            {/* RIGHT — floating info cards (desktop only) */}
+            <motion.div
+              initial={{ opacity: 0, x: 30 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.8, delay: 0.2 }}
+              className="hidden lg:flex flex-col gap-3 relative"
+            >
+              <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-white/15 to-white/5 backdrop-blur-2xl border border-white/25 p-5 shadow-2xl">
+                <div className="absolute -top-10 -right-10 w-32 h-32 rounded-full bg-secondary/30 blur-3xl" />
+                <div className="flex items-center justify-between mb-3 relative z-10">
+                  <div className="flex items-center gap-2">
+                    <div className="w-9 h-9 rounded-xl bg-secondary/20 border border-secondary/40 flex items-center justify-center">
+                      <Clock className="w-4 h-4 text-secondary" />
+                    </div>
+                    <div>
+                      <div className="text-[10px] uppercase tracking-widest text-white/60 font-bold">{isBn ? "এখন ঢাকায়" : "Now in Dhaka"}</div>
+                      <div className="text-xs text-white/85 font-medium">{dhakaDate}</div>
+                    </div>
+                  </div>
                 </div>
-              ))}
-            </div>
-          </motion.div>
+                <div className="text-4xl font-display font-bold text-white tabular-nums tracking-tight relative z-10">{dhakaTime}</div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                {[
+                  { to: "/namaz", icon: Compass, t: isBn ? "নামাজের সময়" : "Prayer Times", s: isBn ? "৫ ওয়াক্ত" : "5 daily", gradient: "from-emerald-500/30 to-emerald-700/20", accent: "text-emerald-300" },
+                  { to: "/weather", icon: CloudRain, t: isBn ? "আবহাওয়া" : "Weather", s: isBn ? "লাইভ আপডেট" : "Live update", gradient: "from-sky-500/30 to-sky-700/20", accent: "text-sky-300" },
+                  { to: "/livetv", icon: Tv, t: isBn ? "লাইভ টিভি" : "Live TV", s: isBn ? "৫০+ চ্যানেল" : "50+ channels", gradient: "from-rose-500/30 to-rose-700/20", accent: "text-rose-300" },
+                  { to: "/finance", icon: TrendingUp, t: isBn ? "ফিন্যান্স" : "Finance", s: isBn ? "রেট ও টিপস" : "Rates & tips", gradient: "from-amber-500/30 to-amber-700/20", accent: "text-amber-300" },
+                ].map((c) => (
+                  <Link
+                    key={c.to}
+                    to={c.to}
+                    className={`group relative overflow-hidden rounded-2xl bg-gradient-to-br ${c.gradient} backdrop-blur-xl border border-white/20 p-3.5 hover:border-white/40 hover:-translate-y-0.5 transition-all duration-300 shadow-lg`}
+                  >
+                    <div className="absolute -bottom-6 -right-6 w-20 h-20 rounded-full bg-white/10 blur-2xl group-hover:bg-white/20 transition-colors" />
+                    <c.icon className={`w-5 h-5 ${c.accent} mb-2 relative z-10`} />
+                    <div className="text-sm font-bold text-white relative z-10">{c.t}</div>
+                    <div className="text-[10px] text-white/70 relative z-10">{c.s}</div>
+                    <ArrowRight className="absolute top-3 right-3 w-3.5 h-3.5 text-white/40 group-hover:text-white group-hover:translate-x-0.5 transition-all" />
+                  </Link>
+                ))}
+              </div>
+
+              <Link
+                to="/appointment"
+                className="group relative overflow-hidden rounded-2xl gradient-bg-warm p-4 shadow-pink hover:scale-[1.02] transition-bounce"
+              >
+                <div className="absolute -top-8 -right-8 w-24 h-24 rounded-full bg-white/20 blur-2xl" />
+                <div className="flex items-center gap-3 relative z-10">
+                  <div className="w-11 h-11 rounded-xl bg-white/20 backdrop-blur-md flex items-center justify-center shrink-0">
+                    <CalendarClock className="w-5 h-5 text-white" />
+                  </div>
+                  <div className="flex-1">
+                    <div className="text-[10px] uppercase tracking-widest text-white/80 font-bold">{isBn ? "প্রিমিয়াম" : "Premium"}</div>
+                    <div className="text-base font-display font-bold text-white">{isBn ? "বুক অ্যাপয়েন্টমেন্ট" : "Book Appointment"}</div>
+                  </div>
+                  <ArrowRight className="w-5 h-5 text-white group-hover:translate-x-1 transition-transform" />
+                </div>
+              </Link>
+            </motion.div>
+          </div>
         </div>
+
+        {/* Bottom gradient fade */}
+        <div className="absolute bottom-0 left-0 right-0 h-24 bg-gradient-to-t from-background to-transparent pointer-events-none" />
       </section>
+
 
       <Marquee variant="primary" />
 

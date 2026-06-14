@@ -49,6 +49,24 @@ const FALLBACK_SPORTS: Channel[] = [
   { id: "fb-fuel", name: "Fuel TV", country: "US", category: "sports", url: "https://amg00489-amg00489c20-amg-fast-2-rakuten.amagi.tv/playlist/amg00489-fueltv-fueltvxtreme-rakuten/playlist.m3u8", isFallback: true },
 ];
 
+// One-click direct play channels (user-curated, premium quality)
+const DIRECT_CHANNELS: Channel[] = [
+  { id: "dir-fox-hq",      name: "Fox (HQ)",              country: "US", category: "direct" as any, url: "http://84.17.50.102/fox/index.m3u8" },
+  { id: "dir-tapmad",      name: "Tapmad",                country: "BD", category: "direct" as any, url: "https://premierleagpl23.akamaized.net/hls/live/2107108/tapmad-P2s6L_FiN@L-UrU/master.m3u8" },
+  { id: "dir-tv-azteca",   name: "TV Azteca",             country: "MX", category: "direct" as any, url: "https://1nyaler.streamhostingcdn.top/stream/117/index.m3u8" },
+  { id: "dir-tudn",        name: "TUDN",                  country: "MX", category: "direct" as any, url: "https://1nyaler.streamhostingcdn.top/stream/52/index.m3u8" },
+  { id: "dir-tyc",         name: "TyC Sports",            country: "AR", category: "direct" as any, url: "https://1nyaler.streamhostingcdn.top/stream/84/index.m3u8" },
+  { id: "dir-dsports",     name: "D Sports",              country: "AR", category: "direct" as any, url: "https://1nyaler.streamhostingcdn.top/stream/106/index.m3u8" },
+  { id: "dir-tvp",         name: "TVP",                   country: "PL", category: "direct" as any, url: "https://1nyaler.streamhostingcdn.top/stream/89/index.m3u8" },
+  { id: "dir-dazn",        name: "DAZN",                  country: "US", category: "direct" as any, url: "https://1nyaler.streamhostingcdn.top/stream/94/index.m3u8" },
+  { id: "dir-bein",        name: "beIN Sports",           country: "QA", category: "direct" as any, url: "https://1nyaler.streamhostingcdn.top/stream/23/index.m3u8" },
+  { id: "dir-win",         name: "Win Sports",            country: "CO", category: "direct" as any, url: "https://1nyaler.streamhostingcdn.top/stream/32/index.m3u8" },
+  { id: "dir-somoy",       name: "Somoy TV",              country: "BD", category: "direct" as any, url: "http://114.130.57.224:8080/Somoy-TV-3Mb/tracks-v1a1/mono.m3u8?token=SkQuhAXZxgBan1" },
+  { id: "dir-ptv",         name: "PTV",                   country: "PK", category: "direct" as any, url: "http://198.195.239.50:8095/ptv/tracks-v1a1/mono.m3u8" },
+  { id: "dir-tsports",     name: "T Sports",              country: "BD", category: "direct" as any, url: "http://198.195.239.50:8095/tsports/tracks-v1a1/mono.m3u8" },
+  { id: "dir-zee-bangla",  name: "Zee Bangla Shonar",     country: "IN", category: "direct" as any, url: "http://203.18.159.180/t.me/BDIX_Bypass_josh_Rambo_live1sdfddjgjj/index.m3u8" },
+];
+
 const COUNTRY_NAMES: Record<string, string> = {
   BD: "Bangladesh", IN: "India", PK: "Pakistan", US: "United States", UK: "United Kingdom",
   GB: "United Kingdom", QA: "Qatar", AE: "UAE", SA: "Saudi Arabia", DE: "Germany", FR: "France",

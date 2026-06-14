@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import { Send, Clock, MessageSquare, Phone, Trash2, ExternalLink, CheckCircle2, AlertCircle, Hourglass } from "lucide-react";
+import { Send, Clock, MessageSquare, Phone, Trash2, ExternalLink, CheckCircle2, AlertCircle, Hourglass, Sparkles, Loader2, Copy, RefreshCw } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -11,6 +11,51 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+
+const OCCASIONS = [
+  { value: "birthday",        bn: "জন্মদিন",                 en: "Birthday",            emoji: "🎂" },
+  { value: "anniversary",     bn: "বিবাহ বার্ষিকী",         en: "Anniversary",         emoji: "💍" },
+  { value: "love",            bn: "ভালোবাসা / প্রিয়তম(া)",  en: "Love / Sweetheart",   emoji: "❤️" },
+  { value: "valentine",       bn: "ভ্যালেন্টাইন ডে",         en: "Valentine's Day",     emoji: "💘" },
+  { value: "miss_you",        bn: "তোমাকে মিস করছি",         en: "Miss You",            emoji: "🥺" },
+  { value: "good_morning",    bn: "শুভ সকাল",                 en: "Good Morning",        emoji: "🌅" },
+  { value: "good_night",      bn: "শুভ রাত্রি",               en: "Good Night",          emoji: "🌙" },
+  { value: "sorry",           bn: "ক্ষমা চাওয়া",             en: "Sorry / Apology",     emoji: "🙏" },
+  { value: "thank_you",       bn: "ধন্যবাদ",                  en: "Thank You",           emoji: "🌸" },
+  { value: "get_well",        bn: "সুস্থতা কামনা",            en: "Get Well Soon",       emoji: "🌿" },
+  { value: "condolence",      bn: "শোক বার্তা",               en: "Condolence",          emoji: "🤍" },
+  { value: "congratulations", bn: "অভিনন্দন",                 en: "Congratulations",     emoji: "🎉" },
+  { value: "new_job",         bn: "নতুন চাকরি",               en: "New Job",             emoji: "💼" },
+  { value: "exam_result",     bn: "পরীক্ষার ফলাফল",           en: "Exam Result",         emoji: "📚" },
+  { value: "engagement",      bn: "বাগদান",                   en: "Engagement",          emoji: "💞" },
+  { value: "wedding",         bn: "বিয়ে",                    en: "Wedding",             emoji: "👰" },
+  { value: "baby_born",       bn: "নবজাতক",                   en: "New Baby",            emoji: "👶" },
+  { value: "eid",             bn: "ঈদ মোবারক",               en: "Eid Mubarak",         emoji: "🌙" },
+  { value: "ramadan",         bn: "রমজান শুভেচ্ছা",           en: "Ramadan Kareem",      emoji: "🕌" },
+  { value: "puja",            bn: "পূজা শুভেচ্ছা",            en: "Puja Greetings",      emoji: "🪔" },
+  { value: "new_year",        bn: "নববর্ষ",                   en: "New Year",            emoji: "🎊" },
+  { value: "pohela_boishakh", bn: "পহেলা বৈশাখ",              en: "Pohela Boishakh",     emoji: "🌼" },
+  { value: "mothers_day",     bn: "মা দিবস",                  en: "Mother's Day",        emoji: "👩" },
+  { value: "fathers_day",     bn: "বাবা দিবস",                en: "Father's Day",        emoji: "👨" },
+  { value: "friendship",      bn: "বন্ধুত্ব দিবস",            en: "Friendship Day",      emoji: "🤝" },
+  { value: "meeting_reminder",bn: "মিটিং রিমাইন্ডার",         en: "Meeting Reminder",    emoji: "📅" },
+  { value: "payment_reminder",bn: "পেমেন্ট রিমাইন্ডার",       en: "Payment Reminder",    emoji: "💸" },
+];
+
+const RELATIONSHIPS = [
+  { value: "lover",     bn: "প্রিয়তম(া)",    en: "Sweetheart" },
+  { value: "spouse",    bn: "স্ত্রী/স্বামী",  en: "Spouse" },
+  { value: "friend",    bn: "বন্ধু",          en: "Friend" },
+  { value: "family",    bn: "পরিবার",         en: "Family" },
+  { value: "parent",    bn: "বাবা/মা",        en: "Parent" },
+  { value: "sibling",   bn: "ভাই/বোন",       en: "Sibling" },
+  { value: "child",     bn: "সন্তান",         en: "Child" },
+  { value: "colleague", bn: "সহকর্মী",        en: "Colleague" },
+  { value: "client",    bn: "ক্লায়েন্ট",      en: "Client" },
+  { value: "teacher",   bn: "শিক্ষক",         en: "Teacher" },
+];
+
+type AITemplate = { title: string; text: string };
 
 type ScheduledMessage = {
   id: string;
@@ -36,6 +81,53 @@ const Scheduler = () => {
   const [message, setMessage] = useState("");
   const [sendAt, setSendAt] = useState("");
   const [busy, setBusy] = useState(false);
+
+  // AI templates
+  const [aiOccasion, setAiOccasion] = useState("birthday");
+  const [aiRelation, setAiRelation] = useState("friend");
+  const [aiTone, setAiTone] = useState("warm");
+  const [aiBusy, setAiBusy] = useState(false);
+  const [aiTemplates, setAiTemplates] = useState<AITemplate[]>([]);
+
+  const generateTemplates = async () => {
+    setAiBusy(true);
+    setAiTemplates([]);
+    try {
+      const { data, error } = await supabase.functions.invoke("ai-message-templates", {
+        body: {
+          occasion: OCCASIONS.find(o => o.value === aiOccasion)?.[language === "bn" ? "bn" : "en"] || aiOccasion,
+          relationship: RELATIONSHIPS.find(r => r.value === aiRelation)?.[language === "bn" ? "bn" : "en"] || aiRelation,
+          recipientName: name,
+          tone: aiTone,
+          language,
+          count: 18,
+        },
+      });
+      if (error) throw error;
+      if (data?.error) throw new Error(data.error);
+      const msgs: AITemplate[] = Array.isArray(data?.messages) ? data.messages : [];
+      if (!msgs.length) throw new Error("No messages returned");
+      setAiTemplates(msgs);
+      toast.success(t(`${msgs.length} টি মেসেজ তৈরি হয়েছে`, `${msgs.length} messages ready`));
+    } catch (e: any) {
+      const msg = String(e?.message || e);
+      if (msg.includes("429")) toast.error(t("একটু পরে আবার চেষ্টা করুন", "Rate limited, try again shortly"));
+      else if (msg.includes("402")) toast.error(t("AI ক্রেডিট শেষ", "AI credits exhausted"));
+      else toast.error(msg);
+    } finally {
+      setAiBusy(false);
+    }
+  };
+
+  const useTemplate = (text: string) => {
+    setMessage(text);
+    toast.success(t("মেসেজ সিলেক্ট হয়েছে", "Message selected"));
+    try { document.getElementById("scheduler-message")?.scrollIntoView({ behavior: "smooth", block: "center" }); } catch {}
+  };
+  const copyTemplate = async (text: string) => {
+    try { await navigator.clipboard.writeText(text); toast.success(t("কপি হয়েছে", "Copied")); } catch {}
+  };
+
 
   const load = async () => {
     if (!user) return;
@@ -183,6 +275,7 @@ const Scheduler = () => {
           <div>
             <label className="text-sm font-medium mb-1.5 block">{t("মেসেজ", "Message")}</label>
             <Textarea
+              id="scheduler-message"
               value={message}
               onChange={(e) => setMessage(e.target.value)}
               placeholder={t("শুভ জন্মদিন! অনেক অনেক শুভেচ্ছা...", "Happy birthday! Wishing you all the best...")}
@@ -205,10 +298,118 @@ const Scheduler = () => {
           </p>
         </Card>
 
+        {/* AI Message Templates */}
+        <Card className="p-6 space-y-4 mb-8 border-primary/30 bg-gradient-to-br from-primary/5 via-background to-secondary/5">
+          <div className="flex items-start justify-between gap-3 flex-wrap">
+            <div>
+              <h2 className="text-xl font-display font-bold flex items-center gap-2">
+                <Sparkles className="w-5 h-5 text-primary" />
+                {t("AI মেসেজ সাজেশন", "AI Message Suggestions")}
+              </h2>
+              <p className="text-xs text-muted-foreground mt-0.5">
+                {t(
+                  "অনুষ্ঠান ও সম্পর্ক বেছে নিন — ১৫–২০টি রেডি মেসেজ পাবেন, এক ক্লিকে ব্যবহার করুন",
+                  "Pick occasion & relation — get 15–20 ready messages, use with one click"
+                )}
+              </p>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+            <div>
+              <label className="text-xs font-medium mb-1 block">{t("অনুষ্ঠান", "Occasion")}</label>
+              <Select value={aiOccasion} onValueChange={setAiOccasion}>
+                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectContent className="max-h-72">
+                  {OCCASIONS.map((o) => (
+                    <SelectItem key={o.value} value={o.value}>
+                      {o.emoji} {language === "bn" ? o.bn : o.en}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <label className="text-xs font-medium mb-1 block">{t("সম্পর্ক", "Relationship")}</label>
+              <Select value={aiRelation} onValueChange={setAiRelation}>
+                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  {RELATIONSHIPS.map((r) => (
+                    <SelectItem key={r.value} value={r.value}>
+                      {language === "bn" ? r.bn : r.en}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <label className="text-xs font-medium mb-1 block">{t("টোন", "Tone")}</label>
+              <Select value={aiTone} onValueChange={setAiTone}>
+                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="warm">{t("আন্তরিক", "Warm")}</SelectItem>
+                  <SelectItem value="romantic">{t("রোমান্টিক", "Romantic")}</SelectItem>
+                  <SelectItem value="funny">{t("মজার", "Funny")}</SelectItem>
+                  <SelectItem value="formal">{t("ফরমাল", "Formal")}</SelectItem>
+                  <SelectItem value="poetic">{t("কাব্যিক", "Poetic")}</SelectItem>
+                  <SelectItem value="islamic">{t("ইসলামিক / দোয়া", "Islamic / Dua")}</SelectItem>
+                  <SelectItem value="short">{t("সংক্ষিপ্ত", "Short")}</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+
+          <div className="flex flex-wrap gap-2 pt-1">
+            {OCCASIONS.slice(0, 10).map((o) => (
+              <button
+                key={o.value}
+                onClick={() => setAiOccasion(o.value)}
+                className={`px-2.5 py-1 rounded-full text-xs border transition ${
+                  aiOccasion === o.value ? "bg-primary text-primary-foreground border-primary" : "bg-muted/40 hover:bg-muted"
+                }`}
+              >
+                {o.emoji} {language === "bn" ? o.bn : o.en}
+              </button>
+            ))}
+          </div>
+
+          <Button onClick={generateTemplates} disabled={aiBusy} size="lg" className="w-full">
+            {aiBusy ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Sparkles className="w-4 h-4 mr-2" />}
+            {aiBusy ? t("জেনারেট হচ্ছে...", "Generating...") : t("১৫–২০টি মেসেজ তৈরি করো", "Generate 15–20 messages")}
+          </Button>
+
+          {aiTemplates.length > 0 && (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+              {aiTemplates.map((tpl, i) => (
+                <div key={i} className="p-3 rounded-lg border bg-card hover:border-primary/50 transition group">
+                  <p className="text-[11px] font-semibold text-primary mb-1">{tpl.title || `#${i + 1}`}</p>
+                  <p className="text-sm whitespace-pre-wrap mb-2">{tpl.text}</p>
+                  <div className="flex gap-1.5">
+                    <Button size="sm" variant="default" className="h-7 text-xs flex-1" onClick={() => useTemplate(tpl.text)}>
+                      <Send className="w-3 h-3 mr-1" />
+                      {t("ব্যবহার করো", "Use")}
+                    </Button>
+                    <Button size="sm" variant="outline" className="h-7 text-xs" onClick={() => copyTemplate(tpl.text)}>
+                      <Copy className="w-3 h-3" />
+                    </Button>
+                  </div>
+                </div>
+              ))}
+              <div className="md:col-span-2">
+                <Button onClick={generateTemplates} disabled={aiBusy} variant="outline" size="sm" className="w-full">
+                  <RefreshCw className="w-3 h-3 mr-1" />
+                  {t("আরও জেনারেট করো", "Generate more")}
+                </Button>
+              </div>
+            </div>
+          )}
+        </Card>
+
         <h2 className="text-xl font-display font-bold mb-3 flex items-center gap-2">
           <MessageSquare className="w-5 h-5" />
           {t("আপনার শিডিউল", "Your schedule")} ({items.length})
         </h2>
+
 
         {items.length === 0 ? (
           <p className="text-muted-foreground text-sm text-center py-8">

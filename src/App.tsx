@@ -59,6 +59,7 @@ import AdminPortfolio from "./pages/AdminPortfolio";
 import BusinessGuide from "./pages/BusinessGuide";
 import Politics from "./pages/Politics";
 import WarUpdates from "./pages/WarUpdates";
+import Stocks from "./pages/Stocks";
 
 const queryClient = new QueryClient();
 
@@ -121,6 +122,7 @@ const App = () => (
                 <Route path="/business-guide" element={<BusinessGuide />} />
                 <Route path="/politics" element={<Politics />} />
                 <Route path="/war" element={<WarUpdates />} />
+                <Route path="/stocks" element={<Stocks />} />
                 <Route path="/cart" element={<Cart />} />
                 <Route path="/checkout" element={<Checkout />} />
                 <Route path="/order-confirmation/:id" element={<OrderConfirmation />} />

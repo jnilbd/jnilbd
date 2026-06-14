@@ -29,6 +29,14 @@ const FEEDS: Record<string, { q: string; hl: string; gl: string; ceid: string }>
   war_ceasefire: { q: "ceasefire peace talks negotiations", hl: "en", gl: "US", ceid: "US:en" },
   war_humanitarian: { q: "war humanitarian crisis refugees casualties", hl: "en", gl: "US", ceid: "US:en" },
   war_bangla: { q: "যুদ্ধ সংঘাত আন্তর্জাতিক", hl: "bn", gl: "BD", ceid: "BD:bn" },
+  // Stock market feeds
+  stock_dse: { q: "DSE Dhaka Stock Exchange Bangladesh", hl: "en", gl: "BD", ceid: "BD:en" },
+  stock_bd_bangla: { q: "শেয়ার বাজার ঢাকা স্টক এক্সচেঞ্জ DSE", hl: "bn", gl: "BD", ceid: "BD:bn" },
+  stock_cse: { q: "CSE Chittagong Stock Exchange", hl: "en", gl: "BD", ceid: "BD:en" },
+  stock_world: { q: "global stock market S&P Nasdaq Dow", hl: "en", gl: "US", ceid: "US:en" },
+  stock_india: { q: "Sensex Nifty Indian stock market", hl: "en", gl: "IN", ceid: "IN:en" },
+  stock_crypto: { q: "Bitcoin Ethereum crypto market", hl: "en", gl: "US", ceid: "US:en" },
+  stock_ipo_bd: { q: "Bangladesh IPO new listing share", hl: "en", gl: "BD", ceid: "BD:en" },
 };
 
 function decode(s: string) {

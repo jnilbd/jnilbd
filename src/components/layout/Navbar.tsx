@@ -112,8 +112,7 @@ const Navbar = () => {
               </span>
             </div>
           </Link>
-            </div>
-          </Link>
+
 
           <nav className="hidden lg:flex items-center gap-0.5">
             {primary.map((l) => (

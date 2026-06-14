@@ -17,20 +17,37 @@ import { useLanguage } from "@/contexts/LanguageContext";
  * - Daughters only: 1 daughter = 1/2, 2+ daughters = 2/3 (split equally), residue back to other heirs
  */
 
+type AssetMode = "money" | "land";
+type LandUnit = "bigha" | "katha" | "decimal" | "kani" | "acre";
+
+// 1 Bigha = 33 Decimal = 20 Katha; 1 Katha = 1.65 Decimal; 1 Acre = 100 Decimal; 1 Kani = 120 Decimal
+const TO_DECIMAL: Record<LandUnit, number> = {
+  decimal: 1,
+  katha: 1.65,
+  bigha: 33,
+  acre: 100,
+  kani: 120,
+};
+
 const Warish = () => {
   const { language } = useLanguage();
   const t = (bn: string, en: string) => (language === "bn" ? bn : en);
 
+  const [mode, setMode] = useState<AssetMode>("money");
   const [estate, setEstate] = useState("1000000");
+  const [landAmount, setLandAmount] = useState("10");
+  const [landUnit, setLandUnit] = useState<LandUnit>("bigha");
   const [gender, setGender] = useState<"male" | "female">("male");
-  const [spouse, setSpouse] = useState(1); // for male: number of wives; for female: 0 or 1 husband
+  const [spouse, setSpouse] = useState(1);
   const [sons, setSons] = useState(0);
   const [daughters, setDaughters] = useState(0);
   const [father, setFather] = useState(false);
   const [mother, setMother] = useState(false);
 
   const calc = useMemo(() => {
-    const total = parseFloat(estate) || 0;
+    const total = mode === "money"
+      ? (parseFloat(estate) || 0)
+      : (parseFloat(landAmount) || 0) * TO_DECIMAL[landUnit];
     if (total <= 0) return null;
 
     const hasChildren = sons + daughters > 0;
@@ -103,14 +120,31 @@ const Warish = () => {
       residue = 0;
     }
 
-    // Round
-    shares.forEach((s) => (s.amount = Math.round(s.amount)));
+    // Round money to whole, keep land precise
+    if (mode === "money") shares.forEach((s) => (s.amount = Math.round(s.amount)));
     const totalDistributed = shares.reduce((s, x) => s + x.amount, 0);
 
-    return { shares, residue, totalDistributed };
-  }, [estate, gender, spouse, sons, daughters, father, mother, language]);
+    return { shares, residue, totalDistributed, total };
+  }, [mode, estate, landAmount, landUnit, gender, spouse, sons, daughters, father, mother, language]);
 
-  const fmt = (n: number) => "৳ " + n.toLocaleString("en-IN");
+  const fmtMoney = (n: number) => "৳ " + n.toLocaleString("en-IN");
+
+  // Convert decimal -> Bigha + Katha + Decimal breakdown (Bangladesh)
+  const fmtLand = (dec: number) => {
+    if (dec <= 0) return "0";
+    const bigha = Math.floor(dec / 33);
+    let rem = dec - bigha * 33;
+    const katha = Math.floor(rem / 1.65);
+    rem = rem - katha * 1.65;
+    const decRemain = rem; // remaining decimal
+    const parts: string[] = [];
+    if (bigha) parts.push(`${bigha} ${t("বিঘা", "Bigha")}`);
+    if (katha) parts.push(`${katha} ${t("কাঠা", "Katha")}`);
+    if (decRemain >= 0.01) parts.push(`${decRemain.toFixed(2)} ${t("শতক", "Decimal")}`);
+    return parts.length ? parts.join(" ") : `${dec.toFixed(3)} ${t("শতক", "Decimal")}`;
+  };
+
+  const fmt = (n: number) => (mode === "money" ? fmtMoney(n) : fmtLand(n));
 
   return (
     <div className="container py-8 max-w-3xl">
@@ -130,12 +164,47 @@ const Warish = () => {
 
         <Card className="p-6 space-y-4">
           <div>
-            <label className="text-sm font-medium mb-1.5 block">{t("মোট সম্পত্তি (৳)", "Total estate (BDT)")}</label>
-            <Input type="number" value={estate} onChange={(e) => setEstate(e.target.value)} />
-            <p className="text-xs text-muted-foreground mt-1">
-              {t("দাফন খরচ, ঋণ ও ওসিয়ত (১/৩ পর্যন্ত) বাদ দেওয়ার পর", "After funeral, debts and bequests (up to 1/3)")}
-            </p>
+            <label className="text-sm font-medium mb-1.5 block">{t("সম্পত্তির ধরন", "Asset Type")}</label>
+            <div className="grid grid-cols-2 gap-2">
+              <button onClick={() => setMode("money")} className={`py-2 rounded-lg text-sm font-semibold border ${mode === "money" ? "border-primary bg-primary/10 text-primary" : "border-border"}`}>
+                💰 {t("টাকা/সম্পদ", "Money / Cash")}
+              </button>
+              <button onClick={() => setMode("land")} className={`py-2 rounded-lg text-sm font-semibold border ${mode === "land" ? "border-primary bg-primary/10 text-primary" : "border-border"}`}>
+                🌾 {t("জমি", "Land")}
+              </button>
+            </div>
           </div>
+
+          {mode === "money" ? (
+            <div>
+              <label className="text-sm font-medium mb-1.5 block">{t("মোট সম্পত্তি (৳)", "Total estate (BDT)")}</label>
+              <Input type="number" value={estate} onChange={(e) => setEstate(e.target.value)} />
+              <p className="text-xs text-muted-foreground mt-1">
+                {t("দাফন খরচ, ঋণ ও ওসিয়ত (১/৩ পর্যন্ত) বাদ দেওয়ার পর", "After funeral, debts and bequests (up to 1/3)")}
+              </p>
+            </div>
+          ) : (
+            <div className="space-y-2">
+              <label className="text-sm font-medium mb-1.5 block">{t("মোট জমির পরিমাণ", "Total land amount")}</label>
+              <div className="grid grid-cols-2 gap-2">
+                <Input type="number" value={landAmount} onChange={(e) => setLandAmount(e.target.value)} />
+                <select value={landUnit} onChange={(e) => setLandUnit(e.target.value as LandUnit)} className="h-10 rounded-md border border-input bg-background px-3 text-sm">
+                  <option value="bigha">{t("বিঘা", "Bigha")} (33 dec)</option>
+                  <option value="katha">{t("কাঠা", "Katha")} (1.65 dec)</option>
+                  <option value="decimal">{t("শতক/ডেসিমেল", "Decimal / Shotok")}</option>
+                  <option value="acre">{t("একর", "Acre")} (100 dec)</option>
+                  <option value="kani">{t("কানি", "Kani")} (120 dec)</option>
+                </select>
+              </div>
+              <p className="text-xs text-muted-foreground mt-1">
+                {t(
+                  `মোট = ${((parseFloat(landAmount) || 0) * TO_DECIMAL[landUnit]).toFixed(2)} শতক (Decimal)। দাফন/ঋণ/ওসিয়ত বাদ দেওয়ার পর হিসাব।`,
+                  `Total = ${((parseFloat(landAmount) || 0) * TO_DECIMAL[landUnit]).toFixed(2)} decimal. After funeral/debts/bequests.`
+                )}
+              </p>
+            </div>
+          )}
+
 
           <div>
             <label className="text-sm font-medium mb-1.5 block">{t("মৃত ব্যক্তি", "Deceased was")}</label>
@@ -199,8 +268,8 @@ const Warish = () => {
               </div>
               {calc.residue > 0.01 && (
                 <p className="text-xs text-amber-600 pt-1">
-                  {t(`অবশিষ্ট ৳ ${Math.round(calc.residue).toLocaleString()} — অন্য আত্মীয়দের (চাচা/ভাই) মধ্যে যাবে; আলেমের পরামর্শ নিন।`,
-                     `Residue ৳ ${Math.round(calc.residue).toLocaleString()} — goes to other relatives (asaba); consult a scholar.`)}
+                  {t(`অবশিষ্ট ${fmt(calc.residue)} — অন্য আত্মীয়দের (চাচা/ভাই) মধ্যে যাবে; আলেমের পরামর্শ নিন।`,
+                     `Residue ${fmt(calc.residue)} — goes to other relatives (asaba); consult a scholar.`)}
                 </p>
               )}
             </div>

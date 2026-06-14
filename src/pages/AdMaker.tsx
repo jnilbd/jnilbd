@@ -112,6 +112,70 @@ export default function AdMaker() {
     }
   };
 
+  const handleRegenerateImage = async () => {
+    setRegenLoading(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("ad-content-maker", {
+        body: {
+          mode: "regenerate_image",
+          idea,
+          imagePrompt: pack?.creative_brief?.image_prompt,
+        },
+      });
+      if (error) throw error;
+      if (data?.generatedImage) {
+        setGeneratedImage(data.generatedImage);
+        toast.success("নতুন ইমেজ তৈরি হয়েছে! ✨");
+      } else {
+        toast.error("ইমেজ জেনারেট হয়নি — আবার চেষ্টা করুন");
+      }
+    } catch (e: any) {
+      toast.error("ত্রুটি: " + String(e?.message ?? e));
+    } finally {
+      setRegenLoading(false);
+    }
+  };
+
+  const handleGenerateVideo = async () => {
+    setVideoLoading(true);
+    setVideoFrames([]);
+    setVideoFrameIdx(0);
+    setVideoPlaying(false);
+    try {
+      const { data, error } = await supabase.functions.invoke("ad-content-maker", {
+        body: {
+          mode: "video_frames",
+          idea,
+          storyboard: pack?.creative_brief?.video_storyboard,
+        },
+      });
+      if (error) throw error;
+      const frames: string[] = data?.frames || [];
+      const shots: string[] = data?.shots || [];
+      if (frames.length === 0) {
+        toast.error("ভিডিও ফ্রেম তৈরি হয়নি — আবার চেষ্টা করুন");
+      } else {
+        setVideoFrames(frames);
+        setVideoShots(shots);
+        setVideoPlaying(true);
+        toast.success(`${frames.length}টি ভিডিও ফ্রেম তৈরি হয়েছে! 🎬`);
+      }
+    } catch (e: any) {
+      toast.error("ত্রুটি: " + String(e?.message ?? e));
+    } finally {
+      setVideoLoading(false);
+    }
+  };
+
+  // Auto-advance video frames (slideshow playback)
+  useEffect(() => {
+    if (!videoPlaying || videoFrames.length === 0) return;
+    const t = setInterval(() => {
+      setVideoFrameIdx((i) => (i + 1) % videoFrames.length);
+    }, 1500);
+    return () => clearInterval(t);
+  }, [videoPlaying, videoFrames.length]);
+
   const downloadJson = () => {
     if (!pack) return;
     const blob = new Blob([JSON.stringify(pack, null, 2)], { type: "application/json" });
@@ -122,6 +186,7 @@ export default function AdMaker() {
     a.click();
     URL.revokeObjectURL(url);
   };
+
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-background to-muted/20">

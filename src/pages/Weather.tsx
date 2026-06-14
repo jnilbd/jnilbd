@@ -619,6 +619,37 @@ const Weather = () => {
               {isBn ? "ডেটা সোর্স" : "Sources"}: Open-Meteo · ECMWF · NOAA GFS · DWD ICON · JMA · EC-Earth3P-HR
               {model !== "best_match" && <> · {isBn ? "বর্তমান মডেল" : "current"}: <strong>{MODELS.find(m => m.id === model)?.en}</strong></>}
             </p>
+
+            {/* SMS alerts — bottom */}
+            <Card className="mt-6 border-2 border-primary/40 bg-primary/5">
+              <CardHeader className="pb-2">
+                <CardTitle className="flex items-center gap-2 text-primary text-base md:text-lg">
+                  <BellRing className="w-5 h-5" />
+                  {isBn ? "দুর্যোগে SMS অ্যালার্ট" : "SMS Disaster Alerts"}
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                <p className="text-xs text-muted-foreground">
+                  {isBn
+                    ? `${city.name} অঞ্চলের ঝড়, বজ্রপাত, ভারী বৃষ্টি বা চরম তাপমাত্রার সতর্কতা সরাসরি ফোনে SMS-এ পাবেন।`
+                    : `Get SMS alerts for storms, lightning, heavy rain, and extreme heat in ${city.name}.`}
+                </p>
+                <div className="grid sm:grid-cols-2 gap-3">
+                  <div>
+                    <Label className="text-xs">{isBn ? "নাম (ঐচ্ছিক)" : "Name"}</Label>
+                    <Input value={subName} onChange={(e) => setSubName(e.target.value)} placeholder={isBn ? "আপনার নাম" : "Your name"} />
+                  </div>
+                  <div>
+                    <Label className="text-xs">{isBn ? "মোবাইল *" : "Mobile *"}</Label>
+                    <Input value={subPhone} onChange={(e) => setSubPhone(e.target.value)} placeholder="01XXXXXXXXX" />
+                  </div>
+                </div>
+                <Button onClick={subscribeAlerts} disabled={subbing} className="w-full sm:w-auto rounded-full gradient-bg-primary text-white">
+                  <BellRing className="w-4 h-4 mr-2" />
+                  {subbing ? "..." : (isBn ? "সাবস্ক্রাইব করুন" : "Subscribe")}
+                </Button>
+              </CardContent>
+            </Card>
           </>
         )}
       </motion.div>

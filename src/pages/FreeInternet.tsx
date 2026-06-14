@@ -2,6 +2,7 @@ import { useState } from "react";
 import { motion } from "framer-motion";
 import { Wifi, Loader2, Sparkles, Phone, Settings, Gift, AlertTriangle } from "lucide-react";
 import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -145,8 +146,29 @@ const FreeInternet = () => {
                 <span className="text-sm">{bn ? "সর্বশেষ তথ্য আনা হচ্ছে..." : "Fetching latest info..."}</span>
               </div>
             ) : (
-              <article className="prose prose-sm dark:prose-invert max-w-none prose-headings:font-display prose-headings:mt-4 prose-headings:mb-2 prose-p:my-2 prose-ul:my-2 prose-li:my-0.5 prose-code:bg-muted prose-code:px-1.5 prose-code:py-0.5 prose-code:rounded prose-code:text-primary prose-code:before:content-none prose-code:after:content-none">
-                <ReactMarkdown>{answer}</ReactMarkdown>
+              <article
+                className="
+                  max-w-none text-[15px] leading-relaxed
+                  [&_h1]:text-xl [&_h1]:font-bold [&_h1]:mt-6 [&_h1]:mb-3 [&_h1]:pb-2 [&_h1]:border-b [&_h1]:border-border
+                  [&_h2]:text-lg [&_h2]:font-bold [&_h2]:mt-6 [&_h2]:mb-2 [&_h2]:flex [&_h2]:items-center [&_h2]:gap-2 [&_h2]:text-primary
+                  [&_h3]:text-base [&_h3]:font-semibold [&_h3]:mt-4 [&_h3]:mb-2 [&_h3]:text-foreground
+                  [&_p]:my-3 [&_p]:leading-7
+                  [&_ul]:my-3 [&_ul]:space-y-2 [&_ul]:pl-5 [&_ul]:list-disc [&_ul]:marker:text-primary
+                  [&_ol]:my-3 [&_ol]:space-y-2 [&_ol]:pl-5 [&_ol]:list-decimal [&_ol]:marker:text-primary [&_ol]:marker:font-bold
+                  [&_li]:pl-1 [&_li]:leading-7
+                  [&_li>p]:my-1
+                  [&_strong]:text-foreground [&_strong]:font-semibold
+                  [&_code]:bg-primary/10 [&_code]:text-primary [&_code]:px-1.5 [&_code]:py-0.5 [&_code]:rounded [&_code]:text-[13px] [&_code]:font-mono [&_code]:font-semibold [&_code]:whitespace-nowrap
+                  [&_pre]:bg-muted [&_pre]:p-3 [&_pre]:rounded-lg [&_pre]:my-3 [&_pre]:overflow-x-auto
+                  [&_blockquote]:border-l-4 [&_blockquote]:border-primary/50 [&_blockquote]:bg-muted/40 [&_blockquote]:px-4 [&_blockquote]:py-2 [&_blockquote]:my-3 [&_blockquote]:rounded-r-lg [&_blockquote]:italic
+                  [&_table]:my-4 [&_table]:w-full [&_table]:text-sm [&_table]:border-collapse
+                  [&_th]:bg-muted [&_th]:p-2 [&_th]:text-left [&_th]:font-semibold [&_th]:border [&_th]:border-border
+                  [&_td]:p-2 [&_td]:border [&_td]:border-border [&_td]:align-top
+                  [&_hr]:my-5 [&_hr]:border-border
+                  [&_a]:text-primary [&_a]:underline [&_a]:underline-offset-2 hover:[&_a]:text-primary/80
+                "
+              >
+                <ReactMarkdown remarkPlugins={[remarkGfm]}>{answer}</ReactMarkdown>
               </article>
             )}
           </CardContent>

@@ -248,46 +248,45 @@ const Home = () => {
 
       <Marquee variant="cool" />
 
-      {/* Reviews */}
-      <section className="py-12 md:py-20 container">
-        <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="text-center mb-8 md:mb-12 max-w-2xl mx-auto">
-          <h2 className="text-3xl md:text-5xl font-display font-bold mb-3">
-            <span className="gradient-text">{t("section.reviews")}</span>
-          </h2>
-          <p className="text-muted-foreground text-base md:text-lg">{t("section.reviewsDesc")}</p>
-        </motion.div>
+      {/* Reviews — only shown when approved reviews exist */}
+      {reviews.length > 0 && (
+        <section className="py-12 md:py-20 container">
+          <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="text-center mb-8 md:mb-12 max-w-2xl mx-auto">
+            <h2 className="text-3xl md:text-5xl font-display font-bold mb-3">
+              <span className="gradient-text">{t("section.reviews")}</span>
+            </h2>
+            <p className="text-muted-foreground text-base md:text-lg">{t("section.reviewsDesc")}</p>
+          </motion.div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
-          {reviews.map((r, i) => {
-            const SourceIcon = r.source === "facebook" ? Facebook : r.source === "instagram" ? Instagram : MessageCircle;
-            return (
-              <motion.div
-                key={r.id}
-                initial={{ opacity: 0, y: 30 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: i * 0.08 }}
-                whileHover={{ y: -6 }}
-                className="bg-card p-5 md:p-6 rounded-2xl shadow-card border border-border/50 h-full flex flex-col"
-              >
-                <div className="flex gap-1 mb-3">
-                  {Array.from({ length: r.rating }).map((_, j) => (
-                    <Star key={j} className="w-4 h-4 fill-yellow-400 text-yellow-400" />
-                  ))}
-                </div>
-                <p className="text-sm text-foreground/80 mb-4 leading-relaxed line-clamp-4 flex-1">"{language === "bn" ? r.textBn : r.text}"</p>
-                <div className="flex items-center justify-between pt-4 border-t border-border/50 mt-auto">
-                  <div className="flex items-center gap-2 min-w-0">
-                    <img src={displayImage(r.avatar, r.id, r.name, "Review")} alt={r.name} onError={fallbackImageHandler(r.id, r.name, "Review")} className="w-9 h-9 rounded-full object-cover flex-shrink-0" />
-                    <span className="font-semibold text-sm truncate">{r.name}</span>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
+            {reviews.map((r, i) => {
+              const reviewerName = r.reviewer_name || (language === "bn" ? "ক্রেতা" : "Customer");
+              return (
+                <motion.div
+                  key={r.id}
+                  initial={{ opacity: 0, y: 30 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: i * 0.08 }}
+                  whileHover={{ y: -6 }}
+                  className="bg-card p-5 md:p-6 rounded-2xl shadow-card border border-border/50 h-full flex flex-col"
+                >
+                  <div className="flex gap-1 mb-3">
+                    {Array.from({ length: r.rating }).map((_, j) => (
+                      <Star key={j} className="w-4 h-4 fill-yellow-400 text-yellow-400" />
+                    ))}
                   </div>
-                  <SourceIcon className="w-4 h-4 text-muted-foreground flex-shrink-0" />
-                </div>
-              </motion.div>
-            );
-          })}
-        </div>
-      </section>
+                  <p className="text-sm text-foreground/80 mb-4 leading-relaxed line-clamp-4 flex-1">"{r.comment}"</p>
+                  <div className="flex items-center justify-between pt-4 border-t border-border/50 mt-auto">
+                    <span className="font-semibold text-sm truncate">{reviewerName}</span>
+                    <MessageCircle className="w-4 h-4 text-muted-foreground flex-shrink-0" />
+                  </div>
+                </motion.div>
+              );
+            })}
+          </div>
+        </section>
+      )}
 
       {/* Social section */}
       <section className="py-12 md:py-20 bg-gradient-to-br from-primary/5 via-secondary/5 to-accent/5">

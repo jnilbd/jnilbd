@@ -175,23 +175,176 @@ const Weather = () => {
     } catch { toast.error("Error"); }
   };
 
-  // Alerts
-  const alerts: { level: "danger" | "warn"; text: string }[] = [];
-  if (data?.current) {
+  // Enhanced alerts with severity + recommended actions
+  type Alert = {
+    severity: "extreme" | "severe" | "moderate" | "advisory";
+    icon: string;
+    title: string;
+    detail: string;
+    actions: string[];
+  };
+  const alerts: Alert[] = [];
+
+  if (data?.current && data?.hourly && data?.daily) {
     const c = data.current;
-    if (c.temperature_2m >= 38) alerts.push({ level: "danger", text: isBn ? `🔥 চরম গরম: ${c.temperature_2m}°C — হিটস্ট্রোকের ঝুঁকি, প্রচুর পানি পান করুন` : `🔥 Extreme heat: ${c.temperature_2m}°C` });
-    else if (c.temperature_2m >= 34) alerts.push({ level: "warn", text: isBn ? `☀️ বেশি গরম: ${c.temperature_2m}°C` : `☀️ Hot: ${c.temperature_2m}°C` });
-    if (c.temperature_2m <= 8) alerts.push({ level: "danger", text: isBn ? `🥶 প্রচণ্ড ঠান্ডা: ${c.temperature_2m}°C` : `🥶 Severe cold: ${c.temperature_2m}°C` });
-    else if (c.temperature_2m <= 12) alerts.push({ level: "warn", text: isBn ? `❄️ ঠান্ডা: ${c.temperature_2m}°C` : `❄️ Cold: ${c.temperature_2m}°C` });
-    if ([95, 96, 99].includes(c.weather_code)) alerts.push({ level: "danger", text: isBn ? "⚡ বজ্রঝড়ের সতর্কতা — ঘরে থাকুন" : "⚡ Thunderstorm" });
-    if (c.wind_gusts_10m >= 60) alerts.push({ level: "danger", text: isBn ? `🌪️ ঝড়ো বাতাস: ${c.wind_gusts_10m} km/h` : `🌪️ Storm wind` });
-    else if (c.wind_speed_10m >= 40) alerts.push({ level: "warn", text: isBn ? `💨 দমকা হাওয়া: ${c.wind_speed_10m} km/h` : `💨 Strong wind` });
+    const next24Prob = data.hourly.precipitation_probability?.slice(0, 24) || [];
+    const next24Precip = data.hourly.precipitation?.slice(0, 24) || [];
+    const next24Codes = data.hourly.weather_code?.slice(0, 24) || [];
+    const next24Wind = data.hourly.wind_speed_10m?.slice(0, 24) || [];
+    const maxProb = Math.max(0, ...next24Prob);
+    const totalRain24 = next24Precip.reduce((a: number, b: number) => a + (b || 0), 0);
+    const peakRainHourIdx = next24Precip.indexOf(Math.max(...next24Precip, 0));
+    const peakRainTime = data.hourly.time?.[peakRainHourIdx];
+    const hasThunder24 = next24Codes.some((c: number) => [95, 96, 99].includes(c));
+    const maxWind24 = Math.max(0, ...next24Wind);
+
+    // ☀️ Extreme heat
+    if (c.temperature_2m >= 40 || c.apparent_temperature >= 42) {
+      alerts.push({
+        severity: "extreme",
+        icon: "🔥",
+        title: isBn ? "চরম তাপদাহ সতর্কতা" : "Extreme Heat Warning",
+        detail: isBn
+          ? `তাপমাত্রা ${Math.round(c.temperature_2m)}°C, অনুভূত ${Math.round(c.apparent_temperature)}°C — হিটস্ট্রোকের উচ্চ ঝুঁকি।`
+          : `Temperature ${Math.round(c.temperature_2m)}°C, feels like ${Math.round(c.apparent_temperature)}°C — high heatstroke risk.`,
+        actions: isBn
+          ? ["দুপুর ১১টা–৪টা ঘরের বাইরে যাবেন না", "প্রতি ১৫–২০ মিনিটে পানি/স্যালাইন পান করুন", "হালকা সুতি কাপড়, ছাতা/টুপি ব্যবহার করুন", "শিশু, বয়স্ক ও অসুস্থদের প্রতি বিশেষ নজর", "মাথা ঘোরা/বমি হলে দ্রুত ছায়ায় যান, ডাক্তার ডাকুন"]
+          : ["Avoid outdoor activity 11 AM – 4 PM", "Drink water/ORS every 15–20 minutes", "Wear light cotton clothes, hat, umbrella", "Check on children, elderly, and the sick", "Move to shade and seek help if dizzy or nauseous"],
+      });
+    } else if (c.temperature_2m >= 36) {
+      alerts.push({
+        severity: "severe",
+        icon: "☀️",
+        title: isBn ? "তাপপ্রবাহ" : "Heat Wave",
+        detail: isBn
+          ? `${Math.round(c.temperature_2m)}°C — অনুভূত ${Math.round(c.apparent_temperature)}°C। দীর্ঘ সময় রোদে থাকা ক্ষতিকর।`
+          : `${Math.round(c.temperature_2m)}°C — feels like ${Math.round(c.apparent_temperature)}°C.`,
+        actions: isBn
+          ? ["প্রচুর পানি ও তরল পান করুন", "সরাসরি রোদ এড়িয়ে চলুন", "হালকা রঙের ঢিলেঢালা পোশাক পরুন", "ক্যাফেইন ও অ্যালকোহল এড়িয়ে চলুন"]
+          : ["Drink plenty of fluids", "Stay out of direct sun", "Wear light, loose clothing", "Avoid caffeine and alcohol"],
+      });
+    } else if (c.temperature_2m >= 34) {
+      alerts.push({
+        severity: "moderate",
+        icon: "🌡️",
+        title: isBn ? "গরমের সতর্কতা" : "Hot Weather Advisory",
+        detail: isBn ? `${Math.round(c.temperature_2m)}°C — অস্বস্তিকর গরম।` : `${Math.round(c.temperature_2m)}°C — uncomfortably warm.`,
+        actions: isBn ? ["পর্যাপ্ত পানি পান করুন", "ছায়ায় বিশ্রাম নিন"] : ["Stay hydrated", "Rest in shade frequently"],
+      });
+    }
+
+    // ⛈️ Thunderstorm
+    if ([95, 96, 99].includes(c.weather_code) || (hasThunder24 && c.weather_code !== 0)) {
+      const isNow = [95, 96, 99].includes(c.weather_code);
+      alerts.push({
+        severity: c.weather_code === 99 ? "extreme" : isNow ? "severe" : "moderate",
+        icon: "⛈️",
+        title: isBn ? (isNow ? "বজ্রঝড় চলছে" : "আসন্ন বজ্রঝড়") : (isNow ? "Thunderstorm Active" : "Thunderstorm Expected"),
+        detail: isBn
+          ? (isNow ? "বজ্রপাত ও দমকা হাওয়ার ঝুঁকি।" : "আগামী ২৪ ঘণ্টায় বজ্রঝড়ের পূর্বাভাস।")
+          : (isNow ? "Active lightning and gusty wind risk." : "Thunderstorm forecast within 24h."),
+        actions: isBn
+          ? ["খোলা মাঠ, গাছ ও বৈদ্যুতিক খুঁটি থেকে দূরে থাকুন", "পাকা ভবনের ভেতরে আশ্রয় নিন", "টিভি/ফ্রিজ/চার্জার আনপ্লাগ করুন", "মোবাইল চার্জে রেখে কথা বলবেন না", "ধাতব ছাতা/ছাদ এড়িয়ে চলুন"]
+          : ["Stay away from open fields, trees, and poles", "Shelter inside a concrete building", "Unplug TVs, fridges, chargers", "Avoid using phones while charging", "Avoid metal umbrellas and roofs"],
+      });
+    }
+
+    // 🌪️ Storm / strong wind
+    if (c.wind_gusts_10m >= 88 || maxWind24 >= 88) {
+      alerts.push({
+        severity: "extreme",
+        icon: "🌪️",
+        title: isBn ? "ঘূর্ণিঝড় / প্রবল ঝড়" : "Severe Storm",
+        detail: isBn ? `দমকা বাতাস ${Math.round(Math.max(c.wind_gusts_10m, maxWind24))} km/h — ঘরবাড়ি ক্ষতির ঝুঁকি।` : `Gusts ${Math.round(Math.max(c.wind_gusts_10m, maxWind24))} km/h — property damage risk.`,
+        actions: isBn
+          ? ["নিরাপদ আশ্রয়কেন্দ্রে চলে যান", "জরুরি কাগজ, টর্চ, পানি ও শুকনা খাবার প্রস্তুত রাখুন", "গাছ/সাইনবোর্ড/টিনের ছাদ থেকে দূরে থাকুন", "জানালা টেপ দিয়ে শক্ত করুন", "বিদ্যুৎ ও গ্যাস মেইন বন্ধ রাখুন"]
+          : ["Move to a designated shelter", "Keep documents, torch, water, dry food ready", "Stay away from trees, signboards, tin roofs", "Tape/reinforce windows", "Turn off main electricity and gas"],
+      });
+    } else if (c.wind_gusts_10m >= 60 || maxWind24 >= 60) {
+      alerts.push({
+        severity: "severe",
+        icon: "💨",
+        title: isBn ? "ঝড়ো বাতাসের সতর্কতা" : "Storm Wind Warning",
+        detail: isBn ? `${Math.round(Math.max(c.wind_gusts_10m, maxWind24))} km/h দমকা বাতাস সম্ভব।` : `Gusts up to ${Math.round(Math.max(c.wind_gusts_10m, maxWind24))} km/h possible.`,
+        actions: isBn
+          ? ["আলগা জিনিসপত্র, ফুলের টব ভেতরে নিন", "মোটরসাইকেল/সাইকেল সাবধানে চালান", "নৌকা/ট্রলার তীরে রাখুন"]
+          : ["Secure loose objects and pots", "Ride two-wheelers cautiously", "Bring boats ashore"],
+      });
+    } else if (c.wind_speed_10m >= 40) {
+      alerts.push({
+        severity: "moderate",
+        icon: "💨",
+        title: isBn ? "দমকা হাওয়া" : "Strong Wind",
+        detail: isBn ? `বাতাসের গতি ${Math.round(c.wind_speed_10m)} km/h।` : `Wind ${Math.round(c.wind_speed_10m)} km/h.`,
+        actions: isBn ? ["আলগা ছাতা/ব্যানার সরিয়ে ফেলুন"] : ["Secure loose items outdoors"],
+      });
+    }
+
+    // 🌧️ Heavy rain / rain
+    const peakHr = peakRainTime ? new Date(peakRainTime).toLocaleTimeString(isBn ? "bn-BD" : "en-US", { hour: "numeric", hour12: true }) : "";
+    if (totalRain24 >= 89 || next24Precip.some((p: number) => p >= 30)) {
+      alerts.push({
+        severity: "extreme",
+        icon: "🌊",
+        title: isBn ? "অতি ভারী বর্ষণ ও জলাবদ্ধতা" : "Extremely Heavy Rainfall",
+        detail: isBn
+          ? `আগামী ২৪ ঘণ্টায় ~${Math.round(totalRain24)} mm বৃষ্টি — শীর্ষ ${peakHr}। জলাবদ্ধতা/বন্যার ঝুঁকি।`
+          : `~${Math.round(totalRain24)} mm in 24h — peak around ${peakHr}. Flooding risk.`,
+        actions: isBn
+          ? ["নিচু এলাকা/আন্ডারপাস এড়িয়ে চলুন", "বৈদ্যুতিক খুঁটি ও ছেড়া তার থেকে দূরে থাকুন", "গুরুত্বপূর্ণ জিনিস উঁচু জায়গায় রাখুন", "জরুরি ওষুধ, পানি, শুকনা খাবার মজুদ রাখুন", "ভ্রমণ পরিকল্পনা স্থগিত করুন"]
+          : ["Avoid low-lying areas and underpasses", "Stay clear of poles and downed wires", "Move valuables to higher ground", "Stock medicine, water, dry food", "Postpone travel plans"],
+      });
+    } else if (totalRain24 >= 50 || next24Precip.some((p: number) => p >= 15)) {
+      alerts.push({
+        severity: "severe",
+        icon: "🌧️",
+        title: isBn ? "ভারী বৃষ্টিপাত" : "Heavy Rainfall",
+        detail: isBn
+          ? `আগামী ২৪ ঘণ্টায় ~${Math.round(totalRain24)} mm বৃষ্টি প্রত্যাশিত — শীর্ষ ${peakHr}।`
+          : `~${Math.round(totalRain24)} mm expected in 24h — peak ${peakHr}.`,
+        actions: isBn
+          ? ["ছাতা/রেইনকোট সাথে রাখুন", "ধীরে গাড়ি চালান, হেডলাইট জ্বালান", "ছাদ/ড্রেন পরিষ্কার রাখুন", "ফোন/পাওয়ারব্যাংক চার্জ করে রাখুন"]
+          : ["Carry umbrella/raincoat", "Drive slowly with headlights on", "Clear roof drains and gutters", "Charge phones and power banks"],
+      });
+    } else if (maxProb >= 70) {
+      alerts.push({
+        severity: "moderate",
+        icon: "☔",
+        title: isBn ? "বৃষ্টির প্রবল সম্ভাবনা" : "Likely Rain",
+        detail: isBn ? `সর্বোচ্চ ${maxProb}% সম্ভাবনা — সম্ভাব্য শীর্ষ ${peakHr}।` : `${maxProb}% chance — peak around ${peakHr}.`,
+        actions: isBn ? ["বের হওয়ার আগে ছাতা নিন", "কাপড় ছাদ থেকে নামিয়ে রাখুন"] : ["Take an umbrella", "Bring laundry inside"],
+      });
+    } else if (maxProb >= 40) {
+      alerts.push({
+        severity: "advisory",
+        icon: "🌦️",
+        title: isBn ? "মাঝারি বৃষ্টির সম্ভাবনা" : "Possible Showers",
+        detail: isBn ? `${maxProb}% সম্ভাবনা আগামী ২৪ ঘণ্টায়।` : `${maxProb}% chance over next 24h.`,
+        actions: isBn ? ["সম্ভব হলে ছাতা সাথে রাখুন"] : ["Keep an umbrella handy"],
+      });
+    }
+
+    // ❄️ Cold
+    if (c.temperature_2m <= 6) {
+      alerts.push({
+        severity: "severe",
+        icon: "🥶",
+        title: isBn ? "শৈত্যপ্রবাহ" : "Cold Wave",
+        detail: isBn ? `${Math.round(c.temperature_2m)}°C — তীব্র ঠান্ডা।` : `${Math.round(c.temperature_2m)}°C — severe cold.`,
+        actions: isBn ? ["গরম কাপড় ও কম্বল ব্যবহার করুন", "শিশু-বয়স্কদের ঘরে রাখুন", "গরম পানীয় পান করুন"] : ["Wear warm layers and blankets", "Keep elderly and children indoors", "Drink warm fluids"],
+      });
+    }
   }
-  if (data?.hourly) {
-    const next24 = data.hourly.precipitation_probability?.slice(0, 24) || [];
-    const maxProb = Math.max(...next24, 0);
-    if (maxProb >= 80) alerts.push({ level: "warn", text: isBn ? `☔ আগামী ২৪ ঘণ্টায় বৃষ্টির সর্বোচ্চ সম্ভাবনা ${maxProb}%` : `☔ ${maxProb}% rain chance next 24h` });
-  }
+
+  const sevStyle = (s: Alert["severity"]) => ({
+    extreme: "bg-red-600/10 border-red-600 text-red-700 dark:text-red-300",
+    severe: "bg-orange-500/10 border-orange-500 text-orange-700 dark:text-orange-300",
+    moderate: "bg-yellow-500/10 border-yellow-500 text-yellow-800 dark:text-yellow-300",
+    advisory: "bg-blue-500/10 border-blue-500 text-blue-700 dark:text-blue-300",
+  })[s];
+  const sevLabel = (s: Alert["severity"]) => isBn
+    ? ({ extreme: "চরম", severe: "তীব্র", moderate: "মাঝারি", advisory: "পরামর্শ" }[s])
+    : ({ extreme: "EXTREME", severe: "SEVERE", moderate: "MODERATE", advisory: "ADVISORY" }[s]);
 
   // Next 24h hourly slice
   const hourly24 = useMemo(() => {

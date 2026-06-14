@@ -126,27 +126,27 @@ const Navbar = () => {
 
       {/* Main nav */}
       <div className="backdrop-blur-xl bg-background/80 border-b border-border/60 supports-[backdrop-filter]:bg-background/60">
-        <div className="container flex h-[72px] items-center justify-between gap-4">
-          <Link to="/" className="flex items-center gap-3.5 group shrink-0" onClick={() => setOpenMenu(null)}>
-            <div className="relative">
+        <div className="container flex h-[64px] sm:h-[72px] items-center justify-between gap-2 sm:gap-4 px-3 sm:px-4">
+          <Link to="/" className="flex items-center gap-2 sm:gap-3.5 group shrink-0 min-w-0" onClick={() => setOpenMenu(null)}>
+            <div className="relative shrink-0">
               <span className="absolute inset-0 rounded-full bg-gradient-to-br from-secondary/30 via-secondary/10 to-transparent blur-md opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-              <div className="relative w-12 h-12 rounded-full bg-gradient-to-br from-background to-muted/60 ring-1 ring-secondary/40 shadow-[inset_0_1px_0_rgba(255,255,255,0.6),0_4px_14px_-4px_rgba(180,140,60,0.35)] flex items-center justify-center group-hover:ring-secondary/70 transition-all duration-500">
+              <div className="relative w-9 h-9 sm:w-12 sm:h-12 rounded-full bg-gradient-to-br from-background to-muted/60 ring-1 ring-secondary/40 shadow-[inset_0_1px_0_rgba(255,255,255,0.6),0_4px_14px_-4px_rgba(180,140,60,0.35)] flex items-center justify-center group-hover:ring-secondary/70 transition-all duration-500">
                 <img
                   src={logoMark}
                   alt="JohnNil monogram"
                   width={44}
                   height={44}
-                  className="w-9 h-9 object-contain group-hover:scale-110 transition-bounce"
+                  className="w-7 h-7 sm:w-9 sm:h-9 object-contain group-hover:scale-110 transition-bounce"
                 />
               </div>
             </div>
-            <div className="flex flex-col leading-none whitespace-nowrap">
-              <span className="font-display font-bold text-[24px] tracking-[0.08em] bg-gradient-to-r from-foreground via-foreground to-foreground/80 bg-clip-text text-transparent">
+            <div className="flex flex-col leading-none whitespace-nowrap min-w-0">
+              <span className="font-display font-bold text-[16px] sm:text-[24px] tracking-[0.06em] sm:tracking-[0.08em] bg-gradient-to-r from-foreground via-foreground to-foreground/80 bg-clip-text text-transparent">
                 JOHN NIL
               </span>
 
 
-              <span className="flex items-center gap-1 text-[8.5px] tracking-[0.22em] uppercase text-muted-foreground font-semibold mt-1.5 whitespace-nowrap">
+              <span className="hidden sm:flex items-center gap-1 text-[8.5px] tracking-[0.22em] uppercase text-muted-foreground font-semibold mt-1.5 whitespace-nowrap">
                 <span className="text-secondary">{isBn ? "মান" : "Quality"}</span>
                 <span className="opacity-40">•</span>
                 <span className="text-secondary">{isBn ? "বিশ্বাস" : "Trust"}</span>
@@ -214,11 +214,11 @@ const Navbar = () => {
 
 
 
-          <div className="flex items-center gap-1.5">
+          <div className="flex items-center gap-0.5 sm:gap-1.5 shrink-0">
             <Button
               variant="ghost"
               size="icon"
-              className="md:hidden rounded-full"
+              className="md:hidden rounded-full h-8 w-8 sm:h-9 sm:w-9"
               onClick={() => setMobileSearchOpen((o) => !o)}
               aria-label="Search"
             >
@@ -229,7 +229,7 @@ const Navbar = () => {
               onClick={toggle}
               aria-label={`Switch language (current: ${language === "bn" ? "Bangla" : "English"})`}
               title={language === "bn" ? "Switch to English" : "বাংলায় দেখুন"}
-              className="group relative flex items-center justify-center w-9 h-9 rounded-full border border-border/60 bg-gradient-to-br from-primary/15 to-secondary/15 ring-1 ring-primary/30 hover:border-primary/60 hover:shadow-md hover:scale-105 transition-all"
+              className="group relative flex items-center justify-center w-8 h-8 sm:w-9 sm:h-9 rounded-full border border-border/60 bg-gradient-to-br from-primary/15 to-secondary/15 ring-1 ring-primary/30 hover:border-primary/60 hover:shadow-md hover:scale-105 transition-all"
             >
               <Globe className="w-4 h-4 text-primary" strokeWidth={2.5} />
               <span className="absolute -bottom-1 -right-1 text-[8px] font-bold bg-primary text-primary-foreground rounded-full px-1 leading-tight ring-1 ring-background">
@@ -239,7 +239,7 @@ const Navbar = () => {
 
 
             <Link to="/cart" className="relative" onClick={() => setOpenMenu(null)}>
-              <Button variant="ghost" size="icon" className="rounded-full">
+              <Button variant="ghost" size="icon" className="rounded-full h-8 w-8 sm:h-9 sm:w-9">
                 <ShoppingCart className="w-[18px] h-[18px]" />
                 {count > 0 && (
                   <span className="absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] px-1 rounded-full bg-secondary text-secondary-foreground text-[10px] flex items-center justify-center font-bold">
@@ -255,7 +255,7 @@ const Navbar = () => {
                 <DropdownMenuTrigger asChild>
                   <button
                     aria-label="Account"
-                    className="flex items-center justify-center w-9 h-9 rounded-full bg-gradient-to-br from-primary to-primary/70 text-primary-foreground font-bold text-xs uppercase shadow-md ring-1 ring-primary/40 hover:scale-105 transition-transform"
+                    className="flex items-center justify-center w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-gradient-to-br from-primary to-primary/70 text-primary-foreground font-bold text-xs uppercase shadow-md ring-1 ring-primary/40 hover:scale-105 transition-transform"
                   >
                     {(user.email?.[0] || "U").toUpperCase()}
                   </button>
@@ -297,7 +297,7 @@ const Navbar = () => {
 
             {!user && (
               <Link to="/auth" className="sm:hidden">
-                <Button variant="ghost" size="icon" className="rounded-full" aria-label="Login">
+                <Button variant="ghost" size="icon" className="rounded-full h-8 w-8" aria-label="Login">
                   <LogIn className="w-[18px] h-[18px]" />
                 </Button>
               </Link>
@@ -306,7 +306,7 @@ const Navbar = () => {
             <Button
               variant="ghost"
               size="icon"
-              className="lg:hidden rounded-full"
+              className="lg:hidden rounded-full h-8 w-8 sm:h-9 sm:w-9"
               onClick={() => {
                 setOpenMenu(null);
                 setMobileNavOpen((o) => !o);

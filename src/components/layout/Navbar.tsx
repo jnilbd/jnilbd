@@ -126,27 +126,27 @@ const Navbar = () => {
 
       {/* Main nav */}
       <div className="backdrop-blur-xl bg-background/80 border-b border-border/60 supports-[backdrop-filter]:bg-background/60">
-        <div className="container flex h-[72px] items-center justify-between gap-4">
-          <Link to="/" className="flex items-center gap-3.5 group shrink-0" onClick={() => setOpenMenu(null)}>
-            <div className="relative">
+        <div className="container flex h-[64px] sm:h-[72px] items-center justify-between gap-2 sm:gap-4 px-3 sm:px-4">
+          <Link to="/" className="flex items-center gap-2 sm:gap-3.5 group shrink-0 min-w-0" onClick={() => setOpenMenu(null)}>
+            <div className="relative shrink-0">
               <span className="absolute inset-0 rounded-full bg-gradient-to-br from-secondary/30 via-secondary/10 to-transparent blur-md opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-              <div className="relative w-12 h-12 rounded-full bg-gradient-to-br from-background to-muted/60 ring-1 ring-secondary/40 shadow-[inset_0_1px_0_rgba(255,255,255,0.6),0_4px_14px_-4px_rgba(180,140,60,0.35)] flex items-center justify-center group-hover:ring-secondary/70 transition-all duration-500">
+              <div className="relative w-9 h-9 sm:w-12 sm:h-12 rounded-full bg-gradient-to-br from-background to-muted/60 ring-1 ring-secondary/40 shadow-[inset_0_1px_0_rgba(255,255,255,0.6),0_4px_14px_-4px_rgba(180,140,60,0.35)] flex items-center justify-center group-hover:ring-secondary/70 transition-all duration-500">
                 <img
                   src={logoMark}
                   alt="JohnNil monogram"
                   width={44}
                   height={44}
-                  className="w-9 h-9 object-contain group-hover:scale-110 transition-bounce"
+                  className="w-7 h-7 sm:w-9 sm:h-9 object-contain group-hover:scale-110 transition-bounce"
                 />
               </div>
             </div>
-            <div className="flex flex-col leading-none whitespace-nowrap">
-              <span className="font-display font-bold text-[24px] tracking-[0.08em] bg-gradient-to-r from-foreground via-foreground to-foreground/80 bg-clip-text text-transparent">
+            <div className="flex flex-col leading-none whitespace-nowrap min-w-0">
+              <span className="font-display font-bold text-[16px] sm:text-[24px] tracking-[0.06em] sm:tracking-[0.08em] bg-gradient-to-r from-foreground via-foreground to-foreground/80 bg-clip-text text-transparent">
                 JOHN NIL
               </span>
 
 
-              <span className="flex items-center gap-1 text-[8.5px] tracking-[0.22em] uppercase text-muted-foreground font-semibold mt-1.5 whitespace-nowrap">
+              <span className="hidden sm:flex items-center gap-1 text-[8.5px] tracking-[0.22em] uppercase text-muted-foreground font-semibold mt-1.5 whitespace-nowrap">
                 <span className="text-secondary">{isBn ? "মান" : "Quality"}</span>
                 <span className="opacity-40">•</span>
                 <span className="text-secondary">{isBn ? "বিশ্বাস" : "Trust"}</span>

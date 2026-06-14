@@ -66,7 +66,10 @@ export const translations: Translations = {
  "hero.stat4": { bn: "১০০% ফ্রি", en: "100% Free" },
 
   // Marquee
-  "marquee.text": { bn: "✨ ১০০% সিকিউর পেমেন্ট ✦ দ্রুত ডেলিভারি ✦ ২৪/৭ সাপোর্ট ✦ প্রিমিয়াম কোয়ালিটি ✦ কাস্টম অর্ডার ✦", en: "✨ 100% Secure Payment ✦ Fast Delivery ✦ 24/7 Support ✦ Premium Quality ✦ Custom Orders ✦" },
+ "marquee.text": { bn: "১০০% সিকিউর পেমেন্ট ✦ দ্রুত ডেলিভারি ✦ ২৪/৭ সাপোর্ট ✦ প্রিমিয়াম কোয়ালিটি ✦ কাস্টম অর্ডার", en: "100% Secure Payment ✦ Fast Delivery ✦ 24/7 Support ✦ Premium Quality ✦ Custom Orders" },
+ "marquee.primary": { bn: "৩০+ স্মার্ট টুল ✦ ১১৪ সূরা অডিও ✦ লাইভ আবহাওয়া ✦ নামাজের সময় ✦ AI সহায়তা ✦ ফ্রি ইন্টারনেট গাইড ✦ লাইভ টিভি ✦ ১০০% ফ্রি", en: "30+ Smart Tools ✦ 114 Surah Audio ✦ Live Weather ✦ Prayer Times ✦ AI Assistant ✦ Free Internet Guide ✦ Live TV ✦ 100% Free" },
+ "marquee.warm": { bn: "নতুন অফার চলছে ✦ অর্ডারে ফ্রি ডেলিভারি ✦ প্রিমিয়াম সার্ভিস ✦ অ্যাপয়েন্টমেন্ট বুক করুন ✦ কাস্টম অর্ডার ✦ EST. ২০১৪ ✦ ভেরিফাইড ব্র্যান্ড", en: "New Offers Live ✦ Free Delivery on Orders ✦ Premium Services ✦ Book Your Appointment ✦ Custom Orders ✦ EST. 2014 ✦ Verified Brand" },
+ "marquee.cool": { bn: "ট্যাক্স • ওয়ারিশ • সোলার ক্যালকুলেটর ✦ ভূমি জরিপ ✦ ফোন লুকআপ ✦ গ্যাজেট অ্যাডভাইজার ✦ পাসওয়ার্ড ভল্ট ✦ কনভার্টার ✦ ডাউনলোডার", en: "Tax • Warish • Solar Calculators ✦ Land Survey ✦ Phone Lookup ✦ Gadget Advisor ✦ Password Vault ✦ Converters ✦ Downloaders" },
 
   // Sections
   "section.explore": { bn: "এক্সপ্লোর করুন", en: "Explore" },

@@ -55,6 +55,7 @@ import Appointment from "./pages/Appointment";
 import Policies from "./pages/Policies";
 import NotFound from "./pages/NotFound.tsx";
 import Admin from "./pages/Admin";
+import AdminDashboard from "./pages/AdminDashboard";
 import AdminPortfolio from "./pages/AdminPortfolio";
 import BusinessGuide from "./pages/BusinessGuide";
 import Politics from "./pages/Politics";
@@ -83,6 +84,8 @@ const App = () => (
                 <Route path="/shop" element={<Shop />} />
                 <Route path="/shop/:id" element={<ProductDetail />} />
                 <Route path="/admin" element={<Admin />} />
+                <Route path="/dashboard" element={<AdminDashboard />} />
+                <Route path="/admin/dashboard" element={<AdminDashboard />} />
                 <Route path="/services" element={<Services />} />
                 <Route path="/services/:id" element={<ServiceDetail />} />
                 <Route path="/portfolio" element={<Portfolio />} />

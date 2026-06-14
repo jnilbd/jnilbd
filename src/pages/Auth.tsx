@@ -23,6 +23,12 @@ const Auth = () => {
   const { language } = useLanguage();
   const { user } = useAuth();
   const nav = useNavigate();
+  const [params] = useSearchParams();
+  const next = useMemo(() => {
+    const n = params.get("next");
+    if (!n || !n.startsWith("/") || n.startsWith("//")) return "/finance";
+    return n;
+  }, [params]);
   const [mode, setMode] = useState<"login" | "signup">("login");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -30,8 +36,8 @@ const Auth = () => {
   const [busy, setBusy] = useState(false);
 
   useEffect(() => {
-    if (user) nav("/finance", { replace: true });
-  }, [user, nav]);
+    if (user) nav(next, { replace: true });
+  }, [user, nav, next]);
 
   const handle = async (e: React.FormEvent) => {
     e.preventDefault();

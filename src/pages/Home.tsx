@@ -249,16 +249,16 @@ const Home = () => {
           <p className="text-muted-foreground text-base md:text-lg mb-8 md:mb-10">{t("section.socialDesc")}</p>
 
           <div className="flex justify-center gap-3 md:gap-4 flex-wrap">
-            <a href="https://facebook.com" target="_blank" rel="noreferrer" className="w-16 h-16 md:w-20 md:h-20 rounded-2xl gradient-bg-cool flex items-center justify-center text-white shadow-glow hover:scale-110 transition-bounce">
+            <a href="https://www.facebook.com/jnilbd" target="_blank" rel="noreferrer" className="w-16 h-16 md:w-20 md:h-20 rounded-2xl gradient-bg-cool flex items-center justify-center text-white shadow-glow hover:scale-110 transition-bounce">
               <Facebook className="w-8 h-8 md:w-10 md:h-10" />
             </a>
-            <a href="https://instagram.com" target="_blank" rel="noreferrer" className="w-16 h-16 md:w-20 md:h-20 rounded-2xl gradient-bg-warm flex items-center justify-center text-white shadow-pink hover:scale-110 transition-bounce">
+            <a href="https://www.instagram.com/jnil.us" target="_blank" rel="noreferrer" className="w-16 h-16 md:w-20 md:h-20 rounded-2xl gradient-bg-warm flex items-center justify-center text-white shadow-pink hover:scale-110 transition-bounce">
               <Instagram className="w-8 h-8 md:w-10 md:h-10" />
             </a>
-            <a href="https://youtube.com" target="_blank" rel="noreferrer" aria-label="YouTube" className="w-16 h-16 md:w-20 md:h-20 rounded-2xl bg-red-600 flex items-center justify-center text-white shadow-glow hover:scale-110 transition-bounce">
+            <a href="https://youtube.com/@jnilbd" target="_blank" rel="noreferrer" aria-label="YouTube" className="w-16 h-16 md:w-20 md:h-20 rounded-2xl bg-red-600 flex items-center justify-center text-white shadow-glow hover:scale-110 transition-bounce">
               <Youtube className="w-8 h-8 md:w-10 md:h-10" />
             </a>
-            <a href="https://linkedin.com" target="_blank" rel="noreferrer" aria-label="LinkedIn" className="w-16 h-16 md:w-20 md:h-20 rounded-2xl bg-[#0A66C2] flex items-center justify-center text-white shadow-glow hover:scale-110 transition-bounce">
+            <a href="https://www.linkedin.com/in/jnilit" target="_blank" rel="noreferrer" aria-label="LinkedIn" className="w-16 h-16 md:w-20 md:h-20 rounded-2xl bg-[#0A66C2] flex items-center justify-center text-white shadow-glow hover:scale-110 transition-bounce">
               <Linkedin className="w-8 h-8 md:w-10 md:h-10" />
             </a>
             <a href="https://wa.me/8801774585757" target="_blank" rel="noreferrer" aria-label="WhatsApp" className="w-16 h-16 md:w-20 md:h-20 rounded-2xl bg-green-500 flex items-center justify-center text-white shadow-glow hover:scale-110 transition-bounce">

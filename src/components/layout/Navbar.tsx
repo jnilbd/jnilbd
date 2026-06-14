@@ -1,5 +1,5 @@
 import { Link, NavLink } from "react-router-dom";
-import { Menu, X, ShoppingCart, Globe, Phone, Mail, MapPin, LayoutGrid, CalendarClock, Sparkles, BookOpen, CloudSun, HeartPulse, Calculator, ShieldCheck } from "lucide-react";
+import { Menu, X, ShoppingCart, Globe, Phone, Mail, MapPin, LayoutGrid, CalendarClock, Sparkles, CloudSun, HeartPulse, Calculator, ShieldCheck, Wifi, Tv, Newspaper, Wallet } from "lucide-react";
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -54,15 +54,27 @@ const Navbar = () => {
               <Sparkles className="w-3 h-3" />
               <span className="font-semibold">{isBn ? "৩০+ স্মার্ট টুল" : "30+ Smart Tools"}</span>
             </span>
-            <span className="hidden xl:inline-flex items-center gap-1.5 opacity-80">
-              <BookOpen className="w-3 h-3" /> {isBn ? "কুরআন" : "Quran"}
-            </span>
-            <span className="hidden xl:inline-flex items-center gap-1.5 opacity-80">
+            <a href="/weather" className="hidden xl:inline-flex items-center gap-1.5 opacity-80 hover:opacity-100 hover:text-secondary transition-smooth">
               <CloudSun className="w-3 h-3" /> {isBn ? "আবহাওয়া" : "Weather"}
-            </span>
-            <span className="hidden xl:inline-flex items-center gap-1.5 opacity-80">
+            </a>
+            <a href="/free-internet" className="hidden xl:inline-flex items-center gap-1.5 opacity-80 hover:opacity-100 hover:text-secondary transition-smooth">
+              <Wifi className="w-3 h-3" /> {isBn ? "ফ্রি নেট" : "Free Net"}
+            </a>
+            <a href="/health" className="hidden xl:inline-flex items-center gap-1.5 opacity-80 hover:opacity-100 hover:text-secondary transition-smooth">
+              <HeartPulse className="w-3 h-3" /> {isBn ? "স্বাস্থ্য" : "Health"}
+            </a>
+            <a href="/politics" className="hidden 2xl:inline-flex items-center gap-1.5 opacity-80 hover:opacity-100 hover:text-secondary transition-smooth">
+              <Newspaper className="w-3 h-3" /> {isBn ? "রাজনীতি" : "Politics"}
+            </a>
+            <a href="/finance" className="hidden 2xl:inline-flex items-center gap-1.5 opacity-80 hover:opacity-100 hover:text-secondary transition-smooth">
+              <Wallet className="w-3 h-3" /> {isBn ? "ফিন্যান্স" : "Finance"}
+            </a>
+            <a href="/livetv" className="hidden xl:inline-flex items-center gap-1.5 opacity-80 hover:opacity-100 hover:text-secondary transition-smooth">
+              <Tv className="w-3 h-3" /> {isBn ? "লাইভ টিভি" : "Live TV"}
+            </a>
+            <a href="/tax" className="hidden 2xl:inline-flex items-center gap-1.5 opacity-80 hover:opacity-100 hover:text-secondary transition-smooth">
               <Calculator className="w-3 h-3" /> {isBn ? "ক্যালকুলেটর" : "Calculators"}
-            </span>
+            </a>
             <span className="hidden xl:inline-block w-px h-3.5 bg-primary-foreground/25" />
             <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-secondary/15 border border-secondary/30 text-secondary text-[10px] font-bold tracking-[0.18em]">
               <ShieldCheck className="w-3 h-3" /> EST. 2014

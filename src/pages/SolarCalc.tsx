@@ -1,10 +1,14 @@
 import { useMemo, useState } from "react";
 import { motion } from "framer-motion";
-import { Sun, Zap, Battery, Plus, Trash2 } from "lucide-react";
+import { Sun, Zap, Battery, Plus, Trash2, Search, ShoppingBag, Loader2, Sparkles } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { supabase } from "@/integrations/supabase/client";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
+import { toast } from "sonner";
 
 type Appliance = { id: string; name: string; watt: number; qty: number; hours: number };
 
@@ -29,6 +33,47 @@ const SolarCalc = () => {
   const [sunHours, setSunHours] = useState("4.5"); // BD avg
   const [autonomyDays, setAutonomyDays] = useState("1");
   const [systemVoltage, setSystemVoltage] = useState("24");
+
+  // Equipment price lookup
+  const [priceQuery, setPriceQuery] = useState("");
+  const [priceLoading, setPriceLoading] = useState(false);
+  const [priceAnswer, setPriceAnswer] = useState<string>("");
+
+  const quickItems = [
+    t("সোলার প্যানেল ১০০W", "100W Solar Panel"),
+    t("লিথিয়াম ব্যাটারি ১০০Ah", "100Ah Lithium Battery"),
+    t("IPS ১.৫ KVA", "1.5 KVA IPS"),
+    t("চার্জ কন্ট্রোলার MPPT 60A", "MPPT 60A Controller"),
+    t("ওয়ালটন ১.৫ টন AC", "Walton 1.5 Ton AC"),
+    t("ফ্রিজ ১৫ ঘনফুট", "Refrigerator 15 cft"),
+    t("সিলিং ফ্যান", "Ceiling Fan"),
+    t("ওয়াটার পাম্প ০.৫HP", "Water Pump 0.5HP"),
+    t("জেনারেটর ২KVA", "2KVA Generator"),
+    t("LED টিভি ৪৩\"", "43\" LED TV"),
+  ];
+
+  const lookupPrice = async (q?: string) => {
+    const query = (q ?? priceQuery).trim();
+    if (!query) return;
+    if (q) setPriceQuery(q);
+    setPriceLoading(true);
+    setPriceAnswer("");
+    try {
+      const { data, error } = await supabase.functions.invoke("equipment-price", {
+        body: { query, language },
+      });
+      if (error) throw error;
+      if (data?.error) throw new Error(data.error);
+      setPriceAnswer(data?.answer || "");
+    } catch (e: any) {
+      const msg = String(e?.message || e);
+      if (msg.includes("429")) toast.error(t("অনেক বেশি রিকোয়েস্ট — কিছুক্ষণ পর চেষ্টা করুন।", "Too many requests — try again later."));
+      else if (msg.includes("402")) toast.error(t("AI ক্রেডিট শেষ — Workspace এ ক্রেডিট যোগ করুন।", "AI credits exhausted — add credits in workspace."));
+      else toast.error(t("দাম আনতে সমস্যা হয়েছে।", "Failed to fetch price info."));
+    } finally {
+      setPriceLoading(false);
+    }
+  };
 
   const update = (id: string, patch: Partial<Appliance>) =>
     setItems((arr) => arr.map((a) => (a.id === id ? { ...a, ...patch } : a)));
@@ -155,6 +200,71 @@ const SolarCalc = () => {
               "Note: Cost varies by brand, quality & market. Installation extra."
             )}
           </p>
+        </Card>
+
+        {/* ============== Live Equipment Price Lookup (AI) ============== */}
+        <Card className="p-5 mt-6 border-primary/30 bg-gradient-to-br from-primary/5 to-amber-500/5">
+          <div className="flex items-center gap-2 mb-1">
+            <ShoppingBag className="w-5 h-5 text-primary" />
+            <h3 className="font-display font-bold text-lg">
+              {t("লাইভ ইকুইপমেন্ট প্রাইস — বাংলাদেশ", "Live Equipment Price — Bangladesh")}
+            </h3>
+            <span className="ml-auto inline-flex items-center gap-1 text-[10px] px-2 py-0.5 rounded-full bg-primary/15 text-primary font-semibold">
+              <Sparkles className="w-3 h-3" /> AI
+            </span>
+          </div>
+          <p className="text-xs text-muted-foreground mb-3">
+            {t(
+              "সোলার ইকুইপমেন্ট, ইলেকট্রনিক্স, AC, ফ্রিজ, IPS, জেনারেটর — যেকোনো আইটেমের সর্বশেষ বাজার মূল্য জিজ্ঞেস করুন।",
+              "Ask current Bangladesh market price for solar, electronics, AC, fridge, IPS, generator — anything."
+            )}
+          </p>
+
+          <div className="flex gap-2 mb-3">
+            <Input
+              placeholder={t("যেমন: ২০০W সোলার প্যানেল, ১.৫ টন AC, ১০০Ah ব্যাটারি…", "e.g. 200W solar panel, 1.5 ton AC, 100Ah battery…")}
+              value={priceQuery}
+              onChange={(e) => setPriceQuery(e.target.value)}
+              onKeyDown={(e) => e.key === "Enter" && lookupPrice()}
+              disabled={priceLoading}
+            />
+            <Button onClick={() => lookupPrice()} disabled={priceLoading || !priceQuery.trim()} className="shrink-0">
+              {priceLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Search className="w-4 h-4" />}
+              <span className="ml-1.5 hidden sm:inline">{t("দেখুন", "Check")}</span>
+            </Button>
+          </div>
+
+          <div className="flex flex-wrap gap-1.5 mb-3">
+            {quickItems.map((q) => (
+              <button
+                key={q}
+                onClick={() => lookupPrice(q)}
+                disabled={priceLoading}
+                className="px-2.5 py-1 rounded-full bg-muted text-xs font-medium hover:bg-primary hover:text-primary-foreground transition-smooth disabled:opacity-50"
+              >
+                {q}
+              </button>
+            ))}
+          </div>
+
+          {priceLoading && (
+            <div className="flex items-center gap-2 p-4 text-sm text-muted-foreground">
+              <Loader2 className="w-4 h-4 animate-spin" />
+              {t("সর্বশেষ বাজার মূল্য আনা হচ্ছে…", "Fetching latest market prices…")}
+            </div>
+          )}
+
+          {priceAnswer && !priceLoading && (
+            <div className="p-4 rounded-xl bg-card border prose prose-sm dark:prose-invert max-w-none">
+              <ReactMarkdown remarkPlugins={[remarkGfm]}>{priceAnswer}</ReactMarkdown>
+              <p className="text-[10px] text-muted-foreground border-t pt-2 mt-3 not-prose">
+                {t(
+                  "⚠️ AI দ্বারা প্রদত্ত আনুমানিক মূল্য। কেনার আগে অবশ্যই দোকানে কনফার্ম করুন।",
+                  "⚠️ AI-estimated prices. Always confirm with the shop before purchase."
+                )}
+              </p>
+            </div>
+          )}
         </Card>
       </motion.div>
     </div>

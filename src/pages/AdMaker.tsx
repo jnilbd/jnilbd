@@ -16,6 +16,7 @@ import {
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import BanglaImageOverlay from "@/components/BanglaImageOverlay";
 
 type Pack = any;
 
@@ -250,15 +251,11 @@ export default function AdMaker() {
               )}
 
               {generatedImage && (
-                <Card className="p-4">
-                  <div className="flex items-center justify-between mb-2">
-                    <h3 className="font-semibold flex items-center gap-2"><ImageIcon className="h-4 w-4" />জেনারেটেড অ্যাড ক্রিয়েটিভ</h3>
-                    <a href={generatedImage} download="ad-creative.png">
-                      <Button size="sm" variant="outline" className="gap-1"><Download className="h-3 w-3" />ডাউনলোড</Button>
-                    </a>
-                  </div>
-                  <img src={generatedImage} alt="Generated ad" className="w-full rounded-md border" />
-                </Card>
+                <BanglaImageOverlay
+                  imageSrc={generatedImage}
+                  defaultHeadline={pack?.headlines?.[0] || ""}
+                  defaultCta={pack?.ctas?.[0] || "অর্ডার করুন"}
+                />
               )}
 
               {/* Hook angles & headlines */}

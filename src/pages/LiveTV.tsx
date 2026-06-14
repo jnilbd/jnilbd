@@ -299,6 +299,7 @@ const LiveTV = () => {
     tab === "tv" ? tvChannels :
     tab === "world" ? worldChannels :
     tab === "bdix" ? bdixChannels :
+    tab === "direct" ? DIRECT_CHANNELS :
     tab === "sports" ? sportsChannels :
     tab === "radio" ? radioChannels : [];
 

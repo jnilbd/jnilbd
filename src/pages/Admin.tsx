@@ -10,7 +10,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Switch } from "@/components/ui/switch";
 import { Card } from "@/components/ui/card";
 import { toast } from "sonner";
-import { Trash2, Plus, Edit, ShoppingBag, Bell, Package } from "lucide-react";
+import { Trash2, Plus, Edit, ShoppingBag, Bell, Package, Wrench, Inbox } from "lucide-react";
 
 type Product = {
   id?: string;

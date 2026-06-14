@@ -48,11 +48,24 @@ const Navbar = () => {
               <MapPin className="w-3 h-3" /> Baridhara, Dhaka
             </span>
           </div>
-          <div className="flex items-center gap-4 opacity-90">
-            <span className="hidden lg:inline tracking-[0.2em] uppercase text-[10px] text-secondary font-semibold">
-              {isBn ? "৩০+ স্মার্ট টুল • কুরআন • আবহাওয়া • স্বাস্থ্য • ক্যালকুলেটর" : "30+ Smart Tools • Quran • Weather • Health • Calculators"}
+          <div className="flex items-center gap-3 opacity-95 text-[11px]">
+            <span className="hidden xl:inline-flex items-center gap-1.5 text-secondary">
+              <Sparkles className="w-3 h-3" />
+              <span className="font-semibold">{isBn ? "৩০+ স্মার্ট টুল" : "30+ Smart Tools"}</span>
             </span>
-            <span className="text-[10px] tracking-wider uppercase opacity-70">EST. 2018</span>
+            <span className="hidden xl:inline-flex items-center gap-1.5 opacity-80">
+              <BookOpen className="w-3 h-3" /> {isBn ? "কুরআন" : "Quran"}
+            </span>
+            <span className="hidden xl:inline-flex items-center gap-1.5 opacity-80">
+              <CloudSun className="w-3 h-3" /> {isBn ? "আবহাওয়া" : "Weather"}
+            </span>
+            <span className="hidden xl:inline-flex items-center gap-1.5 opacity-80">
+              <Calculator className="w-3 h-3" /> {isBn ? "ক্যালকুলেটর" : "Calculators"}
+            </span>
+            <span className="hidden xl:inline-block w-px h-3.5 bg-primary-foreground/25" />
+            <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-secondary/15 border border-secondary/30 text-secondary text-[10px] font-bold tracking-[0.18em]">
+              <ShieldCheck className="w-3 h-3" /> EST. 2018
+            </span>
           </div>
         </div>
       </div>

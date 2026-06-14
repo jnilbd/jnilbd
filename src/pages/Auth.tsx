@@ -53,7 +53,7 @@ const Auth = () => {
           email,
           password,
           options: {
-            emailRedirectTo: `${window.location.origin}/finance`,
+            emailRedirectTo: `${window.location.origin}${next}`,
             data: { full_name: fullName },
           },
         });
@@ -63,7 +63,7 @@ const Auth = () => {
         const { error } = await supabase.auth.signInWithPassword({ email, password });
         if (error) throw error;
         toast.success(language === "bn" ? "স্বাগতম!" : "Welcome back!");
-        nav("/finance");
+        nav(next, { replace: true });
       }
     } catch (err: any) {
       toast.error(err.message || "Error");
@@ -74,7 +74,7 @@ const Auth = () => {
 
   const google = async () => {
     setBusy(true);
-    const r = await lovable.auth.signInWithOAuth("google", { redirect_uri: `${window.location.origin}/finance` });
+    const r = await lovable.auth.signInWithOAuth("google", { redirect_uri: `${window.location.origin}${next}` });
     if (r.error) {
       toast.error(r.error.message || "Google sign-in failed");
       setBusy(false);

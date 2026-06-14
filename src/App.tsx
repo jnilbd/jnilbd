@@ -43,6 +43,7 @@ import ProductDetail from "./pages/ProductDetail";
 import Services from "./pages/Services";
 import ServiceDetail from "./pages/ServiceDetail";
 import Portfolio from "./pages/Portfolio";
+import Profile from "./pages/Profile";
 import Blog from "./pages/Blog";
 import BlogDetail from "./pages/BlogDetail";
 import Marketplace from "./pages/Marketplace";

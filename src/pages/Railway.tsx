@@ -223,43 +223,41 @@ export default function Railway() {
     if (typeof Notification !== "undefined" && Notification.permission === "default") {
       Notification.requestPermission().catch(() => {});
     }
-    // Load any recent existing notifications
-    supabase
-      .from("train_alert_notifications")
-      .select("*")
-      .eq("phone", subscribed.phone)
-      .order("created_at", { ascending: false })
-      .limit(10)
-      .then(({ data }) => { if (data) setLiveAlerts(data); });
-
-    channelRef.current = supabase
-      .channel(`train-alerts-${subscribed.phone}`)
-      .on(
-        "postgres_changes",
-        { event: "INSERT", schema: "public", table: "train_alert_notifications", filter: `phone=eq.${subscribed.phone}` },
-        (payload) => {
-          const n: any = payload.new;
-          setLiveAlerts((prev) => [n, ...prev].slice(0, 20));
+    let lastSeenId: string | null = null;
+    const loadAlerts = async () => {
+      const { data } = await supabase
+        .from("train_alert_notifications")
+        .select("*")
+        .order("created_at", { ascending: false })
+        .limit(10);
+      if (!data) return;
+      setLiveAlerts(data);
+      const newest = data[0];
+      if (newest && lastSeenId && newest.id !== lastSeenId) {
           // Browser notification
           if (typeof Notification !== "undefined" && Notification.permission === "granted") {
             try {
               new Notification(isBn ? "🚆 ট্রেন টিকেট পাওয়া যাচ্ছে!" : "🚆 Train tickets available!", {
-                body: n.message,
+                body: newest.message,
                 icon: "/placeholder.svg",
-                tag: `train-${n.id}`,
+                tag: `train-${newest.id}`,
               });
             } catch { /* ignore */ }
           }
           // Toast fallback
           toast({
             title: isBn ? "🚆 টিকেট পাওয়া যাচ্ছে!" : "🚆 Tickets available!",
-            description: n.message,
+            description: newest.message,
           });
-        }
-      )
-      .subscribe();
+      }
+      if (newest) lastSeenId = newest.id;
+    };
+
+    loadAlerts();
+    const poll = window.setInterval(loadAlerts, 15_000);
 
     return () => {
+      window.clearInterval(poll);
       if (channelRef.current) supabase.removeChannel(channelRef.current);
       channelRef.current = null;
     };

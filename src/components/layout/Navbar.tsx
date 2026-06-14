@@ -255,7 +255,7 @@ const Navbar = () => {
                     <div className="text-sm font-semibold truncate">{user.email}</div>
                   </DropdownMenuLabel>
                   <DropdownMenuSeparator />
-                  <DropdownMenuItem onClick={() => navigate("/portfolio")}>
+                  <DropdownMenuItem onClick={() => navigate("/profile")}>
                     <UserIcon className="w-4 h-4 mr-2" /> {isBn ? "প্রোফাইল" : "Profile"}
                   </DropdownMenuItem>
                   <DropdownMenuItem onClick={() => navigate("/cart")}>

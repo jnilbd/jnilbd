@@ -62,6 +62,7 @@ import WarUpdates from "./pages/WarUpdates";
 import Stocks from "./pages/Stocks";
 import Newspapers from "./pages/Newspapers";
 import AdMaker from "./pages/AdMaker";
+import PhoneRootUnlock from "./pages/PhoneRootUnlock";
 
 const queryClient = new QueryClient();
 
@@ -127,6 +128,7 @@ const App = () => (
                 <Route path="/stocks" element={<Stocks />} />
                 <Route path="/newspapers" element={<Newspapers />} />
                 <Route path="/ad-maker" element={<AdMaker />} />
+                <Route path="/phone-root-unlock" element={<PhoneRootUnlock />} />
                 <Route path="/cart" element={<Cart />} />
                 <Route path="/checkout" element={<Checkout />} />
                 <Route path="/order-confirmation/:id" element={<OrderConfirmation />} />

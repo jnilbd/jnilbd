@@ -274,6 +274,14 @@ export default function Railway() {
   };
 
   const handleAlertSubscribe = async () => {
+    if (dateStatus !== "ok") {
+      toast({
+        title: isBn ? "তারিখ ঠিক করুন" : "Fix the date",
+        description: isBn ? "আজ থেকে পরবর্তী ১০ দিনের মধ্যে যাত্রার তারিখ দিন।" : "Pick a journey date within the next 10 days.",
+        variant: "destructive",
+      });
+      return;
+    }
     const normalized = normalizeBdPhone(phone);
     if (!normalized) {
       toast({
@@ -579,6 +587,7 @@ export default function Railway() {
                     <select value={from} onChange={(e) => setFrom(e.target.value)} className="w-full h-10 rounded-md border border-input bg-background px-3 text-sm">
                       {STATIONS.map((s) => <option key={s} value={s}>{s}</option>)}
                     </select>
+                    {STATION_NOTES[from] && <p className="mt-1 text-[11px] text-muted-foreground">{STATION_NOTES[from]}</p>}
                   </div>
                   <div>
                     <Label>{isBn ? "কোথায়" : "To"}</Label>
@@ -588,7 +597,10 @@ export default function Railway() {
                   </div>
                   <div>
                     <Label>{isBn ? "যাত্রার তারিখ" : "Journey date"}</Label>
-                    <Input type="date" value={date} onChange={(e) => setDate(e.target.value)} />
+                    <Input type="date" value={date} min={todayIso} max={maxBookingDate} onChange={(e) => handleDateChange(e.target.value)} />
+                    <p className="mt-1 text-[11px] text-muted-foreground">
+                      {isBn ? `বর্তমান BR নিয়ম: আজসহ ${BOOKING_WINDOW_DAYS} দিন।` : `Current BR rule: ${BOOKING_WINDOW_DAYS} days including today.`}
+                    </p>
                   </div>
                   <div>
                     <Label>{isBn ? "ট্রেন (ঐচ্ছিক)" : "Train (optional)"}</Label>

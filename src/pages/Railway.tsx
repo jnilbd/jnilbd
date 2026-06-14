@@ -196,6 +196,18 @@ export default function Railway() {
     setSearchedPair({ from, to });
   };
 
+  const openOfficialSearch = () => {
+    if (dateStatus !== "ok") {
+      toast({
+        title: isBn ? "তারিখ ঠিক করুন" : "Fix the date",
+        description: isBn ? "আজ থেকে পরবর্তী ১০ দিনের মধ্যে যাত্রার তারিখ দিন।" : "Pick a journey date within the next 10 days.",
+        variant: "destructive",
+      });
+      return;
+    }
+    window.open(officialSearchUrl(), "_blank", "noopener,noreferrer");
+  };
+
   // Restore subscription from localStorage so refresh keeps the active alert
   useEffect(() => {
     const saved = localStorage.getItem("train_alert_sub");
@@ -277,11 +289,22 @@ export default function Railway() {
     }
     setSubscribing(true);
     const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+      setSubscribing(false);
+      toast({
+        title: isBn ? "অ্যালার্টের জন্য লগইন করুন" : "Sign in for alerts",
+        description: isBn
+          ? "নিরাপত্তার কারণে SMS/ব্রাউজার টিকেট অ্যালার্ট এখন শুধু লগইন করা ইউজারের জন্য চালু হবে।"
+          : "For privacy and reliable delivery, ticket alerts now require sign-in.",
+        variant: "destructive",
+      });
+      return;
+    }
 
     const { data, error } = await supabase
       .from("train_alert_subscribers")
       .insert({
-        user_id: user?.id ?? null,
+        user_id: user.id,
         name: alertName || null,
         phone: normalized,
         channel: alertChannel,

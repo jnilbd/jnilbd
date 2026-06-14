@@ -137,7 +137,15 @@ Deno.serve(async (req) => {
     // 2. Optionally generate ad image
     let generatedImage: string | null = null;
     if (body.generateImage) {
-      const imgPrompt = body.imagePrompt || pack?.creative_brief?.image_prompt || `Professional advertisement image for: ${body.idea}. Photorealistic, bright lighting, eye-catching, no text overlay.`;
+      const baseVisual = body.imagePrompt || pack?.creative_brief?.image_prompt || `Professional advertisement visual for: ${body.idea}`;
+      // Strip any text/typography instructions because image models cannot render Bangla correctly.
+      // We render Bangla text on the client via a canvas overlay using Hind Siliguri font.
+      const imgPrompt = `${baseVisual}
+
+STRICT RULES — MUST FOLLOW:
+- DO NOT render any text, letters, words, numbers, captions, logos, watermarks, signs, labels, price tags or typography ANYWHERE in the image.
+- NO Bengali / Bangla / English / Arabic script of any kind.
+- Pure clean product / lifestyle photography only. Photorealistic, bright commercial lighting, eye-catching composition, leave clean negative space on one side for text to be added later in post-production.`;
       try {
         const imgRes = await fetch(`${GATEWAY}/chat/completions`, {
           method: "POST",

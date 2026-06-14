@@ -17,7 +17,7 @@ const DEAD_KEY = "livetv:dead:v2";
 const FAV_KEY = "livetv:favorites:v2";
 const RECENT_KEY = "livetv:recent:v1";
 
-type Tab = "tv" | "bdix" | "world" | "sports" | "radio" | "scores";
+type Tab = "tv" | "bdix" | "direct" | "world" | "sports" | "radio" | "scores";
 type Health = "unknown" | "checking" | "live" | "dead";
 
 type Channel = {

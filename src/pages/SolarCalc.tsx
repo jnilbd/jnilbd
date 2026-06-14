@@ -34,9 +34,56 @@ const SolarCalc = () => {
   const [autonomyDays, setAutonomyDays] = useState("1");
   const [systemVoltage, setSystemVoltage] = useState("24");
 
-  const update = (id: string, patch: Partial<Appliance>) =>
+  const [sunHours, setSunHours] = useState("4.5"); // BD avg
+  const [autonomyDays, setAutonomyDays] = useState("1");
+  const [systemVoltage, setSystemVoltage] = useState("24");
+
+  // Equipment price lookup
+  const [priceQuery, setPriceQuery] = useState("");
+  const [priceLoading, setPriceLoading] = useState(false);
+  const [priceAnswer, setPriceAnswer] = useState<string>("");
+
+  const quickItems = [
+    t("সোলার প্যানেল ১০০W", "100W Solar Panel"),
+    t("লিথিয়াম ব্যাটারি ১০০Ah", "100Ah Lithium Battery"),
+    t("IPS ১.৫ KVA", "1.5 KVA IPS"),
+    t("চার্জ কন্ট্রোলার MPPT 60A", "MPPT 60A Controller"),
+    t("ওয়ালটন ১.৫ টন AC", "Walton 1.5 Ton AC"),
+    t("ফ্রিজ ১৫ ঘনফুট", "Refrigerator 15 cft"),
+    t("সিলিং ফ্যান", "Ceiling Fan"),
+    t("ওয়াটার পাম্প ০.৫HP", "Water Pump 0.5HP"),
+    t("জেনারেটর ২KVA", "2KVA Generator"),
+    t("LED টিভি ৪৩\"", "43\" LED TV"),
+  ];
+
+  const lookupPrice = async (q?: string) => {
+    const query = (q ?? priceQuery).trim();
+    if (!query) return;
+    if (q) setPriceQuery(q);
+    setPriceLoading(true);
+    setPriceAnswer("");
+    try {
+      const { data, error } = await supabase.functions.invoke("equipment-price", {
+        body: { query, language },
+      });
+      if (error) throw error;
+      if (data?.error) throw new Error(data.error);
+      setPriceAnswer(data?.answer || "");
+    } catch (e: any) {
+      const msg = String(e?.message || e);
+      if (msg.includes("429")) toast.error(t("অনেক বেশি রিকোয়েস্ট — কিছুক্ষণ পর চেষ্টা করুন।", "Too many requests — try again later."));
+      else if (msg.includes("402")) toast.error(t("AI ক্রেডিট শেষ — Workspace এ ক্রেডিট যোগ করুন।", "AI credits exhausted — add credits in workspace."));
+      else toast.error(t("দাম আনতে সমস্যা হয়েছে।", "Failed to fetch price info."));
+    } finally {
+      setPriceLoading(false);
+    }
+  };
+  type _Patch = Partial<Appliance>;
+  const update = (id: string, patch: _Patch) =>
     setItems((arr) => arr.map((a) => (a.id === id ? { ...a, ...patch } : a)));
   const remove = (id: string) => setItems((arr) => arr.filter((a) => a.id !== id));
+  const add = (p: Omit<Appliance, "id">) =>
+    setItems((arr) => [...arr, { ...p, id: crypto.randomUUID() }]);
   const add = (p: Omit<Appliance, "id">) =>
     setItems((arr) => [...arr, { ...p, id: crypto.randomUUID() }]);
 

@@ -1,22 +1,40 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { Download, Link as LinkIcon, Loader2, Music2, Video, Youtube, Instagram, Facebook, Twitter } from "lucide-react";
+import {
+  Download,
+  Link as LinkIcon,
+  Loader2,
+  Music2,
+  Video,
+  Youtube,
+  Instagram,
+  Facebook,
+  Twitter,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
 type Result = {
-  ok: boolean;
+  ok?: boolean;
   url?: string;
   filename?: string;
-  picker?: Array<{ url: string; thumb?: string; type?: string }>;
   status?: string;
-  text?: string;
+  picker?: Array<{ url: string; thumb?: string; type?: string }>;
+  audio?: string;
+  error?: string;
+  details?: string[];
 };
 
 const Downloader = () => {
@@ -26,6 +44,9 @@ const Downloader = () => {
   const [url, setUrl] = useState("");
   const [mode, setMode] = useState<"video" | "audio">("video");
   const [quality, setQuality] = useState("720");
+  const [videoCodec, setVideoCodec] = useState("h264");
+  const [audioFormat, setAudioFormat] = useState("mp3");
+  const [audioBitrate, setAudioBitrate] = useState("128");
   const [busy, setBusy] = useState(false);
   const [result, setResult] = useState<Result | null>(null);
 
@@ -38,14 +59,21 @@ const Downloader = () => {
     setResult(null);
     try {
       const { data, error } = await supabase.functions.invoke("cobalt-download", {
-        body: { url: url.trim(), audioOnly: mode === "audio", quality },
+        body: {
+          url: url.trim(),
+          audioOnly: mode === "audio",
+          quality,
+          audioFormat,
+          audioBitrate,
+          videoCodec,
+        },
       });
       if (error) throw error;
       setResult(data);
-      if (!data?.ok && !data?.picker) {
-        toast.error(data?.error || t("ডাউনলোড পাওয়া যায়নি", "Could not fetch"));
+      if (data?.url || data?.picker) {
+        toast.success(t("রেডি! নিচের বাটনে ক্লিক করুন", "Ready! Click below to download"));
       } else {
-        toast.success(t("রেডি! নিচের বাটনে ক্লিক করুন", "Ready! Click the button below"));
+        toast.error(data?.error || t("ডাউনলোড পাওয়া যায়নি", "Could not fetch"));
       }
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Failed");
@@ -95,28 +123,83 @@ const Downloader = () => {
             />
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-[1fr_auto] gap-3">
-            <Tabs value={mode} onValueChange={(v) => setMode(v as "video" | "audio")}>
-              <TabsList className="grid grid-cols-2 w-full">
-                <TabsTrigger value="video" className="gap-1.5">
-                  <Video className="w-4 h-4" /> {t("ভিডিও", "Video")}
-                </TabsTrigger>
-                <TabsTrigger value="audio" className="gap-1.5">
-                  <Music2 className="w-4 h-4" /> {t("অডিও (MP3)", "Audio (MP3)")}
-                </TabsTrigger>
-              </TabsList>
-            </Tabs>
-            {mode === "video" && (
-              <Select value={quality} onValueChange={setQuality}>
-                <SelectTrigger className="md:w-32"><SelectValue /></SelectTrigger>
-                <SelectContent>
-                  {["360", "480", "720", "1080", "1440", "2160", "max"].map((q) => (
-                    <SelectItem key={q} value={q}>{q === "max" ? "Max" : `${q}p`}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            )}
-          </div>
+          <Tabs value={mode} onValueChange={(v) => setMode(v as "video" | "audio")}>
+            <TabsList className="grid grid-cols-2 w-full">
+              <TabsTrigger value="video" className="gap-1.5">
+                <Video className="w-4 h-4" /> {t("ভিডিও", "Video")}
+              </TabsTrigger>
+              <TabsTrigger value="audio" className="gap-1.5">
+                <Music2 className="w-4 h-4" /> {t("অডিও", "Audio")}
+              </TabsTrigger>
+            </TabsList>
+          </Tabs>
+
+          {mode === "video" ? (
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className="text-xs font-medium mb-1 block text-muted-foreground">
+                  {t("কোয়ালিটি", "Quality")}
+                </label>
+                <Select value={quality} onValueChange={setQuality}>
+                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    {["144", "240", "360", "480", "720", "1080", "1440", "2160", "max"].map((q) => (
+                      <SelectItem key={q} value={q}>
+                        {q === "max" ? "Max (4K+)" : `${q}p`}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <label className="text-xs font-medium mb-1 block text-muted-foreground">
+                  {t("কোডেক/ফরম্যাট", "Codec / Format")}
+                </label>
+                <Select value={videoCodec} onValueChange={setVideoCodec}>
+                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="h264">MP4 (H.264) — সর্বাধিক সাপোর্ট</SelectItem>
+                    <SelectItem value="vp9">WebM (VP9)</SelectItem>
+                    <SelectItem value="av1">MP4 (AV1) — ছোট সাইজ</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+          ) : (
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className="text-xs font-medium mb-1 block text-muted-foreground">
+                  {t("অডিও ফরম্যাট", "Audio Format")}
+                </label>
+                <Select value={audioFormat} onValueChange={setAudioFormat}>
+                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="mp3">MP3</SelectItem>
+                    <SelectItem value="opus">Opus</SelectItem>
+                    <SelectItem value="ogg">OGG (Vorbis)</SelectItem>
+                    <SelectItem value="wav">WAV (lossless)</SelectItem>
+                    <SelectItem value="best">Best (Original — usually webm/m4a)</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <label className="text-xs font-medium mb-1 block text-muted-foreground">
+                  {t("বিটরেট (কোয়ালিটি)", "Bitrate (Quality)")}
+                </label>
+                <Select value={audioBitrate} onValueChange={setAudioBitrate}>
+                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="320">320 kbps — Highest</SelectItem>
+                    <SelectItem value="256">256 kbps — Very High</SelectItem>
+                    <SelectItem value="192">192 kbps — High</SelectItem>
+                    <SelectItem value="128">128 kbps — Standard</SelectItem>
+                    <SelectItem value="96">96 kbps — Low (small)</SelectItem>
+                    <SelectItem value="64">64 kbps — Voice</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+          )}
 
           <Button onClick={handleFetch} disabled={busy} size="lg" className="w-full">
             {busy ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Download className="w-4 h-4 mr-2" />}
@@ -124,9 +207,10 @@ const Downloader = () => {
           </Button>
 
           {result?.url && (
-            <div className="p-4 rounded-xl bg-primary/5 border border-primary/20">
-              <p className="text-sm text-muted-foreground mb-2">
-                {t("ডাউনলোডের জন্য প্রস্তুত:", "Ready to download:")}
+            <div className="p-4 rounded-xl bg-primary/5 border border-primary/20 space-y-2">
+              <p className="text-sm text-muted-foreground">
+                {t("ডাউনলোডের জন্য প্রস্তুত:", "Ready to download:")}{" "}
+                {result.filename && <span className="font-mono text-xs">{result.filename}</span>}
               </p>
               <a href={result.url} target="_blank" rel="noopener noreferrer" download>
                 <Button className="w-full" size="lg">
@@ -142,13 +226,34 @@ const Downloader = () => {
               <p className="text-sm font-medium">{t("একাধিক ফাইল পাওয়া গেছে:", "Multiple files found:")}</p>
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
                 {result.picker.map((p, i) => (
-                  <a key={i} href={p.url} target="_blank" rel="noopener noreferrer" download
-                     className="block rounded-lg border p-2 hover:border-primary transition-smooth">
-                    {p.thumb && <img src={p.thumb} alt="" className="rounded aspect-square object-cover w-full mb-1" />}
+                  <a
+                    key={i}
+                    href={p.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    download
+                    className="block rounded-lg border p-2 hover:border-primary transition-smooth"
+                  >
+                    {p.thumb && (
+                      <img src={p.thumb} alt="" className="rounded aspect-square object-cover w-full mb-1" />
+                    )}
                     <span className="text-xs font-medium">{p.type || `Item ${i + 1}`}</span>
                   </a>
                 ))}
               </div>
+            </div>
+          )}
+
+          {result?.error && (
+            <div className="p-3 rounded-lg bg-destructive/10 text-destructive text-xs">
+              <p className="font-semibold mb-1">{result.error}</p>
+              {result.details && result.details.length > 0 && (
+                <ul className="list-disc pl-5 opacity-80">
+                  {result.details.slice(0, 4).map((d, i) => (
+                    <li key={i} className="truncate">{d}</li>
+                  ))}
+                </ul>
+              )}
             </div>
           )}
         </Card>
@@ -159,7 +264,10 @@ const Downloader = () => {
           </p>
           <div className="flex flex-wrap justify-center gap-3">
             {supported.map((s) => (
-              <div key={s.name} className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-muted text-xs font-medium">
+              <div
+                key={s.name}
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-muted text-xs font-medium"
+              >
                 <s.icon className={`w-3.5 h-3.5 ${s.color}`} />
                 {s.name}
               </div>

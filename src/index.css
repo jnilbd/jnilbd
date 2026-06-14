@@ -125,6 +125,13 @@
   .font-display {
     font-family: 'Space Grotesk', 'Noto Sans Bengali', 'Hind Siliguri', sans-serif;
   }
+
+  html:lang(bn),
+  html:lang(bn) body,
+  html:lang(bn) body :where(*) {
+    letter-spacing: 0 !important;
+    text-rendering: optimizeLegibility;
+  }
 }
 
 @layer utilities {

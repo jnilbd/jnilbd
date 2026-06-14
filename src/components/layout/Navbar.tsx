@@ -311,7 +311,57 @@ const Navbar = () => {
         </div>
       </div>
 
+      {/* Mobile search panel */}
+      <AnimatePresence>
+        {mobileSearchOpen && (
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: "auto", opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            className="md:hidden overflow-hidden border-b border-border/60 bg-background/98 backdrop-blur-xl"
+          >
+            <div className="container py-3">
+              <form onSubmit={handleSearchSubmit}>
+                <div className="relative">
+                  <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                  <input
+                    autoFocus
+                    type="text"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    placeholder={isBn ? "টুল, ক্যাটাগরি বা পেজ খুঁজুন..." : "Search tools, categories or pages..."}
+                    className="w-full h-11 pl-10 pr-4 rounded-full bg-muted/50 border border-border/60 text-sm focus:outline-none focus:bg-background focus:border-primary/50 focus:ring-2 focus:ring-primary/15"
+                  />
+                </div>
+              </form>
+              {searchQuery.trim() && (
+                <ul className="mt-2 max-h-72 overflow-y-auto rounded-2xl border border-border/60 bg-background/95 divide-y divide-border/40">
+                  {searchResults.length === 0 && (
+                    <li className="px-4 py-3 text-sm text-muted-foreground">
+                      {isBn ? "কোনো ফলাফল পাওয়া যায়নি" : "No results found"}
+                    </li>
+                  )}
+                  {searchResults.map((r) => (
+                    <li key={r.to}>
+                      <button
+                        type="button"
+                        onClick={() => goToResult(r.to)}
+                        className="w-full flex items-center gap-3 px-4 py-3 text-left hover:bg-primary/10 hover:text-primary"
+                      >
+                        <r.icon className="w-4 h-4 text-secondary" />
+                        <span className="text-sm font-medium">{isBn ? r.bn : r.en}</span>
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       {/* Desktop Categories dropdown panel */}
+
       <AnimatePresence>
         {topOpen && (
           <>

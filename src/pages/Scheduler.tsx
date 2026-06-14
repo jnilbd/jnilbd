@@ -82,6 +82,53 @@ const Scheduler = () => {
   const [sendAt, setSendAt] = useState("");
   const [busy, setBusy] = useState(false);
 
+  // AI templates
+  const [aiOccasion, setAiOccasion] = useState("birthday");
+  const [aiRelation, setAiRelation] = useState("friend");
+  const [aiTone, setAiTone] = useState("warm");
+  const [aiBusy, setAiBusy] = useState(false);
+  const [aiTemplates, setAiTemplates] = useState<AITemplate[]>([]);
+
+  const generateTemplates = async () => {
+    setAiBusy(true);
+    setAiTemplates([]);
+    try {
+      const { data, error } = await supabase.functions.invoke("ai-message-templates", {
+        body: {
+          occasion: OCCASIONS.find(o => o.value === aiOccasion)?.[language === "bn" ? "bn" : "en"] || aiOccasion,
+          relationship: RELATIONSHIPS.find(r => r.value === aiRelation)?.[language === "bn" ? "bn" : "en"] || aiRelation,
+          recipientName: name,
+          tone: aiTone,
+          language,
+          count: 18,
+        },
+      });
+      if (error) throw error;
+      if (data?.error) throw new Error(data.error);
+      const msgs: AITemplate[] = Array.isArray(data?.messages) ? data.messages : [];
+      if (!msgs.length) throw new Error("No messages returned");
+      setAiTemplates(msgs);
+      toast.success(t(`${msgs.length} টি মেসেজ তৈরি হয়েছে`, `${msgs.length} messages ready`));
+    } catch (e: any) {
+      const msg = String(e?.message || e);
+      if (msg.includes("429")) toast.error(t("একটু পরে আবার চেষ্টা করুন", "Rate limited, try again shortly"));
+      else if (msg.includes("402")) toast.error(t("AI ক্রেডিট শেষ", "AI credits exhausted"));
+      else toast.error(msg);
+    } finally {
+      setAiBusy(false);
+    }
+  };
+
+  const useTemplate = (text: string) => {
+    setMessage(text);
+    toast.success(t("মেসেজ সিলেক্ট হয়েছে", "Message selected"));
+    try { document.getElementById("scheduler-message")?.scrollIntoView({ behavior: "smooth", block: "center" }); } catch {}
+  };
+  const copyTemplate = async (text: string) => {
+    try { await navigator.clipboard.writeText(text); toast.success(t("কপি হয়েছে", "Copied")); } catch {}
+  };
+
+
   const load = async () => {
     if (!user) return;
     const { data, error } = await supabase

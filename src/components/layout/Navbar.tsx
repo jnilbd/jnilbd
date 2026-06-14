@@ -1,6 +1,6 @@
-import { Link, NavLink } from "react-router-dom";
-import { Menu, X, ShoppingCart, Globe, Phone, Mail, MapPin, LayoutGrid, CalendarClock, Sparkles, CloudSun, HeartPulse, Calculator, ShieldCheck, Wifi, Tv, Newspaper, Wallet } from "lucide-react";
-import { useState } from "react";
+import { Link, NavLink, useNavigate } from "react-router-dom";
+import { Menu, X, ShoppingCart, Globe, Phone, Mail, MapPin, LayoutGrid, CalendarClock, Sparkles, CloudSun, HeartPulse, Calculator, ShieldCheck, Wifi, Tv, Newspaper, Wallet, Search } from "lucide-react";
+import { useState, useMemo, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useCart } from "@/contexts/CartContext";
@@ -14,9 +14,46 @@ const Navbar = () => {
   const { count } = useCart();
   const { openMenu, toggleMenu, setOpenMenu } = useMenu();
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [searchOpen, setSearchOpen] = useState(false);
+  const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
+  const searchRef = useRef<HTMLDivElement>(null);
+  const navigate = useNavigate();
 
   const isBn = language === "bn";
   const topOpen = openMenu === "top";
+
+  const searchResults = useMemo(() => {
+    const q = searchQuery.trim().toLowerCase();
+    if (!q) return [];
+    return ALL_CATEGORIES.filter(
+      (c) => c.en.toLowerCase().includes(q) || c.bn.includes(q) || c.to.includes(q)
+    ).slice(0, 8);
+  }, [searchQuery]);
+
+  useEffect(() => {
+    const onClick = (e: MouseEvent) => {
+      if (searchRef.current && !searchRef.current.contains(e.target as Node)) {
+        setSearchOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", onClick);
+    return () => document.removeEventListener("mousedown", onClick);
+  }, []);
+
+  const goToResult = (to: string) => {
+    setSearchQuery("");
+    setSearchOpen(false);
+    setMobileSearchOpen(false);
+    setMobileNavOpen(false);
+    navigate(to);
+  };
+
+  const handleSearchSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (searchResults.length > 0) goToResult(searchResults[0].to);
+  };
+
 
   // Inline primary links (top priority — always visible on lg+)
   const primary = [
@@ -113,6 +150,64 @@ const Navbar = () => {
             </div>
           </Link>
 
+          {/* Search bar — desktop/tablet */}
+          <div ref={searchRef} className="hidden md:flex flex-1 max-w-md mx-2 relative">
+            <form onSubmit={handleSearchSubmit} className="w-full">
+              <div className="relative group">
+                <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground group-focus-within:text-primary transition-colors" />
+                <input
+                  type="text"
+                  value={searchQuery}
+                  onChange={(e) => {
+                    setSearchQuery(e.target.value);
+                    setSearchOpen(true);
+                  }}
+                  onFocus={() => setSearchOpen(true)}
+                  placeholder={isBn ? "টুল, ক্যাটাগরি বা পেজ খুঁজুন..." : "Search tools, categories or pages..."}
+                  className="w-full h-10 pl-10 pr-4 rounded-full bg-muted/50 border border-border/60 text-sm placeholder:text-muted-foreground/70 focus:outline-none focus:bg-background focus:border-primary/50 focus:ring-2 focus:ring-primary/15 transition-all"
+                />
+              </div>
+            </form>
+            <AnimatePresence>
+              {searchOpen && searchResults.length > 0 && (
+                <motion.div
+                  initial={{ opacity: 0, y: -6 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -6 }}
+                  className="absolute top-full left-0 right-0 mt-2 rounded-2xl border border-border/60 bg-background/98 backdrop-blur-xl shadow-elegant overflow-hidden z-50"
+                >
+                  <ul className="max-h-80 overflow-y-auto py-1.5">
+                    {searchResults.map((r) => (
+                      <li key={r.to}>
+                        <button
+                          type="button"
+                          onClick={() => goToResult(r.to)}
+                          className="w-full flex items-center gap-3 px-4 py-2.5 text-left hover:bg-primary/10 hover:text-primary transition-colors"
+                        >
+                          <r.icon className="w-4 h-4 text-secondary" />
+                          <span className="text-sm font-medium">{isBn ? r.bn : r.en}</span>
+                          <span className="ml-auto text-[11px] text-muted-foreground">{r.to}</span>
+                        </button>
+                      </li>
+                    ))}
+                  </ul>
+                </motion.div>
+              )}
+              {searchOpen && searchQuery.trim() && searchResults.length === 0 && (
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  className="absolute top-full left-0 right-0 mt-2 rounded-2xl border border-border/60 bg-background/98 backdrop-blur-xl shadow-elegant z-50 px-4 py-3 text-sm text-muted-foreground"
+                >
+                  {isBn ? "কোনো ফলাফল পাওয়া যায়নি" : "No results found"}
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
+
+
+
 
           <nav className="hidden lg:flex items-center gap-0.5">
             {primary.map((l) => (
@@ -164,6 +259,16 @@ const Navbar = () => {
           </nav>
 
           <div className="flex items-center gap-1.5">
+            <Button
+              variant="ghost"
+              size="icon"
+              className="md:hidden rounded-full"
+              onClick={() => setMobileSearchOpen((o) => !o)}
+              aria-label="Search"
+            >
+              <Search className="w-[18px] h-[18px]" />
+            </Button>
+
             <button
               onClick={toggle}
               aria-label="Switch language"
@@ -206,7 +311,57 @@ const Navbar = () => {
         </div>
       </div>
 
+      {/* Mobile search panel */}
+      <AnimatePresence>
+        {mobileSearchOpen && (
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: "auto", opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            className="md:hidden overflow-hidden border-b border-border/60 bg-background/98 backdrop-blur-xl"
+          >
+            <div className="container py-3">
+              <form onSubmit={handleSearchSubmit}>
+                <div className="relative">
+                  <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                  <input
+                    autoFocus
+                    type="text"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    placeholder={isBn ? "টুল, ক্যাটাগরি বা পেজ খুঁজুন..." : "Search tools, categories or pages..."}
+                    className="w-full h-11 pl-10 pr-4 rounded-full bg-muted/50 border border-border/60 text-sm focus:outline-none focus:bg-background focus:border-primary/50 focus:ring-2 focus:ring-primary/15"
+                  />
+                </div>
+              </form>
+              {searchQuery.trim() && (
+                <ul className="mt-2 max-h-72 overflow-y-auto rounded-2xl border border-border/60 bg-background/95 divide-y divide-border/40">
+                  {searchResults.length === 0 && (
+                    <li className="px-4 py-3 text-sm text-muted-foreground">
+                      {isBn ? "কোনো ফলাফল পাওয়া যায়নি" : "No results found"}
+                    </li>
+                  )}
+                  {searchResults.map((r) => (
+                    <li key={r.to}>
+                      <button
+                        type="button"
+                        onClick={() => goToResult(r.to)}
+                        className="w-full flex items-center gap-3 px-4 py-3 text-left hover:bg-primary/10 hover:text-primary"
+                      >
+                        <r.icon className="w-4 h-4 text-secondary" />
+                        <span className="text-sm font-medium">{isBn ? r.bn : r.en}</span>
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       {/* Desktop Categories dropdown panel */}
+
       <AnimatePresence>
         {topOpen && (
           <>

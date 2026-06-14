@@ -86,25 +86,33 @@ const Navbar = () => {
       {/* Main nav */}
       <div className="backdrop-blur-xl bg-background/80 border-b border-border/60 supports-[backdrop-filter]:bg-background/60">
         <div className="container flex h-[72px] items-center justify-between gap-4">
-          <Link to="/" className="flex items-center gap-3 group shrink-0" onClick={() => setOpenMenu(null)}>
+          <Link to="/" className="flex items-center gap-3.5 group shrink-0" onClick={() => setOpenMenu(null)}>
             <div className="relative">
-              <img
-                src={logoMark}
-                alt="JohnNil monogram"
-                width={44}
-                height={44}
-                className="w-11 h-11 object-contain drop-shadow-sm group-hover:scale-105 transition-bounce"
-              />
+              <span className="absolute inset-0 rounded-full bg-gradient-to-br from-secondary/30 via-secondary/10 to-transparent blur-md opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+              <div className="relative w-12 h-12 rounded-full bg-gradient-to-br from-background to-muted/60 ring-1 ring-secondary/40 shadow-[inset_0_1px_0_rgba(255,255,255,0.6),0_4px_14px_-4px_rgba(180,140,60,0.35)] flex items-center justify-center group-hover:ring-secondary/70 transition-all duration-500">
+                <img
+                  src={logoMark}
+                  alt="JohnNil monogram"
+                  width={44}
+                  height={44}
+                  className="w-9 h-9 object-contain group-hover:scale-110 transition-bounce"
+                />
+              </div>
             </div>
             <div className="flex flex-col leading-none">
-              <span className="font-display font-bold text-[22px] tracking-tight text-foreground">
-                JohnNil<span className="text-secondary">.</span>
+              <span className="font-display font-bold text-[24px] tracking-tight bg-gradient-to-r from-foreground via-foreground to-foreground/80 bg-clip-text text-transparent">
+                JohnNil<span className="bg-gradient-to-br from-secondary to-secondary/60 bg-clip-text text-transparent">.</span>
               </span>
-              <span className="text-[9.5px] tracking-[0.32em] uppercase text-muted-foreground font-semibold mt-1">
-                {isBn ? "ক্রাফটেড ইন ঢাকা" : "Crafted in Dhaka"}
+              <span className="flex items-center gap-1.5 text-[9px] tracking-[0.28em] uppercase text-muted-foreground font-semibold mt-1.5">
+                <span className="text-secondary">{isBn ? "মান" : "Quality"}</span>
+                <span className="opacity-40">•</span>
+                <span className="text-secondary">{isBn ? "বিশ্বাস" : "Trust"}</span>
+                <span className="opacity-40">•</span>
+                <span className="text-secondary">{isBn ? "শান্তি" : "Peace"}</span>
               </span>
             </div>
           </Link>
+
 
           <nav className="hidden lg:flex items-center gap-0.5">
             {primary.map((l) => (

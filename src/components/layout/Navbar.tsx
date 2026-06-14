@@ -1,5 +1,5 @@
 import { Link, NavLink, useNavigate } from "react-router-dom";
-import { Menu, X, ShoppingCart, Globe, Phone, Mail, MapPin, LayoutGrid, CalendarClock, Sparkles, CloudSun, HeartPulse, Calculator, ShieldCheck, Wifi, Tv, Newspaper, Wallet, Search } from "lucide-react";
+import { Menu, X, ShoppingCart, Globe, Phone, Mail, MapPin, LayoutGrid, CalendarClock, Sparkles, CloudSun, HeartPulse, Calculator, ShieldCheck, Wifi, Tv, Newspaper, Wallet, Search, Home, BookOpen, ScrollText, Compass, Store, Gift, Wand2, Briefcase } from "lucide-react";
 import { useState, useMemo, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -57,15 +57,16 @@ const Navbar = () => {
 
   // Inline primary links (top priority — always visible on lg+)
   const primary = [
-    { to: "/", key: "nav.home" },
-    { to: "/quran", key: "nav.quran" },
-    { to: "/hadith", key: "nav.hadith" },
-    { to: "/namaz", key: "nav.namaz" },
-    { to: "/shop", key: "nav.shop" },
-    { to: "/offers", key: "nav.offers" },
-    { to: "/ad-maker", key: "nav.adMaker" },
-    { to: "/services", key: "nav.services" },
+    { to: "/", key: "nav.home", icon: Home },
+    { to: "/quran", key: "nav.quran", icon: BookOpen },
+    { to: "/hadith", key: "nav.hadith", icon: ScrollText },
+    { to: "/namaz", key: "nav.namaz", icon: Compass },
+    { to: "/shop", key: "nav.shop", icon: Store },
+    { to: "/offers", key: "nav.offers", icon: Gift },
+    { to: "/ad-maker", key: "nav.adMaker", icon: Wand2 },
+    { to: "/services", key: "nav.services", icon: Briefcase },
   ];
+
 
   // Categories panel = all categories (priority order, Appointment last/highlighted)
   const categories = ALL_CATEGORIES;
@@ -208,56 +209,6 @@ const Navbar = () => {
 
 
 
-
-          <nav className="hidden lg:flex items-center gap-0.5">
-            {primary.map((l) => (
-              <NavLink
-                key={l.to}
-                to={l.to}
-                end={l.to === "/"}
-                onClick={() => setOpenMenu(null)}
-                className={({ isActive }) =>
-                  `relative px-3 py-2 rounded-md text-[13px] font-medium tracking-wide transition-smooth ${
-                    isActive ? "text-foreground" : "text-foreground/65 hover:text-foreground"
-                  } group`
-                }
-              >
-                {({ isActive }) => (
-                  <>
-                    {t(l.key)}
-                    <span
-                      className={`absolute left-3 right-3 -bottom-0.5 h-[2px] bg-secondary transition-all duration-300 ${
-                        isActive ? "opacity-100 scale-x-100" : "opacity-0 scale-x-0 group-hover:opacity-60 group-hover:scale-x-100"
-                      }`}
-                    />
-                  </>
-                )}
-              </NavLink>
-            ))}
-
-            {/* Categories trigger */}
-            <button
-              onClick={() => toggleMenu("top")}
-              className={`flex items-center gap-1.5 px-3 py-2 rounded-md text-[13px] font-semibold tracking-wide transition-smooth ${
-                topOpen ? "bg-primary/10 text-primary" : "text-foreground/65 hover:text-foreground"
-              }`}
-              aria-expanded={topOpen}
-            >
-              <LayoutGrid className="w-4 h-4" />
-              {isBn ? "সব ক্যাটাগরি" : "All Categories"}
-            </button>
-
-            {/* Highlighted Appointment CTA — last */}
-            <Link
-              to="/appointment"
-              onClick={() => setOpenMenu(null)}
-              className="ml-2 flex items-center gap-1.5 px-3.5 py-2 rounded-full text-[12px] font-bold gradient-bg-warm text-white shadow-pink hover:scale-105 transition-bounce"
-            >
-              <CalendarClock className="w-3.5 h-3.5" />
-              {isBn ? "বুক অ্যাপয়েন্টমেন্ট" : "Book Appointment"}
-            </Link>
-          </nav>
-
           <div className="flex items-center gap-1.5">
             <Button
               variant="ghost"
@@ -311,7 +262,58 @@ const Navbar = () => {
         </div>
       </div>
 
+      {/* Secondary nav strip — stylish category boxes */}
+      <div className="hidden lg:block border-b border-border/60 bg-gradient-to-b from-background/95 via-muted/30 to-background/80 backdrop-blur-xl">
+        <div className="container py-2.5">
+          <div className="flex items-center justify-center gap-2 flex-wrap">
+            {primary.map((l) => (
+              <NavLink
+                key={l.to}
+                to={l.to}
+                end={l.to === "/"}
+                onClick={() => setOpenMenu(null)}
+                className={({ isActive }) =>
+                  `group relative flex items-center gap-2 px-4 py-2 rounded-xl border text-[12.5px] font-semibold tracking-wide transition-all duration-300 ${
+                    isActive
+                      ? "bg-gradient-to-br from-primary/15 to-secondary/10 border-secondary/50 text-primary shadow-[0_4px_14px_-6px_hsl(var(--secondary)/0.4)]"
+                      : "bg-background/70 border-border/50 text-foreground/75 hover:text-primary hover:border-secondary/40 hover:bg-gradient-to-br hover:from-primary/5 hover:to-secondary/5 hover:-translate-y-0.5 hover:shadow-[0_6px_16px_-8px_hsl(var(--primary)/0.3)]"
+                  }`
+                }
+              >
+                <l.icon className="w-3.5 h-3.5 text-secondary group-hover:scale-110 transition-transform" />
+                <span>{t(l.key)}</span>
+              </NavLink>
+            ))}
+
+            {/* Categories trigger */}
+            <button
+              onClick={() => toggleMenu("top")}
+              aria-expanded={topOpen}
+              className={`group flex items-center gap-2 px-4 py-2 rounded-xl border text-[12.5px] font-semibold tracking-wide transition-all duration-300 ${
+                topOpen
+                  ? "bg-primary text-primary-foreground border-primary shadow-elegant"
+                  : "bg-background/70 border-border/50 text-foreground/75 hover:text-primary hover:border-secondary/40 hover:-translate-y-0.5 hover:shadow-[0_6px_16px_-8px_hsl(var(--primary)/0.3)]"
+              }`}
+            >
+              <LayoutGrid className="w-3.5 h-3.5 group-hover:scale-110 transition-transform" />
+              <span>{isBn ? "সব ক্যাটাগরি" : "All Categories"}</span>
+            </button>
+
+            {/* Appointment CTA — highlighted */}
+            <Link
+              to="/appointment"
+              onClick={() => setOpenMenu(null)}
+              className="group ml-1 flex items-center gap-2 px-4 py-2 rounded-xl text-[12.5px] font-bold gradient-bg-warm text-white shadow-pink hover:scale-[1.04] hover:-translate-y-0.5 transition-all duration-300"
+            >
+              <CalendarClock className="w-3.5 h-3.5 group-hover:rotate-12 transition-transform" />
+              <span>{isBn ? "বুক অ্যাপয়েন্টমেন্ট" : "Book Appointment"}</span>
+            </Link>
+          </div>
+        </div>
+      </div>
+
       {/* Mobile search panel */}
+
       <AnimatePresence>
         {mobileSearchOpen && (
           <motion.div

@@ -14,7 +14,35 @@ type Body = {
   imageUrl?: string;
   generateImage?: boolean;
   imagePrompt?: string;
+  mode?: "full" | "regenerate_image" | "video_frames";
+  storyboard?: string[];
 };
+
+async function generateOneImage(prompt: string): Promise<string | null> {
+  const imgPrompt = `${prompt}
+
+STRICT RULES — MUST FOLLOW:
+- DO NOT render any text, letters, words, numbers, captions, logos, watermarks, signs, labels, price tags or typography ANYWHERE in the image.
+- NO Bengali / Bangla / English / Arabic script of any kind.
+- Pure clean product / lifestyle photography only. Photorealistic, bright commercial lighting, eye-catching composition, leave clean negative space on one side for text to be added later in post-production.`;
+  try {
+    const imgRes = await fetch(`${GATEWAY}/chat/completions`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "Lovable-API-Key": LOVABLE_API_KEY! },
+      body: JSON.stringify({
+        model: "google/gemini-2.5-flash-image",
+        messages: [{ role: "user", content: imgPrompt }],
+        modalities: ["image", "text"],
+      }),
+    });
+    if (!imgRes.ok) return null;
+    const imgData = await imgRes.json();
+    const imgUrl = imgData?.choices?.[0]?.message?.images?.[0]?.image_url?.url
+      || imgData?.choices?.[0]?.message?.content;
+    if (typeof imgUrl === "string" && (imgUrl.startsWith("data:") || imgUrl.startsWith("http"))) return imgUrl;
+    return null;
+  } catch { return null; }
+}
 
 function buildSystem(b: Body) {
   return `You are an elite Bangladeshi/Bengali ad copywriter, performance marketer, and creative director with 10+ years experience running profitable Facebook, Instagram, TikTok, YouTube, Google, and LinkedIn ads in Bangladesh and globally. You write conversion-focused copy that combines emotional hooks, social proof, and clear CTAs.
@@ -89,13 +117,35 @@ Deno.serve(async (req) => {
   }
   try {
     const body = (await req.json()) as Body;
+    const mode = body.mode || "full";
+
+    // === MODE: Regenerate image only ===
+    if (mode === "regenerate_image") {
+      const prompt = body.imagePrompt || `Professional advertisement visual for: ${body.idea}`;
+      const img = await generateOneImage(prompt + " — fresh variation, different angle, different composition, seed:" + Math.random());
+      return new Response(JSON.stringify({ generatedImage: img }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    // === MODE: Promotional video frames ===
+    if (mode === "video_frames") {
+      const shots = (body.storyboard && body.storyboard.length > 0)
+        ? body.storyboard.slice(0, 6)
+        : [`Opening shot for: ${body.idea}`, `Product close-up for: ${body.idea}`, `Lifestyle usage for: ${body.idea}`, `Happy customer reaction for: ${body.idea}`];
+      const frames = await Promise.all(shots.map((s) => generateOneImage(`Cinematic advertisement video frame — ${s}. Photorealistic, dramatic lighting, shallow depth of field, 16:9 cinematic composition.`)));
+      return new Response(JSON.stringify({ frames: frames.filter(Boolean), shots }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    // === MODE: Full content pack (default) ===
     if (!body?.idea || body.idea.trim().length < 5) {
       return new Response(JSON.stringify({ error: "Idea is required (min 5 chars)" }), {
         status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
 
-    // 1. Generate ad content pack
     const userContent: any[] = [{ type: "text", text: buildPrompt(body) }];
     if (body.imageUrl) {
       userContent.push({ type: "image_url", image_url: { url: body.imageUrl } });
@@ -103,10 +153,7 @@ Deno.serve(async (req) => {
 
     const chatRes = await fetch(`${GATEWAY}/chat/completions`, {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "Lovable-API-Key": LOVABLE_API_KEY,
-      },
+      headers: { "Content-Type": "application/json", "Lovable-API-Key": LOVABLE_API_KEY },
       body: JSON.stringify({
         model: "google/gemini-2.5-flash",
         messages: [
@@ -127,49 +174,16 @@ Deno.serve(async (req) => {
     const chatData = await chatRes.json();
     const rawText = chatData?.choices?.[0]?.message?.content ?? "{}";
     let pack: any;
-    try {
-      pack = JSON.parse(rawText);
-    } catch {
+    try { pack = JSON.parse(rawText); }
+    catch {
       const m = rawText.match(/\{[\s\S]*\}/);
       pack = m ? JSON.parse(m[0]) : { raw: rawText };
     }
 
-    // 2. Optionally generate ad image
     let generatedImage: string | null = null;
     if (body.generateImage) {
       const baseVisual = body.imagePrompt || pack?.creative_brief?.image_prompt || `Professional advertisement visual for: ${body.idea}`;
-      // Strip any text/typography instructions because image models cannot render Bangla correctly.
-      // We render Bangla text on the client via a canvas overlay using Hind Siliguri font.
-      const imgPrompt = `${baseVisual}
-
-STRICT RULES — MUST FOLLOW:
-- DO NOT render any text, letters, words, numbers, captions, logos, watermarks, signs, labels, price tags or typography ANYWHERE in the image.
-- NO Bengali / Bangla / English / Arabic script of any kind.
-- Pure clean product / lifestyle photography only. Photorealistic, bright commercial lighting, eye-catching composition, leave clean negative space on one side for text to be added later in post-production.`;
-      try {
-        const imgRes = await fetch(`${GATEWAY}/chat/completions`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "Lovable-API-Key": LOVABLE_API_KEY,
-          },
-          body: JSON.stringify({
-            model: "google/gemini-2.5-flash-image",
-            messages: [{ role: "user", content: imgPrompt }],
-            modalities: ["image", "text"],
-          }),
-        });
-        if (imgRes.ok) {
-          const imgData = await imgRes.json();
-          const imgUrl = imgData?.choices?.[0]?.message?.images?.[0]?.image_url?.url
-            || imgData?.choices?.[0]?.message?.content;
-          if (typeof imgUrl === "string" && imgUrl.startsWith("data:")) {
-            generatedImage = imgUrl;
-          } else if (typeof imgUrl === "string" && imgUrl.startsWith("http")) {
-            generatedImage = imgUrl;
-          }
-        }
-      } catch (_) { /* ignore image errors */ }
+      generatedImage = await generateOneImage(baseVisual);
     }
 
     return new Response(JSON.stringify({ pack, generatedImage }), {

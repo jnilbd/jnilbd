@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -12,7 +12,7 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/
 import {
   Sparkles, Loader2, Copy, Check, Download, Wand2, Megaphone, Target,
   DollarSign, Palette, Image as ImageIcon, AlertTriangle, Facebook, Instagram,
-  Youtube, Linkedin, Twitter, Globe,
+  Youtube, Linkedin, Twitter, Globe, RefreshCw, Film,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -78,6 +78,12 @@ export default function AdMaker() {
   const [pack, setPack] = useState<Pack | null>(null);
   const [generatedImage, setGeneratedImage] = useState<string | null>(null);
   const [activePlat, setActivePlat] = useState("facebook");
+  const [regenLoading, setRegenLoading] = useState(false);
+  const [videoLoading, setVideoLoading] = useState(false);
+  const [videoFrames, setVideoFrames] = useState<string[]>([]);
+  const [videoShots, setVideoShots] = useState<string[]>([]);
+  const [videoFrameIdx, setVideoFrameIdx] = useState(0);
+  const [videoPlaying, setVideoPlaying] = useState(false);
 
   const handleGenerate = async () => {
     if (idea.trim().length < 5) {
@@ -106,6 +112,70 @@ export default function AdMaker() {
     }
   };
 
+  const handleRegenerateImage = async () => {
+    setRegenLoading(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("ad-content-maker", {
+        body: {
+          mode: "regenerate_image",
+          idea,
+          imagePrompt: pack?.creative_brief?.image_prompt,
+        },
+      });
+      if (error) throw error;
+      if (data?.generatedImage) {
+        setGeneratedImage(data.generatedImage);
+        toast.success("নতুন ইমেজ তৈরি হয়েছে! ✨");
+      } else {
+        toast.error("ইমেজ জেনারেট হয়নি — আবার চেষ্টা করুন");
+      }
+    } catch (e: any) {
+      toast.error("ত্রুটি: " + String(e?.message ?? e));
+    } finally {
+      setRegenLoading(false);
+    }
+  };
+
+  const handleGenerateVideo = async () => {
+    setVideoLoading(true);
+    setVideoFrames([]);
+    setVideoFrameIdx(0);
+    setVideoPlaying(false);
+    try {
+      const { data, error } = await supabase.functions.invoke("ad-content-maker", {
+        body: {
+          mode: "video_frames",
+          idea,
+          storyboard: pack?.creative_brief?.video_storyboard,
+        },
+      });
+      if (error) throw error;
+      const frames: string[] = data?.frames || [];
+      const shots: string[] = data?.shots || [];
+      if (frames.length === 0) {
+        toast.error("ভিডিও ফ্রেম তৈরি হয়নি — আবার চেষ্টা করুন");
+      } else {
+        setVideoFrames(frames);
+        setVideoShots(shots);
+        setVideoPlaying(true);
+        toast.success(`${frames.length}টি ভিডিও ফ্রেম তৈরি হয়েছে! 🎬`);
+      }
+    } catch (e: any) {
+      toast.error("ত্রুটি: " + String(e?.message ?? e));
+    } finally {
+      setVideoLoading(false);
+    }
+  };
+
+  // Auto-advance video frames (slideshow playback)
+  useEffect(() => {
+    if (!videoPlaying || videoFrames.length === 0) return;
+    const t = setInterval(() => {
+      setVideoFrameIdx((i) => (i + 1) % videoFrames.length);
+    }, 1500);
+    return () => clearInterval(t);
+  }, [videoPlaying, videoFrames.length]);
+
   const downloadJson = () => {
     if (!pack) return;
     const blob = new Blob([JSON.stringify(pack, null, 2)], { type: "application/json" });
@@ -116,6 +186,7 @@ export default function AdMaker() {
     a.click();
     URL.revokeObjectURL(url);
   };
+
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-background to-muted/20">
@@ -251,11 +322,113 @@ export default function AdMaker() {
               )}
 
               {generatedImage && (
-                <BanglaImageOverlay
-                  imageSrc={generatedImage}
-                  defaultHeadline={pack?.headlines?.[0] || ""}
-                  defaultCta={pack?.ctas?.[0] || "অর্ডার করুন"}
-                />
+                <div className="space-y-3">
+                  <BanglaImageOverlay
+                    imageSrc={generatedImage}
+                    defaultHeadline={pack?.headlines?.[0] || ""}
+                    defaultCta={pack?.ctas?.[0] || "অর্ডার করুন"}
+                  />
+                  <Card className="p-3 bg-gradient-to-br from-primary/5 to-accent/5 border-primary/20">
+                    <div className="flex flex-col sm:flex-row gap-2">
+                      <Button
+                        onClick={handleRegenerateImage}
+                        disabled={regenLoading || videoLoading}
+                        variant="outline"
+                        className="flex-1 gap-2"
+                      >
+                        {regenLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <RefreshCw className="h-4 w-4" />}
+                        {regenLoading ? "নতুন ইমেজ আসছে..." : "আরেকটা ইমেজ জেনারেট করো"}
+                      </Button>
+                      <Button
+                        onClick={handleGenerateVideo}
+                        disabled={videoLoading || regenLoading}
+                        className="flex-1 gap-2 bg-gradient-to-r from-primary to-accent"
+                      >
+                        {videoLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Film className="h-4 w-4" />}
+                        {videoLoading ? "ভিডিও তৈরি হচ্ছে..." : "প্রমোশনাল ভিডিও বানাও"}
+                      </Button>
+                    </div>
+                    <p className="text-[11px] text-muted-foreground mt-2 text-center">
+                      পছন্দ না হলে নতুন ভ্যারিয়েশন তৈরি করুন, অথবা ৪–৬ সিনের প্রমোশনাল ভিডিও বানান
+                    </p>
+                  </Card>
+
+                  {videoLoading && (
+                    <Card className="p-6 text-center">
+                      <Loader2 className="h-8 w-8 mx-auto text-primary animate-spin mb-2" />
+                      <p className="text-sm font-semibold">প্রমোশনাল ভিডিওর ফ্রেম তৈরি হচ্ছে...</p>
+                      <p className="text-xs text-muted-foreground mt-1">৪–৬টি সিনেমাটিক শট তৈরি হবে (৩০–৬০ সে.)</p>
+                    </Card>
+                  )}
+
+                  {videoFrames.length > 0 && (
+                    <Card className="p-4 space-y-3">
+                      <div className="flex items-center justify-between">
+                        <h3 className="font-semibold flex items-center gap-2">
+                          <Film className="h-4 w-4 text-primary" />প্রমোশনাল ভিডিও প্রিভিউ
+                        </h3>
+                        <Button size="sm" variant="ghost" onClick={() => setVideoPlaying((p) => !p)}>
+                          {videoPlaying ? "⏸ Pause" : "▶ Play"}
+                        </Button>
+                      </div>
+                      <div className="relative aspect-video w-full rounded-lg overflow-hidden bg-black">
+                        <img
+                          src={videoFrames[videoFrameIdx]}
+                          alt={`Frame ${videoFrameIdx + 1}`}
+                          className="w-full h-full object-cover transition-opacity duration-500"
+                        />
+                        <div className="absolute bottom-0 left-0 right-0 p-3 bg-gradient-to-t from-black/80 to-transparent">
+                          <p className="text-white text-sm font-medium line-clamp-2">
+                            শট {videoFrameIdx + 1}/{videoFrames.length}: {videoShots[videoFrameIdx] || ""}
+                          </p>
+                        </div>
+                        <div className="absolute top-2 right-2 bg-black/60 text-white text-xs px-2 py-1 rounded">
+                          {videoFrameIdx + 1} / {videoFrames.length}
+                        </div>
+                      </div>
+                      <div className="grid grid-cols-3 sm:grid-cols-6 gap-2">
+                        {videoFrames.map((f, i) => (
+                          <button
+                            key={i}
+                            onClick={() => { setVideoFrameIdx(i); setVideoPlaying(false); }}
+                            className={`relative aspect-video rounded overflow-hidden border-2 transition-all ${i === videoFrameIdx ? "border-primary scale-105" : "border-transparent opacity-60 hover:opacity-100"}`}
+                          >
+                            <img src={f} alt={`Thumb ${i + 1}`} className="w-full h-full object-cover" />
+                          </button>
+                        ))}
+                      </div>
+                      <div className="flex flex-col sm:flex-row gap-2">
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={handleGenerateVideo}
+                          disabled={videoLoading}
+                          className="flex-1 gap-2"
+                        >
+                          <RefreshCw className="h-3 w-3" />নতুন ফ্রেমে রিজেনারেট
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => {
+                            videoFrames.forEach((f, i) => {
+                              const a = document.createElement("a");
+                              a.href = f;
+                              a.download = `ad-video-frame-${i + 1}.png`;
+                              a.click();
+                            });
+                          }}
+                          className="flex-1 gap-2"
+                        >
+                          <Download className="h-3 w-3" />সব ফ্রেম ডাউনলোড
+                        </Button>
+                      </div>
+                      <p className="text-[11px] text-muted-foreground text-center">
+                        💡 টিপস: ফ্রেমগুলো CapCut/InShot-এ ইম্পোর্ট করে মিউজিক ও ট্রানজিশন যোগ করলেই রেডি প্রমোশনাল ভিডিও
+                      </p>
+                    </Card>
+                  )}
+                </div>
               )}
 
               {/* Hook angles & headlines */}

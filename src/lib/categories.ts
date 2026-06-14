@@ -1,4 +1,4 @@
-import { Home, Store, BookOpen, Compass, CloudRain, Wifi, HeartPulse, Wallet, Lock, Receipt, Scale, Percent, Map, Ruler, Sun, Smartphone, FileType, Download, Image as ImageIcon, Mic, Clock, Tv, MessageCircle, Briefcase, Tag, Home as HomeIcon, FolderKanban, User, ShieldCheck, CalendarClock, Send, Film, Train, Phone, Plane, Rocket, Newspaper, Swords, BarChart3, NewspaperIcon } from "lucide-react";
+import { Home, Store, BookOpen, Compass, CloudRain, Wifi, HeartPulse, Wallet, Lock, Receipt, Scale, Percent, Map, Ruler, Sun, Smartphone, FileType, Download, Image as ImageIcon, Mic, Clock, Tv, MessageCircle, Briefcase, Tag, Home as HomeIcon, FolderKanban, User, ShieldCheck, CalendarClock, Send, Film, Train, Phone, Plane, Rocket, Newspaper, Swords, BarChart3, NewspaperIcon, Wand2 } from "lucide-react";
 
 export type CategoryItem = {
   to: string;
@@ -49,6 +49,7 @@ export const ALL_CATEGORIES: CategoryItem[] = [
   { to: "/converter", icon: FileType, bn: "কনভার্টার", en: "Converter" },
   { to: "/downloader", icon: Download, bn: "ডাউনলোডার", en: "Downloader" },
   { to: "/thumbnail", icon: ImageIcon, bn: "থাম্বনেইল", en: "Thumbnail" },
+  { to: "/ad-maker", icon: Wand2, bn: "অ্যাড মেকার AI", en: "Ad Maker AI" },
   { to: "/voice", icon: Mic, bn: "ভয়েস", en: "Voice" },
   { to: "/scheduler", icon: Clock, bn: "শিডিউল মেসেজ", en: "Scheduler" },
   { to: "/livetv", icon: Tv, bn: "লাইভ টিভি", en: "Live TV" },

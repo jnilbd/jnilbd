@@ -61,6 +61,7 @@ import Politics from "./pages/Politics";
 import WarUpdates from "./pages/WarUpdates";
 import Stocks from "./pages/Stocks";
 import Newspapers from "./pages/Newspapers";
+import AdMaker from "./pages/AdMaker";
 
 const queryClient = new QueryClient();
 
@@ -125,6 +126,7 @@ const App = () => (
                 <Route path="/war" element={<WarUpdates />} />
                 <Route path="/stocks" element={<Stocks />} />
                 <Route path="/newspapers" element={<Newspapers />} />
+                <Route path="/ad-maker" element={<AdMaker />} />
                 <Route path="/cart" element={<Cart />} />
                 <Route path="/checkout" element={<Checkout />} />
                 <Route path="/order-confirmation/:id" element={<OrderConfirmation />} />

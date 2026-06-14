@@ -259,6 +259,16 @@ const Navbar = () => {
           </nav>
 
           <div className="flex items-center gap-1.5">
+            <Button
+              variant="ghost"
+              size="icon"
+              className="md:hidden rounded-full"
+              onClick={() => setMobileSearchOpen((o) => !o)}
+              aria-label="Search"
+            >
+              <Search className="w-[18px] h-[18px]" />
+            </Button>
+
             <button
               onClick={toggle}
               aria-label="Switch language"

@@ -22,6 +22,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
+import FinanceCalculator from "@/components/finance/FinanceCalculator";
 
 const EXPENSE_CATS_BN = ["খাবার ও বাজার","পরিবহন","ভাড়া","বিল","স্বাস্থ্য","শিক্ষা","কেনাকাটা","বিনোদন","পরিবার","অন্যান্য"];
 const EXPENSE_CATS_EN = ["Food & Groceries","Transport","Rent","Bills","Health","Education","Shopping","Entertainment","Family","Other"];

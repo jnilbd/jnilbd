@@ -297,7 +297,7 @@ const Navbar = () => {
 
             {!user && (
               <Link to="/auth" className="sm:hidden">
-                <Button variant="ghost" size="icon" className="rounded-full" aria-label="Login">
+                <Button variant="ghost" size="icon" className="rounded-full h-8 w-8" aria-label="Login">
                   <LogIn className="w-[18px] h-[18px]" />
                 </Button>
               </Link>
@@ -306,7 +306,7 @@ const Navbar = () => {
             <Button
               variant="ghost"
               size="icon"
-              className="lg:hidden rounded-full"
+              className="lg:hidden rounded-full h-8 w-8 sm:h-9 sm:w-9"
               onClick={() => {
                 setOpenMenu(null);
                 setMobileNavOpen((o) => !o);

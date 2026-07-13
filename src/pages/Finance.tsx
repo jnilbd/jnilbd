@@ -858,6 +858,17 @@ const Finance = () => {
           <TabsContent value="inventory" className="mt-4">
             <InventoryTab userId={user.id} bn={bn} />
           </TabsContent>
+
+          {/* Planner: goals, income targets, EMI */}
+          <TabsContent value="planner" className="mt-4">
+            <PlannerTab
+              userId={user.id}
+              bn={bn}
+              monthlyIncome={monthTotals.inc}
+              monthlyExpense={monthTotals.exp}
+              totalBalance={totalBalance}
+            />
+          </TabsContent>
         </Tabs>
       </div>
 

@@ -128,7 +128,7 @@ const ProductDetail = () => {
       payment_method: isDigital ? orderForm.paymentMethod : "cash_on_delivery",
       payment_status: isDigital ? "pending_verification" : "cod_pending",
       payment_txn_id: isDigital ? orderForm.txnId : null,
-    }).select().single();
+    } as any).select().single();
     if (error) { toast.error(error.message); setPlacing(false); return; }
     // Trigger notification
     supabase.functions.invoke("notify-order", { body: { order_id: data.id } }).catch(() => {});

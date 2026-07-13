@@ -1,0 +1,12 @@
+
+ALTER TABLE public.savings_goals
+  ADD COLUMN IF NOT EXISTS kind TEXT NOT NULL DEFAULT 'savings' CHECK (kind IN ('savings','income_target','installment')),
+  ADD COLUMN IF NOT EXISTS monthly_contribution INTEGER NOT NULL DEFAULT 0 CHECK (monthly_contribution >= 0),
+  ADD COLUMN IF NOT EXISTS months_total INTEGER,
+  ADD COLUMN IF NOT EXISTS months_paid INTEGER NOT NULL DEFAULT 0,
+  ADD COLUMN IF NOT EXISTS interest_rate NUMERIC(6,2) NOT NULL DEFAULT 0,
+  ADD COLUMN IF NOT EXISTS priority INTEGER NOT NULL DEFAULT 2,
+  ADD COLUMN IF NOT EXISTS scope TEXT NOT NULL DEFAULT 'personal' CHECK (scope IN ('personal','business')),
+  ADD COLUMN IF NOT EXISTS note TEXT,
+  ADD COLUMN IF NOT EXISTS is_completed BOOLEAN NOT NULL DEFAULT false,
+  ADD COLUMN IF NOT EXISTS icon TEXT;

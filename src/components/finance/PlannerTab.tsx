@@ -1,0 +1,532 @@
+import { useEffect, useMemo, useState } from "react";
+import { supabase } from "@/integrations/supabase/client";
+import { Card } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Badge } from "@/components/ui/badge";
+import { Progress } from "@/components/ui/progress";
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Textarea } from "@/components/ui/textarea";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { Plus, Target, TrendingUp, CalendarClock, Sparkles, Trash2, CheckCircle2, AlertTriangle, Calculator, Wallet, PiggyBank, Loader2 } from "lucide-react";
+import { toast } from "sonner";
+import { cn } from "@/lib/utils";
+import FinanceCalculator from "./FinanceCalculator";
+
+type Kind = "savings" | "income_target" | "installment";
+type Scope = "personal" | "business";
+
+interface GoalRow {
+  id: string;
+  user_id: string;
+  title: string;
+  kind: Kind;
+  target_amount: number;
+  saved_amount: number;
+  target_date: string | null;
+  monthly_contribution: number;
+  months_total: number | null;
+  months_paid: number;
+  interest_rate: number;
+  priority: number;
+  scope: Scope;
+  note: string | null;
+  is_completed: boolean;
+  icon: string | null;
+}
+
+const fmtBDT = (n: number, bn = false) => {
+  const abs = Math.abs(Math.round(n));
+  const s = new Intl.NumberFormat(bn ? "bn-BD" : "en-BD", { maximumFractionDigits: 0 }).format(abs);
+  return `${n < 0 ? "-" : ""}৳${s}`;
+};
+
+const monthKey = (d = new Date()) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
+
+const monthsUntil = (dateStr: string | null): number | null => {
+  if (!dateStr) return null;
+  const target = new Date(dateStr);
+  const now = new Date();
+  const months = (target.getFullYear() - now.getFullYear()) * 12 + (target.getMonth() - now.getMonth());
+  return Math.max(0, months);
+};
+
+interface Props {
+  userId: string;
+  bn: boolean;
+  monthlyIncome: number;   // this-month actual income
+  monthlyExpense: number;  // this-month actual expense
+  totalBalance: number;    // sum of wallet balances
+}
+
+const emptyDraft = (): Partial<GoalRow> => ({
+  title: "",
+  kind: "savings",
+  target_amount: 0,
+  saved_amount: 0,
+  monthly_contribution: 0,
+  target_date: null,
+  months_total: null,
+  months_paid: 0,
+  interest_rate: 0,
+  priority: 2,
+  scope: "personal",
+  note: "",
+  is_completed: false,
+});
+
+export const PlannerTab = ({ userId, bn, monthlyIncome, monthlyExpense, totalBalance }: Props) => {
+  const [rows, setRows] = useState<GoalRow[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [tab, setTab] = useState<"summary" | "savings" | "income_target" | "installment" | "calc">("summary");
+  const [open, setOpen] = useState(false);
+  const [draft, setDraft] = useState<Partial<GoalRow>>(emptyDraft());
+  const [editingId, setEditingId] = useState<string | null>(null);
+
+  const load = async () => {
+    setLoading(true);
+    const { data, error } = await supabase
+      .from("savings_goals")
+      .select("*")
+      .eq("user_id", userId)
+      .order("is_completed", { ascending: true })
+      .order("priority", { ascending: false })
+      .order("created_at", { ascending: false });
+    if (error) toast.error(error.message);
+    setRows((data as any) ?? []);
+    setLoading(false);
+  };
+
+  useEffect(() => { load(); }, [userId]);
+
+  const savings = rows.filter(r => r.kind === "savings");
+  const incomeTargets = rows.filter(r => r.kind === "income_target");
+  const installments = rows.filter(r => r.kind === "installment");
+
+  // ---- Smart month summary ----
+  const summary = useMemo(() => {
+    const emiThisMonth = installments
+      .filter(i => !i.is_completed)
+      .reduce((s, i) => s + (i.monthly_contribution || 0), 0);
+    const savingsThisMonth = savings
+      .filter(i => !i.is_completed)
+      .reduce((s, i) => {
+        if (i.monthly_contribution) return s + i.monthly_contribution;
+        const m = monthsUntil(i.target_date);
+        const remain = Math.max(0, i.target_amount - i.saved_amount);
+        if (m && m > 0) return s + Math.ceil(remain / m);
+        return s;
+      }, 0);
+    const activeIncomeTarget = incomeTargets.find(i => !i.is_completed);
+    const incomeGoal = activeIncomeTarget?.target_amount ?? 0;
+    const needThisMonth = emiThisMonth + savingsThisMonth + monthlyExpense;
+    const gap = needThisMonth - monthlyIncome;
+    return { emiThisMonth, savingsThisMonth, needThisMonth, incomeGoal, gap, activeIncomeTarget };
+  }, [installments, savings, incomeTargets, monthlyExpense, monthlyIncome]);
+
+  const startNew = (kind: Kind) => {
+    setEditingId(null);
+    setDraft({ ...emptyDraft(), kind });
+    setOpen(true);
+  };
+  const startEdit = (r: GoalRow) => {
+    setEditingId(r.id);
+    setDraft({ ...r });
+    setOpen(true);
+  };
+
+  const save = async () => {
+    if (!draft.title?.trim()) return toast.error(bn ? "নাম দিন" : "Title required");
+    if (!draft.target_amount || draft.target_amount <= 0) return toast.error(bn ? "টার্গেট এমাউন্ট দিন" : "Enter target");
+    const payload: any = {
+      user_id: userId,
+      title: draft.title.trim(),
+      kind: draft.kind ?? "savings",
+      target_amount: Math.round(draft.target_amount || 0),
+      saved_amount: Math.round(draft.saved_amount || 0),
+      monthly_contribution: Math.round(draft.monthly_contribution || 0),
+      target_date: draft.target_date || null,
+      months_total: draft.months_total || null,
+      months_paid: draft.months_paid || 0,
+      interest_rate: draft.interest_rate || 0,
+      priority: draft.priority ?? 2,
+      scope: draft.scope ?? "personal",
+      note: draft.note?.toString().trim() || null,
+      is_completed: !!draft.is_completed,
+    };
+    const q = editingId
+      ? supabase.from("savings_goals").update(payload).eq("id", editingId)
+      : supabase.from("savings_goals").insert(payload);
+    const { error } = await q;
+    if (error) return toast.error(error.message);
+    toast.success(bn ? "সংরক্ষিত" : "Saved");
+    setOpen(false);
+    load();
+  };
+
+  const remove = async (id: string) => {
+    if (!confirm(bn ? "মুছে ফেলবেন?" : "Delete?")) return;
+    const { error } = await supabase.from("savings_goals").delete().eq("id", id);
+    if (error) return toast.error(error.message);
+    load();
+  };
+
+  const addContribution = async (r: GoalRow, amount: number) => {
+    if (!amount) return;
+    const update: any = { saved_amount: (r.saved_amount || 0) + amount };
+    if (r.kind === "installment") {
+      update.months_paid = (r.months_paid || 0) + 1;
+      if (r.months_total && update.months_paid >= r.months_total) update.is_completed = true;
+    }
+    if (update.saved_amount >= r.target_amount) update.is_completed = true;
+    const { error } = await supabase.from("savings_goals").update(update).eq("id", r.id);
+    if (error) return toast.error(error.message);
+    toast.success(bn ? "যোগ হয়েছে" : "Added");
+    load();
+  };
+
+  const kindLabel = (k: Kind) =>
+    bn
+      ? (k === "savings" ? "লক্ষ্য" : k === "income_target" ? "আয়ের টার্গেট" : "কিস্তি")
+      : (k === "savings" ? "Goal" : k === "income_target" ? "Income Target" : "Installment");
+
+  const GoalCard = ({ r }: { r: GoalRow }) => {
+    const remaining = Math.max(0, r.target_amount - r.saved_amount);
+    const pct = r.target_amount ? Math.min(100, Math.round((r.saved_amount / r.target_amount) * 100)) : 0;
+    const monthsLeft = monthsUntil(r.target_date);
+    const perMonth =
+      r.monthly_contribution ||
+      (monthsLeft && monthsLeft > 0 ? Math.ceil(remaining / monthsLeft) : remaining);
+
+    return (
+      <Card className={cn("p-4 space-y-3", r.is_completed && "opacity-60")}>
+        <div className="flex items-start justify-between gap-2">
+          <div className="min-w-0">
+            <div className="flex items-center gap-2 flex-wrap">
+              <p className="font-semibold text-sm truncate">{r.title}</p>
+              <Badge variant="outline" className="text-[10px]">{bn ? (r.scope === "business" ? "ব্যবসা" : "ব্যক্তিগত") : r.scope}</Badge>
+              {r.is_completed && <Badge className="text-[10px] bg-emerald-500/20 text-emerald-600 border-0"><CheckCircle2 className="h-3 w-3 mr-1" />{bn ? "সম্পন্ন" : "Done"}</Badge>}
+            </div>
+            {r.note && <p className="text-xs text-muted-foreground mt-0.5 line-clamp-2">{r.note}</p>}
+          </div>
+          <div className="flex items-center gap-1 shrink-0">
+            <Button size="icon" variant="ghost" className="h-7 w-7" onClick={() => startEdit(r)} aria-label="edit"><CalendarClock className="h-3.5 w-3.5" /></Button>
+            <Button size="icon" variant="ghost" className="h-7 w-7 text-rose-500" onClick={() => remove(r.id)} aria-label="delete"><Trash2 className="h-3.5 w-3.5" /></Button>
+          </div>
+        </div>
+
+        <div className="space-y-1.5">
+          <div className="flex items-center justify-between text-xs">
+            <span className="tabular-nums font-medium">{fmtBDT(r.saved_amount, bn)} / {fmtBDT(r.target_amount, bn)}</span>
+            <span className="text-muted-foreground">{pct}%</span>
+          </div>
+          <Progress value={pct} className="h-2" />
+        </div>
+
+        <div className="grid grid-cols-3 gap-2 text-[11px]">
+          <div className="rounded-lg bg-muted/50 p-2">
+            <p className="text-muted-foreground">{bn ? "বাকি" : "Remaining"}</p>
+            <p className="font-semibold tabular-nums">{fmtBDT(remaining, bn)}</p>
+          </div>
+          <div className="rounded-lg bg-muted/50 p-2">
+            <p className="text-muted-foreground">{bn ? "মাসে" : "Per month"}</p>
+            <p className="font-semibold tabular-nums">{fmtBDT(perMonth, bn)}</p>
+          </div>
+          <div className="rounded-lg bg-muted/50 p-2">
+            <p className="text-muted-foreground">
+              {r.kind === "installment" ? (bn ? "কিস্তি" : "EMI") : (bn ? "সময়" : "Time")}
+            </p>
+            <p className="font-semibold tabular-nums">
+              {r.kind === "installment" && r.months_total
+                ? `${r.months_paid}/${r.months_total}`
+                : monthsLeft !== null
+                  ? `${monthsLeft}${bn ? "মাস" : "mo"}`
+                  : "—"}
+            </p>
+          </div>
+        </div>
+
+        {!r.is_completed && (
+          <div className="flex items-center gap-2 pt-1">
+            <Input
+              type="number"
+              placeholder={bn ? "পরিশোধ/জমা" : "Add contribution"}
+              className="h-8 text-xs"
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  const v = +(e.currentTarget.value || 0);
+                  if (v > 0) { addContribution(r, v); e.currentTarget.value = ""; }
+                }
+              }}
+            />
+            <Button size="sm" variant="secondary" className="h-8 text-xs" onClick={() => addContribution(r, perMonth)}>
+              +{fmtBDT(perMonth, bn)}
+            </Button>
+          </div>
+        )}
+      </Card>
+    );
+  };
+
+  if (loading) return <div className="grid place-items-center py-10"><Loader2 className="h-6 w-6 animate-spin text-muted-foreground" /></div>;
+
+  return (
+    <div className="space-y-4">
+      <Tabs value={tab} onValueChange={(v) => setTab(v as any)}>
+        <TabsList className="flex w-full overflow-x-auto no-scrollbar gap-1 bg-muted/60 h-10">
+          <TabsTrigger value="summary" className="text-xs px-3 shrink-0"><Sparkles className="h-3.5 w-3.5 mr-1" />{bn ? "সারসংক্ষেপ" : "Overview"}</TabsTrigger>
+          <TabsTrigger value="savings" className="text-xs px-3 shrink-0"><Target className="h-3.5 w-3.5 mr-1" />{bn ? "লক্ষ্য" : "Goals"}</TabsTrigger>
+          <TabsTrigger value="income_target" className="text-xs px-3 shrink-0"><TrendingUp className="h-3.5 w-3.5 mr-1" />{bn ? "আয় টার্গেট" : "Income"}</TabsTrigger>
+          <TabsTrigger value="installment" className="text-xs px-3 shrink-0"><CalendarClock className="h-3.5 w-3.5 mr-1" />{bn ? "কিস্তি" : "EMI"}</TabsTrigger>
+          <TabsTrigger value="calc" className="text-xs px-3 shrink-0"><Calculator className="h-3.5 w-3.5 mr-1" />{bn ? "ক্যালকুলেটর" : "Calc"}</TabsTrigger>
+        </TabsList>
+
+        {/* ---- Summary ---- */}
+        <TabsContent value="summary" className="mt-4 space-y-3">
+          <Card className="p-4 bg-gradient-to-br from-primary/10 via-primary/5 to-transparent border-primary/20">
+            <div className="flex items-center gap-2 mb-3">
+              <Sparkles className="h-4 w-4 text-primary" />
+              <p className="text-sm font-semibold">{bn ? "এই মাসের স্মার্ট প্ল্যান" : "This Month's Smart Plan"}</p>
+              <Badge variant="outline" className="ml-auto text-[10px]">{monthKey()}</Badge>
+            </div>
+
+            <div className="grid grid-cols-2 gap-2 text-xs">
+              <div className="rounded-lg bg-background/60 p-2.5">
+                <p className="text-muted-foreground text-[10px]">{bn ? "আয় (এই মাস)" : "Income (mo)"}</p>
+                <p className="font-semibold tabular-nums text-emerald-500">{fmtBDT(monthlyIncome, bn)}</p>
+              </div>
+              <div className="rounded-lg bg-background/60 p-2.5">
+                <p className="text-muted-foreground text-[10px]">{bn ? "খরচ (এই মাস)" : "Expense (mo)"}</p>
+                <p className="font-semibold tabular-nums text-rose-500">{fmtBDT(monthlyExpense, bn)}</p>
+              </div>
+              <div className="rounded-lg bg-background/60 p-2.5">
+                <p className="text-muted-foreground text-[10px]">{bn ? "কিস্তি বাধ্যতামূলক" : "EMI due"}</p>
+                <p className="font-semibold tabular-nums">{fmtBDT(summary.emiThisMonth, bn)}</p>
+              </div>
+              <div className="rounded-lg bg-background/60 p-2.5">
+                <p className="text-muted-foreground text-[10px]">{bn ? "লক্ষ্যের জন্য জমা" : "Save for goals"}</p>
+                <p className="font-semibold tabular-nums">{fmtBDT(summary.savingsThisMonth, bn)}</p>
+              </div>
+            </div>
+
+            <div className="mt-3 rounded-xl bg-background/80 p-3 border border-border/50">
+              <p className="text-[11px] text-muted-foreground">{bn ? "এই মাসে মোট প্রয়োজন" : "Total needed this month"}</p>
+              <p className="text-2xl font-bold tabular-nums mt-0.5">{fmtBDT(summary.needThisMonth, bn)}</p>
+              <p className="text-[10px] text-muted-foreground mt-1">
+                {bn ? "= খরচ + কিস্তি + লক্ষ্যের কিস্তি" : "= expense + EMI + goal savings"}
+              </p>
+
+              {summary.gap > 0 ? (
+                <div className="mt-3 flex items-start gap-2 rounded-lg bg-rose-500/10 border border-rose-500/20 p-2.5">
+                  <AlertTriangle className="h-4 w-4 text-rose-500 shrink-0 mt-0.5" />
+                  <div className="text-xs">
+                    <p className="font-semibold text-rose-500">
+                      {bn ? "ঘাটতি" : "Shortfall"}: {fmtBDT(summary.gap, bn)}
+                    </p>
+                    <p className="text-muted-foreground text-[11px] mt-0.5">
+                      {bn
+                        ? `এই মাসে আরও ${fmtBDT(summary.gap, bn)} আয় করতে হবে বা খরচ কমাতে হবে।`
+                        : `You need ${fmtBDT(summary.gap, bn)} more income or cut expenses.`}
+                    </p>
+                  </div>
+                </div>
+              ) : (
+                <div className="mt-3 flex items-start gap-2 rounded-lg bg-emerald-500/10 border border-emerald-500/20 p-2.5">
+                  <CheckCircle2 className="h-4 w-4 text-emerald-500 shrink-0 mt-0.5" />
+                  <div className="text-xs">
+                    <p className="font-semibold text-emerald-500">
+                      {bn ? "সবকিছু কভার হচ্ছে" : "On track"} · {fmtBDT(-summary.gap, bn)} {bn ? "উদ্বৃত্ত" : "surplus"}
+                    </p>
+                  </div>
+                </div>
+              )}
+
+              {summary.activeIncomeTarget && (
+                <div className="mt-3 space-y-1.5">
+                  <div className="flex items-center justify-between text-[11px]">
+                    <span className="text-muted-foreground">{bn ? "আয়ের টার্গেট" : "Income target"}: {fmtBDT(summary.incomeGoal, bn)}</span>
+                    <span className="tabular-nums">{Math.min(100, Math.round((monthlyIncome / summary.incomeGoal) * 100))}%</span>
+                  </div>
+                  <Progress value={Math.min(100, (monthlyIncome / summary.incomeGoal) * 100)} className="h-2" />
+                </div>
+              )}
+            </div>
+
+            <div className="mt-3 flex items-center gap-2 text-[11px] text-muted-foreground">
+              <Wallet className="h-3.5 w-3.5" />
+              {bn ? "মোট ব্যালান্স" : "Total balance"}: <b className="tabular-nums text-foreground">{fmtBDT(totalBalance, bn)}</b>
+            </div>
+          </Card>
+
+          <div className="grid grid-cols-3 gap-2">
+            <Button variant="outline" className="h-auto py-3 flex-col gap-1" onClick={() => startNew("savings")}>
+              <Target className="h-4 w-4 text-primary" />
+              <span className="text-[11px]">{bn ? "লক্ষ্য যোগ" : "Add Goal"}</span>
+            </Button>
+            <Button variant="outline" className="h-auto py-3 flex-col gap-1" onClick={() => startNew("income_target")}>
+              <TrendingUp className="h-4 w-4 text-emerald-500" />
+              <span className="text-[11px]">{bn ? "আয় টার্গেট" : "Income"}</span>
+            </Button>
+            <Button variant="outline" className="h-auto py-3 flex-col gap-1" onClick={() => startNew("installment")}>
+              <CalendarClock className="h-4 w-4 text-amber-500" />
+              <span className="text-[11px]">{bn ? "কিস্তি" : "EMI"}</span>
+            </Button>
+          </div>
+
+          {/* Quick preview of active items */}
+          {rows.filter(r => !r.is_completed).slice(0, 3).map(r => <GoalCard key={r.id} r={r} />)}
+        </TabsContent>
+
+        {(["savings", "income_target", "installment"] as Kind[]).map(k => (
+          <TabsContent key={k} value={k} className="mt-4 space-y-3">
+            <div className="flex items-center justify-between">
+              <p className="text-sm font-semibold">{kindLabel(k)}</p>
+              <Button size="sm" onClick={() => startNew(k)}><Plus className="h-3.5 w-3.5 mr-1" />{bn ? "যোগ" : "Add"}</Button>
+            </div>
+            {rows.filter(r => r.kind === k).length === 0 ? (
+              <Card className="p-8 text-center">
+                <PiggyBank className="h-8 w-8 text-muted-foreground mx-auto mb-2" />
+                <p className="text-xs text-muted-foreground">
+                  {bn ? "এখনো কিছু যোগ করা হয়নি" : "Nothing added yet"}
+                </p>
+              </Card>
+            ) : (
+              rows.filter(r => r.kind === k).map(r => <GoalCard key={r.id} r={r} />)
+            )}
+          </TabsContent>
+        ))}
+
+        <TabsContent value="calc" className="mt-4">
+          <FinanceCalculator />
+        </TabsContent>
+      </Tabs>
+
+      {/* Add/edit sheet */}
+      <Sheet open={open} onOpenChange={setOpen}>
+        <SheetContent side="bottom" className="max-h-[90vh] overflow-y-auto rounded-t-2xl">
+          <SheetHeader>
+            <SheetTitle>
+              {editingId ? (bn ? "সম্পাদনা" : "Edit") : (bn ? "নতুন যোগ" : "New")} · {kindLabel(draft.kind as Kind)}
+            </SheetTitle>
+          </SheetHeader>
+          <div className="mt-4 space-y-3">
+            <div>
+              <Label className="text-xs">{bn ? "ধরন" : "Type"}</Label>
+              <Select value={draft.kind} onValueChange={(v) => setDraft({ ...draft, kind: v as Kind })}>
+                <SelectTrigger className="mt-1"><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="savings">{bn ? "🎯 লক্ষ্য (Savings goal)" : "🎯 Savings goal"}</SelectItem>
+                  <SelectItem value="income_target">{bn ? "📈 আয়ের টার্গেট" : "📈 Income target"}</SelectItem>
+                  <SelectItem value="installment">{bn ? "📆 কিস্তি / EMI" : "📆 Installment / EMI"}</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div>
+              <Label className="text-xs">{bn ? "নাম" : "Title"}</Label>
+              <Input
+                className="mt-1"
+                placeholder={
+                  draft.kind === "savings" ? (bn ? "যেমন: ফ্রিজ কিনতে হবে" : "e.g. Buy fridge") :
+                  draft.kind === "income_target" ? (bn ? "যেমন: এই মাসে আয়ের টার্গেট" : "e.g. This month target") :
+                  (bn ? "যেমন: বাইকের কিস্তি" : "e.g. Bike EMI")
+                }
+                value={draft.title ?? ""}
+                onChange={(e) => setDraft({ ...draft, title: e.target.value })}
+              />
+            </div>
+
+            <div className="grid grid-cols-2 gap-2">
+              <div>
+                <Label className="text-xs">
+                  {draft.kind === "income_target" ? (bn ? "টার্গেট আয় (৳)" : "Target income (৳)") :
+                   draft.kind === "installment" ? (bn ? "মোট বকেয়া (৳)" : "Total due (৳)") :
+                   (bn ? "টার্গেট (৳)" : "Target (৳)")}
+                </Label>
+                <Input type="number" className="mt-1" value={draft.target_amount ?? 0}
+                  onChange={(e) => setDraft({ ...draft, target_amount: +e.target.value || 0 })} />
+              </div>
+              <div>
+                <Label className="text-xs">
+                  {draft.kind === "installment" ? (bn ? "পরিশোধিত (৳)" : "Paid (৳)") : (bn ? "জমা (৳)" : "Saved (৳)")}
+                </Label>
+                <Input type="number" className="mt-1" value={draft.saved_amount ?? 0}
+                  onChange={(e) => setDraft({ ...draft, saved_amount: +e.target.value || 0 })} />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-2">
+              <div>
+                <Label className="text-xs">
+                  {draft.kind === "installment" ? (bn ? "মাসিক কিস্তি (৳)" : "Monthly EMI (৳)") : (bn ? "মাসিক জমা (৳)" : "Monthly (৳)")}
+                </Label>
+                <Input type="number" className="mt-1" value={draft.monthly_contribution ?? 0}
+                  onChange={(e) => setDraft({ ...draft, monthly_contribution: +e.target.value || 0 })} />
+              </div>
+              <div>
+                <Label className="text-xs">{bn ? "টার্গেট তারিখ" : "Target date"}</Label>
+                <Input type="date" className="mt-1" value={draft.target_date ?? ""}
+                  onChange={(e) => setDraft({ ...draft, target_date: e.target.value || null })} />
+              </div>
+            </div>
+
+            {draft.kind === "installment" && (
+              <div className="grid grid-cols-3 gap-2">
+                <div>
+                  <Label className="text-xs">{bn ? "মোট মাস" : "Total months"}</Label>
+                  <Input type="number" className="mt-1" value={draft.months_total ?? ""}
+                    onChange={(e) => setDraft({ ...draft, months_total: +e.target.value || null })} />
+                </div>
+                <div>
+                  <Label className="text-xs">{bn ? "পরিশোধিত মাস" : "Paid months"}</Label>
+                  <Input type="number" className="mt-1" value={draft.months_paid ?? 0}
+                    onChange={(e) => setDraft({ ...draft, months_paid: +e.target.value || 0 })} />
+                </div>
+                <div>
+                  <Label className="text-xs">{bn ? "সুদ (%)" : "Interest (%)"}</Label>
+                  <Input type="number" step="0.1" className="mt-1" value={draft.interest_rate ?? 0}
+                    onChange={(e) => setDraft({ ...draft, interest_rate: +e.target.value || 0 })} />
+                </div>
+              </div>
+            )}
+
+            <div className="grid grid-cols-2 gap-2">
+              <div>
+                <Label className="text-xs">{bn ? "স্কোপ" : "Scope"}</Label>
+                <Select value={draft.scope} onValueChange={(v) => setDraft({ ...draft, scope: v as Scope })}>
+                  <SelectTrigger className="mt-1"><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="personal">{bn ? "ব্যক্তিগত" : "Personal"}</SelectItem>
+                    <SelectItem value="business">{bn ? "ব্যবসা" : "Business"}</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <Label className="text-xs">{bn ? "গুরুত্ব" : "Priority"}</Label>
+                <Select value={String(draft.priority ?? 2)} onValueChange={(v) => setDraft({ ...draft, priority: +v })}>
+                  <SelectTrigger className="mt-1"><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="3">{bn ? "উচ্চ" : "High"}</SelectItem>
+                    <SelectItem value="2">{bn ? "মাঝারি" : "Medium"}</SelectItem>
+                    <SelectItem value="1">{bn ? "কম" : "Low"}</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+
+            <div>
+              <Label className="text-xs">{bn ? "নোট / কারণ" : "Note / Reason"}</Label>
+              <Textarea className="mt-1" rows={2} value={draft.note ?? ""}
+                onChange={(e) => setDraft({ ...draft, note: e.target.value })}
+                placeholder={bn ? "যেমন: বাসায় ফ্রিজ লাগবে" : "e.g. Need a fridge at home"} />
+            </div>
+
+            <Button className="w-full" onClick={save}>{bn ? "সংরক্ষণ" : "Save"}</Button>
+          </div>
+        </SheetContent>
+      </Sheet>
+    </div>
+  );
+};

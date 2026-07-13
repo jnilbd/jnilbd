@@ -135,6 +135,8 @@ const CATEGORY_BN: Record<string, string> = {
   Salary: "বেতন", Advertising: "বিজ্ঞাপন", Courier: "কুরিয়ার",
   "Office Rent": "অফিস ভাড়া", Utility: "ইউটিলিটি", Refund: "রিফান্ড",
   Loan: "ঋণ", Sale: "বিক্রি", Purchase: "ক্রয়", Other: "অন্যান্য",
+  "WiFi Bill (Village)": "ওয়াইফাই বিল (গ্রাম)", "WiFi Bill (City)": "ওয়াইফাই বিল (শহর)",
+  "Dish Bill": "ডিশ বিল", "Electricity Bill": "কারেন্ট বিল", Installment: "কিস্তি",
 };
 const bnLabel = (m: Record<string,string>, k: string | null | undefined, bn: boolean) =>
   !k ? "—" : (bn ? (m[k] ?? k) : k);

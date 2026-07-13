@@ -32,6 +32,8 @@ import { InventoryTab } from "@/components/finance/InventoryTab";
 import { PlannerTab } from "@/components/finance/PlannerTab";
 import { SalesTab } from "@/components/finance/SalesTab";
 import { ReportsTab } from "@/components/finance/ReportsTab";
+import FinanceCalculator from "@/components/finance/FinanceCalculator";
+import { Calculator as CalculatorIcon } from "lucide-react";
 
 
 // ---------- Types ----------

@@ -303,7 +303,7 @@ const Finance = () => {
     const amount = Number(qaAmount);
     if (!amount || amount <= 0) { toast.error(bn ? "সঠিক টাকা লিখুন" : "Enter amount"); return; }
     if (!qaWallet) { toast.error(bn ? "ওয়ালেট নির্বাচন করুন" : "Pick a wallet"); return; }
-    if (qaType === "transfer" && !qaWallet2) { toast.error("Pick destination wallet"); return; }
+    if (qaType === "transfer" && !qaWallet2) { toast.error(bn ? "গন্তব্য ওয়ালেট নির্বাচন করুন" : "Pick destination wallet"); return; }
     setBusy(true);
     const { error } = await supabase.from("finance_transactions").insert({
       user_id: user.id, wallet_id: qaWallet,

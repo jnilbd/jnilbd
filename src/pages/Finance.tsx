@@ -564,12 +564,12 @@ const Finance = () => {
                     className="mt-4 rounded-xl border border-primary/30 bg-primary/5 p-3">
                     <p className="text-xs text-muted-foreground mb-2">{bn?"পূর্বরূপ":"Preview"}</p>
                     <div className="grid grid-cols-2 gap-2 text-xs">
-                      <div><span className="text-muted-foreground">Type:</span> <b className="capitalize">{aiPreview.type}</b></div>
-                      <div><span className="text-muted-foreground">Amount:</span> <b>{fmtBDT(Number(aiPreview.amount)||0)}</b></div>
-                      <div><span className="text-muted-foreground">Category:</span> <b>{aiPreview.category ?? "—"}</b></div>
-                      <div><span className="text-muted-foreground">Scope:</span> <b className="capitalize">{aiPreview.scope ?? "personal"}</b></div>
-                      <div className="col-span-2"><span className="text-muted-foreground">Wallet:</span> <b>{walletById(aiPreview.wallet_id)?.name ?? (wallets.find(w=>w.is_default)?.name ?? "—")}</b></div>
-                      {aiPreview.party && <div className="col-span-2"><span className="text-muted-foreground">Party:</span> <b>{aiPreview.party}</b></div>}
+                      <div><span className="text-muted-foreground">{bn?"ধরন":"Type"}:</span> <b className="capitalize">{bnLabel(TX_TYPE_BN, aiPreview.type, bn)}</b></div>
+                      <div><span className="text-muted-foreground">{bn?"পরিমাণ":"Amount"}:</span> <b>{fmtBDT(Number(aiPreview.amount)||0, bn)}</b></div>
+                      <div><span className="text-muted-foreground">{bn?"ক্যাটাগরি":"Category"}:</span> <b>{bnLabel(CATEGORY_BN, aiPreview.category, bn)}</b></div>
+                      <div><span className="text-muted-foreground">{bn?"পরিসর":"Scope"}:</span> <b className="capitalize">{bn ? (SCOPE_BN[aiPreview.scope ?? "personal"]) : (aiPreview.scope ?? "personal")}</b></div>
+                      <div className="col-span-2"><span className="text-muted-foreground">{bn?"ওয়ালেট":"Wallet"}:</span> <b>{walletById(aiPreview.wallet_id)?.name ?? (wallets.find(w=>w.is_default)?.name ?? "—")}</b></div>
+                      {aiPreview.party && <div className="col-span-2"><span className="text-muted-foreground">{bn?"পক্ষ":"Party"}:</span> <b>{aiPreview.party}</b></div>}
                     </div>
                     <div className="flex gap-2 justify-end mt-3">
                       <Button size="sm" variant="ghost" onClick={() => setAiPreview(null)}><X className="h-4 w-4" /></Button>

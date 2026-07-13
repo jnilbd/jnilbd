@@ -192,6 +192,8 @@ const Finance = () => {
 
   const [wallets, setWallets] = useState<WalletRow[]>([]);
   const [txs, setTxs] = useState<TxRow[]>([]);
+  const [invStats, setInvStats] = useState({ stockValue: 0, lowCount: 0, productCount: 0 });
+
   const [scope, setScope] = useState<Scope>("all");
   const [busy, setBusy] = useState(false);
   const [tab, setTab] = useState("dashboard");

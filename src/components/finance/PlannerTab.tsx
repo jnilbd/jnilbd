@@ -398,9 +398,6 @@ export const PlannerTab = ({ userId, bn, monthlyIncome, monthlyExpense, totalBal
           </TabsContent>
         ))}
 
-        <TabsContent value="calc" className="mt-4">
-          <FinanceCalculator />
-        </TabsContent>
       </Tabs>
 
       {/* Add/edit sheet */}

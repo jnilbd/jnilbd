@@ -335,6 +335,8 @@ export default function TravelGuide() {
         </p>
       </div>
 
+      <TravelAlerts />
+
       <Tabs defaultValue="route" className="w-full">
         <TabsList className="grid w-full grid-cols-2 sm:grid-cols-4 mb-6 h-auto">
           <TabsTrigger value="route" className="flex flex-col sm:flex-row gap-1 py-2">

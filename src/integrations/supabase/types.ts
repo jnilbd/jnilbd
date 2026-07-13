@@ -410,37 +410,58 @@ export type Database = {
       }
       inventory_movements: {
         Row: {
+          amount_paid: number
+          courier_name: string | null
           created_at: string
           id: string
+          location: string | null
           note: string | null
           occurred_at: string
+          party_name: string | null
+          party_phone: string | null
           product_id: string
           qty: number
           related_tx_id: string | null
+          status: string
+          tracking_no: string | null
           type: string
           unit_price: number
           user_id: string
         }
         Insert: {
+          amount_paid?: number
+          courier_name?: string | null
           created_at?: string
           id?: string
+          location?: string | null
           note?: string | null
           occurred_at?: string
+          party_name?: string | null
+          party_phone?: string | null
           product_id: string
           qty: number
           related_tx_id?: string | null
+          status?: string
+          tracking_no?: string | null
           type: string
           unit_price?: number
           user_id: string
         }
         Update: {
+          amount_paid?: number
+          courier_name?: string | null
           created_at?: string
           id?: string
+          location?: string | null
           note?: string | null
           occurred_at?: string
+          party_name?: string | null
+          party_phone?: string | null
           product_id?: string
           qty?: number
           related_tx_id?: string | null
+          status?: string
+          tracking_no?: string | null
           type?: string
           unit_price?: number
           user_id?: string

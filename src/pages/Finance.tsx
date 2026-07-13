@@ -66,8 +66,14 @@ const DEFAULT_WALLETS: Array<Omit<WalletRow, "id" | "balance" | "currency" | "so
   { name: "Digital Wallet",type:"digital", provider: null,     scope: "personal", icon: "wallet",   color: "from-fuchsia-500 to-pink-600",   is_default: false, archived: false },
 ];
 
-const CATEGORIES_PERSONAL = ["Food","Transport","Shopping","Medicine","Education","Family","Kids","Entertainment","Internet","WiFi Bill (Village)","WiFi Bill (City)","Dish Bill","Electricity Bill","Installment","Mobile Recharge","Bills","Travel","Rent","Investment","Savings","Other"];
-const CATEGORIES_BUSINESS = ["Sale","Purchase","Salary","Advertising","Courier","Office Rent","Utility","WiFi Bill (Village)","WiFi Bill (City)","Dish Bill","Electricity Bill","Installment","Refund","Investment","Loan","Other"];
+// Income categories — where money comes from
+const INCOME_CATEGORIES_PERSONAL = ["Salary","Freelance","Business Income","Gift","Bonus","Interest","Rental Income","Investment Return","Refund","Family Support","Other Income"];
+const INCOME_CATEGORIES_BUSINESS = ["Sale","Service Income","Advance Received","Commission","Investment Return","Loan Received","Refund","Other Income"];
+// Expense categories — where money goes
+const EXPENSE_CATEGORIES_PERSONAL = ["Food","Transport","Shopping","Medicine","Education","Family","Kids","Entertainment","Internet","WiFi Bill (Village)","WiFi Bill (City)","Dish Bill","Electricity Bill","Gas Bill","Water Bill","Installment","Mobile Recharge","Bills","Travel","Rent","Investment","Savings","Charity","Other"];
+const EXPENSE_CATEGORIES_BUSINESS = ["Purchase","Salary Paid","Advertising","Courier","Office Rent","Utility","WiFi Bill (Village)","WiFi Bill (City)","Dish Bill","Electricity Bill","Gas Bill","Installment","Transport","Maintenance","Tax","Investment","Loan Repayment","Other"];
+const CATEGORIES_PERSONAL = Array.from(new Set([...INCOME_CATEGORIES_PERSONAL, ...EXPENSE_CATEGORIES_PERSONAL]));
+const CATEGORIES_BUSINESS = Array.from(new Set([...INCOME_CATEGORIES_BUSINESS, ...EXPENSE_CATEGORIES_BUSINESS]));
 
 const walletIcon = (t: WalletType) => {
   switch (t) {
@@ -139,11 +145,18 @@ const CATEGORY_BN: Record<string, string> = {
   Education: "শিক্ষা", Family: "পরিবার", Kids: "সন্তান", Entertainment: "বিনোদন",
   Internet: "ইন্টারনেট", "Mobile Recharge": "মোবাইল রিচার্জ", Bills: "বিল",
   Travel: "ভ্রমণ", Rent: "ভাড়া", Investment: "বিনিয়োগ", Savings: "সঞ্চয়",
-  Salary: "বেতন", Advertising: "বিজ্ঞাপন", Courier: "কুরিয়ার",
+  Salary: "বেতন", "Salary Paid": "বেতন প্রদান", Advertising: "বিজ্ঞাপন", Courier: "কুরিয়ার",
   "Office Rent": "অফিস ভাড়া", Utility: "ইউটিলিটি", Refund: "রিফান্ড",
-  Loan: "ঋণ", Sale: "বিক্রি", Purchase: "ক্রয়", Other: "অন্যান্য",
+  Loan: "ঋণ", "Loan Received": "ঋণ প্রাপ্তি", "Loan Repayment": "ঋণ পরিশোধ",
+  Sale: "বিক্রি", Purchase: "ক্রয়", Other: "অন্যান্য",
   "WiFi Bill (Village)": "ওয়াইফাই বিল (গ্রাম)", "WiFi Bill (City)": "ওয়াইফাই বিল (শহর)",
-  "Dish Bill": "ডিশ বিল", "Electricity Bill": "কারেন্ট বিল", Installment: "কিস্তি",
+  "Dish Bill": "ডিশ বিল", "Electricity Bill": "কারেন্ট বিল", "Gas Bill": "গ্যাস বিল",
+  "Water Bill": "পানির বিল", Installment: "কিস্তি",
+  Freelance: "ফ্রিল্যান্স", "Business Income": "ব্যবসা আয়", Gift: "উপহার", Bonus: "বোনাস",
+  Interest: "সুদ/মুনাফা", "Rental Income": "ভাড়া আয়", "Investment Return": "বিনিয়োগ রিটার্ন",
+  "Family Support": "পারিবারিক সহায়তা", "Other Income": "অন্যান্য আয়",
+  "Service Income": "সেবা আয়", "Advance Received": "অগ্রিম প্রাপ্তি", Commission: "কমিশন",
+  Charity: "দান/সদকা", Maintenance: "মেরামত", Tax: "কর",
 };
 const bnLabel = (m: Record<string,string>, k: string | null | undefined, bn: boolean) =>
   !k ? "—" : (bn ? (m[k] ?? k) : k);
@@ -499,7 +512,13 @@ const Finance = () => {
     return <div className="min-h-screen grid place-items-center"><Loader2 className="h-6 w-6 animate-spin text-muted-foreground" /></div>;
   }
 
-  const CATEGORIES = qaScope === "business" ? CATEGORIES_BUSINESS : CATEGORIES_PERSONAL;
+  const isIncomeType = INCOME_TYPES.includes(qaType);
+  const isExpenseType = EXPENSE_TYPES.includes(qaType);
+  const CATEGORIES = isIncomeType
+    ? (qaScope === "business" ? INCOME_CATEGORIES_BUSINESS : INCOME_CATEGORIES_PERSONAL)
+    : isExpenseType
+      ? (qaScope === "business" ? EXPENSE_CATEGORIES_BUSINESS : EXPENSE_CATEGORIES_PERSONAL)
+      : (qaScope === "business" ? CATEGORIES_BUSINESS : CATEGORIES_PERSONAL);
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-background via-background to-muted/30 pb-32">

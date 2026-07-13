@@ -380,17 +380,6 @@ const Weather = () => {
 
 
 
-        <div className="flex gap-2 mb-4 flex-wrap">
-          <Input placeholder={isBn ? "শহর খুঁজুন..." : "Search city..."} value={search} onChange={(e) => setSearch(e.target.value)} onKeyDown={(e) => e.key === "Enter" && handleSearch()} className="flex-1 min-w-[200px]" />
-          <Button onClick={handleSearch}><Search className="w-4 h-4" /></Button>
-          <Button variant="outline" onClick={useMyLocation}><MapPin className="w-4 h-4 mr-1" />{isBn ? "আমার অবস্থান" : "Location"}</Button>
-        </div>
-
-        <div className="flex gap-2 mb-4 flex-wrap">
-          {QUICK_CITIES.map((c) => (
-            <Badge key={c.name} variant={city.name === c.name ? "default" : "outline"} className="cursor-pointer" onClick={() => setCity(c)}>{c.name}</Badge>
-          ))}
-        </div>
 
         {/* Unified location + source panel */}
         <Card className="mb-6 border-border/60 shadow-sm">

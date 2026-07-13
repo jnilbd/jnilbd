@@ -30,6 +30,8 @@ import { DebtsTab } from "@/components/finance/DebtsTab";
 import { SmartReminders, type Reminder } from "@/components/finance/SmartReminders";
 import { InventoryTab } from "@/components/finance/InventoryTab";
 import { PlannerTab } from "@/components/finance/PlannerTab";
+import { SalesTab } from "@/components/finance/SalesTab";
+import { ReportsTab } from "@/components/finance/ReportsTab";
 
 
 // ---------- Types ----------

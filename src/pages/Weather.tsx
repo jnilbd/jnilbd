@@ -154,6 +154,30 @@ const Weather = () => {
   useEffect(() => { fetchWeather(city, model, days); }, [city, model, days]);
   useEffect(() => { fetchLongRange(city, longDays); }, [city, longDays]);
 
+  // Auto-detect user's live location on first load
+  useEffect(() => {
+    if (!navigator.geolocation) return;
+    navigator.geolocation.getCurrentPosition(
+      async (pos) => {
+        const { latitude: lat, longitude: lon } = pos.coords;
+        let placeName = isBn ? "আমার অবস্থান" : "My Location";
+        try {
+          const r = await fetch(
+            `https://geocoding-api.open-meteo.com/v1/reverse?latitude=${lat}&longitude=${lon}&language=${isBn ? "bn" : "en"}`
+          );
+          const j = await r.json();
+          const hit = j?.results?.[0];
+          if (hit?.name) placeName = `${hit.name}${hit.country_code ? ", " + hit.country_code : ""}`;
+        } catch {}
+        setCity({ name: placeName, lat, lon, country: "" });
+      },
+      () => {},
+      { timeout: 8000, maximumAge: 5 * 60 * 1000 }
+    );
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+
   const useMyLocation = () => {
     if (!navigator.geolocation) return toast.error("Geolocation N/A");
     navigator.geolocation.getCurrentPosition(

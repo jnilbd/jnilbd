@@ -246,13 +246,14 @@ export default function CapCutPro() {
             const Icon = f.i;
             return (
               <motion.div key={i} initial={{opacity:0,y:20}} whileInView={{opacity:1,y:0}} viewport={{once:true}} transition={{delay:i*0.05}}>
-                <Card className="p-5 h-full hover:shadow-[var(--shadow-elegant)] hover:-translate-y-1 transition-all border-border/60 group">
-                  <div className="h-12 w-12 rounded-xl bg-gradient-to-br from-secondary to-accent grid place-items-center mb-3 group-hover:scale-110 transition-transform">
-                    <Icon className="h-6 w-6 text-primary-foreground" />
+                <Card className="p-3.5 sm:p-5 h-full hover:shadow-[var(--shadow-elegant)] hover:-translate-y-1 transition-all border-border/60 group">
+                  <div className="h-10 w-10 sm:h-12 sm:w-12 rounded-xl bg-gradient-to-br from-secondary to-accent grid place-items-center mb-2.5 sm:mb-3 group-hover:scale-110 transition-transform">
+                    <Icon className="h-5 w-5 sm:h-6 sm:w-6 text-primary-foreground" />
                   </div>
-                  <h3 className="font-bold text-lg">{f.t}</h3>
-                  <p className="text-sm text-muted-foreground mt-1">{f.d}</p>
+                  <h3 className="font-bold text-sm sm:text-lg leading-tight">{f.t}</h3>
+                  <p className="text-xs sm:text-sm text-muted-foreground mt-1">{f.d}</p>
                 </Card>
+
               </motion.div>
             );
           })}

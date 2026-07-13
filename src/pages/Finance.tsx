@@ -35,7 +35,7 @@ import { ReportsTab } from "@/components/finance/ReportsTab";
 import FinanceCalculator from "@/components/finance/FinanceCalculator";
 import { ServiceJobsTab } from "@/components/finance/ServiceJobsTab";
 import { AssetsTab } from "@/components/finance/AssetsTab";
-import { Calculator as CalculatorIcon, Wrench as WrenchIcon, Archive as ArchiveIcon } from "lucide-react";
+import { Calculator as CalculatorIcon, Wrench as WrenchIcon, Archive as ArchiveIcon, LayoutDashboard, WalletCards, ArrowRightLeft, ClipboardList, PieChart, Target, HandCoins, ShoppingBag, FileBarChart2 } from "lucide-react";
 
 
 // ---------- Types ----------
@@ -580,24 +580,38 @@ const Finance = () => {
 
       <div className="container mx-auto px-3 sm:px-6 pt-4">
         <Tabs value={tab} onValueChange={setTab}>
-          <div className="overflow-x-auto no-scrollbar -mx-3 px-3">
-            <TabsList className="inline-flex h-10 bg-muted/60 backdrop-blur gap-0.5">
-              <TabsTrigger value="dashboard" className="text-xs px-3">{bn?"ড্যাশবোর্ড":"Dashboard"}</TabsTrigger>
-              <TabsTrigger value="wallets" className="text-xs px-3">{bn?"ওয়ালেট":"Wallets"}</TabsTrigger>
-              <TabsTrigger value="tx" className="text-xs px-3">{bn?"লেনদেন":"Transactions"}</TabsTrigger>
-              <TabsTrigger value="planner" className="text-xs px-3">{bn?"পরিকল্পনা":"Planner"}</TabsTrigger>
-              <TabsTrigger value="calc" className="text-xs px-3"><span className="flex items-center gap-1"><CalculatorIcon className="h-3.5 w-3.5" />{bn?"ক্যালকুলেটর":"Calculator"}</span></TabsTrigger>
-              <TabsTrigger value="analytics" className="text-xs px-3">{bn?"বিশ্লেষণ":"Analytics"}</TabsTrigger>
-              <TabsTrigger value="budget" className="text-xs px-3">{bn?"বাজেট":"Budget"}</TabsTrigger>
-              <TabsTrigger value="debts" className="text-xs px-3">{bn?"দেনা-পাওনা":"Debts"}</TabsTrigger>
-              <TabsTrigger value="sales" className="text-xs px-3">{bn?"বিক্রয়":"Sales"}</TabsTrigger>
-              <TabsTrigger value="jobs" className="text-xs px-3"><span className="flex items-center gap-1"><WrenchIcon className="h-3.5 w-3.5" />{bn?"সার্ভিস/মেরামত":"Service/Repair"}</span></TabsTrigger>
-              <TabsTrigger value="assets" className="text-xs px-3"><span className="flex items-center gap-1"><ArchiveIcon className="h-3.5 w-3.5" />{bn?"আমার সম্পদ":"My Assets"}</span></TabsTrigger>
-              <TabsTrigger value="inventory" className="text-xs px-3">{bn?"স্টক":"Inventory"}</TabsTrigger>
-              <TabsTrigger value="reports" className="text-xs px-3">{bn?"রিপোর্ট":"Reports"}</TabsTrigger>
-              <TabsTrigger value="ai" className="text-xs px-3"><span className="flex items-center gap-1"><Sparkles className="h-3.5 w-3.5" />AI</span></TabsTrigger>
-            </TabsList>
-          </div>
+          {(() => {
+            const items = [
+              { v: "dashboard", label: bn?"ড্যাশবোর্ড":"Dashboard", Icon: LayoutDashboard },
+              { v: "wallets", label: bn?"ওয়ালেট":"Wallets", Icon: WalletCards },
+              { v: "tx", label: bn?"লেনদেন":"Transactions", Icon: ArrowRightLeft },
+              { v: "planner", label: bn?"পরিকল্পনা":"Planner", Icon: ClipboardList },
+              { v: "calc", label: bn?"ক্যালকুলেটর":"Calculator", Icon: CalculatorIcon },
+              { v: "analytics", label: bn?"বিশ্লেষণ":"Analytics", Icon: PieChart },
+              { v: "budget", label: bn?"বাজেট":"Budget", Icon: Target },
+              { v: "debts", label: bn?"দেনা-পাওনা":"Debts", Icon: HandCoins },
+              { v: "sales", label: bn?"বিক্রয়":"Sales", Icon: ShoppingBag },
+              { v: "jobs", label: bn?"সার্ভিস":"Service", Icon: WrenchIcon },
+              { v: "assets", label: bn?"সম্পদ":"Assets", Icon: ArchiveIcon },
+              { v: "inventory", label: bn?"স্টক":"Stock", Icon: Boxes },
+              { v: "reports", label: bn?"রিপোর্ট":"Reports", Icon: FileBarChart2 },
+              { v: "ai", label: "AI", Icon: Sparkles },
+            ];
+            return (
+              <TabsList className="h-auto w-full bg-transparent p-0 grid grid-cols-5 sm:grid-cols-7 lg:grid-cols-14 gap-1.5">
+                {items.map(({ v, label, Icon }) => (
+                  <TabsTrigger
+                    key={v}
+                    value={v}
+                    className="flex flex-col items-center justify-center gap-1 h-auto py-2 px-1 rounded-xl border border-border/50 bg-muted/40 hover:bg-muted/70 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:border-primary data-[state=active]:shadow-md transition-all"
+                  >
+                    <Icon className="h-4 w-4" />
+                    <span className="text-[10px] leading-tight font-medium truncate max-w-full">{label}</span>
+                  </TabsTrigger>
+                ))}
+              </TabsList>
+            );
+          })()}
 
 
           {/* Dashboard */}

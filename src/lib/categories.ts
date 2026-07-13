@@ -48,6 +48,7 @@ export const ALL_CATEGORIES: CategoryItem[] = [
   { to: "/solar", icon: Sun, bn: "সোলার", en: "Solar" },
   { to: "/gadget", icon: Smartphone, bn: "গ্যাজেট", en: "Gadget" },
   // Tools
+  { to: "/ad-maker", icon: Megaphone, bn: "অ্যাড মেকার AI", en: "Ad Maker AI" },
   { to: "/converter", icon: FileType, bn: "কনভার্টার", en: "Converter" },
   { to: "/downloader", icon: Download, bn: "ডাউনলোডার", en: "Downloader" },
   { to: "/thumbnail", icon: ImageIcon, bn: "থাম্বনেইল", en: "Thumbnail" },

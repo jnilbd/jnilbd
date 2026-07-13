@@ -958,6 +958,75 @@ export type Database = {
         }
         Relationships: []
       }
+      service_jobs: {
+        Row: {
+          advance_amount: number
+          charge_amount: number
+          cost_amount: number
+          created_at: string
+          customer_name: string | null
+          customer_phone: string | null
+          delivered_at: string | null
+          id: string
+          item_identity: string | null
+          item_name: string
+          job_type: string
+          note: string | null
+          paid_amount: number
+          payment_status: string
+          promised_at: string | null
+          received_at: string
+          service_kind: string | null
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          advance_amount?: number
+          charge_amount?: number
+          cost_amount?: number
+          created_at?: string
+          customer_name?: string | null
+          customer_phone?: string | null
+          delivered_at?: string | null
+          id?: string
+          item_identity?: string | null
+          item_name: string
+          job_type?: string
+          note?: string | null
+          paid_amount?: number
+          payment_status?: string
+          promised_at?: string | null
+          received_at?: string
+          service_kind?: string | null
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          advance_amount?: number
+          charge_amount?: number
+          cost_amount?: number
+          created_at?: string
+          customer_name?: string | null
+          customer_phone?: string | null
+          delivered_at?: string | null
+          id?: string
+          item_identity?: string | null
+          item_name?: string
+          job_type?: string
+          note?: string | null
+          paid_amount?: number
+          payment_status?: string
+          promised_at?: string | null
+          received_at?: string
+          service_kind?: string | null
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       service_orders: {
         Row: {
           created_at: string

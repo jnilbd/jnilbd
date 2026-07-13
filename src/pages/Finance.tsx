@@ -33,7 +33,8 @@ import { PlannerTab } from "@/components/finance/PlannerTab";
 import { SalesTab } from "@/components/finance/SalesTab";
 import { ReportsTab } from "@/components/finance/ReportsTab";
 import FinanceCalculator from "@/components/finance/FinanceCalculator";
-import { Calculator as CalculatorIcon } from "lucide-react";
+import { ServiceJobsTab } from "@/components/finance/ServiceJobsTab";
+import { Calculator as CalculatorIcon, Wrench as WrenchIcon } from "lucide-react";
 
 
 // ---------- Types ----------
@@ -589,6 +590,7 @@ const Finance = () => {
               <TabsTrigger value="budget" className="text-xs px-3">{bn?"বাজেট":"Budget"}</TabsTrigger>
               <TabsTrigger value="debts" className="text-xs px-3">{bn?"দেনা-পাওনা":"Debts"}</TabsTrigger>
               <TabsTrigger value="sales" className="text-xs px-3">{bn?"বিক্রয়":"Sales"}</TabsTrigger>
+              <TabsTrigger value="jobs" className="text-xs px-3"><span className="flex items-center gap-1"><WrenchIcon className="h-3.5 w-3.5" />{bn?"সার্ভিস/মেরামত":"Service/Repair"}</span></TabsTrigger>
               <TabsTrigger value="inventory" className="text-xs px-3">{bn?"স্টক":"Inventory"}</TabsTrigger>
               <TabsTrigger value="reports" className="text-xs px-3">{bn?"রিপোর্ট":"Reports"}</TabsTrigger>
               <TabsTrigger value="ai" className="text-xs px-3"><span className="flex items-center gap-1"><Sparkles className="h-3.5 w-3.5" />AI</span></TabsTrigger>
@@ -884,6 +886,11 @@ const Finance = () => {
           {/* Sales: order → payment → courier → delivery */}
           <TabsContent value="sales" className="mt-4">
             <SalesTab userId={user.id} bn={bn} />
+          </TabsContent>
+
+          {/* Service / Repair jobs (gadget lock unlock, FRP, root, repair, resale) */}
+          <TabsContent value="jobs" className="mt-4">
+            <ServiceJobsTab userId={user.id} bn={bn} />
           </TabsContent>
 
           {/* Reports: daily/weekly/monthly P&L + top products + top expense categories */}

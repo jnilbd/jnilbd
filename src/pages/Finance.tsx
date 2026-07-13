@@ -231,13 +231,22 @@ const Finance = () => {
 
   const loadAll = useCallback(async () => {
     if (!user) return;
-    const [{ data: w }, { data: t }] = await Promise.all([
+    const [{ data: w }, { data: t }, { data: prods }] = await Promise.all([
       supabase.from("finance_wallets").select("*").eq("user_id", user.id).order("sort_order").order("created_at"),
       supabase.from("finance_transactions").select("*").eq("user_id", user.id).order("occurred_at", { ascending: false }).limit(500),
+      supabase.from("inventory_products").select("current_stock,sell_price,low_stock_threshold").eq("user_id", user.id),
     ]);
     setWallets((w as any) ?? []);
     setTxs((t as any) ?? []);
+    let sv = 0, lc = 0;
+    for (const p of (prods ?? []) as any[]) {
+      sv += Number(p.current_stock) * Number(p.sell_price);
+      if (Number(p.current_stock) <= Number(p.low_stock_threshold)) lc++;
+    }
+    setInvStats({ stockValue: sv, lowCount: lc, productCount: (prods ?? []).length });
   }, [user]);
+
+
 
   // seed default wallets on first visit
   useEffect(() => {

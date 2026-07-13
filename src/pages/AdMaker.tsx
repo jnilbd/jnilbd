@@ -295,6 +295,64 @@ export default function AdMaker() {
             <Switch checked={generateImage} onCheckedChange={setGenerateImage} />
           </div>
 
+          {/* AI Provider Toggle */}
+          <div className="p-3 rounded-md border-2 border-dashed border-primary/30 bg-gradient-to-br from-primary/5 to-accent/5 space-y-3">
+            <div className="flex items-center justify-between gap-2">
+              <div>
+                <Label className="text-sm font-semibold">AI প্রোভাইডার</Label>
+                <p className="text-[11px] text-muted-foreground">
+                  {provider === "gemini"
+                    ? "আপনার নিজের Gemini key (ফ্রি টায়ার)"
+                    : "Lovable AI (ক্রেডিট ব্যবহার করে)"}
+                </p>
+              </div>
+              <Switch
+                checked={provider === "gemini"}
+                onCheckedChange={(v) => {
+                  setProvider(v ? "gemini" : "lovable");
+                  if (v) setShowKeyInput(true);
+                }}
+              />
+            </div>
+            {provider === "gemini" && (
+              <div className="space-y-1.5">
+                <div className="flex items-center justify-between">
+                  <Label className="text-xs">Google Gemini API Key</Label>
+                  <button
+                    type="button"
+                    onClick={() => setShowKeyInput((s) => !s)}
+                    className="text-[11px] text-primary underline"
+                  >
+                    {showKeyInput ? "লুকাও" : "দেখাও"}
+                  </button>
+                </div>
+                <Input
+                  type={showKeyInput ? "text" : "password"}
+                  value={userGeminiKey}
+                  onChange={(e) => setUserGeminiKey(e.target.value)}
+                  placeholder="AIza..."
+                  className="font-mono text-xs"
+                />
+                <p className="text-[11px] text-muted-foreground">
+                  ফ্রি key নিন:{" "}
+                  <a
+                    href="https://aistudio.google.com/apikey"
+                    target="_blank"
+                    rel="noreferrer"
+                    className="text-primary underline"
+                  >
+                    aistudio.google.com/apikey
+                  </a>{" "}
+                  — key শুধু আপনার ব্রাউজারে সেভ হয়, সার্ভারে না।
+                </p>
+                {!userGeminiKey.trim() && (
+                  <p className="text-[11px] text-destructive">
+                    Key না দিলে Lovable AI ব্যবহার হবে
+                  </p>
+                )}
+              </div>
+            )}
+
           <Button onClick={handleGenerate} disabled={loading} className="w-full gap-2" size="lg">
             {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />}
             {loading ? "তৈরি হচ্ছে..." : "অ্যাড কনটেন্ট তৈরি করো"}

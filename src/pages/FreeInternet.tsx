@@ -1,14 +1,21 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { Wifi, Loader2, Sparkles, Phone, Settings, Gift, AlertTriangle } from "lucide-react";
-import ReactMarkdown from "react-markdown";
-import remarkGfm from "remark-gfm";
+import { Wifi, Loader2, Phone, Settings, Gift, AlertTriangle, ExternalLink, RefreshCcw, Radio } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Card, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+
+type Item = {
+  title: string;
+  link: string;
+  source: string;
+  pubDate: string;
+  description: string;
+  image?: string;
+};
 
 const operators = [
   { id: "grameenphone", name: "Grameenphone (GP)", color: "from-blue-600 to-cyan-500", code: "*121#" },
@@ -18,36 +25,49 @@ const operators = [
   { id: "teletalk", name: "Teletalk", color: "from-emerald-600 to-green-500", code: "*152#" },
 ];
 
+const timeAgo = (iso: string, bn: boolean) => {
+  const t = Date.parse(iso);
+  if (!t) return "";
+  const diff = Math.max(0, Date.now() - t);
+  const m = Math.floor(diff / 60000);
+  if (m < 1) return bn ? "এইমাত্র" : "just now";
+  if (m < 60) return bn ? `${m} মিনিট আগে` : `${m}m ago`;
+  const h = Math.floor(m / 60);
+  if (h < 24) return bn ? `${h} ঘন্টা আগে` : `${h}h ago`;
+  const d = Math.floor(h / 24);
+  return bn ? `${d} দিন আগে` : `${d}d ago`;
+};
+
 const FreeInternet = () => {
   const { language } = useLanguage();
   const bn = language === "bn";
   const [op, setOp] = useState<string | null>(null);
   const [topic, setTopic] = useState<string>("");
   const [loading, setLoading] = useState(false);
-  const [answer, setAnswer] = useState("");
+  const [items, setItems] = useState<Item[]>([]);
 
   const topics = [
     { id: "social-packs", icon: Wifi, label: bn ? "সোশ্যাল প্যাক (FB/WA/Imo)" : "Social Packs (FB/WA/Imo)" },
     { id: "cheap-mb", icon: Gift, label: bn ? "সবচেয়ে সস্তা MB অফার" : "Cheapest MB Offers" },
-    { id: "night-packs", icon: Sparkles, label: bn ? "নাইট প্যাক ও বোনাস" : "Night Packs & Bonus" },
-    { id: "free-internet-vpn", icon: Settings, label: bn ? "সোশ্যাল প্যাক → ফুল নেট (VPN/Handler)" : "Social Pack → Full Net (VPN/Handler)" },
+    { id: "night-packs", icon: Radio, label: bn ? "নাইট প্যাক ও বোনাস" : "Night Packs & Bonus" },
+    { id: "free-internet-vpn", icon: Settings, label: bn ? "ফ্রি নেট (VPN/Handler)" : "Free Net (VPN/Handler)" },
     { id: "emergency-balance", icon: Phone, label: bn ? "ইমার্জেন্সি ব্যালেন্স/MB লোন" : "Emergency Balance/MB Loan" },
     { id: "student-offers", icon: Gift, label: bn ? "স্টুডেন্ট ও বান্ডেল অফার" : "Student & Bundle Offers" },
     { id: "apn-settings", icon: Settings, label: bn ? "APN ও সেটিংস" : "APN & Settings" },
   ];
 
-  const ask = async (selectedTopic: string) => {
+  const load = async (selectedTopic: string) => {
     if (!op) return;
     setTopic(selectedTopic);
     setLoading(true);
-    setAnswer("");
+    setItems([]);
     try {
       const { data, error } = await supabase.functions.invoke("free-internet-guide", {
         body: { operator: op, topic: selectedTopic, language },
       });
       if (error) throw error;
       if ((data as any)?.error) throw new Error((data as any).error);
-      setAnswer((data as any)?.content || "");
+      setItems(((data as any)?.items || []) as Item[]);
     } catch (e: any) {
       toast.error(e?.message || (bn ? "লোড করা যায়নি" : "Failed to load"));
     } finally {
@@ -68,7 +88,9 @@ const FreeInternet = () => {
             {bn ? "ফ্রি ইন্টারনেট গাইড" : "Free Internet Guide"}
           </h1>
           <p className="text-xs text-muted-foreground">
-            {bn ? "বাংলাদেশের সব সিমের লেটেস্ট সস্তা ও ফ্রি ইন্টারনেট অফার" : "Latest cheap & free internet offers — all BD operators"}
+            {bn
+              ? "লাইভ Google News + অপারেটর ব্লগ থেকে রিয়েল-টাইম অফার (AI নয়)"
+              : "Real-time offers pulled live from Google News + operator blogs (no AI)"}
           </p>
         </div>
       </motion.div>
@@ -78,13 +100,12 @@ const FreeInternet = () => {
           <AlertTriangle className="w-4 h-4 shrink-0 mt-0.5" />
           <p>
             {bn
-              ? "সব অফার ও কোড অপারেটরের পরিবর্তন সাপেক্ষ। বিপদকালীন/ছাত্র ব্যবহারের জন্য — দয়া করে অপারেটরের শর্তাবলী মেনে চলুন।"
-              : "All offers and codes are subject to operator changes. For emergency/student use — please follow operator T&C."}
+              ? "সব অফার অপারেটরের পরিবর্তন সাপেক্ষ। ফলাফল সরাসরি সোর্স ওয়েবসাইটে যায় — আমরা কিছু হোস্ট করি না।"
+              : "All offers are subject to operator changes. Links open the original source — we don't host any content."}
           </p>
         </CardContent>
       </Card>
 
-      {/* Operator selection */}
       <div>
         <h2 className="text-sm font-semibold mb-2 text-muted-foreground uppercase tracking-wider">
           {bn ? "১. আপনার সিম বেছে নিন" : "1. Choose your SIM"}
@@ -93,7 +114,7 @@ const FreeInternet = () => {
           {operators.map((o) => (
             <button
               key={o.id}
-              onClick={() => { setOp(o.id); setAnswer(""); setTopic(""); }}
+              onClick={() => { setOp(o.id); setItems([]); setTopic(""); }}
               className={`p-3 rounded-2xl text-white text-left bg-gradient-to-br ${o.color} transition-bounce ${op === o.id ? "ring-4 ring-primary/60 scale-[1.02]" : "opacity-80 hover:opacity-100"}`}
             >
               <div className="text-sm font-bold leading-tight">{o.name}</div>
@@ -103,17 +124,16 @@ const FreeInternet = () => {
         </div>
       </div>
 
-      {/* Topic selection */}
       {op && (
         <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
           <h2 className="text-sm font-semibold mb-2 text-muted-foreground uppercase tracking-wider">
-            {bn ? "২. কী জানতে চান?" : "2. What do you want to know?"}
+            {bn ? "২. কী দেখতে চান?" : "2. What do you want to see?"}
           </h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
             {topics.map((tp) => (
               <button
                 key={tp.id}
-                onClick={() => ask(tp.id)}
+                onClick={() => load(tp.id)}
                 disabled={loading}
                 className={`flex items-center gap-3 p-3 rounded-xl border text-left transition-smooth ${topic === tp.id ? "border-primary bg-primary/10" : "border-border hover:border-primary/50 bg-card"} disabled:opacity-50`}
               >
@@ -127,56 +147,77 @@ const FreeInternet = () => {
         </motion.div>
       )}
 
-      {/* Answer */}
-      {(loading || answer) && (
+      {(loading || items.length > 0) && (
         <Card className="overflow-hidden">
-          <CardContent className="p-5">
+          <CardContent className="p-4 sm:p-5">
             {selectedOp && (
-              <div className="flex items-center gap-2 mb-3 flex-wrap">
+              <div className="flex items-center gap-2 mb-4 flex-wrap">
                 <Badge className={`bg-gradient-to-r ${selectedOp.color} text-white border-0`}>{selectedOp.name}</Badge>
                 {topic && <Badge variant="outline">{topics.find((t) => t.id === topic)?.label}</Badge>}
                 <Badge variant="secondary" className="text-[10px]">
-                  <Sparkles className="w-3 h-3 mr-1" /> AI {bn ? "সর্বশেষ আপডেট" : "Latest update"}
+                  <Radio className="w-3 h-3 mr-1" /> {bn ? "লাইভ সোর্স" : "Live source"}
                 </Badge>
+                <Button
+                  variant="ghost" size="sm" className="h-7 ml-auto"
+                  disabled={loading} onClick={() => topic && load(topic)}
+                >
+                  <RefreshCcw className={`w-3.5 h-3.5 mr-1 ${loading ? "animate-spin" : ""}`} />
+                  {bn ? "রিফ্রেশ" : "Refresh"}
+                </Button>
               </div>
             )}
+
             {loading ? (
               <div className="flex items-center justify-center py-12 gap-2 text-muted-foreground">
                 <Loader2 className="w-5 h-5 animate-spin" />
-                <span className="text-sm">{bn ? "সর্বশেষ তথ্য আনা হচ্ছে..." : "Fetching latest info..."}</span>
+                <span className="text-sm">{bn ? "সর্বশেষ তথ্য আনা হচ্ছে..." : "Fetching latest..."}</span>
               </div>
+            ) : items.length === 0 ? (
+              <p className="text-center text-sm text-muted-foreground py-8">
+                {bn ? "কোনো ফলাফল পাওয়া যায়নি। অন্য টপিক ট্রাই করুন।" : "No results. Try another topic."}
+              </p>
             ) : (
-              <article
-                className="
-                  max-w-none text-[15px] leading-relaxed
-                  [&_h1]:text-xl [&_h1]:font-bold [&_h1]:mt-6 [&_h1]:mb-3 [&_h1]:pb-2 [&_h1]:border-b [&_h1]:border-border
-                  [&_h2]:text-lg [&_h2]:font-bold [&_h2]:mt-6 [&_h2]:mb-2 [&_h2]:flex [&_h2]:items-center [&_h2]:gap-2 [&_h2]:text-primary
-                  [&_h3]:text-base [&_h3]:font-semibold [&_h3]:mt-4 [&_h3]:mb-2 [&_h3]:text-foreground
-                  [&_p]:my-3 [&_p]:leading-7
-                  [&_ul]:my-3 [&_ul]:space-y-2 [&_ul]:pl-5 [&_ul]:list-disc [&_ul]:marker:text-primary
-                  [&_ol]:my-3 [&_ol]:space-y-2 [&_ol]:pl-5 [&_ol]:list-decimal [&_ol]:marker:text-primary [&_ol]:marker:font-bold
-                  [&_li]:pl-1 [&_li]:leading-7
-                  [&_li>p]:my-1
-                  [&_strong]:text-foreground [&_strong]:font-semibold
-                  [&_code]:bg-primary/10 [&_code]:text-primary [&_code]:px-1.5 [&_code]:py-0.5 [&_code]:rounded [&_code]:text-[13px] [&_code]:font-mono [&_code]:font-semibold [&_code]:whitespace-nowrap
-                  [&_pre]:bg-muted [&_pre]:p-3 [&_pre]:rounded-lg [&_pre]:my-3 [&_pre]:overflow-x-auto
-                  [&_blockquote]:border-l-4 [&_blockquote]:border-primary/50 [&_blockquote]:bg-muted/40 [&_blockquote]:px-4 [&_blockquote]:py-2 [&_blockquote]:my-3 [&_blockquote]:rounded-r-lg [&_blockquote]:italic
-                  [&_table]:my-4 [&_table]:w-full [&_table]:text-sm [&_table]:border-collapse
-                  [&_th]:bg-muted [&_th]:p-2 [&_th]:text-left [&_th]:font-semibold [&_th]:border [&_th]:border-border
-                  [&_td]:p-2 [&_td]:border [&_td]:border-border [&_td]:align-top
-                  [&_hr]:my-5 [&_hr]:border-border
-                  [&_a]:text-primary [&_a]:underline [&_a]:underline-offset-2 hover:[&_a]:text-primary/80
-                "
-              >
-                <ReactMarkdown remarkPlugins={[remarkGfm]}>{answer}</ReactMarkdown>
-              </article>
+              <ul className="divide-y divide-border">
+                {items.map((it, i) => (
+                  <li key={i} className="py-3 first:pt-0 last:pb-0">
+                    <a
+                      href={it.link} target="_blank" rel="noopener noreferrer"
+                      className="group flex gap-3"
+                    >
+                      {it.image ? (
+                        <img src={it.image} alt="" loading="lazy"
+                          className="w-16 h-16 rounded-lg object-cover shrink-0 border border-border" />
+                      ) : (
+                        <div className="w-16 h-16 rounded-lg gradient-bg-cool/20 bg-muted flex items-center justify-center shrink-0">
+                          <Wifi className="w-6 h-6 text-muted-foreground" />
+                        </div>
+                      )}
+                      <div className="min-w-0 flex-1">
+                        <h3 className="text-sm font-semibold leading-snug group-hover:text-primary line-clamp-2">
+                          {it.title}
+                        </h3>
+                        {it.description && (
+                          <p className="text-xs text-muted-foreground mt-1 line-clamp-2">{it.description}</p>
+                        )}
+                        <div className="flex items-center gap-2 mt-1.5 text-[11px] text-muted-foreground">
+                          <span className="font-medium">{it.source}</span>
+                          {it.pubDate && (<><span>•</span><span>{timeAgo(it.pubDate, bn)}</span></>)}
+                          <ExternalLink className="w-3 h-3 ml-auto opacity-60 group-hover:opacity-100" />
+                        </div>
+                      </div>
+                    </a>
+                  </li>
+                ))}
+              </ul>
             )}
           </CardContent>
         </Card>
       )}
 
       <p className="text-center text-[11px] text-muted-foreground pt-2">
-        {bn ? "সবসময় আপডেটেড থাকুন — যেকোনো সিম, যেকোনো সময়।" : "Stay updated — any SIM, any time."}
+        {bn
+          ? "সরাসরি সোর্স থেকে আনা — যেকোনো হোস্টিং সার্ভারে চলবে, কোনো ক্রেডিট লাগবে না।"
+          : "Fetched directly from public sources — portable to any host, zero credits."}
       </p>
     </div>
   );

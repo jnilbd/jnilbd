@@ -51,7 +51,7 @@ export const ALL_CATEGORIES: CategoryItem[] = [
   { to: "/converter", icon: FileType, bn: "কনভার্টার", en: "Converter" },
   { to: "/downloader", icon: Download, bn: "ডাউনলোডার", en: "Downloader" },
   { to: "/thumbnail", icon: ImageIcon, bn: "থাম্বনেইল", en: "Thumbnail" },
-  { to: "/ad-maker", icon: Wand2, bn: "অ্যাড মেকার AI", en: "Ad Maker AI" },
+  
   { to: "/voice", icon: Mic, bn: "ভয়েস", en: "Voice" },
   { to: "/scheduler", icon: Clock, bn: "শিডিউল মেসেজ", en: "Scheduler" },
   { to: "/livetv", icon: Tv, bn: "লাইভ টিভি", en: "Live TV" },

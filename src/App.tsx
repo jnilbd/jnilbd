@@ -67,6 +67,7 @@ import AdMaker from "./pages/AdMaker";
 import PhoneRootUnlock from "./pages/PhoneRootUnlock";
 import Offers from "./pages/Offers";
 import CapCutPro from "./pages/CapCutPro";
+import MiniProjector from "./pages/MiniProjector";
 
 const queryClient = new QueryClient();
 

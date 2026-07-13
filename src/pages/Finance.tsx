@@ -486,6 +486,14 @@ const Finance = () => {
 
           {/* Transactions */}
           <TabsContent value="tx" className="mt-4 space-y-3">
+            <div className="grid grid-cols-2 gap-2">
+              <Button className="h-12 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white" onClick={() => openQuick("income")}>
+                <TrendingUp className="h-4 w-4 mr-1" /> {bn?"আয় যোগ":"Add Income"}
+              </Button>
+              <Button className="h-12 rounded-xl bg-rose-500 hover:bg-rose-600 text-white" onClick={() => openQuick("expense")}>
+                <TrendingDown className="h-4 w-4 mr-1" /> {bn?"খরচ যোগ":"Add Expense"}
+              </Button>
+            </div>
             <div className="relative">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input value={q} onChange={e => setQ(e.target.value)} placeholder={bn?"খুঁজুন...":"Search transactions..."} className="pl-9 rounded-xl" />

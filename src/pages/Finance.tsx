@@ -814,6 +814,11 @@ const Finance = () => {
           <TabsContent value="debts" className="mt-4">
             <DebtsTab userId={user.id} bn={bn} />
           </TabsContent>
+
+          {/* Inventory */}
+          <TabsContent value="inventory" className="mt-4">
+            <InventoryTab userId={user.id} bn={bn} />
+          </TabsContent>
         </Tabs>
       </div>
 

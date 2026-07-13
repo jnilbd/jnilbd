@@ -33,7 +33,8 @@ import { PlannerTab } from "@/components/finance/PlannerTab";
 import { SalesTab } from "@/components/finance/SalesTab";
 import { ReportsTab } from "@/components/finance/ReportsTab";
 import FinanceCalculator from "@/components/finance/FinanceCalculator";
-import { Calculator as CalculatorIcon } from "lucide-react";
+import { ServiceJobsTab } from "@/components/finance/ServiceJobsTab";
+import { Calculator as CalculatorIcon, Wrench as WrenchIcon } from "lucide-react";
 
 
 // ---------- Types ----------

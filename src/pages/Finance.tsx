@@ -590,6 +590,7 @@ const Finance = () => {
               <TabsTrigger value="budget" className="text-xs px-3">{bn?"বাজেট":"Budget"}</TabsTrigger>
               <TabsTrigger value="debts" className="text-xs px-3">{bn?"দেনা-পাওনা":"Debts"}</TabsTrigger>
               <TabsTrigger value="sales" className="text-xs px-3">{bn?"বিক্রয়":"Sales"}</TabsTrigger>
+              <TabsTrigger value="jobs" className="text-xs px-3"><span className="flex items-center gap-1"><WrenchIcon className="h-3.5 w-3.5" />{bn?"সার্ভিস/মেরামত":"Service/Repair"}</span></TabsTrigger>
               <TabsTrigger value="inventory" className="text-xs px-3">{bn?"স্টক":"Inventory"}</TabsTrigger>
               <TabsTrigger value="reports" className="text-xs px-3">{bn?"রিপোর্ট":"Reports"}</TabsTrigger>
               <TabsTrigger value="ai" className="text-xs px-3"><span className="flex items-center gap-1"><Sparkles className="h-3.5 w-3.5" />AI</span></TabsTrigger>

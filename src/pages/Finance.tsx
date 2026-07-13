@@ -578,6 +578,14 @@ const Finance = () => {
               <MetricCard label={bn?"মোট নগদ":"Total Cash"} value={fmtBDT(metrics.cashTotal, bn)} icon={Coins} />
               <MetricCard label={bn?"মোট ব্যাংক":"Total Bank"} value={fmtBDT(metrics.bankTotal, bn)} icon={Landmark} />
               <MetricCard label={bn?"মোবাইল ব্যাংকিং":"Mobile Banking"} value={fmtBDT(metrics.mbTotal, bn)} icon={Smartphone} />
+              <MetricCard label={bn?"স্টকের মূল্য":"Stock Value"} value={fmtBDT(invStats.stockValue, bn)} icon={Boxes} />
+              <MetricCard
+                label={bn?"কম স্টক":"Low Stock"}
+                value={bn ? invStats.lowCount.toLocaleString("bn-BD") : String(invStats.lowCount)}
+                icon={AlertTriangle}
+                tone={invStats.lowCount > 0 ? "negative" : undefined}
+              />
+
             </div>
 
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">

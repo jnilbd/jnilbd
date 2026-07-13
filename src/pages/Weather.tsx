@@ -13,6 +13,7 @@ import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { PAGE_BANNERS } from "@/lib/siteImages";
 import WeatherNews from "@/components/WeatherNews";
+import WeatherGuide from "@/components/WeatherGuide";
 
 interface City { name: string; lat: number; lon: number; country: string }
 
@@ -736,6 +737,7 @@ const Weather = () => {
             </Card>
 
             {/* 🔴 Live disaster & weather news — always at the very bottom */}
+            <WeatherGuide />
             <WeatherNews />
           </>
         )}

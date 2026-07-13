@@ -473,7 +473,7 @@ const Finance = () => {
           <TabsContent value="wallets" className="mt-4 space-y-3">
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
               {filteredWallets.map(w => (
-                <WalletCard key={w.id} w={w}
+                <WalletCard key={w.id} w={w} bn={bn}
                   today={walletDelta(w.id, startOfToday().getTime())}
                   month={walletDelta(w.id, startOfMonth().getTime())}
                   onOpen={() => setDetailWallet(w)} />

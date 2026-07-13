@@ -376,6 +376,30 @@ const Finance = () => {
 
   const visibleTxs = useMemo(() => {
     let list = filteredTxs;
+    // date range
+    if (dateRange !== "all") {
+      const now = new Date();
+      let from = 0, to = Infinity;
+      if (dateRange === "today") {
+        from = startOfToday().getTime();
+      } else if (dateRange === "yesterday") {
+        const y = startOfToday(); y.setDate(y.getDate() - 1);
+        from = y.getTime();
+        to = startOfToday().getTime();
+      } else if (dateRange === "week") {
+        const d = startOfToday(); d.setDate(d.getDate() - 6);
+        from = d.getTime();
+      } else if (dateRange === "month") {
+        from = startOfMonth().getTime();
+      } else if (dateRange === "custom") {
+        if (customFrom) from = new Date(customFrom + "T00:00:00").getTime();
+        if (customTo) to = new Date(customTo + "T23:59:59").getTime();
+      }
+      list = list.filter(t => {
+        const at = new Date(t.occurred_at).getTime();
+        return at >= from && at <= to;
+      });
+    }
     if (q.trim()) {
       const s = q.toLowerCase();
       list = list.filter(t =>
@@ -386,7 +410,17 @@ const Finance = () => {
       );
     }
     return list;
-  }, [filteredTxs, q]);
+  }, [filteredTxs, q, dateRange, customFrom, customTo]);
+
+  const rangeTotals = useMemo(() => {
+    let inc = 0, exp = 0;
+    for (const t of visibleTxs) {
+      const amt = Number(t.amount) || 0;
+      if (INCOME_TYPES.includes(t.type)) inc += amt;
+      else if (EXPENSE_TYPES.includes(t.type)) exp += amt;
+    }
+    return { inc, exp, net: inc - exp };
+  }, [visibleTxs]);
 
   const walletById = (id: string | null) => wallets.find(w => w.id === id);
 

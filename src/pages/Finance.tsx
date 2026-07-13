@@ -699,11 +699,11 @@ const Finance = () => {
                 <DialogTitle>{detailWallet.name}</DialogTitle>
               </DialogHeader>
               <div className={cn("rounded-2xl p-4 text-white bg-gradient-to-br", detailWallet.color ?? "from-primary to-primary/60")}>
-                <p className="text-xs opacity-80 capitalize">{detailWallet.scope} · {detailWallet.provider ?? detailWallet.type}</p>
-                <p className="text-3xl font-semibold tabular-nums mt-1">{fmtBDT(Number(detailWallet.balance||0))}</p>
+                <p className="text-xs opacity-80 capitalize">{bn ? SCOPE_BN[detailWallet.scope] : detailWallet.scope} · {detailWallet.provider ?? (bn ? TYPE_BN[detailWallet.type] : detailWallet.type)}</p>
+                <p className="text-3xl font-semibold tabular-nums mt-1">{fmtBDT(Number(detailWallet.balance||0), bn)}</p>
                 <div className="flex justify-between text-[11px] mt-2 opacity-90">
-                  <span>Today {fmtBDT(walletDelta(detailWallet.id, startOfToday().getTime()))}</span>
-                  <span>Month {fmtBDT(walletDelta(detailWallet.id, startOfMonth().getTime()))}</span>
+                  <span>{bn?"আজ":"Today"} {fmtBDT(walletDelta(detailWallet.id, startOfToday().getTime()), bn)}</span>
+                  <span>{bn?"মাস":"Month"} {fmtBDT(walletDelta(detailWallet.id, startOfMonth().getTime()), bn)}</span>
                 </div>
               </div>
               <ScrollArea className="max-h-72 mt-2">
@@ -715,17 +715,17 @@ const Finance = () => {
                     return (
                       <div key={t.id} className="flex items-center justify-between text-xs px-2 py-2 rounded-lg hover:bg-muted/50">
                         <div className="min-w-0">
-                          <p className="capitalize truncate">{t.category ?? t.type.replace(/_/g, " ")}</p>
-                          <p className="text-[10px] text-muted-foreground truncate">{new Date(t.occurred_at).toLocaleString()}</p>
+                          <p className="capitalize truncate">{t.category ? bnLabel(CATEGORY_BN, t.category, bn) : bnLabel(TX_TYPE_BN, t.type, bn)}</p>
+                          <p className="text-[10px] text-muted-foreground truncate">{new Date(t.occurred_at).toLocaleString(bn?"bn-BD":"en-BD")}</p>
                         </div>
                         <span className={cn("tabular-nums font-medium", sign === "+" ? "text-emerald-500" : "text-rose-500")}>
-                          {sign}{fmtBDT(Number(t.amount))}
+                          {sign}{fmtBDT(Number(t.amount), bn)}
                         </span>
                       </div>
                     );
                   })}
                   {txs.filter(t => t.wallet_id === detailWallet.id || t.transfer_to_wallet_id === detailWallet.id).length === 0 && (
-                    <p className="text-center text-xs text-muted-foreground py-6">No transactions</p>
+                    <p className="text-center text-xs text-muted-foreground py-6">{bn?"কোন লেনদেন নেই":"No transactions"}</p>
                   )}
                 </div>
               </ScrollArea>

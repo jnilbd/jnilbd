@@ -331,7 +331,7 @@ export default function CapCutPro() {
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-sm">
                 <div className="bg-background rounded-lg p-3 border border-border"><div className="text-xs text-muted-foreground">bKash</div><div className="font-bold tabular-nums">{BKASH}</div><div className="text-[10px] text-muted-foreground">(Personal / Send Money)</div></div>
                 <div className="bg-background rounded-lg p-3 border border-border"><div className="text-xs text-muted-foreground">Nagad</div><div className="font-bold tabular-nums">{NAGAD}</div><div className="text-[10px] text-muted-foreground">(Personal / Send Money)</div></div>
-                <div className="bg-background rounded-lg p-3 border border-border"><div className="text-xs text-muted-foreground">Rocket</div><div className="font-bold tabular-nums">{BKASH}0</div><div className="text-[10px] text-muted-foreground">(Send Money)</div></div>
+                <div className="bg-background rounded-lg p-3 border border-border"><div className="text-xs text-muted-foreground">Rocket</div><div className="font-bold tabular-nums">{ROCKET}</div><div className="text-[10px] text-muted-foreground">(Send Money)</div></div>
                 <div className="bg-background rounded-lg p-3 border border-border"><div className="text-xs text-muted-foreground">ব্যাংক</div><div className="font-bold">DBBL / City</div><div className="text-[10px] text-muted-foreground">চ্যাটে জিজ্ঞেস করুন</div></div>
               </div>
               <p className="text-xs text-muted-foreground mt-3">

@@ -618,7 +618,7 @@ const Finance = () => {
       <Sheet open={qaOpen} onOpenChange={setQaOpen}>
         <SheetContent side="bottom" className="rounded-t-3xl max-h-[90vh] overflow-y-auto">
           <SheetHeader>
-            <SheetTitle className="capitalize">{qaType?.replace(/_/g, " ") ?? ""}</SheetTitle>
+            <SheetTitle className="capitalize">{qaType ? bnLabel(TX_TYPE_BN, qaType, bn) : ""}</SheetTitle>
           </SheetHeader>
           <div className="mt-4 space-y-3">
             <div className="flex items-center gap-1 rounded-full bg-muted p-1 w-fit">
@@ -626,7 +626,7 @@ const Finance = () => {
                 <button key={s} onClick={() => setQaScope(s)} className={cn(
                   "text-[11px] px-3 py-1 rounded-full capitalize",
                   qaScope === s ? "bg-background shadow-sm" : "text-muted-foreground"
-                )}>{s}</button>
+                )}>{bn ? SCOPE_BN[s] : s}</button>
               ))}
             </div>
 
@@ -639,7 +639,7 @@ const Finance = () => {
             <div>
               <Label className="text-xs">{qaType === "transfer" ? (bn?"যেখান থেকে":"From wallet") : (bn?"ওয়ালেট":"Wallet")}</Label>
               <Select value={qaWallet} onValueChange={setQaWallet}>
-                <SelectTrigger className="mt-1"><SelectValue placeholder="Pick wallet" /></SelectTrigger>
+                <SelectTrigger className="mt-1"><SelectValue placeholder={bn?"ওয়ালেট বাছুন":"Pick wallet"} /></SelectTrigger>
                 <SelectContent>
                   {wallets.map(w => <SelectItem key={w.id} value={w.id}>{w.name} · ৳{Number(w.balance||0).toFixed(0)}</SelectItem>)}
                 </SelectContent>
@@ -650,7 +650,7 @@ const Finance = () => {
               <div>
                 <Label className="text-xs">{bn?"যেখানে":"To wallet"}</Label>
                 <Select value={qaWallet2} onValueChange={setQaWallet2}>
-                  <SelectTrigger className="mt-1"><SelectValue placeholder="Pick wallet" /></SelectTrigger>
+                  <SelectTrigger className="mt-1"><SelectValue placeholder={bn?"ওয়ালেট বাছুন":"Pick wallet"} /></SelectTrigger>
                   <SelectContent>
                     {wallets.filter(w => w.id !== qaWallet).map(w => <SelectItem key={w.id} value={w.id}>{w.name}</SelectItem>)}
                   </SelectContent>
@@ -662,9 +662,9 @@ const Finance = () => {
               <div>
                 <Label className="text-xs">{bn?"ক্যাটাগরি":"Category"}</Label>
                 <Select value={qaCategory} onValueChange={setQaCategory}>
-                  <SelectTrigger className="mt-1"><SelectValue placeholder="Select category" /></SelectTrigger>
+                  <SelectTrigger className="mt-1"><SelectValue placeholder={bn?"ক্যাটাগরি বাছুন":"Select category"} /></SelectTrigger>
                   <SelectContent>
-                    {CATEGORIES.map(c => <SelectItem key={c} value={c}>{c}</SelectItem>)}
+                    {CATEGORIES.map(c => <SelectItem key={c} value={c}>{bn ? (CATEGORY_BN[c] ?? c) : c}</SelectItem>)}
                   </SelectContent>
                 </Select>
               </div>
@@ -681,6 +681,7 @@ const Finance = () => {
               <Label className="text-xs">{bn?"নোট":"Note"}</Label>
               <Input value={qaNote} onChange={e => setQaNote(e.target.value)} className="mt-1" placeholder={bn?"ঐচ্ছিক":"Optional"} />
             </div>
+
 
             <Button className="w-full h-12 rounded-xl mt-2" onClick={saveQuick} disabled={busy}>
               {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : <>{bn?"সংরক্ষণ":"Save"} <ChevronRight className="h-4 w-4 ml-1" /></>}

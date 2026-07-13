@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
-import { Search, ShoppingBag } from "lucide-react";
+import { ImageOff, Play, Search, ShoppingBag, Sparkles } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Input } from "@/components/ui/input";
@@ -16,6 +16,36 @@ type Product = {
 const badgeColorMap: Record<string, string> = {
   red: "bg-red-500", green: "bg-green-500", blue: "bg-blue-500",
   orange: "bg-orange-500", purple: "bg-purple-500", pink: "bg-pink-500",
+};
+
+const ProductImage = ({ product, name }: { product: Product; name: string }) => {
+  const [imageFailed, setImageFailed] = useState(false);
+  const showImage = Boolean(product.image) && !imageFailed;
+
+  if (showImage) {
+    return (
+      <img
+        src={product.image}
+        alt={name}
+        loading="lazy"
+        onError={() => setImageFailed(true)}
+        className="w-full h-full object-cover group-hover:scale-105 transition-smooth"
+      />
+    );
+  }
+
+  return (
+    <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 bg-gradient-to-br from-primary/15 via-background to-secondary/20 p-4 text-center">
+      <div className="relative grid h-14 w-14 place-items-center rounded-2xl bg-primary text-primary-foreground shadow-elegant">
+        {product.slug === "capcut-pro" ? <Play className="h-7 w-7 fill-current" /> : <ImageOff className="h-7 w-7" />}
+        <Sparkles className="absolute -right-1 -top-1 h-5 w-5 rounded-full bg-secondary p-1 text-secondary-foreground" />
+      </div>
+      <div>
+        <p className="text-sm font-bold text-foreground line-clamp-2">{name}</p>
+        <p className="mt-1 text-[11px] font-medium text-muted-foreground">Premium Digital Product</p>
+      </div>
+    </div>
+  );
 };
 
 const Shop = () => {
@@ -83,7 +113,7 @@ const Shop = () => {
                   <Link to={p.slug === "capcut-pro" ? "/capcut-pro" : `/shop/${p.id}`}>
                     <Card className="overflow-hidden h-full hover:shadow-elegant transition-smooth group">
                       <div className="relative aspect-square bg-muted overflow-hidden">
-                        {p.image && <img src={p.image} alt={name} className="w-full h-full object-cover group-hover:scale-105 transition-smooth" />}
+                        <ProductImage product={p} name={name} />
                         {p.badge && (
                           <span className={`absolute top-3 left-3 px-3 py-1 rounded-full ${badgeColorMap[p.badge_color || "red"]} text-white text-xs font-bold shadow-lg`}>
                             {p.badge}

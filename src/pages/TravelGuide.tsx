@@ -11,6 +11,7 @@ import { Plane, MapPin, Wallet, Bus, Train, Ship, Hotel, Camera, Heart, Star, Lo
 import { useLanguage } from "@/contexts/LanguageContext";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import TravelAlerts from "@/components/TravelAlerts";
 
 type Destination = {
   name: string;
@@ -333,6 +334,8 @@ export default function TravelGuide() {
             : "Search any route for today's bus/train/flight fares, find the cheapest way, and read detailed guides for every destination."}
         </p>
       </div>
+
+      <TravelAlerts />
 
       <Tabs defaultValue="route" className="w-full">
         <TabsList className="grid w-full grid-cols-2 sm:grid-cols-4 mb-6 h-auto">

@@ -544,6 +544,55 @@ const Finance = () => {
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input value={q} onChange={e => setQ(e.target.value)} placeholder={bn?"খুঁজুন...":"Search transactions..."} className="pl-9 rounded-xl" />
             </div>
+
+            {/* Date range filter */}
+            <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar -mx-1 px-1 py-1">
+              {([
+                ["all", bn?"সব":"All"],
+                ["today", bn?"আজ":"Today"],
+                ["yesterday", bn?"গতকাল":"Yesterday"],
+                ["week", bn?"৭ দিন":"7 Days"],
+                ["month", bn?"এই মাস":"This Month"],
+                ["custom", bn?"কাস্টম":"Custom"],
+              ] as const).map(([k, l]) => (
+                <button key={k} onClick={() => setDateRange(k as any)}
+                  className={cn(
+                    "shrink-0 text-[11px] px-3 py-1.5 rounded-full border transition-all",
+                    dateRange === k ? "border-primary bg-primary text-primary-foreground shadow-sm" : "border-border/60 bg-card/50 hover:bg-muted"
+                  )}>{l}</button>
+              ))}
+            </div>
+            {dateRange === "custom" && (
+              <div className="grid grid-cols-2 gap-2">
+                <div>
+                  <Label className="text-[10px] text-muted-foreground">{bn?"থেকে":"From"}</Label>
+                  <Input type="date" value={customFrom} onChange={e => setCustomFrom(e.target.value)} className="h-9 rounded-xl mt-0.5" />
+                </div>
+                <div>
+                  <Label className="text-[10px] text-muted-foreground">{bn?"পর্যন্ত":"To"}</Label>
+                  <Input type="date" value={customTo} onChange={e => setCustomTo(e.target.value)} className="h-9 rounded-xl mt-0.5" />
+                </div>
+              </div>
+            )}
+
+            {/* Range totals */}
+            <div className="grid grid-cols-3 gap-2">
+              <div className="rounded-xl border border-emerald-500/20 bg-emerald-500/5 p-2 text-center">
+                <p className="text-[10px] text-muted-foreground">{bn?"আয়":"Income"}</p>
+                <p className="text-sm font-semibold text-emerald-500 tabular-nums">{fmtBDT(rangeTotals.inc, bn)}</p>
+              </div>
+              <div className="rounded-xl border border-rose-500/20 bg-rose-500/5 p-2 text-center">
+                <p className="text-[10px] text-muted-foreground">{bn?"খরচ":"Expense"}</p>
+                <p className="text-sm font-semibold text-rose-500 tabular-nums">{fmtBDT(rangeTotals.exp, bn)}</p>
+              </div>
+              <div className={cn("rounded-xl border p-2 text-center",
+                rangeTotals.net >= 0 ? "border-emerald-500/20 bg-emerald-500/5" : "border-rose-500/20 bg-rose-500/5")}>
+                <p className="text-[10px] text-muted-foreground">{bn?"নেট":"Net"}</p>
+                <p className={cn("text-sm font-semibold tabular-nums",
+                  rangeTotals.net >= 0 ? "text-emerald-500" : "text-rose-500")}>{fmtBDT(rangeTotals.net, bn)}</p>
+              </div>
+            </div>
+
             <div className="space-y-2">
               {visibleTxs.length === 0 && (
                 <div className="text-center py-16 text-sm text-muted-foreground">

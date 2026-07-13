@@ -512,7 +512,13 @@ const Finance = () => {
     return <div className="min-h-screen grid place-items-center"><Loader2 className="h-6 w-6 animate-spin text-muted-foreground" /></div>;
   }
 
-  const CATEGORIES = qaScope === "business" ? CATEGORIES_BUSINESS : CATEGORIES_PERSONAL;
+  const isIncomeType = INCOME_TYPES.includes(qaType);
+  const isExpenseType = EXPENSE_TYPES.includes(qaType);
+  const CATEGORIES = isIncomeType
+    ? (qaScope === "business" ? INCOME_CATEGORIES_BUSINESS : INCOME_CATEGORIES_PERSONAL)
+    : isExpenseType
+      ? (qaScope === "business" ? EXPENSE_CATEGORIES_BUSINESS : EXPENSE_CATEGORIES_PERSONAL)
+      : (qaScope === "business" ? CATEGORIES_BUSINESS : CATEGORIES_PERSONAL);
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-background via-background to-muted/30 pb-32">

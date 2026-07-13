@@ -77,26 +77,80 @@ const Shop = () => {
 
   return (
     <div>
-      <section className="relative py-20 overflow-hidden">
-        <div className="absolute inset-0 animated-gradient opacity-90" />
-        <div className="container relative z-10 text-white text-center">
-          <motion.h1 initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="text-5xl md:text-6xl font-display font-bold mb-3">
+      {/* Premium Hero */}
+      <section className="relative overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-br from-primary via-primary/90 to-secondary" />
+        <div className="absolute inset-0 opacity-30" style={{ backgroundImage: "radial-gradient(circle at 20% 20%, rgba(255,255,255,0.25) 0%, transparent 40%), radial-gradient(circle at 80% 60%, rgba(255,215,0,0.25) 0%, transparent 45%)" }} />
+        <div className="absolute -top-24 -right-24 w-72 h-72 rounded-full bg-yellow-400/20 blur-3xl" />
+        <div className="absolute -bottom-24 -left-24 w-72 h-72 rounded-full bg-white/10 blur-3xl" />
+
+        <div className="container relative z-10 py-14 md:py-20 text-white text-center">
+          <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/15 backdrop-blur-md border border-white/25 text-xs md:text-sm font-medium mb-5">
+            <Sparkles className="w-3.5 h-3.5 text-yellow-300" />
+            {language === "bn" ? "প্রিমিয়াম কালেকশন" : "Premium Collection"}
+          </motion.div>
+          <motion.h1 initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="text-4xl md:text-6xl font-display font-bold mb-3 bg-gradient-to-b from-white to-white/70 bg-clip-text text-transparent">
             {t("nav.shop")}
           </motion.h1>
-          <p className="text-xl text-white/90">{language === "bn" ? "আমাদের প্রিমিয়াম প্রোডাক্ট সংগ্রহ" : "Our Premium Product Collection"}</p>
+          <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.15 }} className="text-base md:text-xl text-white/85 max-w-md mx-auto">
+            {language === "bn" ? "ডিজিটাল ও ফিজিক্যাল প্রোডাক্টের প্রিমিয়াম সংগ্রহ" : "Curated digital & physical products"}
+          </motion.p>
+
+          {/* Stat pills */}
+          <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.25 }} className="mt-6 flex flex-wrap items-center justify-center gap-2 md:gap-3">
+            <div className="px-3 py-1.5 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-xs md:text-sm">
+              <Zap className="inline w-3.5 h-3.5 mr-1 text-yellow-300" />
+              {digitalCount} {language === "bn" ? "ডিজিটাল" : "Digital"}
+            </div>
+            <div className="px-3 py-1.5 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-xs md:text-sm">
+              <Package className="inline w-3.5 h-3.5 mr-1 text-yellow-300" />
+              {physicalCount} {language === "bn" ? "ফিজিক্যাল" : "Physical"}
+            </div>
+          </motion.div>
         </div>
       </section>
 
-      <section className="container py-12">
-        <div className="relative max-w-xl mx-auto mb-10">
+      <section className="container py-8 md:py-12">
+        {/* Search */}
+        <div className="relative max-w-xl mx-auto mb-5">
           <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
           <Input
             placeholder={t("common.search")}
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="pl-12 h-12 rounded-full"
+            className="pl-12 h-12 rounded-full shadow-sm"
           />
         </div>
+
+        {/* Type Filter — Digital / Physical */}
+        <div className="max-w-xl mx-auto mb-10 grid grid-cols-3 gap-2 p-1.5 rounded-2xl bg-muted/60 border border-border">
+          {([
+            { key: "all", label: language === "bn" ? "সব" : "All", icon: LayoutGrid, count: products.length },
+            { key: "digital", label: language === "bn" ? "ডিজিটাল" : "Digital", icon: Zap, count: digitalCount },
+            { key: "physical", label: language === "bn" ? "ফিজিক্যাল" : "Physical", icon: Package, count: physicalCount },
+          ] as const).map((opt) => {
+            const active = typeFilter === opt.key;
+            const Icon = opt.icon;
+            return (
+              <button
+                key={opt.key}
+                onClick={() => setTypeFilter(opt.key as FilterType)}
+                className={`relative flex flex-col md:flex-row items-center justify-center gap-1 md:gap-2 py-2.5 px-2 rounded-xl text-xs md:text-sm font-semibold transition-all ${
+                  active
+                    ? "bg-gradient-to-br from-primary to-secondary text-white shadow-elegant"
+                    : "text-muted-foreground hover:text-foreground hover:bg-background/60"
+                }`}
+              >
+                <Icon className="w-4 h-4" />
+                <span>{opt.label}</span>
+                <span className={`text-[10px] md:text-xs px-1.5 py-0.5 rounded-full ${active ? "bg-white/20" : "bg-background"}`}>
+                  {opt.count}
+                </span>
+              </button>
+            );
+          })}
+        </div>
+
 
         {loading ? (
           <p className="text-center text-muted-foreground py-20">Loading...</p>

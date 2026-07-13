@@ -551,6 +551,90 @@ export type Database = {
         }
         Relationships: []
       }
+      owned_assets: {
+        Row: {
+          acquire_cost: number
+          acquired_at: string | null
+          actual_repair_cost: number
+          buyer_name: string | null
+          buyer_phone: string | null
+          category: string | null
+          condition: string
+          created_at: string
+          estimated_repair_cost: number
+          expected_value: number
+          id: string
+          identity: string | null
+          issue_description: string | null
+          name: string
+          note: string | null
+          repair_details: string | null
+          repair_needed: boolean
+          repaired_at: string | null
+          sold_at: string | null
+          sold_price: number
+          source_name: string | null
+          source_phone: string | null
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          acquire_cost?: number
+          acquired_at?: string | null
+          actual_repair_cost?: number
+          buyer_name?: string | null
+          buyer_phone?: string | null
+          category?: string | null
+          condition?: string
+          created_at?: string
+          estimated_repair_cost?: number
+          expected_value?: number
+          id?: string
+          identity?: string | null
+          issue_description?: string | null
+          name: string
+          note?: string | null
+          repair_details?: string | null
+          repair_needed?: boolean
+          repaired_at?: string | null
+          sold_at?: string | null
+          sold_price?: number
+          source_name?: string | null
+          source_phone?: string | null
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          acquire_cost?: number
+          acquired_at?: string | null
+          actual_repair_cost?: number
+          buyer_name?: string | null
+          buyer_phone?: string | null
+          category?: string | null
+          condition?: string
+          created_at?: string
+          estimated_repair_cost?: number
+          expected_value?: number
+          id?: string
+          identity?: string | null
+          issue_description?: string | null
+          name?: string
+          note?: string | null
+          repair_details?: string | null
+          repair_needed?: boolean
+          repaired_at?: string | null
+          sold_at?: string | null
+          sold_price?: number
+          source_name?: string | null
+          source_phone?: string | null
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       planned_purchases: {
         Row: {
           created_at: string

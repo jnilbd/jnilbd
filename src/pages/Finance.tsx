@@ -23,6 +23,10 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sh
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { cn } from "@/lib/utils";
+import { AnalyticsTab } from "@/components/finance/AnalyticsTab";
+import { BudgetTab } from "@/components/finance/BudgetTab";
+import { DebtsTab } from "@/components/finance/DebtsTab";
+import { SmartReminders, type Reminder } from "@/components/finance/SmartReminders";
 
 // ---------- Types ----------
 type WalletType = "cash" | "bank" | "mobile" | "card" | "digital";
@@ -281,6 +285,45 @@ const Finance = () => {
     };
   }, [filteredTxs, wallets]);
 
+  // Smart reminders
+  const reminders = useMemo<Reminder[]>(() => {
+    const r: Reminder[] = [];
+    const today0 = startOfToday().getTime();
+    const yest0 = today0 - 86400000;
+    const todayCount = filteredTxs.filter(t => new Date(t.occurred_at).getTime() >= today0).length;
+    let yestIn = 0, yestOut = 0;
+    for (const t of filteredTxs) {
+      const at = new Date(t.occurred_at).getTime();
+      if (at < yest0 || at >= today0) continue;
+      const amt = Number(t.amount) || 0;
+      if (INCOME_TYPES.includes(t.type)) yestIn += amt;
+      else if (EXPENSE_TYPES.includes(t.type)) yestOut += amt;
+    }
+    if (todayCount === 0) {
+      r.push({ id: "no-entry", icon: "info", tone: "sky",
+        title: bn ? "আজ কোনো এন্ট্রি নেই" : "No entries today",
+        desc: bn ? "আজকের আয়-খরচ যোগ করুন" : "Add today's transactions" });
+    }
+    if (metrics.todayOut > yestOut * 1.5 && yestOut > 0) {
+      r.push({ id: "high-spend", icon: "warn", tone: "amber",
+        title: bn ? "আজ খরচ বেশি" : "Today's spending is high",
+        desc: bn ? `গতকালের চেয়ে ${Math.round((metrics.todayOut / yestOut - 1) * 100)}% বেশি`
+                 : `${Math.round((metrics.todayOut / yestOut - 1) * 100)}% higher than yesterday` });
+    }
+    if (metrics.todayProfit < (yestIn - yestOut) && yestIn > 0) {
+      r.push({ id: "low-profit", icon: "trend", tone: "rose",
+        title: bn ? "লাভ কমেছে" : "Profit is down",
+        desc: bn ? "আজকের লাভ গতকালের চেয়ে কম" : "Today's profit is lower than yesterday" });
+    }
+    if (metrics.monthOut > metrics.monthIn && metrics.monthIn > 0) {
+      r.push({ id: "over", icon: "warn", tone: "rose",
+        title: bn ? "মাসিক খরচ আয়ের চেয়ে বেশি" : "Monthly expenses exceed income",
+        desc: bn ? "সাবধান হোন" : "Consider cutting back" });
+    }
+    return r;
+  }, [filteredTxs, metrics, bn]);
+
+
   const walletDelta = useCallback((walletId: string, since: number) => {
     let delta = 0;
     for (const t of txs) {
@@ -466,12 +509,18 @@ const Finance = () => {
 
       <div className="container mx-auto px-3 sm:px-6 pt-4">
         <Tabs value={tab} onValueChange={setTab}>
-          <TabsList className="w-full grid grid-cols-4 h-10 bg-muted/60 backdrop-blur">
-            <TabsTrigger value="dashboard">{bn?"ড্যাশবোর্ড":"Dashboard"}</TabsTrigger>
-            <TabsTrigger value="wallets">{bn?"ওয়ালেট":"Wallets"}</TabsTrigger>
-            <TabsTrigger value="tx">{bn?"লেনদেন":"Transactions"}</TabsTrigger>
-            <TabsTrigger value="ai"><span className="flex items-center gap-1"><Sparkles className="h-3.5 w-3.5" />AI</span></TabsTrigger>
-          </TabsList>
+          <div className="overflow-x-auto no-scrollbar -mx-3 px-3">
+            <TabsList className="inline-flex h-10 bg-muted/60 backdrop-blur gap-0.5">
+              <TabsTrigger value="dashboard" className="text-xs px-3">{bn?"ড্যাশবোর্ড":"Dashboard"}</TabsTrigger>
+              <TabsTrigger value="wallets" className="text-xs px-3">{bn?"ওয়ালেট":"Wallets"}</TabsTrigger>
+              <TabsTrigger value="tx" className="text-xs px-3">{bn?"লেনদেন":"Transactions"}</TabsTrigger>
+              <TabsTrigger value="analytics" className="text-xs px-3">{bn?"বিশ্লেষণ":"Analytics"}</TabsTrigger>
+              <TabsTrigger value="budget" className="text-xs px-3">{bn?"বাজেট":"Budget"}</TabsTrigger>
+              <TabsTrigger value="debts" className="text-xs px-3">{bn?"দেনা-পাওনা":"Debts"}</TabsTrigger>
+              <TabsTrigger value="ai" className="text-xs px-3"><span className="flex items-center gap-1"><Sparkles className="h-3.5 w-3.5" />AI</span></TabsTrigger>
+            </TabsList>
+          </div>
+
 
           {/* Dashboard */}
           <TabsContent value="dashboard" className="mt-4 space-y-4">
@@ -485,6 +534,10 @@ const Finance = () => {
                 <span className="flex items-center gap-1"><Building2 className="h-3 w-3"/> {bn?"ব্যবসা":"Business"} <b className="text-foreground">{fmtBDT(metrics.business, bn)}</b></span>
               </div>
             </Card>
+
+            <SmartReminders reminders={reminders} bn={bn} />
+
+
 
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
               <MetricCard label={bn?"আজকের আয়":"Today's Income"} value={fmtBDT(metrics.todayIn, bn)} icon={TrendingUp} tone="positive" />
@@ -698,6 +751,31 @@ const Finance = () => {
                 </button>
               ))}
             </div>
+          </TabsContent>
+
+          {/* Analytics */}
+          <TabsContent value="analytics" className="mt-4">
+            <AnalyticsTab
+              txs={filteredTxs}
+              bn={bn}
+              categoryLabel={(c) => bn ? (CATEGORY_BN[c] ?? TX_TYPE_BN[c] ?? c) : c}
+            />
+          </TabsContent>
+
+          {/* Budget */}
+          <TabsContent value="budget" className="mt-4">
+            <BudgetTab
+              userId={user.id}
+              txs={filteredTxs}
+              bn={bn}
+              categories={Array.from(new Set([...CATEGORIES_PERSONAL, ...CATEGORIES_BUSINESS]))}
+              categoryLabel={(c) => bn ? (CATEGORY_BN[c] ?? c) : c}
+            />
+          </TabsContent>
+
+          {/* Debts */}
+          <TabsContent value="debts" className="mt-4">
+            <DebtsTab userId={user.id} bn={bn} />
           </TabsContent>
         </Tabs>
       </div>

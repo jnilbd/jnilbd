@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 
 type Product = {
-  id: string; name: string; name_bn?: string; short_description?: string; short_description_bn?: string;
+  id: string; name: string; name_bn?: string; slug?: string; short_description?: string; short_description_bn?: string;
   price: number; discount_price?: number; image?: string; category?: string; badge?: string; badge_color?: string;
 };
 
@@ -80,7 +80,7 @@ const Shop = () => {
               const finalPrice = p.discount_price || p.price;
               return (
                 <motion.div key={p.id} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05 }}>
-                  <Link to={`/shop/${p.id}`}>
+                  <Link to={p.slug === "capcut-pro" ? "/capcut-pro" : `/shop/${p.id}`}>
                     <Card className="overflow-hidden h-full hover:shadow-elegant transition-smooth group">
                       <div className="relative aspect-square bg-muted overflow-hidden">
                         {p.image && <img src={p.image} alt={name} className="w-full h-full object-cover group-hover:scale-105 transition-smooth" />}

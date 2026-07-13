@@ -23,6 +23,10 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sh
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { cn } from "@/lib/utils";
+import { AnalyticsTab } from "@/components/finance/AnalyticsTab";
+import { BudgetTab } from "@/components/finance/BudgetTab";
+import { DebtsTab } from "@/components/finance/DebtsTab";
+import { SmartReminders, type Reminder } from "@/components/finance/SmartReminders";
 
 // ---------- Types ----------
 type WalletType = "cash" | "bank" | "mobile" | "card" | "digital";

@@ -145,11 +145,18 @@ const CATEGORY_BN: Record<string, string> = {
   Education: "শিক্ষা", Family: "পরিবার", Kids: "সন্তান", Entertainment: "বিনোদন",
   Internet: "ইন্টারনেট", "Mobile Recharge": "মোবাইল রিচার্জ", Bills: "বিল",
   Travel: "ভ্রমণ", Rent: "ভাড়া", Investment: "বিনিয়োগ", Savings: "সঞ্চয়",
-  Salary: "বেতন", Advertising: "বিজ্ঞাপন", Courier: "কুরিয়ার",
+  Salary: "বেতন", "Salary Paid": "বেতন প্রদান", Advertising: "বিজ্ঞাপন", Courier: "কুরিয়ার",
   "Office Rent": "অফিস ভাড়া", Utility: "ইউটিলিটি", Refund: "রিফান্ড",
-  Loan: "ঋণ", Sale: "বিক্রি", Purchase: "ক্রয়", Other: "অন্যান্য",
+  Loan: "ঋণ", "Loan Received": "ঋণ প্রাপ্তি", "Loan Repayment": "ঋণ পরিশোধ",
+  Sale: "বিক্রি", Purchase: "ক্রয়", Other: "অন্যান্য",
   "WiFi Bill (Village)": "ওয়াইফাই বিল (গ্রাম)", "WiFi Bill (City)": "ওয়াইফাই বিল (শহর)",
-  "Dish Bill": "ডিশ বিল", "Electricity Bill": "কারেন্ট বিল", Installment: "কিস্তি",
+  "Dish Bill": "ডিশ বিল", "Electricity Bill": "কারেন্ট বিল", "Gas Bill": "গ্যাস বিল",
+  "Water Bill": "পানির বিল", Installment: "কিস্তি",
+  Freelance: "ফ্রিল্যান্স", "Business Income": "ব্যবসা আয়", Gift: "উপহার", Bonus: "বোনাস",
+  Interest: "সুদ/মুনাফা", "Rental Income": "ভাড়া আয়", "Investment Return": "বিনিয়োগ রিটার্ন",
+  "Family Support": "পারিবারিক সহায়তা", "Other Income": "অন্যান্য আয়",
+  "Service Income": "সেবা আয়", "Advance Received": "অগ্রিম প্রাপ্তি", Commission: "কমিশন",
+  Charity: "দান/সদকা", Maintenance: "মেরামত", Tax: "কর",
 };
 const bnLabel = (m: Record<string,string>, k: string | null | undefined, bn: boolean) =>
   !k ? "—" : (bn ? (m[k] ?? k) : k);

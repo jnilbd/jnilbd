@@ -273,15 +273,58 @@ const ProductDetail = () => {
                 </div>
                 <span className="ml-auto text-2xl font-bold gradient-text">৳{total.toLocaleString()}</span>
               </div>
+
+              <div className={`px-3 py-2 rounded-lg text-xs font-semibold inline-flex items-center gap-2 ${isDigital ? "bg-blue-500/10 text-blue-600 dark:text-blue-400" : "bg-green-500/10 text-green-600 dark:text-green-400"}`}>
+                {isDigital
+                  ? (language === "bn" ? "💻 ডিজিটাল প্রোডাক্ট — পেমেন্ট করলে ডেলিভারি" : "💻 Digital product — Pay first, then delivery")
+                  : (language === "bn" ? "📦 ফিজিক্যাল প্রোডাক্ট — ক্যাশ অন ডেলিভারি" : "📦 Physical product — Cash on Delivery")}
+              </div>
+
               <div className="grid grid-cols-2 gap-2">
                 <Input placeholder={language === "bn" ? "আপনার নাম *" : "Your name *"} value={orderForm.name} onChange={e => setOrderForm({...orderForm, name: e.target.value})} />
                 <Input placeholder={language === "bn" ? "ফোন নাম্বার *" : "Phone *"} value={orderForm.phone} onChange={e => setOrderForm({...orderForm, phone: e.target.value})} />
               </div>
-              <Input placeholder="Email (optional)" value={orderForm.email} onChange={e => setOrderForm({...orderForm, email: e.target.value})} />
-              <Input placeholder={language === "bn" ? "ঠিকানা" : "Address"} value={orderForm.address} onChange={e => setOrderForm({...orderForm, address: e.target.value})} />
+              <Input
+                placeholder={isDigital ? (language === "bn" ? "ইমেইল * (ডেলিভারির জন্য)" : "Email * (for delivery)") : "Email (optional)"}
+                value={orderForm.email}
+                onChange={e => setOrderForm({...orderForm, email: e.target.value})}
+              />
+
+              {isDigital ? (
+                <div className="space-y-2 p-3 rounded-lg border border-blue-500/30 bg-blue-500/5">
+                  <p className="text-xs font-semibold">{language === "bn" ? "💳 পেমেন্ট করুন এই নাম্বারে:" : "💳 Send payment to:"}</p>
+                  <div className="grid grid-cols-3 gap-2 text-xs">
+                    <button type="button" onClick={() => setOrderForm({...orderForm, paymentMethod: "bkash"})} className={`p-2 rounded border text-center ${orderForm.paymentMethod === "bkash" ? "border-pink-500 bg-pink-500/10" : "border-border"}`}>
+                      <p className="font-bold">bKash</p><p className="text-[10px]">01XXXXXXXXX</p>
+                    </button>
+                    <button type="button" onClick={() => setOrderForm({...orderForm, paymentMethod: "nagad"})} className={`p-2 rounded border text-center ${orderForm.paymentMethod === "nagad" ? "border-orange-500 bg-orange-500/10" : "border-border"}`}>
+                      <p className="font-bold">Nagad</p><p className="text-[10px]">01XXXXXXXXX</p>
+                    </button>
+                    <button type="button" onClick={() => setOrderForm({...orderForm, paymentMethod: "rocket"})} className={`p-2 rounded border text-center ${orderForm.paymentMethod === "rocket" ? "border-purple-500 bg-purple-500/10" : "border-border"}`}>
+                      <p className="font-bold">Rocket</p><p className="text-[10px]">01XXXXXXXXX</p>
+                    </button>
+                  </div>
+                  <Input
+                    placeholder={language === "bn" ? "ট্রানজেকশন আইডি (TrxID) *" : "Transaction ID (TrxID) *"}
+                    value={orderForm.txnId}
+                    onChange={e => setOrderForm({...orderForm, txnId: e.target.value})}
+                  />
+                  <p className="text-[11px] text-muted-foreground">
+                    {language === "bn"
+                      ? "পেমেন্ট যাচাইয়ের পর আপনার ইমেইলে প্রোডাক্ট পাঠানো হবে।"
+                      : "After payment verification, product will be sent to your email."}
+                  </p>
+                </div>
+              ) : (
+                <Input placeholder={language === "bn" ? "সম্পূর্ণ ডেলিভারি ঠিকানা *" : "Full delivery address *"} value={orderForm.address} onChange={e => setOrderForm({...orderForm, address: e.target.value})} />
+              )}
+
               <Textarea placeholder={language === "bn" ? "অতিরিক্ত নোট" : "Notes"} rows={2} value={orderForm.notes} onChange={e => setOrderForm({...orderForm, notes: e.target.value})} />
               <Button size="lg" onClick={placeOrder} disabled={placing} className="w-full gradient-bg-primary text-white">
-                <ShoppingCart className="w-5 h-5 mr-2" /> {placing ? "..." : (language === "bn" ? "অর্ডার করুন" : "Place Order")}
+                <ShoppingCart className="w-5 h-5 mr-2" />
+                {placing ? "..." : isDigital
+                  ? (language === "bn" ? "পেমেন্ট কনফার্ম করুন" : "Confirm Payment")
+                  : (language === "bn" ? "ক্যাশ অন ডেলিভারিতে অর্ডার" : "Order (Cash on Delivery)")}
               </Button>
             </Card>
           </motion.div>

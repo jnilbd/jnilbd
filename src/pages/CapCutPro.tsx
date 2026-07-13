@@ -13,7 +13,7 @@ import { cn } from "@/lib/utils";
 const WHATSAPP = "+8801774585757";
 const BKASH = "01774-585757";
 const NAGAD = "01774-585757";
-const ROCKET = "01774-585757-0";
+const ROCKET = "01774-585757-7";
 
 /* ---------- Countdown ---------- */
 function useCountdown(hours = 23) {

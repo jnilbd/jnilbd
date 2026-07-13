@@ -51,8 +51,9 @@ const ProductDetail = () => {
   const [loading, setLoading] = useState(true);
 
   // Order form
-  const [orderForm, setOrderForm] = useState({ name: "", phone: "", email: "", address: "", notes: "" });
+  const [orderForm, setOrderForm] = useState({ name: "", phone: "", email: "", address: "", notes: "", txnId: "", paymentMethod: "bkash" });
   const [placing, setPlacing] = useState(false);
+  const isDigital = product?.product_type === "digital";
 
   // Review form
   const [reviewForm, setReviewForm] = useState({ rating: 5, comment: "" });

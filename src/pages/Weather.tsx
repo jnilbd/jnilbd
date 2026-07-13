@@ -380,32 +380,78 @@ const Weather = () => {
 
 
 
-        <div className="flex gap-2 mb-4 flex-wrap">
-          <Input placeholder={isBn ? "শহর খুঁজুন..." : "Search city..."} value={search} onChange={(e) => setSearch(e.target.value)} onKeyDown={(e) => e.key === "Enter" && handleSearch()} className="flex-1 min-w-[200px]" />
-          <Button onClick={handleSearch}><Search className="w-4 h-4" /></Button>
-          <Button variant="outline" onClick={useMyLocation}><MapPin className="w-4 h-4 mr-1" />{isBn ? "আমার অবস্থান" : "Location"}</Button>
-        </div>
 
-        <div className="flex gap-2 mb-4 flex-wrap">
-          {QUICK_CITIES.map((c) => (
-            <Badge key={c.name} variant={city.name === c.name ? "default" : "outline"} className="cursor-pointer" onClick={() => setCity(c)}>{c.name}</Badge>
-          ))}
-        </div>
+        {/* Unified location + source panel */}
+        <Card className="mb-6 border-border/60 shadow-sm">
+          <CardContent className="p-4 space-y-4">
+            {/* Row 1: search + my location */}
+            <div className="flex gap-2 flex-wrap">
+              <div className="relative flex-1 min-w-[200px]">
+                <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
+                <Input
+                  placeholder={isBn ? "যেকোনো শহর খুঁজুন..." : "Search any city..."}
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                  onKeyDown={(e) => e.key === "Enter" && handleSearch()}
+                  className="pl-9 h-10"
+                />
+              </div>
+              <Button onClick={handleSearch} className="h-10">{isBn ? "খুঁজুন" : "Search"}</Button>
+              <Button variant="outline" onClick={useMyLocation} className="h-10">
+                <MapPin className="w-4 h-4 mr-1" />{isBn ? "আমার অবস্থান" : "My Location"}
+              </Button>
+            </div>
 
-        {/* Model selector */}
-        <Card className="mb-6 bg-muted/30">
-          <CardContent className="p-3 flex items-center gap-3 flex-wrap">
-            <Layers className="w-4 h-4 text-primary shrink-0" />
-            <Label className="text-xs font-semibold whitespace-nowrap">{isBn ? "ডেটা সোর্স / মডেল:" : "Data source:"}</Label>
-            <Select value={model} onValueChange={setModel}>
-              <SelectTrigger className="w-auto min-w-[220px] h-8"><SelectValue /></SelectTrigger>
-              <SelectContent>
-                {MODELS.map(m => <SelectItem key={m.id} value={m.id}>{isBn ? m.bn : m.en} — <span className="text-muted-foreground text-xs">{m.desc}</span></SelectItem>)}
-              </SelectContent>
-            </Select>
-            <span className="text-[11px] text-muted-foreground">{isBn ? "বিভিন্ন মডেল তুলনা করে সবচেয়ে কাছাকাছি ফলাফল বেছে নিন" : "Compare models for best accuracy"}</span>
+            {/* Row 2: quick cities */}
+            <div>
+              <div className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground mb-2">
+                {isBn ? "জনপ্রিয় শহর" : "Popular cities"}
+              </div>
+              <div className="flex gap-1.5 flex-wrap">
+                {QUICK_CITIES.map((c) => {
+                  const label = isBn ? c.name.split(" / ")[0] : (c.name.split(" / ")[1] || c.name);
+                  const active = city.name === c.name;
+                  return (
+                    <button
+                      key={c.name}
+                      onClick={() => setCity(c)}
+                      className={`px-3 py-1.5 rounded-full text-xs font-medium border transition-all ${
+                        active
+                          ? "bg-primary text-primary-foreground border-primary shadow-sm"
+                          : "bg-background hover:bg-muted border-border/60 text-foreground/80"
+                      }`}
+                    >
+                      {label}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Row 3: model selector */}
+            <div className="pt-3 border-t border-border/50 flex items-center gap-2 flex-wrap">
+              <Layers className="w-4 h-4 text-primary shrink-0" />
+              <Label className="text-xs font-semibold whitespace-nowrap">{isBn ? "মডেল:" : "Model:"}</Label>
+              <Select value={model} onValueChange={setModel}>
+                <SelectTrigger className="w-auto min-w-[200px] h-8 text-xs"><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  {MODELS.map(m => (
+                    <SelectItem key={m.id} value={m.id} className="text-xs">
+                      <div>
+                        <div className="font-medium">{isBn ? m.bn : m.en}</div>
+                        <div className="text-[10px] text-muted-foreground">{m.desc}</div>
+                      </div>
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <span className="text-[10px] text-muted-foreground ml-auto">
+                {isBn ? "বিভিন্ন মডেল তুলনা করুন" : "Compare models for best accuracy"}
+              </span>
+            </div>
           </CardContent>
         </Card>
+
 
         {loading && <div className="flex justify-center py-12"><Loader2 className="w-8 h-8 animate-spin" /></div>}
 

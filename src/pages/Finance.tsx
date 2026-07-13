@@ -5,8 +5,9 @@ import {
   Wallet, TrendingUp, TrendingDown, ArrowLeftRight, Plus, Sparkles, Send,
   Landmark, Smartphone, CreditCard, Coins, Banknote, PiggyBank, Package,
   ShoppingCart, ReceiptText, Trash2, RefreshCw, Loader2, X, ArrowUpRight, ArrowDownRight,
-  Building2, User as UserIcon, Wand2, ChevronRight, Search
+  Building2, User as UserIcon, Wand2, ChevronRight, Search, Boxes, AlertTriangle
 } from "lucide-react";
+
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";

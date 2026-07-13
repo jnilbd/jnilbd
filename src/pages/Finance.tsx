@@ -115,7 +115,31 @@ const MetricCard = ({ label, value, icon: Icon, tone = "default", sub }: any) =>
   </motion.div>
 );
 
-const WalletCard = ({ w, today, month, onOpen }: { w: WalletRow; today: number; month: number; onOpen: () => void }) => {
+const SCOPE_BN: Record<string, string> = { personal: "ব্যক্তিগত", business: "ব্যবসা" };
+const TYPE_BN: Record<string, string> = {
+  cash: "নগদ", bank: "ব্যাংক", mobile: "মোবাইল", card: "কার্ড", digital: "ডিজিটাল",
+};
+const TX_TYPE_BN: Record<string, string> = {
+  income: "আয়", expense: "খরচ", transfer: "ট্রান্সফার",
+  sale: "বিক্রি", purchase: "ক্রয়",
+  loan_given: "ধার দেয়া", loan_taken: "ধার নেয়া",
+  repayment_in: "ফেরত পাওয়া", repayment_out: "ফেরত দেয়া",
+  return_in: "ফেরত (আয়)", return_out: "ফেরত (খরচ)",
+  stock_in: "স্টক ইন", stock_out: "স্টক আউট",
+};
+const CATEGORY_BN: Record<string, string> = {
+  Food: "খাবার", Transport: "যাতায়াত", Shopping: "কেনাকাটা", Medicine: "ঔষধ",
+  Education: "শিক্ষা", Family: "পরিবার", Kids: "সন্তান", Entertainment: "বিনোদন",
+  Internet: "ইন্টারনেট", "Mobile Recharge": "মোবাইল রিচার্জ", Bills: "বিল",
+  Travel: "ভ্রমণ", Rent: "ভাড়া", Investment: "বিনিয়োগ", Savings: "সঞ্চয়",
+  Salary: "বেতন", Advertising: "বিজ্ঞাপন", Courier: "কুরিয়ার",
+  "Office Rent": "অফিস ভাড়া", Utility: "ইউটিলিটি", Refund: "রিফান্ড",
+  Loan: "ঋণ", Sale: "বিক্রি", Purchase: "ক্রয়", Other: "অন্যান্য",
+};
+const bnLabel = (m: Record<string,string>, k: string | null | undefined, bn: boolean) =>
+  !k ? "—" : (bn ? (m[k] ?? k) : k);
+
+const WalletCard = ({ w, today, month, onOpen, bn }: { w: WalletRow; today: number; month: number; onOpen: () => void; bn: boolean }) => {
   const Icon = walletIcon(w.type);
   return (
     <motion.button
@@ -134,16 +158,16 @@ const WalletCard = ({ w, today, month, onOpen }: { w: WalletRow; today: number; 
             <div>
               <p className="text-sm font-medium leading-tight">{w.name}</p>
               <p className="text-[10px] uppercase tracking-wide opacity-80">
-                {w.scope} · {w.provider ?? w.type}
+                {bn ? SCOPE_BN[w.scope] : w.scope} · {w.provider ?? (bn ? TYPE_BN[w.type] : w.type)}
               </p>
             </div>
           </div>
-          {w.is_default && <Badge className="bg-white/20 text-white border-0 text-[10px]">Default</Badge>}
+          {w.is_default && <Badge className="bg-white/20 text-white border-0 text-[10px]">{bn?"ডিফল্ট":"Default"}</Badge>}
         </div>
-        <p className="text-2xl font-semibold mt-4 tabular-nums">{fmtBDT(Number(w.balance || 0))}</p>
+        <p className="text-2xl font-semibold mt-4 tabular-nums">{fmtBDT(Number(w.balance || 0), bn)}</p>
         <div className="flex items-center justify-between mt-2 text-[11px]">
-          <span className="flex items-center gap-1"><ArrowUpRight className="h-3 w-3" /> Today {fmtBDT(today)}</span>
-          <span className="flex items-center gap-1"><ArrowDownRight className="h-3 w-3" /> Month {fmtBDT(month)}</span>
+          <span className="flex items-center gap-1"><ArrowUpRight className="h-3 w-3" /> {bn?"আজ":"Today"} {fmtBDT(today, bn)}</span>
+          <span className="flex items-center gap-1"><ArrowDownRight className="h-3 w-3" /> {bn?"মাস":"Month"} {fmtBDT(month, bn)}</span>
         </div>
       </div>
     </motion.button>
@@ -279,7 +303,7 @@ const Finance = () => {
     const amount = Number(qaAmount);
     if (!amount || amount <= 0) { toast.error(bn ? "সঠিক টাকা লিখুন" : "Enter amount"); return; }
     if (!qaWallet) { toast.error(bn ? "ওয়ালেট নির্বাচন করুন" : "Pick a wallet"); return; }
-    if (qaType === "transfer" && !qaWallet2) { toast.error("Pick destination wallet"); return; }
+    if (qaType === "transfer" && !qaWallet2) { toast.error(bn ? "গন্তব্য ওয়ালেট নির্বাচন করুন" : "Pick destination wallet"); return; }
     setBusy(true);
     const { error } = await supabase.from("finance_transactions").insert({
       user_id: user.id, wallet_id: qaWallet,
@@ -408,21 +432,21 @@ const Finance = () => {
               <p className="text-xs text-muted-foreground">{bn?"বর্তমান নেট ওয়ার্থ":"Current Net Worth"}</p>
               <p className="text-3xl sm:text-4xl font-semibold mt-1 tabular-nums">{fmtBDT(metrics.netWorth, bn)}</p>
               <div className="flex flex-wrap items-center gap-3 mt-2 text-xs text-muted-foreground">
-                <span className="flex items-center gap-1"><UserIcon className="h-3 w-3"/> {bn?"ব্যক্তিগত":"Personal"} <b className="text-foreground">{fmtBDT(metrics.personal)}</b></span>
-                <span className="flex items-center gap-1"><Building2 className="h-3 w-3"/> {bn?"ব্যবসা":"Business"} <b className="text-foreground">{fmtBDT(metrics.business)}</b></span>
+                <span className="flex items-center gap-1"><UserIcon className="h-3 w-3"/> {bn?"ব্যক্তিগত":"Personal"} <b className="text-foreground">{fmtBDT(metrics.personal, bn)}</b></span>
+                <span className="flex items-center gap-1"><Building2 className="h-3 w-3"/> {bn?"ব্যবসা":"Business"} <b className="text-foreground">{fmtBDT(metrics.business, bn)}</b></span>
               </div>
             </Card>
 
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-              <MetricCard label={bn?"আজকের আয়":"Today's Income"} value={fmtBDT(metrics.todayIn)} icon={TrendingUp} tone="positive" />
-              <MetricCard label={bn?"আজকের খরচ":"Today's Expense"} value={fmtBDT(metrics.todayOut)} icon={TrendingDown} tone="negative" />
-              <MetricCard label={bn?"আজকের লাভ":"Today's Profit"} value={fmtBDT(metrics.todayProfit)} icon={PiggyBank} tone={metrics.todayProfit>=0?"positive":"negative"} />
-              <MetricCard label={bn?"মাসিক আয়":"Monthly Income"} value={fmtBDT(metrics.monthIn)} icon={TrendingUp} tone="positive" />
-              <MetricCard label={bn?"মাসিক খরচ":"Monthly Expense"} value={fmtBDT(metrics.monthOut)} icon={TrendingDown} tone="negative" />
-              <MetricCard label={bn?"মাসিক লাভ":"Monthly Profit"} value={fmtBDT(metrics.monthProfit)} icon={PiggyBank} tone={metrics.monthProfit>=0?"positive":"negative"} />
-              <MetricCard label={bn?"মোট নগদ":"Total Cash"} value={fmtBDT(metrics.cashTotal)} icon={Coins} />
-              <MetricCard label={bn?"মোট ব্যাংক":"Total Bank"} value={fmtBDT(metrics.bankTotal)} icon={Landmark} />
-              <MetricCard label={bn?"মোবাইল ব্যাংকিং":"Mobile Banking"} value={fmtBDT(metrics.mbTotal)} icon={Smartphone} />
+              <MetricCard label={bn?"আজকের আয়":"Today's Income"} value={fmtBDT(metrics.todayIn, bn)} icon={TrendingUp} tone="positive" />
+              <MetricCard label={bn?"আজকের খরচ":"Today's Expense"} value={fmtBDT(metrics.todayOut, bn)} icon={TrendingDown} tone="negative" />
+              <MetricCard label={bn?"আজকের লাভ":"Today's Profit"} value={fmtBDT(metrics.todayProfit, bn)} icon={PiggyBank} tone={metrics.todayProfit>=0?"positive":"negative"} />
+              <MetricCard label={bn?"মাসিক আয়":"Monthly Income"} value={fmtBDT(metrics.monthIn, bn)} icon={TrendingUp} tone="positive" />
+              <MetricCard label={bn?"মাসিক খরচ":"Monthly Expense"} value={fmtBDT(metrics.monthOut, bn)} icon={TrendingDown} tone="negative" />
+              <MetricCard label={bn?"মাসিক লাভ":"Monthly Profit"} value={fmtBDT(metrics.monthProfit, bn)} icon={PiggyBank} tone={metrics.monthProfit>=0?"positive":"negative"} />
+              <MetricCard label={bn?"মোট নগদ":"Total Cash"} value={fmtBDT(metrics.cashTotal, bn)} icon={Coins} />
+              <MetricCard label={bn?"মোট ব্যাংক":"Total Bank"} value={fmtBDT(metrics.bankTotal, bn)} icon={Landmark} />
+              <MetricCard label={bn?"মোবাইল ব্যাংকিং":"Mobile Banking"} value={fmtBDT(metrics.mbTotal, bn)} icon={Smartphone} />
             </div>
 
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
@@ -449,7 +473,7 @@ const Finance = () => {
           <TabsContent value="wallets" className="mt-4 space-y-3">
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
               {filteredWallets.map(w => (
-                <WalletCard key={w.id} w={w}
+                <WalletCard key={w.id} w={w} bn={bn}
                   today={walletDelta(w.id, startOfToday().getTime())}
                   month={walletDelta(w.id, startOfMonth().getTime())}
                   onOpen={() => setDetailWallet(w)} />
@@ -486,7 +510,7 @@ const Finance = () => {
                     </div>
                     <div className="min-w-0 flex-1">
                       <p className="text-sm font-medium truncate capitalize">
-                        {t.category ?? t.type.replace(/_/g, " ")}
+                        {t.category ? bnLabel(CATEGORY_BN, t.category, bn) : bnLabel(TX_TYPE_BN, t.type, bn)}
                         {t.party ? <span className="text-muted-foreground font-normal"> · {t.party}</span> : null}
                       </p>
                       <p className="text-[11px] text-muted-foreground truncate">
@@ -497,7 +521,7 @@ const Finance = () => {
                     </div>
                     <div className={cn("text-sm font-semibold tabular-nums shrink-0",
                       isTransfer ? "text-sky-500" : income ? "text-emerald-500" : "text-rose-500")}>
-                      {isTransfer ? "↔" : income ? "+" : "-"}{fmtBDT(Number(t.amount))}
+                      {isTransfer ? "↔" : income ? "+" : "-"}{fmtBDT(Number(t.amount), bn)}
                     </div>
                     <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-rose-500" onClick={() => deleteTx(t.id)}>
                       <Trash2 className="h-3.5 w-3.5" />
@@ -540,12 +564,12 @@ const Finance = () => {
                     className="mt-4 rounded-xl border border-primary/30 bg-primary/5 p-3">
                     <p className="text-xs text-muted-foreground mb-2">{bn?"পূর্বরূপ":"Preview"}</p>
                     <div className="grid grid-cols-2 gap-2 text-xs">
-                      <div><span className="text-muted-foreground">Type:</span> <b className="capitalize">{aiPreview.type}</b></div>
-                      <div><span className="text-muted-foreground">Amount:</span> <b>{fmtBDT(Number(aiPreview.amount)||0)}</b></div>
-                      <div><span className="text-muted-foreground">Category:</span> <b>{aiPreview.category ?? "—"}</b></div>
-                      <div><span className="text-muted-foreground">Scope:</span> <b className="capitalize">{aiPreview.scope ?? "personal"}</b></div>
-                      <div className="col-span-2"><span className="text-muted-foreground">Wallet:</span> <b>{walletById(aiPreview.wallet_id)?.name ?? (wallets.find(w=>w.is_default)?.name ?? "—")}</b></div>
-                      {aiPreview.party && <div className="col-span-2"><span className="text-muted-foreground">Party:</span> <b>{aiPreview.party}</b></div>}
+                      <div><span className="text-muted-foreground">{bn?"ধরন":"Type"}:</span> <b className="capitalize">{bnLabel(TX_TYPE_BN, aiPreview.type, bn)}</b></div>
+                      <div><span className="text-muted-foreground">{bn?"পরিমাণ":"Amount"}:</span> <b>{fmtBDT(Number(aiPreview.amount)||0, bn)}</b></div>
+                      <div><span className="text-muted-foreground">{bn?"ক্যাটাগরি":"Category"}:</span> <b>{bnLabel(CATEGORY_BN, aiPreview.category, bn)}</b></div>
+                      <div><span className="text-muted-foreground">{bn?"পরিসর":"Scope"}:</span> <b className="capitalize">{bn ? (SCOPE_BN[aiPreview.scope ?? "personal"]) : (aiPreview.scope ?? "personal")}</b></div>
+                      <div className="col-span-2"><span className="text-muted-foreground">{bn?"ওয়ালেট":"Wallet"}:</span> <b>{walletById(aiPreview.wallet_id)?.name ?? (wallets.find(w=>w.is_default)?.name ?? "—")}</b></div>
+                      {aiPreview.party && <div className="col-span-2"><span className="text-muted-foreground">{bn?"পক্ষ":"Party"}:</span> <b>{aiPreview.party}</b></div>}
                     </div>
                     <div className="flex gap-2 justify-end mt-3">
                       <Button size="sm" variant="ghost" onClick={() => setAiPreview(null)}><X className="h-4 w-4" /></Button>
@@ -594,7 +618,7 @@ const Finance = () => {
       <Sheet open={qaOpen} onOpenChange={setQaOpen}>
         <SheetContent side="bottom" className="rounded-t-3xl max-h-[90vh] overflow-y-auto">
           <SheetHeader>
-            <SheetTitle className="capitalize">{qaType?.replace(/_/g, " ") ?? ""}</SheetTitle>
+            <SheetTitle className="capitalize">{qaType ? bnLabel(TX_TYPE_BN, qaType, bn) : ""}</SheetTitle>
           </SheetHeader>
           <div className="mt-4 space-y-3">
             <div className="flex items-center gap-1 rounded-full bg-muted p-1 w-fit">
@@ -602,7 +626,7 @@ const Finance = () => {
                 <button key={s} onClick={() => setQaScope(s)} className={cn(
                   "text-[11px] px-3 py-1 rounded-full capitalize",
                   qaScope === s ? "bg-background shadow-sm" : "text-muted-foreground"
-                )}>{s}</button>
+                )}>{bn ? SCOPE_BN[s] : s}</button>
               ))}
             </div>
 
@@ -615,7 +639,7 @@ const Finance = () => {
             <div>
               <Label className="text-xs">{qaType === "transfer" ? (bn?"যেখান থেকে":"From wallet") : (bn?"ওয়ালেট":"Wallet")}</Label>
               <Select value={qaWallet} onValueChange={setQaWallet}>
-                <SelectTrigger className="mt-1"><SelectValue placeholder="Pick wallet" /></SelectTrigger>
+                <SelectTrigger className="mt-1"><SelectValue placeholder={bn?"ওয়ালেট বাছুন":"Pick wallet"} /></SelectTrigger>
                 <SelectContent>
                   {wallets.map(w => <SelectItem key={w.id} value={w.id}>{w.name} · ৳{Number(w.balance||0).toFixed(0)}</SelectItem>)}
                 </SelectContent>
@@ -626,7 +650,7 @@ const Finance = () => {
               <div>
                 <Label className="text-xs">{bn?"যেখানে":"To wallet"}</Label>
                 <Select value={qaWallet2} onValueChange={setQaWallet2}>
-                  <SelectTrigger className="mt-1"><SelectValue placeholder="Pick wallet" /></SelectTrigger>
+                  <SelectTrigger className="mt-1"><SelectValue placeholder={bn?"ওয়ালেট বাছুন":"Pick wallet"} /></SelectTrigger>
                   <SelectContent>
                     {wallets.filter(w => w.id !== qaWallet).map(w => <SelectItem key={w.id} value={w.id}>{w.name}</SelectItem>)}
                   </SelectContent>
@@ -638,9 +662,9 @@ const Finance = () => {
               <div>
                 <Label className="text-xs">{bn?"ক্যাটাগরি":"Category"}</Label>
                 <Select value={qaCategory} onValueChange={setQaCategory}>
-                  <SelectTrigger className="mt-1"><SelectValue placeholder="Select category" /></SelectTrigger>
+                  <SelectTrigger className="mt-1"><SelectValue placeholder={bn?"ক্যাটাগরি বাছুন":"Select category"} /></SelectTrigger>
                   <SelectContent>
-                    {CATEGORIES.map(c => <SelectItem key={c} value={c}>{c}</SelectItem>)}
+                    {CATEGORIES.map(c => <SelectItem key={c} value={c}>{bn ? (CATEGORY_BN[c] ?? c) : c}</SelectItem>)}
                   </SelectContent>
                 </Select>
               </div>
@@ -658,6 +682,7 @@ const Finance = () => {
               <Input value={qaNote} onChange={e => setQaNote(e.target.value)} className="mt-1" placeholder={bn?"ঐচ্ছিক":"Optional"} />
             </div>
 
+
             <Button className="w-full h-12 rounded-xl mt-2" onClick={saveQuick} disabled={busy}>
               {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : <>{bn?"সংরক্ষণ":"Save"} <ChevronRight className="h-4 w-4 ml-1" /></>}
             </Button>
@@ -674,11 +699,11 @@ const Finance = () => {
                 <DialogTitle>{detailWallet.name}</DialogTitle>
               </DialogHeader>
               <div className={cn("rounded-2xl p-4 text-white bg-gradient-to-br", detailWallet.color ?? "from-primary to-primary/60")}>
-                <p className="text-xs opacity-80 capitalize">{detailWallet.scope} · {detailWallet.provider ?? detailWallet.type}</p>
-                <p className="text-3xl font-semibold tabular-nums mt-1">{fmtBDT(Number(detailWallet.balance||0))}</p>
+                <p className="text-xs opacity-80 capitalize">{bn ? SCOPE_BN[detailWallet.scope] : detailWallet.scope} · {detailWallet.provider ?? (bn ? TYPE_BN[detailWallet.type] : detailWallet.type)}</p>
+                <p className="text-3xl font-semibold tabular-nums mt-1">{fmtBDT(Number(detailWallet.balance||0), bn)}</p>
                 <div className="flex justify-between text-[11px] mt-2 opacity-90">
-                  <span>Today {fmtBDT(walletDelta(detailWallet.id, startOfToday().getTime()))}</span>
-                  <span>Month {fmtBDT(walletDelta(detailWallet.id, startOfMonth().getTime()))}</span>
+                  <span>{bn?"আজ":"Today"} {fmtBDT(walletDelta(detailWallet.id, startOfToday().getTime()), bn)}</span>
+                  <span>{bn?"মাস":"Month"} {fmtBDT(walletDelta(detailWallet.id, startOfMonth().getTime()), bn)}</span>
                 </div>
               </div>
               <ScrollArea className="max-h-72 mt-2">
@@ -690,17 +715,17 @@ const Finance = () => {
                     return (
                       <div key={t.id} className="flex items-center justify-between text-xs px-2 py-2 rounded-lg hover:bg-muted/50">
                         <div className="min-w-0">
-                          <p className="capitalize truncate">{t.category ?? t.type.replace(/_/g, " ")}</p>
-                          <p className="text-[10px] text-muted-foreground truncate">{new Date(t.occurred_at).toLocaleString()}</p>
+                          <p className="capitalize truncate">{t.category ? bnLabel(CATEGORY_BN, t.category, bn) : bnLabel(TX_TYPE_BN, t.type, bn)}</p>
+                          <p className="text-[10px] text-muted-foreground truncate">{new Date(t.occurred_at).toLocaleString(bn?"bn-BD":"en-BD")}</p>
                         </div>
                         <span className={cn("tabular-nums font-medium", sign === "+" ? "text-emerald-500" : "text-rose-500")}>
-                          {sign}{fmtBDT(Number(t.amount))}
+                          {sign}{fmtBDT(Number(t.amount), bn)}
                         </span>
                       </div>
                     );
                   })}
                   {txs.filter(t => t.wallet_id === detailWallet.id || t.transfer_to_wallet_id === detailWallet.id).length === 0 && (
-                    <p className="text-center text-xs text-muted-foreground py-6">No transactions</p>
+                    <p className="text-center text-xs text-muted-foreground py-6">{bn?"কোন লেনদেন নেই":"No transactions"}</p>
                   )}
                 </div>
               </ScrollArea>

@@ -888,6 +888,11 @@ const Finance = () => {
             <SalesTab userId={user.id} bn={bn} />
           </TabsContent>
 
+          {/* Service / Repair jobs (gadget lock unlock, FRP, root, repair, resale) */}
+          <TabsContent value="jobs" className="mt-4">
+            <ServiceJobsTab userId={user.id} bn={bn} />
+          </TabsContent>
+
           {/* Reports: daily/weekly/monthly P&L + top products + top expense categories */}
           <TabsContent value="reports" className="mt-4">
             <ReportsTab

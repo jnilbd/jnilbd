@@ -1,16 +1,16 @@
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
-import { ImageOff, Play, Search, ShoppingBag, Sparkles } from "lucide-react";
+import { ImageOff, Package, Play, Search, ShoppingBag, Sparkles, Zap, LayoutGrid } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 
 type Product = {
   id: string; name: string; name_bn?: string; slug?: string; short_description?: string; short_description_bn?: string;
   price: number; discount_price?: number; image?: string; category?: string; badge?: string; badge_color?: string;
+  product_type?: "digital" | "physical" | string;
 };
 
 const badgeColorMap: Record<string, string> = {
@@ -42,15 +42,18 @@ const ProductImage = ({ product, name }: { product: Product; name: string }) => 
       </div>
       <div>
         <p className="text-sm font-bold text-foreground line-clamp-2">{name}</p>
-        <p className="mt-1 text-[11px] font-medium text-muted-foreground">Premium Digital Product</p>
+        <p className="mt-1 text-[11px] font-medium text-muted-foreground">Premium Product</p>
       </div>
     </div>
   );
 };
 
+type FilterType = "all" | "digital" | "physical";
+
 const Shop = () => {
   const { t, language } = useLanguage();
   const [search, setSearch] = useState("");
+  const [typeFilter, setTypeFilter] = useState<FilterType>("all");
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -62,9 +65,14 @@ const Shop = () => {
     })();
   }, []);
 
+  const digitalCount = products.filter((p) => p.product_type === "digital").length;
+  const physicalCount = products.filter((p) => p.product_type === "physical").length;
+
   const filtered = products.filter((p) => {
     const q = search.toLowerCase();
-    return !q || p.name.toLowerCase().includes(q) || (p.name_bn || "").includes(search);
+    const matchesSearch = !q || p.name.toLowerCase().includes(q) || (p.name_bn || "").includes(search);
+    const matchesType = typeFilter === "all" || p.product_type === typeFilter;
+    return matchesSearch && matchesType;
   });
 
   return (

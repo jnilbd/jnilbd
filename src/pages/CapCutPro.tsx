@@ -10,9 +10,10 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 
-const WHATSAPP = "+8801700000000"; // TODO: user's number
-const BKASH = "01700-000000";
-const NAGAD = "01700-000000";
+const WHATSAPP = "+8801774585757";
+const BKASH = "01774-585757";
+const NAGAD = "01774-585757";
+const ROCKET = "01774-585757-0";
 
 /* ---------- Countdown ---------- */
 function useCountdown(hours = 23) {

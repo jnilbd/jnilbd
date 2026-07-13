@@ -737,6 +737,7 @@ const Weather = () => {
             </Card>
 
             {/* 🔴 Live disaster & weather news — always at the very bottom */}
+            <WeatherGuide />
             <WeatherNews />
           </>
         )}

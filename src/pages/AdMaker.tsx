@@ -73,6 +73,21 @@ export default function AdMaker() {
   const [platform, setPlatform] = useState("all");
   const [imageUrl, setImageUrl] = useState("");
   const [generateImage, setGenerateImage] = useState(true);
+  const [provider, setProvider] = useState<"lovable" | "gemini">(
+    () => (localStorage.getItem("adMakerProvider") as any) || "lovable"
+  );
+  const [userGeminiKey, setUserGeminiKey] = useState<string>(
+    () => localStorage.getItem("userGeminiKey") || ""
+  );
+  const [showKeyInput, setShowKeyInput] = useState(false);
+
+  useEffect(() => { localStorage.setItem("adMakerProvider", provider); }, [provider]);
+  useEffect(() => { localStorage.setItem("userGeminiKey", userGeminiKey); }, [userGeminiKey]);
+
+  const providerPayload = () =>
+    provider === "gemini" && userGeminiKey.trim()
+      ? { provider: "gemini", userGeminiKey: userGeminiKey.trim() }
+      : { provider: "lovable" };
 
   const [loading, setLoading] = useState(false);
   const [pack, setPack] = useState<Pack | null>(null);
@@ -95,7 +110,7 @@ export default function AdMaker() {
     setGeneratedImage(null);
     try {
       const { data, error } = await supabase.functions.invoke("ad-content-maker", {
-        body: { idea, product, price, audience, tone, language, platform, imageUrl: imageUrl || undefined, generateImage },
+        body: { idea, product, price, audience, tone, language, platform, imageUrl: imageUrl || undefined, generateImage, ...providerPayload() },
       });
       if (error) throw error;
       if (data?.error) throw new Error(data.error);
@@ -120,6 +135,7 @@ export default function AdMaker() {
           mode: "regenerate_image",
           idea,
           imagePrompt: pack?.creative_brief?.image_prompt,
+          ...providerPayload(),
         },
       });
       if (error) throw error;
@@ -147,6 +163,7 @@ export default function AdMaker() {
           mode: "video_frames",
           idea,
           storyboard: pack?.creative_brief?.video_storyboard,
+          ...providerPayload(),
         },
       });
       if (error) throw error;
@@ -277,6 +294,67 @@ export default function AdMaker() {
             </div>
             <Switch checked={generateImage} onCheckedChange={setGenerateImage} />
           </div>
+
+          {/* AI Provider Toggle */}
+          <div className="p-3 rounded-md border-2 border-dashed border-primary/30 bg-gradient-to-br from-primary/5 to-accent/5 space-y-3">
+            <div className="flex items-center justify-between gap-2">
+              <div>
+                <Label className="text-sm font-semibold">AI প্রোভাইডার</Label>
+                <p className="text-[11px] text-muted-foreground">
+                  {provider === "gemini"
+                    ? "আপনার নিজের Gemini key (ফ্রি টায়ার)"
+                    : "Lovable AI (ক্রেডিট ব্যবহার করে)"}
+                </p>
+              </div>
+              <Switch
+                checked={provider === "gemini"}
+                onCheckedChange={(v) => {
+                  setProvider(v ? "gemini" : "lovable");
+                  if (v) setShowKeyInput(true);
+                }}
+              />
+            </div>
+            {provider === "gemini" && (
+              <div className="space-y-1.5">
+                <div className="flex items-center justify-between">
+                  <Label className="text-xs">Google Gemini API Key</Label>
+                  <button
+                    type="button"
+                    onClick={() => setShowKeyInput((s) => !s)}
+                    className="text-[11px] text-primary underline"
+                  >
+                    {showKeyInput ? "লুকাও" : "দেখাও"}
+                  </button>
+                </div>
+                <Input
+                  type={showKeyInput ? "text" : "password"}
+                  value={userGeminiKey}
+                  onChange={(e) => setUserGeminiKey(e.target.value)}
+                  placeholder="AIza..."
+                  className="font-mono text-xs"
+                />
+                <p className="text-[11px] text-muted-foreground">
+                  ফ্রি key নিন:{" "}
+                  <a
+                    href="https://aistudio.google.com/apikey"
+                    target="_blank"
+                    rel="noreferrer"
+                    className="text-primary underline"
+                  >
+                    aistudio.google.com/apikey
+                  </a>{" "}
+                  — key শুধু আপনার ব্রাউজারে সেভ হয়, সার্ভারে না।
+                </p>
+                {!userGeminiKey.trim() && (
+                  <p className="text-[11px] text-destructive">
+                    Key না দিলে Lovable AI ব্যবহার হবে
+                  </p>
+                )}
+              </div>
+            )}
+          </div>
+
+
 
           <Button onClick={handleGenerate} disabled={loading} className="w-full gap-2" size="lg">
             {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />}

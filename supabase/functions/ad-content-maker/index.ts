@@ -5,7 +5,7 @@ const GATEWAY = "https://ai.gateway.lovable.dev/v1";
 
 type Body = {
   idea: string;
-  platform: string; // facebook, instagram, google, tiktok, youtube, linkedin, twitter, all
+  platform: string;
   product?: string;
   audience?: string;
   tone?: string;
@@ -16,15 +16,46 @@ type Body = {
   imagePrompt?: string;
   mode?: "full" | "regenerate_image" | "video_frames";
   storyboard?: string[];
+  provider?: "lovable" | "gemini";
+  userGeminiKey?: string;
 };
 
-async function generateOneImage(prompt: string): Promise<string | null> {
+async function generateOneImage(prompt: string, provider: string, userKey?: string): Promise<string | null> {
   const imgPrompt = `${prompt}
 
 STRICT RULES — MUST FOLLOW:
 - DO NOT render any text, letters, words, numbers, captions, logos, watermarks, signs, labels, price tags or typography ANYWHERE in the image.
 - NO Bengali / Bangla / English / Arabic script of any kind.
 - Pure clean product / lifestyle photography only. Photorealistic, bright commercial lighting, eye-catching composition, leave clean negative space on one side for text to be added later in post-production.`;
+
+  // User's own Gemini API (free tier)
+  if (provider === "gemini" && userKey) {
+    try {
+      const r = await fetch(
+        `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-image-preview:generateContent?key=${userKey}`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            contents: [{ parts: [{ text: imgPrompt }] }],
+            generationConfig: { responseModalities: ["IMAGE", "TEXT"] },
+          }),
+        }
+      );
+      if (!r.ok) return null;
+      const d = await r.json();
+      const parts = d?.candidates?.[0]?.content?.parts || [];
+      for (const p of parts) {
+        if (p?.inlineData?.data) {
+          const mime = p.inlineData.mimeType || "image/png";
+          return `data:${mime};base64,${p.inlineData.data}`;
+        }
+      }
+      return null;
+    } catch { return null; }
+  }
+
+  // Default: Lovable AI Gateway
   try {
     const imgRes = await fetch(`${GATEWAY}/chat/completions`, {
       method: "POST",
@@ -42,6 +73,53 @@ STRICT RULES — MUST FOLLOW:
     if (typeof imgUrl === "string" && (imgUrl.startsWith("data:") || imgUrl.startsWith("http"))) return imgUrl;
     return null;
   } catch { return null; }
+}
+
+async function generateTextPack(system: string, prompt: string, imageUrl: string | undefined, provider: string, userKey?: string): Promise<{ ok: boolean; text?: string; error?: string; status?: number }> {
+  // User's own Gemini API (free tier)
+  if (provider === "gemini" && userKey) {
+    const parts: any[] = [{ text: prompt }];
+    if (imageUrl) {
+      try {
+        const imgFetch = await fetch(imageUrl);
+        const buf = new Uint8Array(await imgFetch.arrayBuffer());
+        let bin = ""; for (let i = 0; i < buf.length; i++) bin += String.fromCharCode(buf[i]);
+        parts.push({ inlineData: { mimeType: imgFetch.headers.get("content-type") || "image/jpeg", data: btoa(bin) } });
+      } catch { /* ignore */ }
+    }
+    const r = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${userKey}`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          systemInstruction: { parts: [{ text: system }] },
+          contents: [{ role: "user", parts }],
+          generationConfig: { responseMimeType: "application/json" },
+        }),
+      }
+    );
+    if (!r.ok) return { ok: false, status: r.status, error: (await r.text()).slice(0, 300) };
+    const d = await r.json();
+    const text = d?.candidates?.[0]?.content?.parts?.map((p: any) => p?.text).filter(Boolean).join("") || "{}";
+    return { ok: true, text };
+  }
+
+  // Default: Lovable Gateway
+  const userContent: any[] = [{ type: "text", text: prompt }];
+  if (imageUrl) userContent.push({ type: "image_url", image_url: { url: imageUrl } });
+  const chatRes = await fetch(`${GATEWAY}/chat/completions`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json", "Lovable-API-Key": LOVABLE_API_KEY! },
+    body: JSON.stringify({
+      model: "google/gemini-2.5-flash",
+      messages: [{ role: "system", content: system }, { role: "user", content: userContent }],
+      response_format: { type: "json_object" },
+    }),
+  });
+  if (!chatRes.ok) return { ok: false, status: chatRes.status, error: (await chatRes.text()).slice(0, 300) };
+  const chatData = await chatRes.json();
+  return { ok: true, text: chatData?.choices?.[0]?.message?.content ?? "{}" };
 }
 
 function buildSystem(b: Body) {
@@ -110,19 +188,21 @@ Return JSON with this exact shape:
 
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
-  if (!LOVABLE_API_KEY) {
-    return new Response(JSON.stringify({ error: "Missing LOVABLE_API_KEY" }), {
-      status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" },
-    });
-  }
   try {
     const body = (await req.json()) as Body;
     const mode = body.mode || "full";
+    const provider = body.provider === "gemini" && body.userGeminiKey ? "gemini" : "lovable";
+
+    if (provider === "lovable" && !LOVABLE_API_KEY) {
+      return new Response(JSON.stringify({ error: "Missing LOVABLE_API_KEY (or supply userGeminiKey)" }), {
+        status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
 
     // === MODE: Regenerate image only ===
     if (mode === "regenerate_image") {
       const prompt = body.imagePrompt || `Professional advertisement visual for: ${body.idea}`;
-      const img = await generateOneImage(prompt + " — fresh variation, different angle, different composition, seed:" + Math.random());
+      const img = await generateOneImage(prompt + " — fresh variation, different angle, different composition, seed:" + Math.random(), provider, body.userGeminiKey);
       return new Response(JSON.stringify({ generatedImage: img }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
@@ -133,46 +213,26 @@ Deno.serve(async (req) => {
       const shots = (body.storyboard && body.storyboard.length > 0)
         ? body.storyboard.slice(0, 6)
         : [`Opening shot for: ${body.idea}`, `Product close-up for: ${body.idea}`, `Lifestyle usage for: ${body.idea}`, `Happy customer reaction for: ${body.idea}`];
-      const frames = await Promise.all(shots.map((s) => generateOneImage(`Cinematic advertisement video frame — ${s}. Photorealistic, dramatic lighting, shallow depth of field, 16:9 cinematic composition.`)));
+      const frames = await Promise.all(shots.map((s) => generateOneImage(`Cinematic advertisement video frame — ${s}. Photorealistic, dramatic lighting, shallow depth of field, 16:9 cinematic composition.`, provider, body.userGeminiKey)));
       return new Response(JSON.stringify({ frames: frames.filter(Boolean), shots }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
 
-    // === MODE: Full content pack (default) ===
+    // === MODE: Full content pack ===
     if (!body?.idea || body.idea.trim().length < 5) {
       return new Response(JSON.stringify({ error: "Idea is required (min 5 chars)" }), {
         status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
 
-    const userContent: any[] = [{ type: "text", text: buildPrompt(body) }];
-    if (body.imageUrl) {
-      userContent.push({ type: "image_url", image_url: { url: body.imageUrl } });
-    }
-
-    const chatRes = await fetch(`${GATEWAY}/chat/completions`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json", "Lovable-API-Key": LOVABLE_API_KEY },
-      body: JSON.stringify({
-        model: "google/gemini-2.5-flash",
-        messages: [
-          { role: "system", content: buildSystem(body) },
-          { role: "user", content: userContent },
-        ],
-        response_format: { type: "json_object" },
-      }),
-    });
-
-    if (!chatRes.ok) {
-      const txt = await chatRes.text();
-      return new Response(JSON.stringify({ error: `AI error ${chatRes.status}: ${txt.slice(0, 300)}` }), {
-        status: chatRes.status, headers: { ...corsHeaders, "Content-Type": "application/json" },
+    const res = await generateTextPack(buildSystem(body), buildPrompt(body), body.imageUrl, provider, body.userGeminiKey);
+    if (!res.ok) {
+      return new Response(JSON.stringify({ error: `AI error ${res.status}: ${res.error}` }), {
+        status: res.status || 500, headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
-
-    const chatData = await chatRes.json();
-    const rawText = chatData?.choices?.[0]?.message?.content ?? "{}";
+    const rawText = res.text ?? "{}";
     let pack: any;
     try { pack = JSON.parse(rawText); }
     catch {
@@ -183,10 +243,10 @@ Deno.serve(async (req) => {
     let generatedImage: string | null = null;
     if (body.generateImage) {
       const baseVisual = body.imagePrompt || pack?.creative_brief?.image_prompt || `Professional advertisement visual for: ${body.idea}`;
-      generatedImage = await generateOneImage(baseVisual);
+      generatedImage = await generateOneImage(baseVisual, provider, body.userGeminiKey);
     }
 
-    return new Response(JSON.stringify({ pack, generatedImage }), {
+    return new Response(JSON.stringify({ pack, generatedImage, provider }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   } catch (e: any) {

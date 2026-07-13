@@ -926,54 +926,60 @@ const Finance = () => {
 
             <div>
               <Label className="text-xs">{qaType === "transfer" ? (bn?"যেখান থেকে":"From wallet") : (bn?"ওয়ালেট":"Wallet")}</Label>
-              <div className="grid grid-cols-2 gap-1.5 mt-1">
-                {wallets.filter(w => qaScope === w.scope || w.scope === "personal").slice(0, 8).map(w => (
-                  <button key={w.id} type="button" onClick={() => setQaWallet(w.id)}
-                    className={cn(
-                      "text-left px-3 py-2 rounded-xl border text-xs transition-all",
-                      qaWallet === w.id ? "border-primary bg-primary/10 shadow-sm" : "border-border/60 bg-card/50 hover:bg-muted"
-                    )}>
-                    <p className="font-medium truncate">{w.name}</p>
-                    <p className="text-[10px] text-muted-foreground tabular-nums">৳{Number(w.balance||0).toFixed(0)}</p>
-                  </button>
-                ))}
-              </div>
+              <Select value={qaWallet} onValueChange={setQaWallet}>
+                <SelectTrigger className="mt-1 rounded-xl">
+                  <SelectValue placeholder={bn?"ওয়ালেট নির্বাচন করুন":"Select wallet"} />
+                </SelectTrigger>
+                <SelectContent>
+                  {wallets.filter(w => qaScope === w.scope || w.scope === "personal").map(w => (
+                    <SelectItem key={w.id} value={w.id}>
+                      <span className="flex items-center justify-between gap-3 w-full">
+                        <span className="truncate">{w.name}</span>
+                        <span className="text-[10px] text-muted-foreground tabular-nums">৳{Number(w.balance||0).toFixed(0)}</span>
+                      </span>
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
 
             {qaType === "transfer" && (
               <div>
                 <Label className="text-xs">{bn?"যেখানে":"To wallet"}</Label>
-                <div className="grid grid-cols-2 gap-1.5 mt-1">
-                  {wallets.filter(w => w.id !== qaWallet).slice(0, 8).map(w => (
-                    <button key={w.id} type="button" onClick={() => setQaWallet2(w.id)}
-                      className={cn(
-                        "text-left px-3 py-2 rounded-xl border text-xs transition-all",
-                        qaWallet2 === w.id ? "border-primary bg-primary/10 shadow-sm" : "border-border/60 bg-card/50 hover:bg-muted"
-                      )}>
-                      <p className="font-medium truncate">{w.name}</p>
-                      <p className="text-[10px] text-muted-foreground tabular-nums">৳{Number(w.balance||0).toFixed(0)}</p>
-                    </button>
-                  ))}
-                </div>
+                <Select value={qaWallet2} onValueChange={setQaWallet2}>
+                  <SelectTrigger className="mt-1 rounded-xl">
+                    <SelectValue placeholder={bn?"গন্তব্য ওয়ালেট":"Destination wallet"} />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {wallets.filter(w => w.id !== qaWallet).map(w => (
+                      <SelectItem key={w.id} value={w.id}>
+                        <span className="flex items-center justify-between gap-3 w-full">
+                          <span className="truncate">{w.name}</span>
+                          <span className="text-[10px] text-muted-foreground tabular-nums">৳{Number(w.balance||0).toFixed(0)}</span>
+                        </span>
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
             )}
 
             {qaType !== "transfer" && (
               <div>
                 <Label className="text-xs">{bn?"ক্যাটাগরি":"Category"}</Label>
-                <div className="flex flex-wrap gap-1.5 mt-1">
-                  {CATEGORIES.map(c => (
-                    <button key={c} type="button" onClick={() => setQaCategory(c)}
-                      className={cn(
-                        "text-[11px] px-3 py-1.5 rounded-full border transition-all",
-                        qaCategory === c ? "border-primary bg-primary text-primary-foreground shadow-sm" : "border-border/60 bg-card/50 hover:bg-muted"
-                      )}>
-                      {bn ? (CATEGORY_BN[c] ?? c) : c}
-                    </button>
-                  ))}
-                </div>
+                <Select value={qaCategory} onValueChange={setQaCategory}>
+                  <SelectTrigger className="mt-1 rounded-xl">
+                    <SelectValue placeholder={bn?"ক্যাটাগরি নির্বাচন করুন":"Select category"} />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {CATEGORIES.map(c => (
+                      <SelectItem key={c} value={c}>{bn ? (CATEGORY_BN[c] ?? c) : c}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
             )}
+
 
             {(qaType === "sale" || qaType === "purchase" || qaType?.startsWith("loan") || qaType?.startsWith("repayment")) && (
               <div>

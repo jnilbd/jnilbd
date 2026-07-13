@@ -876,6 +876,11 @@ const Finance = () => {
             />
           </TabsContent>
 
+          {/* Calculator */}
+          <TabsContent value="calc" className="mt-4">
+            <FinanceCalculator />
+          </TabsContent>
+
           {/* Sales: order → payment → courier → delivery */}
           <TabsContent value="sales" className="mt-4">
             <SalesTab userId={user.id} bn={bn} />

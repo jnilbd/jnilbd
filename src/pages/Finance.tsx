@@ -535,6 +535,10 @@ const Finance = () => {
               </div>
             </Card>
 
+            <SmartReminders reminders={reminders} bn={bn} />
+
+
+
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
               <MetricCard label={bn?"আজকের আয়":"Today's Income"} value={fmtBDT(metrics.todayIn, bn)} icon={TrendingUp} tone="positive" />
               <MetricCard label={bn?"আজকের খরচ":"Today's Expense"} value={fmtBDT(metrics.todayOut, bn)} icon={TrendingDown} tone="negative" />

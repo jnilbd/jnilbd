@@ -135,6 +135,7 @@ export default function AdMaker() {
           mode: "regenerate_image",
           idea,
           imagePrompt: pack?.creative_brief?.image_prompt,
+          ...providerPayload(),
         },
       });
       if (error) throw error;

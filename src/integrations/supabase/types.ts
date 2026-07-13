@@ -275,6 +275,101 @@ export type Database = {
         }
         Relationships: []
       }
+      inventory_movements: {
+        Row: {
+          created_at: string
+          id: string
+          note: string | null
+          occurred_at: string
+          product_id: string
+          qty: number
+          related_tx_id: string | null
+          type: string
+          unit_price: number
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          note?: string | null
+          occurred_at?: string
+          product_id: string
+          qty: number
+          related_tx_id?: string | null
+          type: string
+          unit_price?: number
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          note?: string | null
+          occurred_at?: string
+          product_id?: string
+          qty?: number
+          related_tx_id?: string | null
+          type?: string
+          unit_price?: number
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "inventory_movements_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "inventory_products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      inventory_products: {
+        Row: {
+          created_at: string
+          current_stock: number
+          id: string
+          low_stock_threshold: number
+          name: string
+          note: string | null
+          purchase_price: number
+          scope: string
+          sell_price: number
+          sku: string | null
+          unit: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          current_stock?: number
+          id?: string
+          low_stock_threshold?: number
+          name: string
+          note?: string | null
+          purchase_price?: number
+          scope?: string
+          sell_price?: number
+          sku?: string | null
+          unit?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          current_stock?: number
+          id?: string
+          low_stock_threshold?: number
+          name?: string
+          note?: string | null
+          purchase_price?: number
+          scope?: string
+          sell_price?: number
+          sku?: string | null
+          unit?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       marketplace_items: {
         Row: {
           category: string

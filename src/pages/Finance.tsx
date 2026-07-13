@@ -5,8 +5,9 @@ import {
   Wallet, TrendingUp, TrendingDown, ArrowLeftRight, Plus, Sparkles, Send,
   Landmark, Smartphone, CreditCard, Coins, Banknote, PiggyBank, Package,
   ShoppingCart, ReceiptText, Trash2, RefreshCw, Loader2, X, ArrowUpRight, ArrowDownRight,
-  Building2, User as UserIcon, Wand2, ChevronRight, Search
+  Building2, User as UserIcon, Wand2, ChevronRight, Search, Boxes, AlertTriangle
 } from "lucide-react";
+
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
@@ -27,6 +28,8 @@ import { AnalyticsTab } from "@/components/finance/AnalyticsTab";
 import { BudgetTab } from "@/components/finance/BudgetTab";
 import { DebtsTab } from "@/components/finance/DebtsTab";
 import { SmartReminders, type Reminder } from "@/components/finance/SmartReminders";
+import { InventoryTab } from "@/components/finance/InventoryTab";
+
 
 // ---------- Types ----------
 type WalletType = "cash" | "bank" | "mobile" | "card" | "digital";
@@ -189,6 +192,8 @@ const Finance = () => {
 
   const [wallets, setWallets] = useState<WalletRow[]>([]);
   const [txs, setTxs] = useState<TxRow[]>([]);
+  const [invStats, setInvStats] = useState({ stockValue: 0, lowCount: 0, productCount: 0 });
+
   const [scope, setScope] = useState<Scope>("all");
   const [busy, setBusy] = useState(false);
   const [tab, setTab] = useState("dashboard");
@@ -226,13 +231,22 @@ const Finance = () => {
 
   const loadAll = useCallback(async () => {
     if (!user) return;
-    const [{ data: w }, { data: t }] = await Promise.all([
+    const [{ data: w }, { data: t }, { data: prods }] = await Promise.all([
       supabase.from("finance_wallets").select("*").eq("user_id", user.id).order("sort_order").order("created_at"),
       supabase.from("finance_transactions").select("*").eq("user_id", user.id).order("occurred_at", { ascending: false }).limit(500),
+      supabase.from("inventory_products").select("current_stock,sell_price,low_stock_threshold").eq("user_id", user.id),
     ]);
     setWallets((w as any) ?? []);
     setTxs((t as any) ?? []);
+    let sv = 0, lc = 0;
+    for (const p of (prods ?? []) as any[]) {
+      sv += Number(p.current_stock) * Number(p.sell_price);
+      if (Number(p.current_stock) <= Number(p.low_stock_threshold)) lc++;
+    }
+    setInvStats({ stockValue: sv, lowCount: lc, productCount: (prods ?? []).length });
   }, [user]);
+
+
 
   // seed default wallets on first visit
   useEffect(() => {
@@ -320,8 +334,21 @@ const Finance = () => {
         title: bn ? "মাসিক খরচ আয়ের চেয়ে বেশি" : "Monthly expenses exceed income",
         desc: bn ? "সাবধান হোন" : "Consider cutting back" });
     }
+    if (invStats.lowCount > 0) {
+      r.push({ id: "low-stock", icon: "warn", tone: "rose",
+        title: bn ? `${invStats.lowCount} টি পণ্যের স্টক কম` : `${invStats.lowCount} products low in stock`,
+        desc: bn ? "ইনভেন্টরি ট্যাবে দেখুন" : "Check the Inventory tab" });
+    }
+    const lowWallets = filteredWallets.filter(w => Number(w.balance) > 0 && Number(w.balance) < 500);
+    if (lowWallets.length > 0) {
+      r.push({ id: "low-wallet", icon: "warn", tone: "amber",
+        title: bn ? `${lowWallets.length} টি ওয়ালেটে টাকা কম` : `${lowWallets.length} wallet(s) running low`,
+        desc: lowWallets.map(w => w.name).slice(0, 3).join(", ") });
+    }
     return r;
-  }, [filteredTxs, metrics, bn]);
+  }, [filteredTxs, metrics, bn, invStats, filteredWallets]);
+
+
 
 
   const walletDelta = useCallback((walletId: string, since: number) => {
@@ -517,6 +544,8 @@ const Finance = () => {
               <TabsTrigger value="analytics" className="text-xs px-3">{bn?"বিশ্লেষণ":"Analytics"}</TabsTrigger>
               <TabsTrigger value="budget" className="text-xs px-3">{bn?"বাজেট":"Budget"}</TabsTrigger>
               <TabsTrigger value="debts" className="text-xs px-3">{bn?"দেনা-পাওনা":"Debts"}</TabsTrigger>
+              <TabsTrigger value="inventory" className="text-xs px-3">{bn?"স্টক":"Inventory"}</TabsTrigger>
+
               <TabsTrigger value="ai" className="text-xs px-3"><span className="flex items-center gap-1"><Sparkles className="h-3.5 w-3.5" />AI</span></TabsTrigger>
             </TabsList>
           </div>
@@ -549,6 +578,14 @@ const Finance = () => {
               <MetricCard label={bn?"মোট নগদ":"Total Cash"} value={fmtBDT(metrics.cashTotal, bn)} icon={Coins} />
               <MetricCard label={bn?"মোট ব্যাংক":"Total Bank"} value={fmtBDT(metrics.bankTotal, bn)} icon={Landmark} />
               <MetricCard label={bn?"মোবাইল ব্যাংকিং":"Mobile Banking"} value={fmtBDT(metrics.mbTotal, bn)} icon={Smartphone} />
+              <MetricCard label={bn?"স্টকের মূল্য":"Stock Value"} value={fmtBDT(invStats.stockValue, bn)} icon={Boxes} />
+              <MetricCard
+                label={bn?"কম স্টক":"Low Stock"}
+                value={bn ? invStats.lowCount.toLocaleString("bn-BD") : String(invStats.lowCount)}
+                icon={AlertTriangle}
+                tone={invStats.lowCount > 0 ? "negative" : undefined}
+              />
+
             </div>
 
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
@@ -776,6 +813,11 @@ const Finance = () => {
           {/* Debts */}
           <TabsContent value="debts" className="mt-4">
             <DebtsTab userId={user.id} bn={bn} />
+          </TabsContent>
+
+          {/* Inventory */}
+          <TabsContent value="inventory" className="mt-4">
+            <InventoryTab userId={user.id} bn={bn} />
           </TabsContent>
         </Tabs>
       </div>

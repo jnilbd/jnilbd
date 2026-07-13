@@ -1316,8 +1316,11 @@ export type Database = {
           id: string
           notes: string | null
           notified: boolean | null
+          payment_proof: string | null
+          payment_txn_id: string | null
           product_id: string | null
           product_name: string
+          product_type: string
           quantity: number
           status: string
           total_amount: number
@@ -1334,8 +1337,11 @@ export type Database = {
           id?: string
           notes?: string | null
           notified?: boolean | null
+          payment_proof?: string | null
+          payment_txn_id?: string | null
           product_id?: string | null
           product_name: string
+          product_type?: string
           quantity?: number
           status?: string
           total_amount: number
@@ -1352,8 +1358,11 @@ export type Database = {
           id?: string
           notes?: string | null
           notified?: boolean | null
+          payment_proof?: string | null
+          payment_txn_id?: string | null
           product_id?: string | null
           product_name?: string
+          product_type?: string
           quantity?: number
           status?: string
           total_amount?: number
@@ -1377,6 +1386,7 @@ export type Database = {
           badge_color: string | null
           category: string | null
           created_at: string
+          digital_delivery_info: string | null
           discount_price: number | null
           full_description: string | null
           full_description_bn: string | null
@@ -1390,6 +1400,7 @@ export type Database = {
           offer_enabled: boolean | null
           offer_started_at: string | null
           price: number
+          product_type: string
           related_ids: Json | null
           short_description: string | null
           short_description_bn: string | null
@@ -1403,6 +1414,7 @@ export type Database = {
           badge_color?: string | null
           category?: string | null
           created_at?: string
+          digital_delivery_info?: string | null
           discount_price?: number | null
           full_description?: string | null
           full_description_bn?: string | null
@@ -1416,6 +1428,7 @@ export type Database = {
           offer_enabled?: boolean | null
           offer_started_at?: string | null
           price?: number
+          product_type?: string
           related_ids?: Json | null
           short_description?: string | null
           short_description_bn?: string | null
@@ -1429,6 +1442,7 @@ export type Database = {
           badge_color?: string | null
           category?: string | null
           created_at?: string
+          digital_delivery_info?: string | null
           discount_price?: number | null
           full_description?: string | null
           full_description_bn?: string | null
@@ -1442,6 +1456,7 @@ export type Database = {
           offer_enabled?: boolean | null
           offer_started_at?: string | null
           price?: number
+          product_type?: string
           related_ids?: Json | null
           short_description?: string | null
           short_description_bn?: string | null

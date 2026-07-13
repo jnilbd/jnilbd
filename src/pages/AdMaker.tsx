@@ -110,7 +110,7 @@ export default function AdMaker() {
     setGeneratedImage(null);
     try {
       const { data, error } = await supabase.functions.invoke("ad-content-maker", {
-        body: { idea, product, price, audience, tone, language, platform, imageUrl: imageUrl || undefined, generateImage },
+        body: { idea, product, price, audience, tone, language, platform, imageUrl: imageUrl || undefined, generateImage, ...providerPayload() },
       });
       if (error) throw error;
       if (data?.error) throw new Error(data.error);

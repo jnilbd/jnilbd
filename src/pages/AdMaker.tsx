@@ -73,6 +73,21 @@ export default function AdMaker() {
   const [platform, setPlatform] = useState("all");
   const [imageUrl, setImageUrl] = useState("");
   const [generateImage, setGenerateImage] = useState(true);
+  const [provider, setProvider] = useState<"lovable" | "gemini">(
+    () => (localStorage.getItem("adMakerProvider") as any) || "lovable"
+  );
+  const [userGeminiKey, setUserGeminiKey] = useState<string>(
+    () => localStorage.getItem("userGeminiKey") || ""
+  );
+  const [showKeyInput, setShowKeyInput] = useState(false);
+
+  useEffect(() => { localStorage.setItem("adMakerProvider", provider); }, [provider]);
+  useEffect(() => { localStorage.setItem("userGeminiKey", userGeminiKey); }, [userGeminiKey]);
+
+  const providerPayload = () =>
+    provider === "gemini" && userGeminiKey.trim()
+      ? { provider: "gemini", userGeminiKey: userGeminiKey.trim() }
+      : { provider: "lovable" };
 
   const [loading, setLoading] = useState(false);
   const [pack, setPack] = useState<Pack | null>(null);

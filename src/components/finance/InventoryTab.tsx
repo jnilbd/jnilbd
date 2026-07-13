@@ -8,10 +8,12 @@ import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
 import {
   Package, Plus, ArrowDownToLine, ArrowUpFromLine, Undo2, RotateCcw,
-  AlertTriangle, Trash2, History, Boxes,
+  AlertTriangle, Trash2, History, Boxes, Building2, Truck, UserRound,
+  Factory, ShoppingBag, XCircle, Wallet, Phone, Search,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -29,23 +31,51 @@ export type Product = {
   note: string | null;
 };
 
+type MvType = "stock_in" | "stock_out" | "customer_return" | "supplier_return" | "damage" | "sale";
+type MvLocation = "office" | "courier" | "with_person" | "supplier" | "customer" | "damaged";
+type MvStatus = "completed" | "in_transit" | "pending" | "returned" | "cancelled";
+
 export type Movement = {
   id: string;
   product_id: string;
-  type: "stock_in" | "stock_out" | "customer_return" | "supplier_return" | "damage" | "sale";
+  type: MvType;
   qty: number;
   unit_price: number;
+  amount_paid: number;
   note: string | null;
   occurred_at: string;
+  location: MvLocation | null;
+  party_name: string | null;
+  party_phone: string | null;
+  courier_name: string | null;
+  tracking_no: string | null;
+  status: MvStatus;
 };
 
-const MV_META: Record<Movement["type"], { bn: string; en: string; icon: any; tone: string; sign: 1 | -1 }> = {
-  stock_in:         { bn: "স্টক ইন",         en: "Stock In",         icon: ArrowDownToLine, tone: "text-emerald-600 bg-emerald-500/10", sign: 1 },
-  stock_out:        { bn: "স্টক আউট",        en: "Stock Out",        icon: ArrowUpFromLine, tone: "text-rose-600 bg-rose-500/10",       sign: -1 },
-  customer_return:  { bn: "কাস্টমার রিটার্ন", en: "Customer Return",  icon: Undo2,           tone: "text-sky-600 bg-sky-500/10",         sign: 1 },
-  supplier_return:  { bn: "সাপ্লায়ার রিটার্ন", en: "Supplier Return",  icon: RotateCcw,       tone: "text-amber-600 bg-amber-500/10",     sign: -1 },
-  damage:           { bn: "ড্যামেজ",         en: "Damage",           icon: AlertTriangle,   tone: "text-red-600 bg-red-500/10",         sign: -1 },
-  sale:             { bn: "বিক্রি",           en: "Sale",             icon: Package,         tone: "text-primary bg-primary/10",         sign: -1 },
+const MV_META: Record<MvType, { bn: string; en: string; icon: any; tone: string; sign: 1 | -1; defaultLoc: MvLocation }> = {
+  stock_in:        { bn: "স্টক ইন",           en: "Stock In",        icon: ArrowDownToLine, tone: "text-emerald-600 bg-emerald-500/10", sign: 1,  defaultLoc: "office" },
+  stock_out:       { bn: "স্টক আউট",          en: "Stock Out",       icon: ArrowUpFromLine, tone: "text-rose-600 bg-rose-500/10",       sign: -1, defaultLoc: "courier" },
+  customer_return: { bn: "কাস্টমার রিটার্ন",   en: "Customer Return", icon: Undo2,           tone: "text-sky-600 bg-sky-500/10",         sign: 1,  defaultLoc: "office" },
+  supplier_return: { bn: "সাপ্লায়ার রিটার্ন",  en: "Supplier Return", icon: RotateCcw,       tone: "text-amber-600 bg-amber-500/10",     sign: -1, defaultLoc: "supplier" },
+  damage:          { bn: "ড্যামেজ",            en: "Damage",          icon: AlertTriangle,   tone: "text-red-600 bg-red-500/10",         sign: -1, defaultLoc: "damaged" },
+  sale:            { bn: "বিক্রি",             en: "Sale",            icon: Package,         tone: "text-primary bg-primary/10",         sign: -1, defaultLoc: "customer" },
+};
+
+const LOC_META: Record<MvLocation, { bn: string; en: string; icon: any; tone: string }> = {
+  office:      { bn: "অফিসে",         en: "At Office",     icon: Building2,   tone: "text-emerald-700 bg-emerald-500/10 border-emerald-500/30" },
+  courier:     { bn: "কুরিয়ারে",      en: "In Courier",    icon: Truck,       tone: "text-amber-700 bg-amber-500/10 border-amber-500/30" },
+  with_person: { bn: "ব্যক্তির কাছে",  en: "With Person",   icon: UserRound,   tone: "text-violet-700 bg-violet-500/10 border-violet-500/30" },
+  supplier:    { bn: "সাপ্লায়ারে",    en: "To Supplier",   icon: Factory,     tone: "text-orange-700 bg-orange-500/10 border-orange-500/30" },
+  customer:    { bn: "কাস্টমারে",      en: "To Customer",   icon: ShoppingBag, tone: "text-sky-700 bg-sky-500/10 border-sky-500/30" },
+  damaged:     { bn: "নষ্ট",           en: "Damaged",       icon: XCircle,     tone: "text-red-700 bg-red-500/10 border-red-500/30" },
+};
+
+const STATUS_META: Record<MvStatus, { bn: string; en: string; tone: string }> = {
+  completed:  { bn: "সম্পন্ন",     en: "Completed",  tone: "bg-emerald-500/15 text-emerald-700" },
+  in_transit: { bn: "চলছে",       en: "In Transit", tone: "bg-amber-500/15 text-amber-700" },
+  pending:    { bn: "বাকি",       en: "Pending",    tone: "bg-orange-500/15 text-orange-700" },
+  returned:   { bn: "ফেরত",       en: "Returned",   tone: "bg-sky-500/15 text-sky-700" },
+  cancelled:  { bn: "বাতিল",      en: "Cancelled",  tone: "bg-muted text-muted-foreground" },
 };
 
 const fmtBDT = (n: number, bn: boolean) =>
@@ -55,6 +85,7 @@ export function InventoryTab({ userId, bn }: { userId: string; bn: boolean }) {
   const [products, setProducts] = useState<Product[]>([]);
   const [movements, setMovements] = useState<Movement[]>([]);
   const [loading, setLoading] = useState(true);
+  const [query, setQuery] = useState("");
 
   const [addOpen, setAddOpen] = useState(false);
   const [form, setForm] = useState({
@@ -62,8 +93,12 @@ export function InventoryTab({ userId, bn }: { userId: string; bn: boolean }) {
     low_stock_threshold: "5", opening_stock: "0", note: "",
   });
 
-  const [mvSheet, setMvSheet] = useState<{ product: Product; type: Movement["type"] } | null>(null);
-  const [mvForm, setMvForm] = useState({ qty: "", unit_price: "", note: "" });
+  const [mvSheet, setMvSheet] = useState<{ product: Product; type: MvType } | null>(null);
+  const [mvForm, setMvForm] = useState({
+    qty: "", unit_price: "", amount_paid: "", note: "",
+    location: "office" as MvLocation, party_name: "", party_phone: "",
+    courier_name: "", tracking_no: "", status: "completed" as MvStatus,
+  });
 
   const [historyOf, setHistoryOf] = useState<Product | null>(null);
 
@@ -71,13 +106,47 @@ export function InventoryTab({ userId, bn }: { userId: string; bn: boolean }) {
     setLoading(true);
     const [{ data: p }, { data: m }] = await Promise.all([
       supabase.from("inventory_products").select("*").order("name"),
-      supabase.from("inventory_movements").select("id,product_id,type,qty,unit_price,note,occurred_at").order("occurred_at", { ascending: false }).limit(500),
+      supabase.from("inventory_movements").select("*").order("occurred_at", { ascending: false }).limit(1000),
     ]);
     setProducts((p ?? []) as Product[]);
     setMovements((m ?? []) as Movement[]);
     setLoading(false);
   }
   useEffect(() => { loadAll(); }, []);
+
+  // ---------- Aggregate breakdowns ----------
+  const breakdown = useMemo(() => {
+    // Units currently at each location (net of subsequent inbound movements)
+    // Simple rule: a "sent out" movement (sign -1) with a location keeps qty there
+    // until a matching customer_return / stock_in reduces the outstanding.
+    // For clarity we compute two views:
+    //   (a) outstanding units per location — sum of qty of outbound moves with status ∈ (in_transit, pending)
+    //   (b) money receivable — Σ (qty*unit_price − amount_paid) for sale/stock_out where status ≠ cancelled/returned
+    const perLoc: Record<MvLocation, number> = {
+      office: 0, courier: 0, with_person: 0, supplier: 0, customer: 0, damaged: 0,
+    };
+    let receivable = 0;
+    let inTransitValue = 0;
+    let pendingCount = 0;
+
+    for (const m of movements) {
+      const meta = MV_META[m.type];
+      // Outbound not-yet-settled -> those units are still "out there"
+      if (meta.sign === -1 && m.location && (m.status === "in_transit" || m.status === "pending")) {
+        perLoc[m.location] += Number(m.qty);
+      }
+      // Money receivable for sales/outs that aren't fully paid & not cancelled/returned
+      if ((m.type === "sale" || m.type === "stock_out") && m.status !== "cancelled" && m.status !== "returned") {
+        const due = Number(m.qty) * Number(m.unit_price) - Number(m.amount_paid || 0);
+        if (due > 0) receivable += due;
+      }
+      if (m.status === "in_transit") inTransitValue += Number(m.qty) * Number(m.unit_price);
+      if (m.status === "pending") pendingCount++;
+    }
+    // Office = current on-hand (from products.current_stock)
+    perLoc.office = products.reduce((s, p) => s + Number(p.current_stock), 0);
+    return { perLoc, receivable, inTransitValue, pendingCount };
+  }, [movements, products]);
 
   const totals = useMemo(() => {
     let stockValue = 0, low = 0, items = 0;
@@ -88,6 +157,14 @@ export function InventoryTab({ userId, bn }: { userId: string; bn: boolean }) {
     }
     return { stockValue, low, items, count: products.length };
   }, [products]);
+
+  const filteredProducts = useMemo(() => {
+    const q = query.trim().toLowerCase();
+    if (!q) return products;
+    return products.filter(p =>
+      p.name.toLowerCase().includes(q) || (p.sku ?? "").toLowerCase().includes(q)
+    );
+  }, [products, query]);
 
   async function addProduct() {
     if (!form.name.trim()) { toast.error(bn ? "নাম দিন" : "Name required"); return; }
@@ -107,13 +184,31 @@ export function InventoryTab({ userId, bn }: { userId: string; bn: boolean }) {
     if (stock > 0 && data) {
       await supabase.from("inventory_movements").insert({
         user_id: userId, product_id: data.id, type: "stock_in", qty: stock,
-        unit_price: Number(form.purchase_price) || 0, note: bn ? "প্রারম্ভিক স্টক" : "Opening stock",
+        unit_price: Number(form.purchase_price) || 0, location: "office", status: "completed",
+        note: bn ? "প্রারম্ভিক স্টক" : "Opening stock",
       });
     }
     toast.success(bn ? "পণ্য যোগ হয়েছে" : "Product added");
     setForm({ name: "", sku: "", unit: "pcs", purchase_price: "", sell_price: "", low_stock_threshold: "5", opening_stock: "0", note: "" });
     setAddOpen(false);
     loadAll();
+  }
+
+  function openMv(product: Product, type: MvType) {
+    const meta = MV_META[type];
+    setMvSheet({ product, type });
+    setMvForm({
+      qty: "",
+      unit_price: String(type === "sale" ? product.sell_price : product.purchase_price),
+      amount_paid: "",
+      note: "",
+      location: meta.defaultLoc,
+      party_name: "",
+      party_phone: "",
+      courier_name: "",
+      tracking_no: "",
+      status: meta.sign === -1 && (meta.defaultLoc === "courier" || meta.defaultLoc === "with_person") ? "in_transit" : "completed",
+    });
   }
 
   async function submitMovement() {
@@ -126,12 +221,27 @@ export function InventoryTab({ userId, bn }: { userId: string; bn: boolean }) {
       type: mvSheet.type,
       qty,
       unit_price: Number(mvForm.unit_price) || 0,
+      amount_paid: Number(mvForm.amount_paid) || 0,
       note: mvForm.note.trim() || null,
+      location: mvForm.location,
+      party_name: mvForm.party_name.trim() || null,
+      party_phone: mvForm.party_phone.trim() || null,
+      courier_name: mvForm.courier_name.trim() || null,
+      tracking_no: mvForm.tracking_no.trim() || null,
+      status: mvForm.status,
     });
     if (error) { toast.error(error.message); return; }
     toast.success(bn ? "সংরক্ষিত" : "Saved");
     setMvSheet(null);
-    setMvForm({ qty: "", unit_price: "", note: "" });
+    loadAll();
+  }
+
+  async function updateMvStatus(m: Movement, status: MvStatus, extraPaid = 0) {
+    const patch: any = { status };
+    if (extraPaid > 0) patch.amount_paid = Number(m.amount_paid || 0) + extraPaid;
+    const { error } = await supabase.from("inventory_movements").update(patch).eq("id", m.id);
+    if (error) { toast.error(error.message); return; }
+    toast.success(bn ? "আপডেট হয়েছে" : "Updated");
     loadAll();
   }
 
@@ -143,14 +253,26 @@ export function InventoryTab({ userId, bn }: { userId: string; bn: boolean }) {
     loadAll();
   }
 
+  async function deleteMovement(m: Movement) {
+    if (!confirm(bn ? "এই এন্ট্রি মুছবেন?" : "Delete this entry?")) return;
+    const { error } = await supabase.from("inventory_movements").delete().eq("id", m.id);
+    if (error) { toast.error(error.message); return; }
+    loadAll();
+  }
+
   const historyList = useMemo(
     () => historyOf ? movements.filter(m => m.product_id === historyOf.id) : [],
     [historyOf, movements]
   );
 
+  const needsLocation = mvSheet && MV_META[mvSheet.type].sign === -1;
+  const needsCourier = mvForm.location === "courier";
+  const needsParty = mvForm.location === "with_person" || mvForm.location === "customer" || mvForm.location === "supplier";
+  const needsPayment = mvSheet && (mvSheet.type === "sale" || mvSheet.type === "stock_out");
+
   return (
     <div className="space-y-4">
-      {/* Summary */}
+      {/* Top summary */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
         <Card className="p-3 bg-gradient-to-br from-primary/10 to-background border-border/60">
           <p className="text-xs text-muted-foreground">{bn ? "স্টকের মূল্য" : "Stock Value"}</p>
@@ -161,7 +283,7 @@ export function InventoryTab({ userId, bn }: { userId: string; bn: boolean }) {
           <p className="text-lg font-semibold tabular-nums">{bn ? totals.count.toLocaleString("bn-BD") : totals.count}</p>
         </Card>
         <Card className="p-3">
-          <p className="text-xs text-muted-foreground">{bn ? "মোট ইউনিট" : "Total Units"}</p>
+          <p className="text-xs text-muted-foreground">{bn ? "মোট ইউনিট (অফিসে)" : "Units (Office)"}</p>
           <p className="text-lg font-semibold tabular-nums">{bn ? totals.items.toLocaleString("bn-BD") : totals.items}</p>
         </Card>
         <Card className={cn("p-3", totals.low > 0 && "bg-red-500/10 border-red-500/40")}>
@@ -172,26 +294,80 @@ export function InventoryTab({ userId, bn }: { userId: string; bn: boolean }) {
         </Card>
       </div>
 
+      {/* Location breakdown — where the stock is right now */}
+      <Card className="p-3 border-border/60">
+        <div className="flex items-center justify-between mb-2">
+          <h3 className="text-sm font-medium flex items-center gap-2">
+            <Truck className="h-4 w-4" /> {bn ? "স্টক এখন কোথায়" : "Where the Stock Is Now"}
+          </h3>
+          <div className="flex items-center gap-2 text-[11px]">
+            <span className="rounded-full px-2 py-0.5 bg-orange-500/10 text-orange-700 font-medium">
+              {bn ? "পাওয়া বাকি" : "Receivable"}: <b className="tabular-nums">{fmtBDT(breakdown.receivable, bn)}</b>
+            </span>
+          </div>
+        </div>
+        <div className="grid grid-cols-3 sm:grid-cols-6 gap-2">
+          {(Object.keys(LOC_META) as MvLocation[]).map(loc => {
+            const L = LOC_META[loc];
+            const qty = breakdown.perLoc[loc];
+            return (
+              <div key={loc} className={cn("rounded-xl border p-2 flex flex-col items-center text-center", L.tone)}>
+                <L.icon className="h-4 w-4 mb-1" />
+                <p className="text-[10px] leading-tight">{bn ? L.bn : L.en}</p>
+                <p className="text-lg font-bold tabular-nums leading-tight">{bn ? qty.toLocaleString("bn-BD") : qty}</p>
+              </div>
+            );
+          })}
+        </div>
+        {(breakdown.pendingCount > 0 || breakdown.inTransitValue > 0) && (
+          <div className="flex flex-wrap gap-2 mt-2 text-[11px]">
+            {breakdown.inTransitValue > 0 && (
+              <span className="rounded-full px-2 py-0.5 bg-amber-500/10 text-amber-700">
+                {bn ? "ট্রানজিটে" : "In transit"}: <b>{fmtBDT(breakdown.inTransitValue, bn)}</b>
+              </span>
+            )}
+            {breakdown.pendingCount > 0 && (
+              <span className="rounded-full px-2 py-0.5 bg-orange-500/10 text-orange-700">
+                {bn ? "বাকি এন্ট্রি" : "Pending entries"}: <b>{breakdown.pendingCount}</b>
+              </span>
+            )}
+          </div>
+        )}
+      </Card>
+
       {/* Header actions */}
-      <div className="flex items-center justify-between">
-        <h3 className="text-sm font-medium flex items-center gap-2"><Boxes className="h-4 w-4" /> {bn ? "পণ্য তালিকা" : "Products"}</h3>
-        <Button onClick={() => setAddOpen(true)} size="sm" className="h-9 rounded-xl">
-          <Plus className="h-4 w-4 mr-1" /> {bn ? "নতুন পণ্য" : "New Product"}
+      <div className="flex items-center gap-2">
+        <div className="relative flex-1">
+          <Search className="absolute left-2 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <Input
+            value={query} onChange={e => setQuery(e.target.value)}
+            placeholder={bn ? "পণ্য খুঁজুন..." : "Search products..."}
+            className="pl-8 h-9"
+          />
+        </div>
+        <Button onClick={() => setAddOpen(true)} size="sm" className="h-9 rounded-xl shrink-0">
+          <Plus className="h-4 w-4 mr-1" /> {bn ? "নতুন" : "New"}
         </Button>
       </div>
 
       {/* Products grid */}
       {loading ? (
         <div className="text-center py-8 text-sm text-muted-foreground">{bn ? "লোড হচ্ছে..." : "Loading..."}</div>
-      ) : products.length === 0 ? (
+      ) : filteredProducts.length === 0 ? (
         <Card className="p-8 text-center text-sm text-muted-foreground">
           <Package className="h-8 w-8 mx-auto mb-2 opacity-50" />
-          {bn ? "এখনো কোনো পণ্য নেই" : "No products yet"}
+          {bn ? "কোনো পণ্য নেই" : "No products"}
         </Card>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-          {products.map(p => {
+          {filteredProducts.map(p => {
             const low = Number(p.current_stock) <= Number(p.low_stock_threshold);
+            const pmoves = movements.filter(m => m.product_id === p.id);
+            const outCourier = pmoves.filter(m => m.location === "courier" && (m.status === "in_transit" || m.status === "pending")).reduce((s, m) => s + Number(m.qty), 0);
+            const outPerson = pmoves.filter(m => m.location === "with_person" && (m.status === "in_transit" || m.status === "pending")).reduce((s, m) => s + Number(m.qty), 0);
+            const due = pmoves.filter(m => (m.type === "sale" || m.type === "stock_out") && m.status !== "cancelled" && m.status !== "returned")
+              .reduce((s, m) => s + Math.max(0, Number(m.qty) * Number(m.unit_price) - Number(m.amount_paid || 0)), 0);
+
             return (
               <Card key={p.id} className={cn("p-4 border-border/60 space-y-3", low && "border-red-500/40 bg-red-500/5")}>
                 <div className="flex items-start justify-between gap-2">
@@ -203,9 +379,10 @@ export function InventoryTab({ userId, bn }: { userId: string; bn: boolean }) {
                     <Trash2 className="h-3.5 w-3.5" />
                   </button>
                 </div>
+
                 <div className="flex items-baseline justify-between">
                   <div>
-                    <p className="text-[10px] text-muted-foreground">{bn ? "বর্তমান স্টক" : "Current Stock"}</p>
+                    <p className="text-[10px] text-muted-foreground">{bn ? "অফিসে স্টক" : "Office Stock"}</p>
                     <p className={cn("text-2xl font-bold tabular-nums", low ? "text-red-600" : "text-foreground")}>
                       {bn ? Number(p.current_stock).toLocaleString("bn-BD") : Number(p.current_stock)}
                       <span className="text-xs font-normal text-muted-foreground ml-1">{p.unit}</span>
@@ -217,6 +394,26 @@ export function InventoryTab({ userId, bn }: { userId: string; bn: boolean }) {
                     </Badge>
                   )}
                 </div>
+
+                {/* per-product breakdown chips */}
+                <div className="flex flex-wrap gap-1 text-[10px]">
+                  {outCourier > 0 && (
+                    <span className="rounded-full px-1.5 py-0.5 bg-amber-500/10 text-amber-700 flex items-center gap-1">
+                      <Truck className="h-3 w-3" /> {bn ? "কুরিয়ারে" : "Courier"}: <b>{outCourier}</b>
+                    </span>
+                  )}
+                  {outPerson > 0 && (
+                    <span className="rounded-full px-1.5 py-0.5 bg-violet-500/10 text-violet-700 flex items-center gap-1">
+                      <UserRound className="h-3 w-3" /> {bn ? "ব্যক্তি" : "Person"}: <b>{outPerson}</b>
+                    </span>
+                  )}
+                  {due > 0 && (
+                    <span className="rounded-full px-1.5 py-0.5 bg-orange-500/10 text-orange-700 flex items-center gap-1">
+                      <Wallet className="h-3 w-3" /> {bn ? "বাকি" : "Due"}: <b>{fmtBDT(due, bn)}</b>
+                    </span>
+                  )}
+                </div>
+
                 <div className="grid grid-cols-2 gap-2 text-[11px]">
                   <div className="rounded-lg bg-muted/50 px-2 py-1">
                     <span className="text-muted-foreground">{bn ? "কেনা" : "Buy"}: </span>
@@ -227,13 +424,14 @@ export function InventoryTab({ userId, bn }: { userId: string; bn: boolean }) {
                     <b>{fmtBDT(Number(p.sell_price), bn)}</b>
                   </div>
                 </div>
+
                 <div className="grid grid-cols-3 gap-1">
-                  {(["stock_in", "stock_out", "customer_return", "supplier_return", "damage", "sale"] as Movement["type"][]).map(t => {
+                  {(Object.keys(MV_META) as MvType[]).map(t => {
                     const M = MV_META[t];
                     return (
                       <button
                         key={t}
-                        onClick={() => { setMvSheet({ product: p, type: t }); setMvForm({ qty: "", unit_price: String(t === "sale" ? p.sell_price : p.purchase_price), note: "" }); }}
+                        onClick={() => openMv(p, t)}
                         className={cn("rounded-lg p-1.5 flex flex-col items-center gap-0.5 hover:scale-105 transition-transform", M.tone)}
                         title={bn ? M.bn : M.en}
                       >
@@ -247,7 +445,7 @@ export function InventoryTab({ userId, bn }: { userId: string; bn: boolean }) {
                   onClick={() => setHistoryOf(p)}
                   className="w-full text-[11px] text-muted-foreground hover:text-primary flex items-center justify-center gap-1 pt-1 border-t border-border/40"
                 >
-                  <History className="h-3 w-3" /> {bn ? "ইতিহাস দেখুন" : "View History"}
+                  <History className="h-3 w-3" /> {bn ? "বিস্তারিত ইতিহাস" : "Detailed History"} ({pmoves.length})
                 </button>
               </Card>
             );
@@ -308,9 +506,9 @@ export function InventoryTab({ userId, bn }: { userId: string; bn: boolean }) {
         </DialogContent>
       </Dialog>
 
-      {/* Movement Sheet */}
+      {/* Movement Sheet — richer form */}
       <Sheet open={!!mvSheet} onOpenChange={(o) => !o && setMvSheet(null)}>
-        <SheetContent side="bottom" className="rounded-t-2xl">
+        <SheetContent side="bottom" className="rounded-t-2xl max-h-[92vh] overflow-y-auto">
           {mvSheet && (
             <>
               <SheetHeader>
@@ -319,22 +517,94 @@ export function InventoryTab({ userId, bn }: { userId: string; bn: boolean }) {
                   {bn ? MV_META[mvSheet.type].bn : MV_META[mvSheet.type].en} — <span className="text-muted-foreground text-sm">{mvSheet.product.name}</span>
                 </SheetTitle>
               </SheetHeader>
-              <div className="space-y-3 mt-4 max-w-md mx-auto">
+              <div className="space-y-3 mt-4 max-w-lg mx-auto pb-6">
                 <div className="text-xs text-muted-foreground">
-                  {bn ? "বর্তমান স্টক" : "Current stock"}: <b className="text-foreground">{Number(mvSheet.product.current_stock)} {mvSheet.product.unit}</b>
+                  {bn ? "বর্তমান অফিস স্টক" : "Current office stock"}: <b className="text-foreground">{Number(mvSheet.product.current_stock)} {mvSheet.product.unit}</b>
                 </div>
+
+                <div className="grid grid-cols-2 gap-2">
+                  <div>
+                    <Label className="text-xs">{bn ? "পরিমাণ" : "Quantity"} *</Label>
+                    <Input type="number" inputMode="decimal" value={mvForm.qty} onChange={e => setMvForm({ ...mvForm, qty: e.target.value })} autoFocus />
+                  </div>
+                  <div>
+                    <Label className="text-xs">{bn ? "একক দাম" : "Unit price"}</Label>
+                    <Input type="number" inputMode="decimal" value={mvForm.unit_price} onChange={e => setMvForm({ ...mvForm, unit_price: e.target.value })} />
+                  </div>
+                </div>
+
+                {needsLocation && (
+                  <div>
+                    <Label className="text-xs">{bn ? "এখন কোথায় আছে" : "Where is it now"}</Label>
+                    <Select value={mvForm.location} onValueChange={(v) => setMvForm({ ...mvForm, location: v as MvLocation })}>
+                      <SelectTrigger><SelectValue /></SelectTrigger>
+                      <SelectContent>
+                        {(Object.keys(LOC_META) as MvLocation[]).map(l => (
+                          <SelectItem key={l} value={l}>{bn ? LOC_META[l].bn : LOC_META[l].en}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                )}
+
+                {needsCourier && (
+                  <div className="grid grid-cols-2 gap-2">
+                    <div>
+                      <Label className="text-xs">{bn ? "কুরিয়ার" : "Courier"}</Label>
+                      <Input value={mvForm.courier_name} onChange={e => setMvForm({ ...mvForm, courier_name: e.target.value })} placeholder="Steadfast / RedX / Pathao" />
+                    </div>
+                    <div>
+                      <Label className="text-xs">{bn ? "ট্র্যাকিং" : "Tracking #"}</Label>
+                      <Input value={mvForm.tracking_no} onChange={e => setMvForm({ ...mvForm, tracking_no: e.target.value })} />
+                    </div>
+                  </div>
+                )}
+
+                {needsParty && (
+                  <div className="grid grid-cols-2 gap-2">
+                    <div>
+                      <Label className="text-xs">{bn ? "কার কাছে / নাম" : "Name"}</Label>
+                      <Input value={mvForm.party_name} onChange={e => setMvForm({ ...mvForm, party_name: e.target.value })} />
+                    </div>
+                    <div>
+                      <Label className="text-xs">{bn ? "ফোন" : "Phone"}</Label>
+                      <Input value={mvForm.party_phone} onChange={e => setMvForm({ ...mvForm, party_phone: e.target.value })} placeholder="01…" />
+                    </div>
+                  </div>
+                )}
+
+                {needsPayment && (
+                  <div className="grid grid-cols-2 gap-2">
+                    <div>
+                      <Label className="text-xs">{bn ? "পেমেন্ট পাওয়া গেছে" : "Amount received"}</Label>
+                      <Input type="number" inputMode="decimal" value={mvForm.amount_paid} onChange={e => setMvForm({ ...mvForm, amount_paid: e.target.value })} placeholder="0" />
+                    </div>
+                    <div>
+                      <Label className="text-xs">{bn ? "মোট" : "Total"}</Label>
+                      <div className="h-10 rounded-md border border-input bg-muted/30 px-3 flex items-center text-sm font-medium tabular-nums">
+                        {fmtBDT((Number(mvForm.qty) || 0) * (Number(mvForm.unit_price) || 0), bn)}
+                      </div>
+                    </div>
+                  </div>
+                )}
+
                 <div>
-                  <Label className="text-xs">{bn ? "পরিমাণ" : "Quantity"} *</Label>
-                  <Input type="number" inputMode="decimal" value={mvForm.qty} onChange={e => setMvForm({ ...mvForm, qty: e.target.value })} autoFocus />
+                  <Label className="text-xs">{bn ? "স্ট্যাটাস" : "Status"}</Label>
+                  <Select value={mvForm.status} onValueChange={(v) => setMvForm({ ...mvForm, status: v as MvStatus })}>
+                    <SelectTrigger><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      {(Object.keys(STATUS_META) as MvStatus[]).map(s => (
+                        <SelectItem key={s} value={s}>{bn ? STATUS_META[s].bn : STATUS_META[s].en}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </div>
-                <div>
-                  <Label className="text-xs">{bn ? "একক দাম" : "Unit price"}</Label>
-                  <Input type="number" inputMode="decimal" value={mvForm.unit_price} onChange={e => setMvForm({ ...mvForm, unit_price: e.target.value })} />
-                </div>
+
                 <div>
                   <Label className="text-xs">{bn ? "নোট" : "Note"}</Label>
                   <Textarea rows={2} value={mvForm.note} onChange={e => setMvForm({ ...mvForm, note: e.target.value })} />
                 </div>
+
                 <Button className="w-full h-11" onClick={submitMovement}>{bn ? "সংরক্ষণ" : "Save"}</Button>
               </div>
             </>
@@ -342,34 +612,103 @@ export function InventoryTab({ userId, bn }: { userId: string; bn: boolean }) {
         </SheetContent>
       </Sheet>
 
-      {/* History Sheet */}
+      {/* History Sheet — detailed */}
       <Sheet open={!!historyOf} onOpenChange={(o) => !o && setHistoryOf(null)}>
-        <SheetContent side="right" className="w-full sm:max-w-md">
+        <SheetContent side="right" className="w-full sm:max-w-lg overflow-y-auto">
           {historyOf && (
             <>
               <SheetHeader>
-                <SheetTitle>{historyOf.name} — {bn ? "ইতিহাস" : "History"}</SheetTitle>
+                <SheetTitle>{historyOf.name} — {bn ? "বিস্তারিত ইতিহাস" : "Detailed History"}</SheetTitle>
               </SheetHeader>
-              <div className="mt-4 space-y-2 overflow-y-auto max-h-[calc(100vh-8rem)]">
+              <div className="mt-4 space-y-2 pb-6">
                 {historyList.length === 0 ? (
                   <p className="text-sm text-muted-foreground text-center py-8">{bn ? "কোনো এন্ট্রি নেই" : "No movements yet"}</p>
                 ) : historyList.map(m => {
                   const M = MV_META[m.type];
+                  const L = m.location ? LOC_META[m.location] : null;
+                  const S = STATUS_META[m.status];
+                  const total = Number(m.qty) * Number(m.unit_price);
+                  const paid = Number(m.amount_paid || 0);
+                  const due = Math.max(0, total - paid);
+                  const isMoney = m.type === "sale" || m.type === "stock_out";
                   return (
-                    <div key={m.id} className="flex items-center gap-3 p-2 rounded-lg border border-border/40">
-                      <div className={cn("h-8 w-8 rounded-lg grid place-items-center", M.tone)}>
-                        <M.icon className="h-4 w-4" />
+                    <div key={m.id} className="p-3 rounded-xl border border-border/60 space-y-2">
+                      <div className="flex items-start gap-2">
+                        <div className={cn("h-8 w-8 rounded-lg grid place-items-center shrink-0", M.tone)}>
+                          <M.icon className="h-4 w-4" />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-1.5 flex-wrap">
+                            <p className="text-sm font-medium">{bn ? M.bn : M.en}</p>
+                            <span className={cn("text-[10px] px-1.5 py-0.5 rounded-full", S.tone)}>{bn ? S.bn : S.en}</span>
+                            {L && (
+                              <span className={cn("text-[10px] px-1.5 py-0.5 rounded-full border flex items-center gap-1", L.tone)}>
+                                <L.icon className="h-2.5 w-2.5" />{bn ? L.bn : L.en}
+                              </span>
+                            )}
+                          </div>
+                          <p className="text-[11px] text-muted-foreground">
+                            {new Date(m.occurred_at).toLocaleString(bn ? "bn-BD" : "en-BD", { dateStyle: "medium", timeStyle: "short" })}
+                          </p>
+                        </div>
+                        <div className="text-right shrink-0">
+                          <p className={cn("font-semibold tabular-nums", M.sign > 0 ? "text-emerald-600" : "text-rose-600")}>
+                            {M.sign > 0 ? "+" : "−"}{Number(m.qty)} {historyOf.unit}
+                          </p>
+                          {m.unit_price > 0 && <p className="text-[10px] text-muted-foreground">@ {fmtBDT(m.unit_price, bn)}</p>}
+                        </div>
                       </div>
-                      <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium">{bn ? M.bn : M.en}</p>
-                        <p className="text-[11px] text-muted-foreground">{new Date(m.occurred_at).toLocaleString(bn ? "bn-BD" : "en-BD")}</p>
-                        {m.note && <p className="text-[11px] text-muted-foreground truncate">{m.note}</p>}
-                      </div>
-                      <div className="text-right">
-                        <p className={cn("font-semibold tabular-nums", M.sign > 0 ? "text-emerald-600" : "text-rose-600")}>
-                          {M.sign > 0 ? "+" : "−"}{Number(m.qty)}
-                        </p>
-                        {m.unit_price > 0 && <p className="text-[10px] text-muted-foreground">{fmtBDT(m.unit_price, bn)}</p>}
+
+                      {(m.party_name || m.party_phone || m.courier_name || m.tracking_no) && (
+                        <div className="flex flex-wrap gap-1 text-[11px] pl-10">
+                          {m.party_name && (
+                            <span className="rounded-md bg-muted px-1.5 py-0.5 flex items-center gap-1">
+                              <UserRound className="h-3 w-3" />{m.party_name}
+                            </span>
+                          )}
+                          {m.party_phone && (
+                            <a href={`tel:${m.party_phone}`} className="rounded-md bg-muted px-1.5 py-0.5 flex items-center gap-1 hover:text-primary">
+                              <Phone className="h-3 w-3" />{m.party_phone}
+                            </a>
+                          )}
+                          {m.courier_name && (
+                            <span className="rounded-md bg-muted px-1.5 py-0.5 flex items-center gap-1">
+                              <Truck className="h-3 w-3" />{m.courier_name}{m.tracking_no ? ` · ${m.tracking_no}` : ""}
+                            </span>
+                          )}
+                        </div>
+                      )}
+
+                      {isMoney && total > 0 && (
+                        <div className="flex items-center justify-between gap-2 pl-10 text-[11px]">
+                          <div className="flex gap-2">
+                            <span>{bn ? "মোট" : "Total"}: <b className="tabular-nums">{fmtBDT(total, bn)}</b></span>
+                            <span className="text-emerald-700">{bn ? "পেইড" : "Paid"}: <b className="tabular-nums">{fmtBDT(paid, bn)}</b></span>
+                            {due > 0 && <span className="text-orange-700">{bn ? "বাকি" : "Due"}: <b className="tabular-nums">{fmtBDT(due, bn)}</b></span>}
+                          </div>
+                        </div>
+                      )}
+
+                      {m.note && <p className="text-[11px] text-muted-foreground pl-10">📝 {m.note}</p>}
+
+                      {/* quick actions */}
+                      <div className="flex gap-1 pl-10">
+                        {m.status !== "completed" && (
+                          <Button size="sm" variant="outline" className="h-6 text-[10px] px-2"
+                            onClick={() => updateMvStatus(m, "completed", due > 0 ? due : 0)}>
+                            {bn ? "সম্পন্ন করো" : "Mark done"}
+                          </Button>
+                        )}
+                        {isMoney && due > 0 && (
+                          <Button size="sm" variant="outline" className="h-6 text-[10px] px-2"
+                            onClick={() => { const v = prompt(bn ? "কত টাকা পেয়েছেন?" : "Amount received?"); const n = Number(v); if (n > 0) updateMvStatus(m, m.status, n); }}>
+                            + {bn ? "পেমেন্ট" : "Payment"}
+                          </Button>
+                        )}
+                        <Button size="sm" variant="ghost" className="h-6 text-[10px] px-2 text-destructive hover:text-destructive"
+                          onClick={() => deleteMovement(m)}>
+                          <Trash2 className="h-3 w-3" />
+                        </Button>
                       </div>
                     </div>
                   );

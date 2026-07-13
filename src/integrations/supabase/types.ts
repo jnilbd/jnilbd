@@ -187,6 +187,101 @@ export type Database = {
         }
         Relationships: []
       }
+      finance_sales: {
+        Row: {
+          cost_price: number
+          courier_charge: number
+          courier_name: string | null
+          created_at: string
+          customer_address: string | null
+          customer_name: string
+          customer_phone: string | null
+          delivered_at: string | null
+          delivery_status: string
+          discount: number
+          id: string
+          notes: string | null
+          occurred_at: string
+          order_no: string | null
+          paid_amount: number
+          payment_method: string | null
+          payment_status: string
+          product_id: string | null
+          product_name: string
+          quantity: number
+          return_reason: string | null
+          total_amount: number
+          tracking_id: string | null
+          unit_price: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          cost_price?: number
+          courier_charge?: number
+          courier_name?: string | null
+          created_at?: string
+          customer_address?: string | null
+          customer_name: string
+          customer_phone?: string | null
+          delivered_at?: string | null
+          delivery_status?: string
+          discount?: number
+          id?: string
+          notes?: string | null
+          occurred_at?: string
+          order_no?: string | null
+          paid_amount?: number
+          payment_method?: string | null
+          payment_status?: string
+          product_id?: string | null
+          product_name: string
+          quantity?: number
+          return_reason?: string | null
+          total_amount?: number
+          tracking_id?: string | null
+          unit_price?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          cost_price?: number
+          courier_charge?: number
+          courier_name?: string | null
+          created_at?: string
+          customer_address?: string | null
+          customer_name?: string
+          customer_phone?: string | null
+          delivered_at?: string | null
+          delivery_status?: string
+          discount?: number
+          id?: string
+          notes?: string | null
+          occurred_at?: string
+          order_no?: string | null
+          paid_amount?: number
+          payment_method?: string | null
+          payment_status?: string
+          product_id?: string | null
+          product_name?: string
+          quantity?: number
+          return_reason?: string | null
+          total_amount?: number
+          tracking_id?: string | null
+          unit_price?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "finance_sales_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "inventory_products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       finance_transactions: {
         Row: {
           amount: number

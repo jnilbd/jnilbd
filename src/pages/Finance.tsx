@@ -510,7 +510,7 @@ const Finance = () => {
                     </div>
                     <div className="min-w-0 flex-1">
                       <p className="text-sm font-medium truncate capitalize">
-                        {t.category ?? t.type.replace(/_/g, " ")}
+                        {t.category ? bnLabel(CATEGORY_BN, t.category, bn) : bnLabel(TX_TYPE_BN, t.type, bn)}
                         {t.party ? <span className="text-muted-foreground font-normal"> · {t.party}</span> : null}
                       </p>
                       <p className="text-[11px] text-muted-foreground truncate">
@@ -521,7 +521,7 @@ const Finance = () => {
                     </div>
                     <div className={cn("text-sm font-semibold tabular-nums shrink-0",
                       isTransfer ? "text-sky-500" : income ? "text-emerald-500" : "text-rose-500")}>
-                      {isTransfer ? "↔" : income ? "+" : "-"}{fmtBDT(Number(t.amount))}
+                      {isTransfer ? "↔" : income ? "+" : "-"}{fmtBDT(Number(t.amount), bn)}
                     </div>
                     <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-rose-500" onClick={() => deleteTx(t.id)}>
                       <Trash2 className="h-3.5 w-3.5" />

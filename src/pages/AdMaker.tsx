@@ -163,6 +163,7 @@ export default function AdMaker() {
           mode: "video_frames",
           idea,
           storyboard: pack?.creative_brief?.video_storyboard,
+          ...providerPayload(),
         },
       });
       if (error) throw error;

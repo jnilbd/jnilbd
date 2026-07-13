@@ -607,23 +607,69 @@ const Finance = () => {
         </Tabs>
       </div>
 
-      {/* Floating action bar */}
-      <div className="fixed bottom-4 inset-x-0 z-40 flex justify-center pointer-events-none">
-        <div className="pointer-events-auto flex items-center gap-1 bg-background/90 backdrop-blur-xl border border-border/60 shadow-lg rounded-full p-1">
+      {/* Floating quick-add FAB — always visible */}
+      <div className="fixed bottom-5 right-5 z-40 flex flex-col items-end gap-2">
+        <div className="flex items-center gap-2 bg-background/90 backdrop-blur-xl border border-border/60 shadow-lg rounded-full p-1">
           <Button size="sm" variant="ghost" className="rounded-full h-9 px-3" onClick={() => openQuick("income")}>
             <TrendingUp className="h-4 w-4 mr-1 text-emerald-500" />{bn?"আয়":"Income"}
           </Button>
           <Button size="sm" variant="ghost" className="rounded-full h-9 px-3" onClick={() => openQuick("expense")}>
             <TrendingDown className="h-4 w-4 mr-1 text-rose-500" />{bn?"খরচ":"Expense"}
           </Button>
-          <Button size="sm" className="rounded-full h-9 px-3 shadow-md" onClick={() => openQuick("transfer")}>
-            <ArrowLeftRight className="h-4 w-4 mr-1" />{bn?"ট্রান্সফার":"Transfer"}
-          </Button>
           <Button size="sm" variant="ghost" className="rounded-full h-9 px-3" onClick={() => { setTab("ai"); }}>
             <Sparkles className="h-4 w-4 mr-1 text-primary" />AI
           </Button>
         </div>
+        <Button
+          size="icon"
+          onClick={() => setTypePickerOpen(true)}
+          aria-label={bn?"নতুন লেনদেন":"New transaction"}
+          className="h-14 w-14 rounded-full shadow-2xl bg-gradient-to-br from-primary to-primary/70 hover:scale-105 transition-transform"
+        >
+          <Plus className="h-6 w-6" />
+        </Button>
       </div>
+
+      {/* Type picker — one tap to pick any transaction type */}
+      <Sheet open={typePickerOpen} onOpenChange={setTypePickerOpen}>
+        <SheetContent side="bottom" className="rounded-t-3xl max-h-[80vh] overflow-y-auto">
+          <SheetHeader>
+            <SheetTitle>{bn?"নতুন লেনদেন":"New Transaction"}</SheetTitle>
+          </SheetHeader>
+          <div className="grid grid-cols-3 sm:grid-cols-4 gap-2 mt-4">
+            {([
+              { t: "income", label: bn?"আয়":"Income", icon: TrendingUp, tone: "emerald" },
+              { t: "expense", label: bn?"খরচ":"Expense", icon: TrendingDown, tone: "rose" },
+              { t: "transfer", label: bn?"ট্রান্সফার":"Transfer", icon: ArrowLeftRight, tone: "sky" },
+              { t: "sale", label: bn?"বিক্রি":"Sale", icon: ShoppingCart, tone: "emerald" },
+              { t: "purchase", label: bn?"ক্রয়":"Purchase", icon: Package, tone: "rose" },
+              { t: "loan_given", label: bn?"ধার দেয়া":"Loan Given", icon: Send, tone: "rose" },
+              { t: "loan_taken", label: bn?"ধার নেয়া":"Loan Taken", icon: Send, tone: "emerald" },
+              { t: "repayment_in", label: bn?"ফেরত পাওয়া":"Repaid In", icon: ArrowDownRight, tone: "emerald" },
+              { t: "repayment_out", label: bn?"ফেরত দেয়া":"Repaid Out", icon: ArrowUpRight, tone: "rose" },
+              { t: "return_in", label: bn?"রিটার্ন (আয়)":"Return In", icon: ArrowDownRight, tone: "emerald" },
+              { t: "return_out", label: bn?"রিটার্ন (খরচ)":"Return Out", icon: ArrowUpRight, tone: "rose" },
+              { t: "stock_in", label: bn?"স্টক ইন":"Stock In", icon: Package, tone: "sky" },
+            ] as const).map(a => (
+              <button
+                key={a.t}
+                onClick={() => { setTypePickerOpen(false); openQuick(a.t as TxType); }}
+                className="flex flex-col items-center gap-1.5 rounded-2xl border border-border/60 bg-card/70 backdrop-blur p-3 hover:shadow-md hover:-translate-y-0.5 transition-all"
+              >
+                <div className={cn(
+                  "h-10 w-10 rounded-xl grid place-items-center",
+                  a.tone === "emerald" && "bg-emerald-500/10 text-emerald-500",
+                  a.tone === "rose" && "bg-rose-500/10 text-rose-500",
+                  a.tone === "sky" && "bg-sky-500/10 text-sky-500",
+                )}>
+                  <a.icon className="h-5 w-5" />
+                </div>
+                <span className="text-[11px] font-medium text-center leading-tight">{a.label}</span>
+              </button>
+            ))}
+          </div>
+        </SheetContent>
+      </Sheet>
 
       {/* Quick action sheet */}
       <Sheet open={qaOpen} onOpenChange={setQaOpen}>

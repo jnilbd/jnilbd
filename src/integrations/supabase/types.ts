@@ -149,6 +149,132 @@ export type Database = {
         }
         Relationships: []
       }
+      finance_transactions: {
+        Row: {
+          amount: number
+          category: string | null
+          created_at: string
+          id: string
+          meta: Json
+          note: string | null
+          occurred_at: string
+          party: string | null
+          product_id: string | null
+          scope: string
+          subcategory: string | null
+          transfer_to_wallet_id: string | null
+          type: string
+          updated_at: string
+          user_id: string
+          wallet_id: string | null
+        }
+        Insert: {
+          amount: number
+          category?: string | null
+          created_at?: string
+          id?: string
+          meta?: Json
+          note?: string | null
+          occurred_at?: string
+          party?: string | null
+          product_id?: string | null
+          scope?: string
+          subcategory?: string | null
+          transfer_to_wallet_id?: string | null
+          type: string
+          updated_at?: string
+          user_id: string
+          wallet_id?: string | null
+        }
+        Update: {
+          amount?: number
+          category?: string | null
+          created_at?: string
+          id?: string
+          meta?: Json
+          note?: string | null
+          occurred_at?: string
+          party?: string | null
+          product_id?: string | null
+          scope?: string
+          subcategory?: string | null
+          transfer_to_wallet_id?: string | null
+          type?: string
+          updated_at?: string
+          user_id?: string
+          wallet_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "finance_transactions_transfer_to_wallet_id_fkey"
+            columns: ["transfer_to_wallet_id"]
+            isOneToOne: false
+            referencedRelation: "finance_wallets"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "finance_transactions_wallet_id_fkey"
+            columns: ["wallet_id"]
+            isOneToOne: false
+            referencedRelation: "finance_wallets"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      finance_wallets: {
+        Row: {
+          archived: boolean
+          balance: number
+          color: string | null
+          created_at: string
+          currency: string
+          icon: string | null
+          id: string
+          is_default: boolean
+          name: string
+          provider: string | null
+          scope: string
+          sort_order: number
+          type: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          archived?: boolean
+          balance?: number
+          color?: string | null
+          created_at?: string
+          currency?: string
+          icon?: string | null
+          id?: string
+          is_default?: boolean
+          name: string
+          provider?: string | null
+          scope?: string
+          sort_order?: number
+          type?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          archived?: boolean
+          balance?: number
+          color?: string | null
+          created_at?: string
+          currency?: string
+          icon?: string | null
+          id?: string
+          is_default?: boolean
+          name?: string
+          provider?: string | null
+          scope?: string
+          sort_order?: number
+          type?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       marketplace_items: {
         Row: {
           category: string

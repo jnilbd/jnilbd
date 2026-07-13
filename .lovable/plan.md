@@ -1,113 +1,81 @@
+# Premium Finance Module — Build Plan
 
-# JohnNil.com — All-in-One Premium Platform
+This is a very large scope (dashboard, wallets, personal/business finance, inventory, sales, purchases, budgets, goals, debts, reports, analytics, AI assistant, receipt scanner, backups). Shipping it all in one turn would be unstable and unreviewable. I'll build it in **5 focused phases**, each independently usable, tested, and shippable.
 
-## Overview
-John Nil-এর জন্য একটি bilingual (বাংলা/English) অল-ইন-ওয়ান পার্সোনাল ব্র্যান্ড প্ল্যাটফর্ম। Vibrant gradient ডিজাইন, bold typography, playful animation সহ।
+Your current DB already has: `budgets`, `debts`, `savings_goals`, `planned_purchases`, `sellable_assets`, `transactions`. I'll extend, not replace.
 
-## Design Direction
-- **Theme**: Vibrant gradient — colorful gradients (purple→pink→orange), bold typography, playful micro-animations
-- **Font**: Hind Siliguri (Bangla) + Space Grotesk (English headings) + DM Sans (body)
-- **Colors**: Deep purple primary, gradient accents, glassmorphism cards
-- **Features**: Scrolling text marquees, smooth page transitions, product landing pages with related products below
+---
 
-## Site Sections & Pages
+## Phase 1 — Foundation + Dashboard + Wallets + Quick Actions + AI NL Entry
+The "wow" core. After this phase Finance is already usable end-to-end.
 
-### 1. Homepage / Landing
-- Hero section with John Nil's intro, animated gradient background, scrolling marquee text
-- Quick links to all sections (Shop, Services, Portfolio, Blog, Used Market, House Rent)
-- Social media feed preview (Instagram, WhatsApp, Facebook embeds)
-- Customer reviews/testimonials carousel
-- Language toggle (BN/EN) in navbar
+**Schema (new tables, RLS scoped to `auth.uid()`)**
+- `finance_wallets` — id, user_id, name, type (cash/bank/mobile/card/digital), provider (bkash/nagad/rocket/upay/…), scope (personal/business), balance, currency, icon, color, is_default, archived
+- `finance_transactions` — id, user_id, wallet_id, type (income/expense/transfer/sale/purchase/loan/repayment), amount, category, subcategory, note, party (customer/supplier name), scope (personal/business), occurred_at, transfer_to_wallet_id, product_id (nullable), meta jsonb
+- `finance_categories` — seeded personal + business categories (Bangla + English labels, icons)
+- Update trigger + GRANTs + policies on all.
 
-### 2. Portfolio & Work Experience
-- Personal profile with photo, bio, skills
-- Work experience timeline
-- Project showcase with filterable categories
+**Frontend**
+- New route `/finance` replacing/wrapping current finance tab.
+- Layout: sticky top summary, tabs (Dashboard · Wallets · Transactions · AI Assistant · More).
+- **Dashboard cards** (all metrics you listed): Today/Monthly Income · Expense · Profit, Net Worth, Cash/Bank/Mobile Banking totals, Personal vs Business split, Receivable/Payable, Inventory value (from `shop_products`), Low stock, Pending orders (`shop_orders`), Pending payments. Apple-style rounded cards, soft shadows, animated counters, sparkline per card.
+- **Wallets** — default seed on first visit (Cash, Office Cash, Personal Cash, Bank, bKash, Nagad, Rocket, Upay, Card, Digital). Each card: balance, today Δ, month Δ, mini history, tap → detail drawer with full transaction list.
+- **Floating Action Button** (radial menu) — Add Income, Add Expense, Transfer, Add Sale, Add Purchase, Stock In/Out, Customer/Supplier Return, Add Loan, Receive Payment. Each opens a bottom-sheet with 2-3 fields max.
+- **AI Assistant** (natural language entry) — edge function `finance-ai-parse` using Lovable AI (`google/gemini-3-flash-preview`) with structured output. Takes free text ("bKash theke 500 tk tullam", "2 ta projector bikri korlam 8000 tk"), returns `{type, amount, wallet, category, party, product, date}`, shows a confirmation card, one tap to save. Supports Bangla + English + Banglish.
+- Transaction feed with filters, search, export CSV.
 
-### 3. Digital & Physical Product Shop
-- Product listing with categories, search, filters
-- Each product opens as a dedicated landing page
-- Related products section below each product
-- Cart system with quantity management
+**Design**
+- Apple-inspired: SF-style display font, generous whitespace, glass cards, subtle gradients per wallet type, framer-motion transitions, bilingual (respects existing `LanguageContext`), BDT ৳ formatting, Asia/Dhaka timezone.
 
-### 4. Service Orders
-- Service catalog (digital services, consulting, custom work, any information request)
-- Service detail landing pages
-- Custom order form with full details + amount
-- Order generation with complete payment flow
+---
 
-### 5. Blog
-- Blog post listing with categories/tags
-- Individual blog post pages
-- Search functionality
+## Phase 2 — Budgets + Goals + Debts (polished)
+Rework existing tables into the new UI.
+- Budget planner with 80/90/100% progress warnings, category picker, monthly reset.
+- Goals with animated progress rings, target date, auto-calc monthly required saving.
+- Debt tracker (owe / owed) with due-date reminders, payment history, optional interest.
+- Notification center for budget/due/low-stock events (in-app + toast).
 
-### 6. Used Products Marketplace
-- Anyone can post used items for sale (with registration)
-- Browse, search, filter used products
-- Contact seller / buy flow
+---
 
-### 7. House Rental (বাসা ভাড়া)
-- Post rental listings (with registration)
-- Browse rentals with location, price, details filters
-- Contact landlord flow
+## Phase 3 — Inventory + Sales + Purchases
+Extend existing `shop_products` / `shop_orders`.
+- Add: `finance_suppliers`, `finance_stock_movements`, `finance_purchases`, `finance_purchase_items`, `finance_damages`.
+- Product: SKU, barcode, purchase/selling price, min stock, warehouse, supplier.
+- Sales flow: invoice, courier (Pathao/Steadfast/RedX enum), payment method, delivery status, auto profit calc, auto stock decrement, auto wallet credit.
+- Purchase flow: supplier, due, purchase return, payment tracking, auto stock increment.
+- Low-stock alerts feed the Dashboard.
 
-### 8. Order & Payment System (Manual Phase)
-- bKash/Nagad manual payment: show number, user sends money, uploads screenshot
-- Order form: customer name, email, phone, address, order details, amount
-- Order confirmation page with order ID
-- Admin can view and manage orders
+---
 
-### 9. Notifications
-- Email notification to jnilbd@gmail.com on new order (Lovable built-in email)
-- Email confirmation to customer on order placement
-- SMS integration placeholder (for future BulkSMSBD/SSL Wireless)
+## Phase 4 — Reports + Analytics + Receipt Scanner
+- Report builder: Daily/Weekly/Monthly/Yearly, Cash Flow, P&L, Expense/Income analysis, Inventory, Sales, Tax, per-wallet. PDF/Excel/CSV export.
+- Analytics tab: Recharts pie/bar/line/area — Income vs Expense, category breakdown, sales trend, inventory growth, cash-flow waterfall, profit trend.
+- Receipt scanner: image upload → edge function `finance-receipt-scan` using Lovable AI vision → extracts merchant/amount/items/tax/category → prefilled transaction confirm sheet.
 
-### 10. Contact & Social
-- Contact info: 01774585757, jnilbd@gmail.com, Baridhara Dhaka
-- WhatsApp floating button (01774585757)
-- Social media links (Instagram, Facebook, WhatsApp)
-- Embedded social posts/reviews
+---
 
-## Technical Architecture
+## Phase 5 — Security, Backup, Integrations
+- App-lock: PIN + WebAuthn (fingerprint/Face on supported devices) gate for `/finance`. Optional OTP via existing Twilio for high-value actions.
+- Encrypted export bundle (Excel/CSV/PDF) + Google Drive backup via existing `google_drive` connector when linked.
+- Future-integration scaffolding (stubs + toggles) for WooCommerce, Facebook Orders, bKash/Nagad API, Pathao/Steadfast/RedX, Google Sheets/Calendar, WhatsApp/Email reports.
 
-### Frontend (React + Tailwind + Framer Motion)
-- Language context provider for BN/EN switching
-- Responsive design (mobile-first)
-- Framer Motion animations throughout
-- React Router for all pages
+---
 
-### Backend (Lovable Cloud)
-- **Database tables**: products, services, orders, order_items, blog_posts, used_products, house_rentals, reviews, user_profiles
-- **Auth**: User registration for marketplace & rental posting
-- **Storage**: Product images, payment screenshots, blog images
-- **Edge Functions**: Order notification emails
+## Technical notes
+- All edge functions Deno + Lovable AI Gateway (no user key required). Structured output via `Output.object` with fallback parse.
+- Every new `public` table: GRANT to `authenticated` + `service_role`, RLS `auth.uid() = user_id`.
+- Currency: BDT ৳ formatter, `Intl.NumberFormat('bn-BD')` for Bangla mode.
+- Timezone: Asia/Dhaka everywhere via `date-fns-tz`.
+- Portable — no dependency on any private ISP or paid API (matches your hosting-shift requirement).
+- Dark/Light already wired via existing theme system; new module uses semantic tokens only (no hardcoded colors).
 
-### Pages to Create
-1. `/` — Homepage
-2. `/portfolio` — Portfolio & Experience
-3. `/shop` — Product listing
-4. `/shop/:id` — Product landing page
-5. `/services` — Service catalog
-6. `/services/:id` — Service detail + order
-7. `/blog` — Blog listing
-8. `/blog/:id` — Blog post
-9. `/marketplace` — Used products
-10. `/rentals` — House rentals
-11. `/cart` — Shopping cart
-12. `/checkout` — Checkout + payment
-13. `/order-confirmation/:id` — Order confirmation
-14. `/admin` — Admin dashboard (orders, products, content management)
+---
 
-## Implementation Order
-1. Design system setup (colors, fonts, tokens, animations)
-2. Layout shell (navbar with language toggle, footer, WhatsApp button)
-3. Homepage with all sections
-4. Product shop + product landing pages
-5. Service catalog + order system
-6. Cart + checkout + manual payment flow
-7. Portfolio & blog pages
-8. Used marketplace + house rental sections
-9. Backend (Lovable Cloud): database, auth, storage
-10. Order notifications (email)
-11. Admin dashboard
-12. Social embeds, reviews, scrolling marquees, polish
+## What I need from you before I start Phase 1
+1. **Green-light phased delivery?** (Phase 1 this turn, others on request.) Or do you want a single mega-turn build (higher risk of bugs & incomplete polish)?
+2. **Business + Personal in one workspace, or separate toggle at top?** (Default: single workspace with a Personal/Business/All filter chip.)
+3. **AI assistant language default** — Bangla, English, or auto-detect per message? (Default: auto-detect.)
+4. Anything from the spec you want to **drop or defer** to keep Phase 1 lean?
+
+Reply with answers (or just "go") and I'll ship Phase 1.

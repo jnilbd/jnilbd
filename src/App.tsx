@@ -66,6 +66,7 @@ import Newspapers from "./pages/Newspapers";
 import AdMaker from "./pages/AdMaker";
 import PhoneRootUnlock from "./pages/PhoneRootUnlock";
 import Offers from "./pages/Offers";
+import CapCutPro from "./pages/CapCutPro";
 
 const queryClient = new QueryClient();
 

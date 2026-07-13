@@ -192,6 +192,7 @@ const Finance = () => {
 
   // quick action state
   const [qaOpen, setQaOpen] = useState(false);
+  const [typePickerOpen, setTypePickerOpen] = useState(false);
   const [qaType, setQaType] = useState<TxType | null>(null);
   const [qaAmount, setQaAmount] = useState("");
   const [qaWallet, setQaWallet] = useState<string>("");

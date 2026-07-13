@@ -1,0 +1,1 @@
+REVOKE ALL ON FUNCTION public.recalc_debt_totals() FROM PUBLIC, anon, authenticated;

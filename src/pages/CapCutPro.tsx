@@ -372,18 +372,17 @@ export default function CapCutPro() {
       </section>
 
       {/* Guarantee */}
-      <section className="container mx-auto px-4 pb-16">
-        <Card className="p-6 sm:p-10 bg-gradient-to-br from-primary to-primary-glow text-primary-foreground border-0 relative overflow-hidden">
+      <section className="container mx-auto px-4 pb-10 sm:pb-16">
+        <Card className="p-5 sm:p-10 bg-gradient-to-br from-primary to-primary-glow text-primary-foreground border-0 relative overflow-hidden">
           <div className="absolute -right-10 -top-10 h-40 w-40 rounded-full bg-secondary/30 blur-3xl" />
-          <div className="relative grid md:grid-cols-[auto,1fr] gap-6 items-center">
-            <div className="h-20 w-20 rounded-full bg-secondary grid place-items-center shrink-0">
-              <ShieldCheck className="h-10 w-10 text-primary" />
+          <div className="relative grid grid-cols-[auto,1fr] gap-4 sm:gap-6 items-center">
+            <div className="h-14 w-14 sm:h-20 sm:w-20 rounded-full bg-secondary grid place-items-center shrink-0">
+              <ShieldCheck className="h-7 w-7 sm:h-10 sm:w-10 text-primary" />
             </div>
             <div>
-              <h3 className="text-2xl sm:text-3xl font-bold">১০০% মানি-ব্যাক গ্যারান্টি</h3>
-              <p className="mt-2 opacity-90">
-                অ্যাক্টিভেশন না হলে বা কোনো সমস্যা হলে সাথে সাথে ফুল রিফান্ড।
-                আপনার রিস্ক জিরো — আমরা রিস্ক নিই।
+              <h3 className="text-lg sm:text-3xl font-bold leading-tight">১০০% মানি-ব্যাক গ্যারান্টি</h3>
+              <p className="mt-1.5 sm:mt-2 text-xs sm:text-base opacity-90">
+                অ্যাক্টিভেশন না হলে বা কোনো সমস্যা হলে সাথে সাথে ফুল রিফান্ড। আপনার রিস্ক জিরো।
               </p>
             </div>
           </div>
@@ -391,11 +390,12 @@ export default function CapCutPro() {
       </section>
 
       {/* FAQ */}
-      <section className="container mx-auto px-4 pb-24 max-w-3xl">
-        <div className="text-center mb-8">
+      <section className="container mx-auto px-4 pb-16 max-w-3xl">
+        <div className="text-center mb-6 sm:mb-8">
           <Badge variant="outline" className="mb-3">FAQ</Badge>
-          <h2 className="text-3xl sm:text-4xl font-bold">প্রশ্ন? আমরা উত্তর দিচ্ছি</h2>
+          <h2 className="text-2xl sm:text-4xl font-bold">প্রশ্ন? আমরা উত্তর দিচ্ছি</h2>
         </div>
+
         <div className="space-y-2">
           {faqs.map((f,i)=>(
             <Card key={i} className="overflow-hidden">

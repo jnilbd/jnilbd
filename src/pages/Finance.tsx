@@ -285,6 +285,45 @@ const Finance = () => {
     };
   }, [filteredTxs, wallets]);
 
+  // Smart reminders
+  const reminders = useMemo<Reminder[]>(() => {
+    const r: Reminder[] = [];
+    const today0 = startOfToday().getTime();
+    const yest0 = today0 - 86400000;
+    const todayCount = filteredTxs.filter(t => new Date(t.occurred_at).getTime() >= today0).length;
+    let yestIn = 0, yestOut = 0;
+    for (const t of filteredTxs) {
+      const at = new Date(t.occurred_at).getTime();
+      if (at < yest0 || at >= today0) continue;
+      const amt = Number(t.amount) || 0;
+      if (INCOME_TYPES.includes(t.type)) yestIn += amt;
+      else if (EXPENSE_TYPES.includes(t.type)) yestOut += amt;
+    }
+    if (todayCount === 0) {
+      r.push({ id: "no-entry", icon: "info", tone: "sky",
+        title: bn ? "আজ কোনো এন্ট্রি নেই" : "No entries today",
+        desc: bn ? "আজকের আয়-খরচ যোগ করুন" : "Add today's transactions" });
+    }
+    if (metrics.todayOut > yestOut * 1.5 && yestOut > 0) {
+      r.push({ id: "high-spend", icon: "warn", tone: "amber",
+        title: bn ? "আজ খরচ বেশি" : "Today's spending is high",
+        desc: bn ? `গতকালের চেয়ে ${Math.round((metrics.todayOut / yestOut - 1) * 100)}% বেশি`
+                 : `${Math.round((metrics.todayOut / yestOut - 1) * 100)}% higher than yesterday` });
+    }
+    if (metrics.todayProfit < (yestIn - yestOut) && yestIn > 0) {
+      r.push({ id: "low-profit", icon: "trend", tone: "rose",
+        title: bn ? "লাভ কমেছে" : "Profit is down",
+        desc: bn ? "আজকের লাভ গতকালের চেয়ে কম" : "Today's profit is lower than yesterday" });
+    }
+    if (metrics.monthOut > metrics.monthIn && metrics.monthIn > 0) {
+      r.push({ id: "over", icon: "warn", tone: "rose",
+        title: bn ? "মাসিক খরচ আয়ের চেয়ে বেশি" : "Monthly expenses exceed income",
+        desc: bn ? "সাবধান হোন" : "Consider cutting back" });
+    }
+    return r;
+  }, [filteredTxs, metrics, bn]);
+
+
   const walletDelta = useCallback((walletId: string, since: number) => {
     let delta = 0;
     for (const t of txs) {

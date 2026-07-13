@@ -352,6 +352,9 @@ export default function AdMaker() {
                 )}
               </div>
             )}
+          </div>
+
+
 
           <Button onClick={handleGenerate} disabled={loading} className="w-full gap-2" size="lg">
             {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />}

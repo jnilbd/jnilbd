@@ -280,7 +280,7 @@ export const PlannerTab = ({ userId, bn, monthlyIncome, monthlyExpense, totalBal
           <TabsTrigger value="savings" className="text-xs px-3 shrink-0"><Target className="h-3.5 w-3.5 mr-1" />{bn ? "লক্ষ্য" : "Goals"}</TabsTrigger>
           <TabsTrigger value="income_target" className="text-xs px-3 shrink-0"><TrendingUp className="h-3.5 w-3.5 mr-1" />{bn ? "আয় টার্গেট" : "Income"}</TabsTrigger>
           <TabsTrigger value="installment" className="text-xs px-3 shrink-0"><CalendarClock className="h-3.5 w-3.5 mr-1" />{bn ? "কিস্তি" : "EMI"}</TabsTrigger>
-          <TabsTrigger value="calc" className="text-xs px-3 shrink-0"><Calculator className="h-3.5 w-3.5 mr-1" />{bn ? "ক্যালকুলেটর" : "Calc"}</TabsTrigger>
+          
         </TabsList>
 
         {/* ---- Summary ---- */}

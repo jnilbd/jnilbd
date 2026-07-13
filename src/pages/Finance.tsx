@@ -867,6 +867,34 @@ const Finance = () => {
               <Input value={qaNote} onChange={e => setQaNote(e.target.value)} className="mt-1" placeholder={bn?"ঐচ্ছিক":"Optional"} />
             </div>
 
+            <div>
+              <Label className="text-xs">{bn?"তারিখ ও সময়":"Date & Time"}</Label>
+              <Input type="datetime-local" value={qaDate} onChange={e => setQaDate(e.target.value)} className="mt-1 rounded-xl" />
+              <div className="flex flex-wrap gap-1.5 mt-2">
+                {([
+                  ["now", bn?"এখন":"Now", 0],
+                  ["1h", bn?"১ ঘন্টা আগে":"-1h", -60],
+                  ["today9", bn?"আজ সকাল ৯টা":"Today 9am", -1],
+                  ["yesterday", bn?"গতকাল":"Yesterday", -1440],
+                  ["2d", bn?"২ দিন আগে":"-2d", -2880],
+                  ["7d", bn?"৭ দিন আগে":"-7d", -10080],
+                ] as const).map(([k, l, mins]) => (
+                  <button
+                    key={k}
+                    type="button"
+                    onClick={() => {
+                      const d = new Date();
+                      if (k === "today9") { d.setHours(9,0,0,0); }
+                      else { d.setMinutes(d.getMinutes() + (mins as number)); }
+                      const pad = (n: number) => String(n).padStart(2, "0");
+                      setQaDate(`${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`);
+                    }}
+                    className="text-[11px] px-2.5 py-1 rounded-full bg-muted hover:bg-muted/70 border border-border/60"
+                  >{l}</button>
+                ))}
+              </div>
+            </div>
+
 
             <Button className="w-full h-12 rounded-xl mt-2" onClick={saveQuick} disabled={busy}>
               {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : <>{bn?"সংরক্ষণ":"Save"} <ChevronRight className="h-4 w-4 ml-1" /></>}

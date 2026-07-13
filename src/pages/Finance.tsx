@@ -873,6 +873,21 @@ const Finance = () => {
               totalBalance={totalBalance}
             />
           </TabsContent>
+
+          {/* Sales: order → payment → courier → delivery */}
+          <TabsContent value="sales" className="mt-4">
+            <SalesTab userId={user.id} bn={bn} />
+          </TabsContent>
+
+          {/* Reports: daily/weekly/monthly P&L + top products + top expense categories */}
+          <TabsContent value="reports" className="mt-4">
+            <ReportsTab
+              userId={user.id}
+              bn={bn}
+              txs={txs as any}
+              categoryLabel={(c) => bn ? (CATEGORY_BN[c] ?? TX_TYPE_BN[c] ?? c) : c}
+            />
+          </TabsContent>
         </Tabs>
       </div>
 

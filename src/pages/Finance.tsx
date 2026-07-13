@@ -796,6 +796,20 @@ const Finance = () => {
                   <span>{bn?"মাস":"Month"} {fmtBDT(walletDelta(detailWallet.id, startOfMonth().getTime()), bn)}</span>
                 </div>
               </div>
+              <div className="grid grid-cols-3 gap-1.5 mt-2">
+                <Button size="sm" variant="outline" className="h-9 rounded-xl text-xs"
+                  onClick={() => { const w = detailWallet; setDetailWallet(null); openQuick("income"); setTimeout(() => setQaWallet(w.id), 0); }}>
+                  <TrendingUp className="h-3.5 w-3.5 mr-1 text-emerald-500" />{bn?"আয়":"Income"}
+                </Button>
+                <Button size="sm" variant="outline" className="h-9 rounded-xl text-xs"
+                  onClick={() => { const w = detailWallet; setDetailWallet(null); openQuick("expense"); setTimeout(() => setQaWallet(w.id), 0); }}>
+                  <TrendingDown className="h-3.5 w-3.5 mr-1 text-rose-500" />{bn?"খরচ":"Expense"}
+                </Button>
+                <Button size="sm" variant="outline" className="h-9 rounded-xl text-xs"
+                  onClick={() => { const w = detailWallet; setDetailWallet(null); openQuick("transfer"); setTimeout(() => setQaWallet(w.id), 0); }}>
+                  <ArrowLeftRight className="h-3.5 w-3.5 mr-1 text-sky-500" />{bn?"ট্রান্সফার":"Transfer"}
+                </Button>
+              </div>
               <ScrollArea className="max-h-72 mt-2">
                 <div className="space-y-1.5">
                   {txs.filter(t => t.wallet_id === detailWallet.id || t.transfer_to_wallet_id === detailWallet.id).slice(0, 60).map(t => {

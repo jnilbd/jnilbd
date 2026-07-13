@@ -84,30 +84,31 @@ const Shop = () => {
         <div className="absolute -top-24 -right-24 w-72 h-72 rounded-full bg-yellow-400/20 blur-3xl" />
         <div className="absolute -bottom-24 -left-24 w-72 h-72 rounded-full bg-white/10 blur-3xl" />
 
-        <div className="container relative z-10 py-14 md:py-20 text-white text-center">
-          <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/15 backdrop-blur-md border border-white/25 text-xs md:text-sm font-medium mb-5">
-            <Sparkles className="w-3.5 h-3.5 text-yellow-300" />
+        <div className="container relative z-10 py-6 md:py-14 text-white text-center">
+          <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-white/15 backdrop-blur-md border border-white/25 text-[10px] md:text-sm font-medium mb-2 md:mb-4">
+            <Sparkles className="w-3 h-3 text-yellow-300" />
             {language === "bn" ? "প্রিমিয়াম কালেকশন" : "Premium Collection"}
           </motion.div>
-          <motion.h1 initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="text-4xl md:text-6xl font-display font-bold mb-3 bg-gradient-to-b from-white to-white/70 bg-clip-text text-transparent">
+          <motion.h1 initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="text-2xl md:text-5xl font-display font-bold mb-1.5 md:mb-3 bg-gradient-to-b from-white to-white/70 bg-clip-text text-transparent">
             {t("nav.shop")}
           </motion.h1>
-          <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.15 }} className="text-base md:text-xl text-white/85 max-w-md mx-auto">
-            {language === "bn" ? "ডিজিটাল ও ফিজিক্যাল প্রোডাক্টের প্রিমিয়াম সংগ্রহ" : "Curated digital & physical products"}
+          <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.15 }} className="text-xs md:text-lg text-white/85 max-w-md mx-auto">
+            {language === "bn" ? "ডিজিটাল ও ফিজিক্যাল প্রোডাক্টের সংগ্রহ" : "Curated digital & physical products"}
           </motion.p>
 
           {/* Stat pills */}
-          <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.25 }} className="mt-6 flex flex-wrap items-center justify-center gap-2 md:gap-3">
-            <div className="px-3 py-1.5 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-xs md:text-sm">
-              <Zap className="inline w-3.5 h-3.5 mr-1 text-yellow-300" />
+          <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.25 }} className="mt-3 md:mt-5 flex flex-wrap items-center justify-center gap-2">
+            <div className="px-2.5 py-1 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-[10px] md:text-sm">
+              <Zap className="inline w-3 h-3 mr-1 text-yellow-300" />
               {digitalCount} {language === "bn" ? "ডিজিটাল" : "Digital"}
             </div>
-            <div className="px-3 py-1.5 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-xs md:text-sm">
-              <Package className="inline w-3.5 h-3.5 mr-1 text-yellow-300" />
+            <div className="px-2.5 py-1 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-[10px] md:text-sm">
+              <Package className="inline w-3 h-3 mr-1 text-yellow-300" />
               {physicalCount} {language === "bn" ? "ফিজিক্যাল" : "Physical"}
             </div>
           </motion.div>
         </div>
+
       </section>
 
       <section className="container py-8 md:py-12">

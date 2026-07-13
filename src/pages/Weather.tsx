@@ -360,6 +360,19 @@ const Weather = () => {
     }
   }
 
+  // Deduplicate: keep only unique titles, and if multiple similar alerts, keep the most severe
+  const sevRank: Record<Alert["severity"], number> = { extreme: 4, severe: 3, moderate: 2, advisory: 1 };
+  const dedupMap = new Map<string, Alert>();
+  for (const a of alerts) {
+    const existing = dedupMap.get(a.title);
+    if (!existing || sevRank[a.severity] > sevRank[existing.severity]) {
+      dedupMap.set(a.title, a);
+    }
+  }
+  const uniqueAlerts = Array.from(dedupMap.values());
+  alerts.length = 0;
+  alerts.push(...uniqueAlerts);
+
   const sevStyle = (s: Alert["severity"]) => ({
     extreme: "bg-red-600/10 border-red-600 text-red-700 dark:text-red-300",
     severe: "bg-orange-500/10 border-orange-500 text-orange-700 dark:text-orange-300",

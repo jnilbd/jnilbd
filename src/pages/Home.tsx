@@ -336,18 +336,18 @@ const Home = () => {
                   <Link to={`/shop/${p.id}`}>
                     <Card className="overflow-hidden h-full hover:shadow-elegant transition-smooth group">
                       <div className="relative aspect-square bg-gradient-to-br from-primary/10 via-muted to-accent/10 overflow-hidden">
+                        <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 text-center p-3">
+                          <ShoppingBag className="w-8 h-8 text-primary/60" />
+                          <span className="text-xs font-semibold text-muted-foreground line-clamp-2">{name}</span>
+                        </div>
                         {p.image ? (
                           <img
                             src={p.image}
                             alt={name}
-                            className="w-full h-full object-cover group-hover:scale-105 transition-smooth"
+                            className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-smooth"
                             onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = 'none'; }}
                           />
                         ) : null}
-                        <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 text-center p-3 -z-0">
-                          <ShoppingBag className="w-8 h-8 text-primary/60" />
-                          <span className="text-xs font-semibold text-muted-foreground line-clamp-2">{name}</span>
-                        </div>
                         {p.badge && (
                           <span className={`absolute top-3 left-3 z-10 px-3 py-1 rounded-full ${badgeColorMap[p.badge_color || "red"]} text-white text-xs font-bold shadow-lg`}>
                             {p.badge}

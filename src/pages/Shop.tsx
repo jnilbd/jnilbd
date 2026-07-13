@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 
 type Product = {
-  id: string; name: string; name_bn?: string; short_description?: string; short_description_bn?: string;
+  id: string; name: string; name_bn?: string; slug?: string; short_description?: string; short_description_bn?: string;
   price: number; discount_price?: number; image?: string; category?: string; badge?: string; badge_color?: string;
 };
 

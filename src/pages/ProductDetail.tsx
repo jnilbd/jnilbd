@@ -94,12 +94,28 @@ const ProductDetail = () => {
       toast.error(language === "bn" ? "নাম এবং ফোন নাম্বার দিন" : "Name and phone are required");
       return;
     }
+    if (isDigital) {
+      if (!orderForm.txnId.trim()) {
+        toast.error(language === "bn" ? "পেমেন্ট ট্রানজেকশন আইডি দিন" : "Payment transaction ID is required");
+        return;
+      }
+      if (!orderForm.email.trim()) {
+        toast.error(language === "bn" ? "ডিজিটাল ডেলিভারির জন্য ইমেইল দিন" : "Email required for digital delivery");
+        return;
+      }
+    } else {
+      if (!orderForm.address.trim()) {
+        toast.error(language === "bn" ? "ডেলিভারি ঠিকানা দিন" : "Delivery address required");
+        return;
+      }
+    }
     setPlacing(true);
     const selectedAddonList = addons.filter(a => selectedAddons[a.id]).map(a => ({ id: a.id, name: a.name, price: a.discount_price || a.price }));
     const { data, error } = await supabase.from("shop_orders").insert({
       user_id: user?.id || null,
       product_id: product.id,
       product_name: product.name,
+      product_type: isDigital ? "digital" : "physical",
       quantity: qty,
       unit_price: unitPrice,
       total_amount: total,
@@ -109,12 +125,19 @@ const ProductDetail = () => {
       customer_address: orderForm.address || null,
       notes: orderForm.notes || null,
       addons: selectedAddonList,
+      payment_method: isDigital ? orderForm.paymentMethod : "cash_on_delivery",
+      payment_status: isDigital ? "pending_verification" : "cod_pending",
+      payment_txn_id: isDigital ? orderForm.txnId : null,
     }).select().single();
     if (error) { toast.error(error.message); setPlacing(false); return; }
     // Trigger notification
     supabase.functions.invoke("notify-order", { body: { order_id: data.id } }).catch(() => {});
-    toast.success(language === "bn" ? "অর্ডার সফল হয়েছে! আমরা শীঘ্রই যোগাযোগ করব।" : "Order placed! We will contact you soon.");
-    setOrderForm({ name: "", phone: "", email: "", address: "", notes: "" });
+    toast.success(
+      isDigital
+        ? (language === "bn" ? "অর্ডার নেওয়া হয়েছে! পেমেন্ট যাচাইয়ের পর ইমেইলে ডেলিভারি পাবেন।" : "Order received! Digital delivery will be sent to your email after payment verification.")
+        : (language === "bn" ? "অর্ডার কনফার্ম! ক্যাশ অন ডেলিভারিতে পাঠানো হবে।" : "Order confirmed! Cash on delivery.")
+    );
+    setOrderForm({ name: "", phone: "", email: "", address: "", notes: "", txnId: "", paymentMethod: "bkash" });
     setPlacing(false);
   };
 

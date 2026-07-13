@@ -114,61 +114,62 @@ export default function CapCutPro() {
           className="absolute inset-0 opacity-40"
           style={{ background: "var(--gradient-hero)" }}
         />
-        <div className="relative container mx-auto px-4 py-12 sm:py-20 grid lg:grid-cols-2 gap-10 items-center">
+        <div className="relative container mx-auto px-4 py-8 sm:py-16 lg:py-20 grid lg:grid-cols-2 gap-8 items-center">
           <motion.div
             initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}
           >
-            <Badge className="bg-secondary text-secondary-foreground border-0 mb-4 font-semibold">
-              <Crown className="h-3.5 w-3.5 mr-1" /> #১ ট্রাস্টেড সেলার বাংলাদেশ
+            <Badge className="bg-secondary text-secondary-foreground border-0 mb-3 font-semibold text-[11px] sm:text-xs">
+              <Crown className="h-3 w-3 mr-1" /> #১ ট্রাস্টেড সেলার বাংলাদেশ
             </Badge>
-            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold leading-[1.1] tracking-tight">
+            <h1 className="text-[28px] leading-[1.15] sm:text-5xl lg:text-6xl font-bold tracking-tight">
               <span className="block">CapCut Pro</span>
-              <span className="block mt-2 bg-gradient-to-r from-secondary via-accent to-secondary bg-clip-text text-transparent">
+              <span className="block mt-1 sm:mt-2 bg-gradient-to-r from-secondary via-accent to-secondary bg-clip-text text-transparent">
                 মাত্র ৳১৪৯ থেকে
               </span>
             </h1>
-            <p className="mt-5 text-lg text-muted-foreground max-w-xl">
+            <p className="mt-4 text-sm sm:text-lg text-muted-foreground max-w-xl">
               অফিসিয়াল CapCut Pro আনলক — <b className="text-foreground">4K এক্সপোর্ট, AI ফিচার, ওয়াটারমার্ক মুক্ত</b>, ৫,০০০+ প্রিমিয়াম ইফেক্ট। ২ মিনিটে অ্যাক্টিভ, ১০০% সেফ, রিফান্ড গ্যারান্টি।
             </p>
 
             {/* Countdown */}
-            <div className="mt-6 flex items-center gap-3 flex-wrap">
-              <div className="flex items-center gap-1.5 text-xs uppercase tracking-widest text-muted-foreground">
-                <Clock className="h-4 w-4 text-destructive" /> অফার শেষ হবে:
+            <div className="mt-5">
+              <div className="flex items-center gap-1.5 text-[10px] sm:text-xs uppercase tracking-widest text-muted-foreground mb-2">
+                <Clock className="h-3.5 w-3.5 text-destructive" /> অফার শেষ হবে:
               </div>
               <div className="flex gap-2">
                 {[{l:"ঘণ্টা",v:h},{l:"মিনিট",v:m},{l:"সেকেন্ড",v:s}].map((x,i)=>(
-                  <div key={i} className="bg-primary text-primary-foreground rounded-lg px-3 py-2 min-w-[64px] text-center shadow-lg">
-                    <div className="text-2xl font-bold tabular-nums">{bn(x.v)}</div>
-                    <div className="text-[10px] opacity-70">{x.l}</div>
+                  <div key={i} className="bg-primary text-primary-foreground rounded-lg px-2 sm:px-3 py-1.5 sm:py-2 min-w-[52px] sm:min-w-[64px] text-center shadow-lg">
+                    <div className="text-lg sm:text-2xl font-bold tabular-nums leading-tight">{bn(x.v)}</div>
+                    <div className="text-[9px] sm:text-[10px] opacity-70">{x.l}</div>
                   </div>
                 ))}
               </div>
             </div>
 
-            <div className="mt-7 flex flex-wrap gap-3">
-              <Button size="lg" className="bg-secondary hover:bg-secondary/90 text-secondary-foreground font-bold shadow-[var(--shadow-orange)] h-12 px-6" onClick={()=>orderWhatsApp(selectedPlan)}>
+            <div className="mt-5 sm:mt-7 flex flex-col sm:flex-row gap-2.5 sm:gap-3">
+              <Button size="lg" className="bg-secondary hover:bg-secondary/90 text-secondary-foreground font-bold shadow-[var(--shadow-orange)] h-12 px-6 w-full sm:w-auto" onClick={()=>orderWhatsApp(selectedPlan)}>
                 <Rocket className="h-4 w-4 mr-2" /> এখনই কিনুন — ৳১৪৯
               </Button>
-              <Button size="lg" variant="outline" className="h-12" onClick={()=>document.getElementById("plans")?.scrollIntoView({behavior:"smooth"})}>
+              <Button size="lg" variant="outline" className="h-12 w-full sm:w-auto" onClick={()=>document.getElementById("plans")?.scrollIntoView({behavior:"smooth"})}>
                 সব প্ল্যান দেখুন
               </Button>
             </div>
 
             {/* Trust bar */}
-            <div className="mt-8 grid grid-cols-3 gap-3 max-w-md">
+            <div className="mt-6 sm:mt-8 grid grid-cols-3 gap-2 sm:gap-3 max-w-md">
               {[
                 { n: "৫,০০০+", l: "খুশি ইউজার" },
                 { n: "৪.৯★", l: "রেটিং" },
                 { n: "২ মিনিট", l: "অ্যাক্টিভেশন" },
               ].map((x,i)=>(
-                <div key={i} className="text-center border-l border-border first:border-l-0 pl-3 first:pl-0">
-                  <div className="text-xl font-bold text-secondary">{x.n}</div>
-                  <div className="text-[11px] text-muted-foreground">{x.l}</div>
+                <div key={i} className="text-center border-l border-border first:border-l-0 pl-2 sm:pl-3 first:pl-0">
+                  <div className="text-base sm:text-xl font-bold text-secondary">{x.n}</div>
+                  <div className="text-[10px] sm:text-[11px] text-muted-foreground leading-tight">{x.l}</div>
                 </div>
               ))}
             </div>
           </motion.div>
+
 
           {/* Hero card */}
           <motion.div
@@ -233,24 +234,26 @@ export default function CapCutPro() {
       </section>
 
       {/* Features */}
-      <section className="container mx-auto px-4 py-16">
-        <div className="text-center max-w-2xl mx-auto mb-10">
+      <section className="container mx-auto px-4 py-10 sm:py-16">
+        <div className="text-center max-w-2xl mx-auto mb-6 sm:mb-10">
           <Badge variant="outline" className="mb-3">কেন CapCut Pro?</Badge>
-          <h2 className="text-3xl sm:text-4xl font-bold">প্রফেশনাল ভিডিও এডিটিং — <span className="text-secondary">আপনার মোবাইলেই</span></h2>
-          <p className="mt-3 text-muted-foreground">যা আছে Premiere Pro-তে, তার ৯০% পাবেন CapCut Pro-তে — এক ক্লিকে</p>
+          <h2 className="text-2xl sm:text-4xl font-bold leading-tight">প্রফেশনাল ভিডিও এডিটিং — <span className="text-secondary">আপনার মোবাইলেই</span></h2>
+          <p className="mt-3 text-sm sm:text-base text-muted-foreground">যা আছে Premiere Pro-তে, তার ৯০% পাবেন CapCut Pro-তে — এক ক্লিকে</p>
         </div>
-        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="grid grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
+
           {features.map((f,i)=>{
             const Icon = f.i;
             return (
               <motion.div key={i} initial={{opacity:0,y:20}} whileInView={{opacity:1,y:0}} viewport={{once:true}} transition={{delay:i*0.05}}>
-                <Card className="p-5 h-full hover:shadow-[var(--shadow-elegant)] hover:-translate-y-1 transition-all border-border/60 group">
-                  <div className="h-12 w-12 rounded-xl bg-gradient-to-br from-secondary to-accent grid place-items-center mb-3 group-hover:scale-110 transition-transform">
-                    <Icon className="h-6 w-6 text-primary-foreground" />
+                <Card className="p-3.5 sm:p-5 h-full hover:shadow-[var(--shadow-elegant)] hover:-translate-y-1 transition-all border-border/60 group">
+                  <div className="h-10 w-10 sm:h-12 sm:w-12 rounded-xl bg-gradient-to-br from-secondary to-accent grid place-items-center mb-2.5 sm:mb-3 group-hover:scale-110 transition-transform">
+                    <Icon className="h-5 w-5 sm:h-6 sm:w-6 text-primary-foreground" />
                   </div>
-                  <h3 className="font-bold text-lg">{f.t}</h3>
-                  <p className="text-sm text-muted-foreground mt-1">{f.d}</p>
+                  <h3 className="font-bold text-sm sm:text-lg leading-tight">{f.t}</h3>
+                  <p className="text-xs sm:text-sm text-muted-foreground mt-1">{f.d}</p>
                 </Card>
+
               </motion.div>
             );
           })}
@@ -258,15 +261,16 @@ export default function CapCutPro() {
       </section>
 
       {/* PLANS */}
-      <section id="plans" className="bg-gradient-to-b from-muted/30 to-transparent py-16">
+      <section id="plans" className="bg-gradient-to-b from-muted/30 to-transparent py-10 sm:py-16">
         <div className="container mx-auto px-4">
-          <div className="text-center max-w-2xl mx-auto mb-10">
+          <div className="text-center max-w-2xl mx-auto mb-6 sm:mb-10">
             <Badge className="bg-destructive text-destructive-foreground border-0 mb-3">
               <Flame className="h-3 w-3 mr-1" /> লিমিটেড টাইম অফার
             </Badge>
-            <h2 className="text-3xl sm:text-4xl font-bold">আপনার প্ল্যান বেছে নিন</h2>
-            <p className="mt-3 text-muted-foreground">যেকোনো প্ল্যানে ১০০% রিফান্ড গ্যারান্টি</p>
+            <h2 className="text-2xl sm:text-4xl font-bold">আপনার প্ল্যান বেছে নিন</h2>
+            <p className="mt-2 sm:mt-3 text-sm sm:text-base text-muted-foreground">যেকোনো প্ল্যানে ১০০% রিফান্ড গ্যারান্টি</p>
           </div>
+
 
           <div className="grid md:grid-cols-3 gap-5 max-w-5xl mx-auto">
             {plans.map((p) => (
@@ -343,12 +347,13 @@ export default function CapCutPro() {
       </section>
 
       {/* Testimonials */}
-      <section className="container mx-auto px-4 py-16">
-        <div className="text-center max-w-2xl mx-auto mb-10">
+      <section className="container mx-auto px-4 py-10 sm:py-16">
+        <div className="text-center max-w-2xl mx-auto mb-6 sm:mb-10">
           <Badge variant="outline" className="mb-3">রিভিউ</Badge>
-          <h2 className="text-3xl sm:text-4xl font-bold">যারা কিনেছেন, তারাই বলছেন</h2>
+          <h2 className="text-2xl sm:text-4xl font-bold">যারা কিনেছেন, তারাই বলছেন</h2>
         </div>
-        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+
           {testimonials.map((t,i)=>(
             <Card key={i} className="p-5">
               <div className="flex gap-0.5 mb-2">
@@ -367,18 +372,17 @@ export default function CapCutPro() {
       </section>
 
       {/* Guarantee */}
-      <section className="container mx-auto px-4 pb-16">
-        <Card className="p-6 sm:p-10 bg-gradient-to-br from-primary to-primary-glow text-primary-foreground border-0 relative overflow-hidden">
+      <section className="container mx-auto px-4 pb-10 sm:pb-16">
+        <Card className="p-5 sm:p-10 bg-gradient-to-br from-primary to-primary-glow text-primary-foreground border-0 relative overflow-hidden">
           <div className="absolute -right-10 -top-10 h-40 w-40 rounded-full bg-secondary/30 blur-3xl" />
-          <div className="relative grid md:grid-cols-[auto,1fr] gap-6 items-center">
-            <div className="h-20 w-20 rounded-full bg-secondary grid place-items-center shrink-0">
-              <ShieldCheck className="h-10 w-10 text-primary" />
+          <div className="relative grid grid-cols-[auto,1fr] gap-4 sm:gap-6 items-center">
+            <div className="h-14 w-14 sm:h-20 sm:w-20 rounded-full bg-secondary grid place-items-center shrink-0">
+              <ShieldCheck className="h-7 w-7 sm:h-10 sm:w-10 text-primary" />
             </div>
             <div>
-              <h3 className="text-2xl sm:text-3xl font-bold">১০০% মানি-ব্যাক গ্যারান্টি</h3>
-              <p className="mt-2 opacity-90">
-                অ্যাক্টিভেশন না হলে বা কোনো সমস্যা হলে সাথে সাথে ফুল রিফান্ড।
-                আপনার রিস্ক জিরো — আমরা রিস্ক নিই।
+              <h3 className="text-lg sm:text-3xl font-bold leading-tight">১০০% মানি-ব্যাক গ্যারান্টি</h3>
+              <p className="mt-1.5 sm:mt-2 text-xs sm:text-base opacity-90">
+                অ্যাক্টিভেশন না হলে বা কোনো সমস্যা হলে সাথে সাথে ফুল রিফান্ড। আপনার রিস্ক জিরো।
               </p>
             </div>
           </div>
@@ -386,11 +390,12 @@ export default function CapCutPro() {
       </section>
 
       {/* FAQ */}
-      <section className="container mx-auto px-4 pb-24 max-w-3xl">
-        <div className="text-center mb-8">
+      <section className="container mx-auto px-4 pb-16 max-w-3xl">
+        <div className="text-center mb-6 sm:mb-8">
           <Badge variant="outline" className="mb-3">FAQ</Badge>
-          <h2 className="text-3xl sm:text-4xl font-bold">প্রশ্ন? আমরা উত্তর দিচ্ছি</h2>
+          <h2 className="text-2xl sm:text-4xl font-bold">প্রশ্ন? আমরা উত্তর দিচ্ছি</h2>
         </div>
+
         <div className="space-y-2">
           {faqs.map((f,i)=>(
             <Card key={i} className="overflow-hidden">
@@ -409,9 +414,9 @@ export default function CapCutPro() {
         </div>
       </section>
 
-      {/* Sticky bottom CTA */}
-      <div className="fixed bottom-0 inset-x-0 z-40 bg-primary text-primary-foreground border-t border-primary-foreground/10 shadow-2xl">
-        <div className="container mx-auto px-3 py-2.5 flex items-center gap-3">
+      {/* Sticky bottom CTA — sits above mobile BottomNav (~64px) */}
+      <div className="fixed bottom-16 md:bottom-0 inset-x-0 z-40 bg-primary text-primary-foreground border-t border-primary-foreground/10 shadow-2xl">
+        <div className="container mx-auto px-3 py-2 flex items-center gap-2">
           <div className="hidden sm:flex items-center gap-2">
             <Sparkles className="h-4 w-4 text-secondary" />
             <div className="text-sm">
@@ -419,18 +424,21 @@ export default function CapCutPro() {
               <span className="tabular-nums text-secondary font-bold">{bn(h)}:{bn(m)}:{bn(s)}</span>
             </div>
           </div>
-          <div className="flex-1 sm:hidden text-xs">
-            অফার: <span className="tabular-nums text-secondary font-bold">{bn(h)}:{bn(m)}:{bn(s)}</span>
+          <div className="flex-1 sm:hidden text-[11px] leading-tight">
+            <div className="font-bold">CapCut Pro ৳১৪৯</div>
+            <div className="opacity-80">শেষ: <span className="tabular-nums text-secondary font-bold">{bn(h)}:{bn(m)}:{bn(s)}</span></div>
           </div>
-          <Button size="sm" className="bg-secondary text-secondary-foreground hover:bg-secondary/90 font-bold" onClick={()=>orderWhatsApp(selectedPlan)}>
-            <MessageCircle className="h-4 w-4 mr-1.5" /> WhatsApp অর্ডার
+          <Button size="sm" className="bg-secondary text-secondary-foreground hover:bg-secondary/90 font-bold h-9 px-3 text-xs sm:text-sm" onClick={()=>orderWhatsApp(selectedPlan)}>
+            <MessageCircle className="h-4 w-4 mr-1" /> অর্ডার
           </Button>
-          <a href={`tel:${WHATSAPP}`} className="h-9 w-9 grid place-items-center rounded-md bg-secondary/20 hover:bg-secondary/30" aria-label="Call">
+          <a href={`tel:${WHATSAPP}`} className="h-9 w-9 grid place-items-center rounded-md bg-secondary/20 hover:bg-secondary/30 shrink-0" aria-label="Call">
             <Phone className="h-4 w-4 text-secondary" />
           </a>
         </div>
       </div>
-      <div className="h-16" />
+      {/* Spacer for sticky CTA + mobile BottomNav */}
+      <div className="h-28 md:h-16" />
+
     </div>
   );
 }

@@ -234,13 +234,14 @@ export default function CapCutPro() {
       </section>
 
       {/* Features */}
-      <section className="container mx-auto px-4 py-16">
-        <div className="text-center max-w-2xl mx-auto mb-10">
+      <section className="container mx-auto px-4 py-10 sm:py-16">
+        <div className="text-center max-w-2xl mx-auto mb-6 sm:mb-10">
           <Badge variant="outline" className="mb-3">কেন CapCut Pro?</Badge>
-          <h2 className="text-3xl sm:text-4xl font-bold">প্রফেশনাল ভিডিও এডিটিং — <span className="text-secondary">আপনার মোবাইলেই</span></h2>
-          <p className="mt-3 text-muted-foreground">যা আছে Premiere Pro-তে, তার ৯০% পাবেন CapCut Pro-তে — এক ক্লিকে</p>
+          <h2 className="text-2xl sm:text-4xl font-bold leading-tight">প্রফেশনাল ভিডিও এডিটিং — <span className="text-secondary">আপনার মোবাইলেই</span></h2>
+          <p className="mt-3 text-sm sm:text-base text-muted-foreground">যা আছে Premiere Pro-তে, তার ৯০% পাবেন CapCut Pro-তে — এক ক্লিকে</p>
         </div>
-        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="grid grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
+
           {features.map((f,i)=>{
             const Icon = f.i;
             return (

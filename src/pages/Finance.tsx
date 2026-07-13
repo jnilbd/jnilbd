@@ -304,6 +304,10 @@ const Finance = () => {
     const def = filteredWallets.find(w => w.is_default) ?? filteredWallets[0];
     setQaWallet(def?.id ?? "");
     setQaScope(type === "sale" || type === "purchase" ? "business" : "personal");
+    // default to "now" in local datetime-local format
+    const now = new Date();
+    const pad = (n: number) => String(n).padStart(2, "0");
+    setQaDate(`${now.getFullYear()}-${pad(now.getMonth()+1)}-${pad(now.getDate())}T${pad(now.getHours())}:${pad(now.getMinutes())}`);
     setQaOpen(true);
   };
 
@@ -314,11 +318,13 @@ const Finance = () => {
     if (!qaWallet) { toast.error(bn ? "ওয়ালেট নির্বাচন করুন" : "Pick a wallet"); return; }
     if (qaType === "transfer" && !qaWallet2) { toast.error(bn ? "গন্তব্য ওয়ালেট নির্বাচন করুন" : "Pick destination wallet"); return; }
     setBusy(true);
+    const occurred_at = qaDate ? new Date(qaDate).toISOString() : new Date().toISOString();
     const { error } = await supabase.from("finance_transactions").insert({
       user_id: user.id, wallet_id: qaWallet,
       transfer_to_wallet_id: qaType === "transfer" ? qaWallet2 : null,
       type: qaType, amount, category: qaCategory || null,
       scope: qaScope, party: qaParty || null, note: qaNote || null,
+      occurred_at,
     });
     setBusy(false);
     if (error) { toast.error(error.message); return; }

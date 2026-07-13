@@ -470,12 +470,18 @@ const Finance = () => {
 
       <div className="container mx-auto px-3 sm:px-6 pt-4">
         <Tabs value={tab} onValueChange={setTab}>
-          <TabsList className="w-full grid grid-cols-4 h-10 bg-muted/60 backdrop-blur">
-            <TabsTrigger value="dashboard">{bn?"ড্যাশবোর্ড":"Dashboard"}</TabsTrigger>
-            <TabsTrigger value="wallets">{bn?"ওয়ালেট":"Wallets"}</TabsTrigger>
-            <TabsTrigger value="tx">{bn?"লেনদেন":"Transactions"}</TabsTrigger>
-            <TabsTrigger value="ai"><span className="flex items-center gap-1"><Sparkles className="h-3.5 w-3.5" />AI</span></TabsTrigger>
-          </TabsList>
+          <div className="overflow-x-auto no-scrollbar -mx-3 px-3">
+            <TabsList className="inline-flex h-10 bg-muted/60 backdrop-blur gap-0.5">
+              <TabsTrigger value="dashboard" className="text-xs px-3">{bn?"ড্যাশবোর্ড":"Dashboard"}</TabsTrigger>
+              <TabsTrigger value="wallets" className="text-xs px-3">{bn?"ওয়ালেট":"Wallets"}</TabsTrigger>
+              <TabsTrigger value="tx" className="text-xs px-3">{bn?"লেনদেন":"Transactions"}</TabsTrigger>
+              <TabsTrigger value="analytics" className="text-xs px-3">{bn?"বিশ্লেষণ":"Analytics"}</TabsTrigger>
+              <TabsTrigger value="budget" className="text-xs px-3">{bn?"বাজেট":"Budget"}</TabsTrigger>
+              <TabsTrigger value="debts" className="text-xs px-3">{bn?"দেনা-পাওনা":"Debts"}</TabsTrigger>
+              <TabsTrigger value="ai" className="text-xs px-3"><span className="flex items-center gap-1"><Sparkles className="h-3.5 w-3.5" />AI</span></TabsTrigger>
+            </TabsList>
+          </div>
+
 
           {/* Dashboard */}
           <TabsContent value="dashboard" className="mt-4 space-y-4">

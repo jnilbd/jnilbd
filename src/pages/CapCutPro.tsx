@@ -261,15 +261,16 @@ export default function CapCutPro() {
       </section>
 
       {/* PLANS */}
-      <section id="plans" className="bg-gradient-to-b from-muted/30 to-transparent py-16">
+      <section id="plans" className="bg-gradient-to-b from-muted/30 to-transparent py-10 sm:py-16">
         <div className="container mx-auto px-4">
-          <div className="text-center max-w-2xl mx-auto mb-10">
+          <div className="text-center max-w-2xl mx-auto mb-6 sm:mb-10">
             <Badge className="bg-destructive text-destructive-foreground border-0 mb-3">
               <Flame className="h-3 w-3 mr-1" /> লিমিটেড টাইম অফার
             </Badge>
-            <h2 className="text-3xl sm:text-4xl font-bold">আপনার প্ল্যান বেছে নিন</h2>
-            <p className="mt-3 text-muted-foreground">যেকোনো প্ল্যানে ১০০% রিফান্ড গ্যারান্টি</p>
+            <h2 className="text-2xl sm:text-4xl font-bold">আপনার প্ল্যান বেছে নিন</h2>
+            <p className="mt-2 sm:mt-3 text-sm sm:text-base text-muted-foreground">যেকোনো প্ল্যানে ১০০% রিফান্ড গ্যারান্টি</p>
           </div>
+
 
           <div className="grid md:grid-cols-3 gap-5 max-w-5xl mx-auto">
             {plans.map((p) => (

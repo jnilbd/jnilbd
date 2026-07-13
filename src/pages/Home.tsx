@@ -335,10 +335,21 @@ const Home = () => {
                 <motion.div key={p.id} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.05 }}>
                   <Link to={`/shop/${p.id}`}>
                     <Card className="overflow-hidden h-full hover:shadow-elegant transition-smooth group">
-                      <div className="relative aspect-square bg-muted overflow-hidden">
-                        {p.image && <img src={p.image} alt={name} className="w-full h-full object-cover group-hover:scale-105 transition-smooth" />}
+                      <div className="relative aspect-square bg-gradient-to-br from-primary/10 via-muted to-accent/10 overflow-hidden">
+                        <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 text-center p-3">
+                          <ShoppingBag className="w-8 h-8 text-primary/60" />
+                          <span className="text-xs font-semibold text-muted-foreground line-clamp-2">{name}</span>
+                        </div>
+                        {p.image ? (
+                          <img
+                            src={p.image}
+                            alt={name}
+                            className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-smooth"
+                            onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = 'none'; }}
+                          />
+                        ) : null}
                         {p.badge && (
-                          <span className={`absolute top-3 left-3 px-3 py-1 rounded-full ${badgeColorMap[p.badge_color || "red"]} text-white text-xs font-bold shadow-lg`}>
+                          <span className={`absolute top-3 left-3 z-10 px-3 py-1 rounded-full ${badgeColorMap[p.badge_color || "red"]} text-white text-xs font-bold shadow-lg`}>
                             {p.badge}
                           </span>
                         )}
@@ -385,10 +396,21 @@ const Home = () => {
                   <motion.div key={s.id} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.05 }}>
                     <Link to={`/services/${s.id}`}>
                       <Card className="overflow-hidden h-full hover:shadow-elegant transition-smooth group">
-                        <div className="relative aspect-video bg-muted overflow-hidden">
-                          {s.image && <img src={s.image} alt={name} className="w-full h-full object-cover group-hover:scale-105 transition-smooth" />}
+                        <div className="relative aspect-video bg-gradient-to-br from-primary/10 via-muted to-accent/10 overflow-hidden">
+                          <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 text-center p-3">
+                            <Briefcase className="w-8 h-8 text-primary/60" />
+                            <span className="text-xs font-semibold text-muted-foreground line-clamp-2">{name}</span>
+                          </div>
+                          {s.image ? (
+                            <img
+                              src={s.image}
+                              alt={name}
+                              className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-smooth"
+                              onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = 'none'; }}
+                            />
+                          ) : null}
                           {s.badge && (
-                            <span className={`absolute top-3 left-3 px-3 py-1 rounded-full ${badgeColorMap[s.badge_color || "red"]} text-white text-xs font-bold shadow-lg`}>
+                            <span className={`absolute top-3 left-3 z-10 px-3 py-1 rounded-full ${badgeColorMap[s.badge_color || "red"]} text-white text-xs font-bold shadow-lg`}>
                               {s.badge}
                             </span>
                           )}

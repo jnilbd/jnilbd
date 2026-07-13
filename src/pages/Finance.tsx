@@ -508,6 +508,24 @@ const Finance = () => {
 
   const walletById = (id: string | null) => wallets.find(w => w.id === id);
 
+  // Month-only totals (independent of the visible filter) for the Planner
+  const monthTotals = useMemo(() => {
+    const from = startOfMonth().getTime();
+    let inc = 0, exp = 0;
+    for (const t of txs) {
+      const at = new Date(t.occurred_at).getTime();
+      if (at < from) continue;
+      const amt = Number(t.amount) || 0;
+      if (INCOME_TYPES.includes(t.type)) inc += amt;
+      else if (EXPENSE_TYPES.includes(t.type)) exp += amt;
+    }
+    return { inc, exp };
+  }, [txs]);
+  const totalBalance = useMemo(
+    () => wallets.reduce((s, w) => s + (Number(w.balance) || 0), 0),
+    [wallets]
+  );
+
   // ---------- Render ----------
   if (loading || !user) {
     return <div className="min-h-screen grid place-items-center"><Loader2 className="h-6 w-6 animate-spin text-muted-foreground" /></div>;

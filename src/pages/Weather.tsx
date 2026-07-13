@@ -12,6 +12,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { PAGE_BANNERS } from "@/lib/siteImages";
+import WeatherNews from "@/components/WeatherNews";
 
 interface City { name: string; lat: number; lon: number; country: string }
 
@@ -736,6 +737,9 @@ const Weather = () => {
                 </Button>
               </CardContent>
             </Card>
+
+            {/* 🔴 Live disaster & weather news — always at the very bottom */}
+            <WeatherNews />
           </>
         )}
       </motion.div>

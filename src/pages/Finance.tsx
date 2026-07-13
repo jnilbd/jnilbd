@@ -190,6 +190,11 @@ const Finance = () => {
   const [tab, setTab] = useState("dashboard");
   const [q, setQ] = useState("");
 
+  // date filter for transactions
+  const [dateRange, setDateRange] = useState<"all"|"today"|"yesterday"|"week"|"month"|"custom">("all");
+  const [customFrom, setCustomFrom] = useState<string>("");
+  const [customTo, setCustomTo] = useState<string>("");
+
   // quick action state
   const [qaOpen, setQaOpen] = useState(false);
   const [typePickerOpen, setTypePickerOpen] = useState(false);
@@ -201,6 +206,7 @@ const Finance = () => {
   const [qaParty, setQaParty] = useState("");
   const [qaNote, setQaNote] = useState("");
   const [qaScope, setQaScope] = useState<"personal" | "business">("personal");
+  const [qaDate, setQaDate] = useState<string>(""); // datetime-local; empty = now
 
   // wallet detail
   const [detailWallet, setDetailWallet] = useState<WalletRow | null>(null);

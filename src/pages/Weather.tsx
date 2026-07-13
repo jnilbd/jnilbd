@@ -426,31 +426,34 @@ const Weather = () => {
               </Button>
             </div>
 
-            {/* Row 2: quick cities */}
-            <div>
-              <div className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground mb-2">
-                {isBn ? "জনপ্রিয় শহর" : "Popular cities"}
-              </div>
-              <div className="flex gap-1.5 flex-wrap">
-                {QUICK_CITIES.map((c) => {
-                  const label = isBn ? c.name.split(" / ")[0] : (c.name.split(" / ")[1] || c.name);
-                  const active = city.name === c.name;
-                  return (
-                    <button
-                      key={c.name}
-                      onClick={() => setCity(c)}
-                      className={`px-3 py-1.5 rounded-full text-xs font-medium border transition-all ${
-                        active
-                          ? "bg-primary text-primary-foreground border-primary shadow-sm"
-                          : "bg-background hover:bg-muted border-border/60 text-foreground/80"
-                      }`}
-                    >
-                      {label}
-                    </button>
-                  );
-                })}
-              </div>
+            {/* Row 2: quick cities dropdown */}
+            <div className="flex items-center gap-2 flex-wrap">
+              <Label className="text-xs font-semibold whitespace-nowrap">
+                {isBn ? "জনপ্রিয় শহর:" : "Popular city:"}
+              </Label>
+              <Select
+                value={QUICK_CITIES.find(c => c.name === city.name)?.name ?? ""}
+                onValueChange={(v) => {
+                  const found = QUICK_CITIES.find(c => c.name === v);
+                  if (found) setCity(found);
+                }}
+              >
+                <SelectTrigger className="w-auto min-w-[200px] h-9 text-sm">
+                  <SelectValue placeholder={isBn ? "শহর নির্বাচন করুন" : "Select a city"} />
+                </SelectTrigger>
+                <SelectContent className="max-h-[320px]">
+                  {QUICK_CITIES.map((c) => {
+                    const label = isBn ? c.name.split(" / ")[0] : (c.name.split(" / ")[1] || c.name);
+                    return (
+                      <SelectItem key={c.name} value={c.name} className="text-sm">
+                        {label}
+                      </SelectItem>
+                    );
+                  })}
+                </SelectContent>
+              </Select>
             </div>
+
 
             {/* Row 3: model selector */}
             <div className="pt-3 border-t border-border/50 flex items-center gap-2 flex-wrap">

@@ -414,9 +414,9 @@ export default function CapCutPro() {
         </div>
       </section>
 
-      {/* Sticky bottom CTA */}
-      <div className="fixed bottom-0 inset-x-0 z-40 bg-primary text-primary-foreground border-t border-primary-foreground/10 shadow-2xl">
-        <div className="container mx-auto px-3 py-2.5 flex items-center gap-3">
+      {/* Sticky bottom CTA — sits above mobile BottomNav (~64px) */}
+      <div className="fixed bottom-16 md:bottom-0 inset-x-0 z-40 bg-primary text-primary-foreground border-t border-primary-foreground/10 shadow-2xl">
+        <div className="container mx-auto px-3 py-2 flex items-center gap-2">
           <div className="hidden sm:flex items-center gap-2">
             <Sparkles className="h-4 w-4 text-secondary" />
             <div className="text-sm">
@@ -424,18 +424,21 @@ export default function CapCutPro() {
               <span className="tabular-nums text-secondary font-bold">{bn(h)}:{bn(m)}:{bn(s)}</span>
             </div>
           </div>
-          <div className="flex-1 sm:hidden text-xs">
-            অফার: <span className="tabular-nums text-secondary font-bold">{bn(h)}:{bn(m)}:{bn(s)}</span>
+          <div className="flex-1 sm:hidden text-[11px] leading-tight">
+            <div className="font-bold">CapCut Pro ৳১৪৯</div>
+            <div className="opacity-80">শেষ: <span className="tabular-nums text-secondary font-bold">{bn(h)}:{bn(m)}:{bn(s)}</span></div>
           </div>
-          <Button size="sm" className="bg-secondary text-secondary-foreground hover:bg-secondary/90 font-bold" onClick={()=>orderWhatsApp(selectedPlan)}>
-            <MessageCircle className="h-4 w-4 mr-1.5" /> WhatsApp অর্ডার
+          <Button size="sm" className="bg-secondary text-secondary-foreground hover:bg-secondary/90 font-bold h-9 px-3 text-xs sm:text-sm" onClick={()=>orderWhatsApp(selectedPlan)}>
+            <MessageCircle className="h-4 w-4 mr-1" /> অর্ডার
           </Button>
-          <a href={`tel:${WHATSAPP}`} className="h-9 w-9 grid place-items-center rounded-md bg-secondary/20 hover:bg-secondary/30" aria-label="Call">
+          <a href={`tel:${WHATSAPP}`} className="h-9 w-9 grid place-items-center rounded-md bg-secondary/20 hover:bg-secondary/30 shrink-0" aria-label="Call">
             <Phone className="h-4 w-4 text-secondary" />
           </a>
         </div>
       </div>
-      <div className="h-16" />
+      {/* Spacer for sticky CTA + mobile BottomNav */}
+      <div className="h-28 md:h-16" />
+
     </div>
   );
 }

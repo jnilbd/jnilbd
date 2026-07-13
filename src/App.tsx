@@ -66,6 +66,7 @@ import Newspapers from "./pages/Newspapers";
 import AdMaker from "./pages/AdMaker";
 import PhoneRootUnlock from "./pages/PhoneRootUnlock";
 import Offers from "./pages/Offers";
+import CapCutPro from "./pages/CapCutPro";
 
 const queryClient = new QueryClient();
 
@@ -135,6 +136,7 @@ const App = () => (
                 <Route path="/ad-maker" element={<AdMaker />} />
                 <Route path="/phone-root-unlock" element={<PhoneRootUnlock />} />
                 <Route path="/offers" element={<Offers />} />
+                <Route path="/capcut-pro" element={<CapCutPro />} />
                 <Route path="/cart" element={<Cart />} />
                 <Route path="/checkout" element={<Checkout />} />
                 <Route path="/profile" element={<Profile />} />

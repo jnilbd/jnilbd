@@ -13,7 +13,7 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Plus, Target, TrendingUp, CalendarClock, Sparkles, Trash2, CheckCircle2, AlertTriangle, Calculator, Wallet, PiggyBank, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
-import { FinanceCalculator } from "./FinanceCalculator";
+import FinanceCalculator from "./FinanceCalculator";
 
 type Kind = "savings" | "income_target" | "installment";
 type Scope = "personal" | "business";

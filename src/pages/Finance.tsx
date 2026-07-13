@@ -115,7 +115,31 @@ const MetricCard = ({ label, value, icon: Icon, tone = "default", sub }: any) =>
   </motion.div>
 );
 
-const WalletCard = ({ w, today, month, onOpen }: { w: WalletRow; today: number; month: number; onOpen: () => void }) => {
+const SCOPE_BN: Record<string, string> = { personal: "ব্যক্তিগত", business: "ব্যবসা" };
+const TYPE_BN: Record<string, string> = {
+  cash: "নগদ", bank: "ব্যাংক", mobile: "মোবাইল", card: "কার্ড", digital: "ডিজিটাল",
+};
+const TX_TYPE_BN: Record<string, string> = {
+  income: "আয়", expense: "খরচ", transfer: "ট্রান্সফার",
+  sale: "বিক্রি", purchase: "ক্রয়",
+  loan_given: "ধার দেয়া", loan_taken: "ধার নেয়া",
+  repayment_in: "ফেরত পাওয়া", repayment_out: "ফেরত দেয়া",
+  return_in: "ফেরত (আয়)", return_out: "ফেরত (খরচ)",
+  stock_in: "স্টক ইন", stock_out: "স্টক আউট",
+};
+const CATEGORY_BN: Record<string, string> = {
+  Food: "খাবার", Transport: "যাতায়াত", Shopping: "কেনাকাটা", Medicine: "ঔষধ",
+  Education: "শিক্ষা", Family: "পরিবার", Kids: "সন্তান", Entertainment: "বিনোদন",
+  Internet: "ইন্টারনেট", "Mobile Recharge": "মোবাইল রিচার্জ", Bills: "বিল",
+  Travel: "ভ্রমণ", Rent: "ভাড়া", Investment: "বিনিয়োগ", Savings: "সঞ্চয়",
+  Salary: "বেতন", Advertising: "বিজ্ঞাপন", Courier: "কুরিয়ার",
+  "Office Rent": "অফিস ভাড়া", Utility: "ইউটিলিটি", Refund: "রিফান্ড",
+  Loan: "ঋণ", Sale: "বিক্রি", Purchase: "ক্রয়", Other: "অন্যান্য",
+};
+const bnLabel = (m: Record<string,string>, k: string | null | undefined, bn: boolean) =>
+  !k ? "—" : (bn ? (m[k] ?? k) : k);
+
+const WalletCard = ({ w, today, month, onOpen, bn }: { w: WalletRow; today: number; month: number; onOpen: () => void; bn: boolean }) => {
   const Icon = walletIcon(w.type);
   return (
     <motion.button
@@ -134,16 +158,16 @@ const WalletCard = ({ w, today, month, onOpen }: { w: WalletRow; today: number; 
             <div>
               <p className="text-sm font-medium leading-tight">{w.name}</p>
               <p className="text-[10px] uppercase tracking-wide opacity-80">
-                {w.scope} · {w.provider ?? w.type}
+                {bn ? SCOPE_BN[w.scope] : w.scope} · {w.provider ?? (bn ? TYPE_BN[w.type] : w.type)}
               </p>
             </div>
           </div>
-          {w.is_default && <Badge className="bg-white/20 text-white border-0 text-[10px]">Default</Badge>}
+          {w.is_default && <Badge className="bg-white/20 text-white border-0 text-[10px]">{bn?"ডিফল্ট":"Default"}</Badge>}
         </div>
-        <p className="text-2xl font-semibold mt-4 tabular-nums">{fmtBDT(Number(w.balance || 0))}</p>
+        <p className="text-2xl font-semibold mt-4 tabular-nums">{fmtBDT(Number(w.balance || 0), bn)}</p>
         <div className="flex items-center justify-between mt-2 text-[11px]">
-          <span className="flex items-center gap-1"><ArrowUpRight className="h-3 w-3" /> Today {fmtBDT(today)}</span>
-          <span className="flex items-center gap-1"><ArrowDownRight className="h-3 w-3" /> Month {fmtBDT(month)}</span>
+          <span className="flex items-center gap-1"><ArrowUpRight className="h-3 w-3" /> {bn?"আজ":"Today"} {fmtBDT(today, bn)}</span>
+          <span className="flex items-center gap-1"><ArrowDownRight className="h-3 w-3" /> {bn?"মাস":"Month"} {fmtBDT(month, bn)}</span>
         </div>
       </div>
     </motion.button>

@@ -752,6 +752,31 @@ const Finance = () => {
               ))}
             </div>
           </TabsContent>
+
+          {/* Analytics */}
+          <TabsContent value="analytics" className="mt-4">
+            <AnalyticsTab
+              txs={filteredTxs}
+              bn={bn}
+              categoryLabel={(c) => bn ? (CATEGORY_BN[c] ?? TX_TYPE_BN[c] ?? c) : c}
+            />
+          </TabsContent>
+
+          {/* Budget */}
+          <TabsContent value="budget" className="mt-4">
+            <BudgetTab
+              userId={user.id}
+              txs={filteredTxs}
+              bn={bn}
+              categories={Array.from(new Set([...CATEGORIES_PERSONAL, ...CATEGORIES_BUSINESS]))}
+              categoryLabel={(c) => bn ? (CATEGORY_BN[c] ?? c) : c}
+            />
+          </TabsContent>
+
+          {/* Debts */}
+          <TabsContent value="debts" className="mt-4">
+            <DebtsTab userId={user.id} bn={bn} />
+          </TabsContent>
         </Tabs>
       </div>
 

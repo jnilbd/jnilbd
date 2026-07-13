@@ -719,8 +719,18 @@ export type Database = {
       savings_goals: {
         Row: {
           created_at: string
+          icon: string | null
           id: string
+          interest_rate: number
+          is_completed: boolean
+          kind: string
+          monthly_contribution: number
+          months_paid: number
+          months_total: number | null
+          note: string | null
+          priority: number
           saved_amount: number
+          scope: string
           target_amount: number
           target_date: string | null
           title: string
@@ -729,8 +739,18 @@ export type Database = {
         }
         Insert: {
           created_at?: string
+          icon?: string | null
           id?: string
+          interest_rate?: number
+          is_completed?: boolean
+          kind?: string
+          monthly_contribution?: number
+          months_paid?: number
+          months_total?: number | null
+          note?: string | null
+          priority?: number
           saved_amount?: number
+          scope?: string
           target_amount: number
           target_date?: string | null
           title: string
@@ -739,8 +759,18 @@ export type Database = {
         }
         Update: {
           created_at?: string
+          icon?: string | null
           id?: string
+          interest_rate?: number
+          is_completed?: boolean
+          kind?: string
+          monthly_contribution?: number
+          months_paid?: number
+          months_total?: number | null
+          note?: string | null
+          priority?: number
           saved_amount?: number
+          scope?: string
           target_amount?: number
           target_date?: string | null
           title?: string

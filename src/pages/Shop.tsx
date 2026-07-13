@@ -173,7 +173,7 @@ const Shop = () => {
               const finalPrice = p.discount_price || p.price;
               return (
                 <motion.div key={p.id} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05 }}>
-                  <Link to={p.slug === "capcut-pro" ? "/capcut-pro" : `/shop/${p.id}`}>
+                  <Link to={p.slug === "capcut-pro" ? "/capcut-pro" : p.slug === "mini-hd-projector" ? "/mini-projector" : `/shop/${p.id}`}>
                     <Card className="overflow-hidden h-full hover:shadow-elegant transition-smooth group">
                       <div className="relative aspect-square bg-muted overflow-hidden">
                         <ProductImage product={p} name={name} />

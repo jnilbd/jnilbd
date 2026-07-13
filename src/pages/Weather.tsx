@@ -305,14 +305,74 @@ const Weather = () => {
 
     // 🌧️ Heavy rain / rain
     const peakHr = peakRainTime ? new Date(peakRainTime).toLocaleTimeString(isBn ? "bn-BD" : "en-US", { hour: "numeric", hour12: true }) : "";
+
+    // ⏱️ Duration analysis — scan full hourly array (up to 7 days = 168h)
+    const allProb: number[] = data.hourly.precipitation_probability || [];
+    const allPrecip: number[] = data.hourly.precipitation || [];
+    const allTimes: string[] = data.hourly.time || [];
+    const nowMs = Date.now();
+    // find index of current hour
+    let nowIdx = allTimes.findIndex((t) => new Date(t).getTime() >= nowMs - 30 * 60 * 1000);
+    if (nowIdx < 0) nowIdx = 0;
+    const isRainyHour = (i: number) => (allProb[i] ?? 0) >= 40 || (allPrecip[i] ?? 0) >= 0.2;
+    // hours already rainy (backwards from now)
+    let pastHours = 0;
+    for (let i = nowIdx - 1; i >= 0 && isRainyHour(i); i--) pastHours++;
+    // continuous rainy hours from now forward
+    let forwardHours = 0;
+    for (let i = nowIdx; i < allTimes.length && isRainyHour(i); i++) forwardHours++;
+    // if not raining right now, find next rainy stretch length
+    let upcomingHours = 0;
+    let upcomingStartIdx = -1;
+    if (forwardHours === 0) {
+      for (let i = nowIdx; i < allTimes.length; i++) {
+        if (isRainyHour(i)) {
+          upcomingStartIdx = i;
+          while (i < allTimes.length && isRainyHour(i)) {
+            upcomingHours++;
+            i++;
+          }
+          break;
+        }
+      }
+    }
+    const fmtDuration = (h: number) => {
+      if (h <= 0) return "";
+      const d = Math.floor(h / 24);
+      const rh = h % 24;
+      if (isBn) {
+        if (d > 0 && rh > 0) return `~${d} দিন ${rh} ঘণ্টা`;
+        if (d > 0) return `~${d} দিন`;
+        return `~${h} ঘণ্টা`;
+      }
+      if (d > 0 && rh > 0) return `~${d}d ${rh}h`;
+      if (d > 0) return `~${d}d`;
+      return `~${h}h`;
+    };
+    let durationLine = "";
+    if (forwardHours > 0) {
+      const pastPart = pastHours > 0
+        ? (isBn ? ` (গত ${fmtDuration(pastHours)} ধরে চলছে)` : ` (ongoing for ${fmtDuration(pastHours)})`)
+        : "";
+      durationLine = isBn
+        ? `⏱️ স্থায়িত্ব: আরও ${fmtDuration(forwardHours)} চলতে পারে${pastPart}।`
+        : `⏱️ Duration: may continue for ${fmtDuration(forwardHours)} more${pastPart}.`;
+    } else if (upcomingHours > 0 && upcomingStartIdx >= 0) {
+      const startsIn = Math.max(0, Math.round((new Date(allTimes[upcomingStartIdx]).getTime() - nowMs) / 3600000));
+      durationLine = isBn
+        ? `⏱️ শুরু হতে পারে ~${startsIn} ঘণ্টা পর, স্থায়িত্ব ${fmtDuration(upcomingHours)}।`
+        : `⏱️ May begin in ~${startsIn}h, lasting ${fmtDuration(upcomingHours)}.`;
+    }
+    const withDur = (s: string) => (durationLine ? `${s} ${durationLine}` : s);
+
     if (totalRain24 >= 89 || next24Precip.some((p: number) => p >= 30)) {
       alerts.push({
         severity: "extreme",
         icon: "🌊",
         title: isBn ? "অতি ভারী বর্ষণ ও জলাবদ্ধতা" : "Extremely Heavy Rainfall",
-        detail: isBn
+        detail: withDur(isBn
           ? `আগামী ২৪ ঘণ্টায় ~${Math.round(totalRain24)} mm বৃষ্টি — শীর্ষ ${peakHr}। জলাবদ্ধতা/বন্যার ঝুঁকি।`
-          : `~${Math.round(totalRain24)} mm in 24h — peak around ${peakHr}. Flooding risk.`,
+          : `~${Math.round(totalRain24)} mm in 24h — peak around ${peakHr}. Flooding risk.`),
         actions: isBn
           ? ["নিচু এলাকা/আন্ডারপাস এড়িয়ে চলুন", "বৈদ্যুতিক খুঁটি ও ছেড়া তার থেকে দূরে থাকুন", "গুরুত্বপূর্ণ জিনিস উঁচু জায়গায় রাখুন", "জরুরি ওষুধ, পানি, শুকনা খাবার মজুদ রাখুন", "ভ্রমণ পরিকল্পনা স্থগিত করুন"]
           : ["Avoid low-lying areas and underpasses", "Stay clear of poles and downed wires", "Move valuables to higher ground", "Stock medicine, water, dry food", "Postpone travel plans"],
@@ -322,9 +382,9 @@ const Weather = () => {
         severity: "severe",
         icon: "🌧️",
         title: isBn ? "ভারী বৃষ্টিপাত" : "Heavy Rainfall",
-        detail: isBn
+        detail: withDur(isBn
           ? `আগামী ২৪ ঘণ্টায় ~${Math.round(totalRain24)} mm বৃষ্টি প্রত্যাশিত — শীর্ষ ${peakHr}।`
-          : `~${Math.round(totalRain24)} mm expected in 24h — peak ${peakHr}.`,
+          : `~${Math.round(totalRain24)} mm expected in 24h — peak ${peakHr}.`),
         actions: isBn
           ? ["ছাতা/রেইনকোট সাথে রাখুন", "ধীরে গাড়ি চালান, হেডলাইট জ্বালান", "ছাদ/ড্রেন পরিষ্কার রাখুন", "ফোন/পাওয়ারব্যাংক চার্জ করে রাখুন"]
           : ["Carry umbrella/raincoat", "Drive slowly with headlights on", "Clear roof drains and gutters", "Charge phones and power banks"],
@@ -334,7 +394,7 @@ const Weather = () => {
         severity: "moderate",
         icon: "☔",
         title: isBn ? "বৃষ্টির প্রবল সম্ভাবনা" : "Likely Rain",
-        detail: isBn ? `সর্বোচ্চ ${maxProb}% সম্ভাবনা — সম্ভাব্য শীর্ষ ${peakHr}।` : `${maxProb}% chance — peak around ${peakHr}.`,
+        detail: withDur(isBn ? `সর্বোচ্চ ${maxProb}% সম্ভাবনা — সম্ভাব্য শীর্ষ ${peakHr}।` : `${maxProb}% chance — peak around ${peakHr}.`),
         actions: isBn ? ["বের হওয়ার আগে ছাতা নিন", "কাপড় ছাদ থেকে নামিয়ে রাখুন"] : ["Take an umbrella", "Bring laundry inside"],
       });
     } else if (maxProb >= 40) {
@@ -342,7 +402,7 @@ const Weather = () => {
         severity: "advisory",
         icon: "🌦️",
         title: isBn ? "মাঝারি বৃষ্টির সম্ভাবনা" : "Possible Showers",
-        detail: isBn ? `${maxProb}% সম্ভাবনা আগামী ২৪ ঘণ্টায়।` : `${maxProb}% chance over next 24h.`,
+        detail: withDur(isBn ? `${maxProb}% সম্ভাবনা আগামী ২৪ ঘণ্টায়।` : `${maxProb}% chance over next 24h.`),
         actions: isBn ? ["সম্ভব হলে ছাতা সাথে রাখুন"] : ["Keep an umbrella handy"],
       });
     }

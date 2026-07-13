@@ -737,6 +737,9 @@ const Weather = () => {
                 </Button>
               </CardContent>
             </Card>
+
+            {/* 🔴 Live disaster & weather news — always at the very bottom */}
+            <WeatherNews />
           </>
         )}
       </motion.div>

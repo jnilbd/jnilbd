@@ -1,81 +1,39 @@
-# Premium Finance Module — Build Plan
+## Finance মডিউল বড় আপগ্রেড
 
-This is a very large scope (dashboard, wallets, personal/business finance, inventory, sales, purchases, budgets, goals, debts, reports, analytics, AI assistant, receipt scanner, backups). Shipping it all in one turn would be unstable and unreviewable. I'll build it in **5 focused phases**, each independently usable, tested, and shippable.
+আপনার লিস্টে ১৩টি ফিচার আছে। কিছু আগে থেকেই আছে, কিছু নতুন করে বানাতে হবে। বাস্তবতা: সব একসাথে করলে কোয়ালিটি নষ্ট হবে — ৩টা ফেজে ভাগ করছি। প্রতি ফেজ শেষ হলে test করে পরের ফেজ।
 
-Your current DB already has: `budgets`, `debts`, `savings_goals`, `planned_purchases`, `sellable_assets`, `transactions`. I'll extend, not replace.
+### ইতিমধ্যে যা আছে ✅
+- Wallets (Cash, bKash, Nagad, Rocket, Upay, Bank, Card, Office Cash, Personal Cash) — সব ব্যালেন্স Wallets ট্যাবে
+- Quick Add FAB (+) — ১২ ধরনের এন্ট্রি
+- আজকের সারাংশ (আয় / খরচ / লাভ)
+- Recent Transactions (লেনদেন ট্যাব)
+- AI Finance Assistant (বাংলা/ইংরেজি ন্যাচারাল ল্যাঙ্গুয়েজ → এন্ট্রি)
 
----
+### ফেজ ১ — এখনই বানাচ্ছি (Frontend, বিদ্যমান data দিয়ে)
+1. **📊 Spending Analysis** — ক্যাটাগরি-ওয়াইজ Pie/Donut chart (recharts), মাস filter সহ
+2. **📅 Monthly Calendar Heatmap** — প্রতিদিন কত খরচ, রঙের গভীরতায় দেখাবে; দিন ক্লিক করলে সেই দিনের লেনদেন
+3. **🎯 Budget** — `budgets` টেবিল আগে থেকেই আছে; ক্যাটাগরি-ওয়াইজ বাজেট সেট + অগ্রগতি বার (বাজেট / খরচ / বাকি)
+4. **🧾 Due Management** — `debts` টেবিল আগে থেকেই আছে; কে পাবে / কার কাছে পাবেন — আলাদা ট্যাব
+5. **🔔 Smart Reminders** — ড্যাশবোর্ডে ইনটেলিজেন্ট alert কার্ড (আজ কোনো এন্ট্রি নেই, বাজেট প্রায় শেষ, গতকালের চেয়ে কম লাভ)
+6. নতুন ট্যাব লেআউট: Dashboard / Wallets / Transactions / Analytics / Budget / Debts / AI
 
-## Phase 1 — Foundation + Dashboard + Wallets + Quick Actions + AI NL Entry
-The "wow" core. After this phase Finance is already usable end-to-end.
+### ফেজ ২ — নতুন backend দরকার
+7. **📷 Receipt Scan** — ছবি upload → Gemini Vision (Lovable AI) → পার্স করে এন্ট্রি preview → confirm
+8. **📦 Inventory Summary** — নতুন `finance_inventory` টেবিল (product, stock, low_stock_threshold, cost, price); Stock In/Sale এন্ট্রির সাথে auto-adjust; ড্যাশবোর্ডে "১০২ পিস, ৫টি Low Stock"
 
-**Schema (new tables, RLS scoped to `auth.uid()`)**
-- `finance_wallets` — id, user_id, name, type (cash/bank/mobile/card/digital), provider (bkash/nagad/rocket/upay/…), scope (personal/business), balance, currency, icon, color, is_default, archived
-- `finance_transactions` — id, user_id, wallet_id, type (income/expense/transfer/sale/purchase/loan/repayment), amount, category, subcategory, note, party (customer/supplier name), scope (personal/business), occurred_at, transfer_to_wallet_id, product_id (nullable), meta jsonb
-- `finance_categories` — seeded personal + business categories (Bangla + English labels, icons)
-- Update trigger + GRANTs + policies on all.
-
-**Frontend**
-- New route `/finance` replacing/wrapping current finance tab.
-- Layout: sticky top summary, tabs (Dashboard · Wallets · Transactions · AI Assistant · More).
-- **Dashboard cards** (all metrics you listed): Today/Monthly Income · Expense · Profit, Net Worth, Cash/Bank/Mobile Banking totals, Personal vs Business split, Receivable/Payable, Inventory value (from `shop_products`), Low stock, Pending orders (`shop_orders`), Pending payments. Apple-style rounded cards, soft shadows, animated counters, sparkline per card.
-- **Wallets** — default seed on first visit (Cash, Office Cash, Personal Cash, Bank, bKash, Nagad, Rocket, Upay, Card, Digital). Each card: balance, today Δ, month Δ, mini history, tap → detail drawer with full transaction list.
-- **Floating Action Button** (radial menu) — Add Income, Add Expense, Transfer, Add Sale, Add Purchase, Stock In/Out, Customer/Supplier Return, Add Loan, Receive Payment. Each opens a bottom-sheet with 2-3 fields max.
-- **AI Assistant** (natural language entry) — edge function `finance-ai-parse` using Lovable AI (`google/gemini-3-flash-preview`) with structured output. Takes free text ("bKash theke 500 tk tullam", "2 ta projector bikri korlam 8000 tk"), returns `{type, amount, wallet, category, party, product, date}`, shows a confirmation card, one tap to save. Supports Bangla + English + Banglish.
-- Transaction feed with filters, search, export CSV.
-
-**Design**
-- Apple-inspired: SF-style display font, generous whitespace, glass cards, subtle gradients per wallet type, framer-motion transitions, bilingual (respects existing `LanguageContext`), BDT ৳ formatting, Asia/Dhaka timezone.
+### ফেজ ৩ — বড় ফিচার (আলাদা করে ডিসকাস করতে হবে)
+9. **👨‍👩‍👧 Family Finance** — শেয়ার্ড wallet system, family member invite, RLS পুনর্গঠন। এটার UX আলাদা ভাবে discuss করব।
 
 ---
 
-## Phase 2 — Budgets + Goals + Debts (polished)
-Rework existing tables into the new UI.
-- Budget planner with 80/90/100% progress warnings, category picker, monthly reset.
-- Goals with animated progress rings, target date, auto-calc monthly required saving.
-- Debt tracker (owe / owed) with due-date reminders, payment history, optional interest.
-- Notification center for budget/due/low-stock events (in-app + toast).
+### Technical (এই ফেজে যা করব)
+- `recharts` লাইব্রেরি use করব pie + calendar heatmap-এর জন্য
+- `budgets` টেবিলে period (monthly), category, amount — বিদ্যমান schema-তে থাকলে reuse
+- `debts` টেবিলে party, amount, direction (owe/owed), due_date, status — বিদ্যমান schema check করে UI বানাব
+- Reminders পুরোপুরি client-side derived (কোনো cron না, DB query থেকে হিসাব)
+- Analytics ট্যাবে month picker + scope filter সমান্তরাল
 
----
+### ফেজ ১-এ যা এই মুহূর্তে বানাব (approve করলে)
+নতুন ৩টা ট্যাব (Analytics, Budget, Debts) + Dashboard-এ Smart Reminder কার্ড + Calendar heatmap।
 
-## Phase 3 — Inventory + Sales + Purchases
-Extend existing `shop_products` / `shop_orders`.
-- Add: `finance_suppliers`, `finance_stock_movements`, `finance_purchases`, `finance_purchase_items`, `finance_damages`.
-- Product: SKU, barcode, purchase/selling price, min stock, warehouse, supplier.
-- Sales flow: invoice, courier (Pathao/Steadfast/RedX enum), payment method, delivery status, auto profit calc, auto stock decrement, auto wallet credit.
-- Purchase flow: supplier, due, purchase return, payment tracking, auto stock increment.
-- Low-stock alerts feed the Dashboard.
-
----
-
-## Phase 4 — Reports + Analytics + Receipt Scanner
-- Report builder: Daily/Weekly/Monthly/Yearly, Cash Flow, P&L, Expense/Income analysis, Inventory, Sales, Tax, per-wallet. PDF/Excel/CSV export.
-- Analytics tab: Recharts pie/bar/line/area — Income vs Expense, category breakdown, sales trend, inventory growth, cash-flow waterfall, profit trend.
-- Receipt scanner: image upload → edge function `finance-receipt-scan` using Lovable AI vision → extracts merchant/amount/items/tax/category → prefilled transaction confirm sheet.
-
----
-
-## Phase 5 — Security, Backup, Integrations
-- App-lock: PIN + WebAuthn (fingerprint/Face on supported devices) gate for `/finance`. Optional OTP via existing Twilio for high-value actions.
-- Encrypted export bundle (Excel/CSV/PDF) + Google Drive backup via existing `google_drive` connector when linked.
-- Future-integration scaffolding (stubs + toggles) for WooCommerce, Facebook Orders, bKash/Nagad API, Pathao/Steadfast/RedX, Google Sheets/Calendar, WhatsApp/Email reports.
-
----
-
-## Technical notes
-- All edge functions Deno + Lovable AI Gateway (no user key required). Structured output via `Output.object` with fallback parse.
-- Every new `public` table: GRANT to `authenticated` + `service_role`, RLS `auth.uid() = user_id`.
-- Currency: BDT ৳ formatter, `Intl.NumberFormat('bn-BD')` for Bangla mode.
-- Timezone: Asia/Dhaka everywhere via `date-fns-tz`.
-- Portable — no dependency on any private ISP or paid API (matches your hosting-shift requirement).
-- Dark/Light already wired via existing theme system; new module uses semantic tokens only (no hardcoded colors).
-
----
-
-## What I need from you before I start Phase 1
-1. **Green-light phased delivery?** (Phase 1 this turn, others on request.) Or do you want a single mega-turn build (higher risk of bugs & incomplete polish)?
-2. **Business + Personal in one workspace, or separate toggle at top?** (Default: single workspace with a Personal/Business/All filter chip.)
-3. **AI assistant language default** — Bangla, English, or auto-detect per message? (Default: auto-detect.)
-4. Anything from the spec you want to **drop or defer** to keep Phase 1 lean?
-
-Reply with answers (or just "go") and I'll ship Phase 1.
+Approve করলে ফেজ ১ শুরু করি। ফেজ ২ ও ৩ আলাদা turn-এ।

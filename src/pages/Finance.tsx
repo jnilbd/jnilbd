@@ -1,14 +1,12 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
-import { motion } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
 import {
-  Wallet, TrendingUp, TrendingDown, PiggyBank, HandCoins, Target, Sparkles,
-  Plus, Trash2, LogOut, User as UserIcon, Calendar as CalIcon, Save, Brain,
-  ShoppingCart, Package, Check
+  Wallet, TrendingUp, TrendingDown, ArrowLeftRight, Plus, Sparkles, Send,
+  Landmark, Smartphone, CreditCard, Coins, Banknote, PiggyBank, Package,
+  ShoppingCart, ReceiptText, Trash2, RefreshCw, Loader2, X, ArrowUpRight, ArrowDownRight,
+  Building2, User as UserIcon, Wand2, ChevronRight, Search
 } from "lucide-react";
-import {
-  PieChart, Pie, Cell, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, Legend, CartesianGrid
-} from "recharts";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
@@ -19,927 +17,697 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Progress } from "@/components/ui/progress";
-import FinanceCalculator from "@/components/finance/FinanceCalculator";
+import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { cn } from "@/lib/utils";
 
-const EXPENSE_CATS_BN = ["খাবার ও বাজার","পরিবহন","ভাড়া","বিল","স্বাস্থ্য","শিক্ষা","কেনাকাটা","বিনোদন","পরিবার","অন্যান্য"];
-const EXPENSE_CATS_EN = ["Food & Groceries","Transport","Rent","Bills","Health","Education","Shopping","Entertainment","Family","Other"];
-const INCOME_CATS_BN = ["বেতন","ফ্রিল্যান্সিং","ব্যবসা","ভাড়া আয়","উপহার","অন্যান্য"];
-const INCOME_CATS_EN = ["Salary","Freelance","Business","Rental","Gift","Other"];
+// ---------- Types ----------
+type WalletType = "cash" | "bank" | "mobile" | "card" | "digital";
+type Scope = "personal" | "business" | "all";
+type TxType =
+  | "income" | "expense" | "transfer"
+  | "sale" | "purchase"
+  | "loan_given" | "loan_taken" | "repayment_in" | "repayment_out"
+  | "return_in" | "return_out" | "stock_in" | "stock_out";
 
-const COLORS = ["hsl(var(--primary))","hsl(var(--secondary))","#10b981","#f59e0b","#8b5cf6","#ef4444","#06b6d4","#ec4899","#84cc16","#64748b"];
+interface WalletRow {
+  id: string; name: string; type: WalletType; provider: string | null;
+  scope: "personal" | "business"; balance: number; currency: string;
+  icon: string | null; color: string | null; is_default: boolean; archived: boolean;
+  sort_order: number;
+}
+interface TxRow {
+  id: string; wallet_id: string | null; transfer_to_wallet_id: string | null;
+  type: TxType; amount: number; category: string | null; scope: "personal" | "business";
+  party: string | null; note: string | null; occurred_at: string;
+}
 
-type Tx = { id: string; type: "income"|"expense"; category: string; amount: number; note: string|null; occurred_on: string };
-type Debt = { id: string; direction: "lent"|"borrowed"; counterparty: string; amount: number; paid_amount: number; due_date: string|null; note: string|null; is_settled: boolean };
-type Budget = { id: string; category: string; monthly_limit: number };
-type Goal = { id: string; title: string; target_amount: number; saved_amount: number; target_date: string|null };
-type Profile = { id: string; full_name: string|null; phone: string|null; monthly_income: number; currency: string };
-type Plan = { id: string; item: string; est_price: number; priority: string; plan_date: string|null; is_done: boolean; note: string|null };
-type Asset = { id: string; item: string; est_value: number; condition: string; is_sold: boolean; sold_amount: number|null; note: string|null };
+// ---------- Constants ----------
+const DEFAULT_WALLETS: Array<Omit<WalletRow, "id" | "balance" | "currency" | "sort_order">> = [
+  { name: "Cash",         type: "cash",   provider: null,      scope: "personal", icon: "coins",    color: "from-amber-400 to-orange-500",   is_default: true,  archived: false },
+  { name: "Office Cash",  type: "cash",   provider: null,      scope: "business", icon: "banknote", color: "from-emerald-400 to-teal-500",   is_default: false, archived: false },
+  { name: "Personal Cash",type: "cash",   provider: null,      scope: "personal", icon: "coins",    color: "from-sky-400 to-blue-500",       is_default: false, archived: false },
+  { name: "Bank",         type: "bank",   provider: null,      scope: "personal", icon: "landmark", color: "from-slate-500 to-slate-700",    is_default: false, archived: false },
+  { name: "bKash",        type: "mobile", provider: "bkash",   scope: "personal", icon: "smartphone", color: "from-pink-500 to-rose-600",     is_default: false, archived: false },
+  { name: "Nagad",        type: "mobile", provider: "nagad",   scope: "personal", icon: "smartphone", color: "from-orange-500 to-red-600",    is_default: false, archived: false },
+  { name: "Rocket",       type: "mobile", provider: "rocket",  scope: "personal", icon: "smartphone", color: "from-purple-500 to-fuchsia-600",is_default: false, archived: false },
+  { name: "Upay",         type: "mobile", provider: "upay",    scope: "personal", icon: "smartphone", color: "from-cyan-500 to-blue-600",     is_default: false, archived: false },
+  { name: "Card",         type: "card",   provider: null,      scope: "personal", icon: "credit-card", color: "from-indigo-500 to-violet-600", is_default: false, archived: false },
+  { name: "Digital Wallet",type:"digital", provider: null,     scope: "personal", icon: "wallet",   color: "from-fuchsia-500 to-pink-600",   is_default: false, archived: false },
+];
 
+const CATEGORIES_PERSONAL = ["Food","Transport","Shopping","Medicine","Education","Family","Kids","Entertainment","Internet","Mobile Recharge","Bills","Travel","Rent","Investment","Savings","Other"];
+const CATEGORIES_BUSINESS = ["Sale","Purchase","Salary","Advertising","Courier","Office Rent","Utility","Refund","Investment","Loan","Other"];
+
+const walletIcon = (t: WalletType) => {
+  switch (t) {
+    case "cash": return Coins;
+    case "bank": return Landmark;
+    case "mobile": return Smartphone;
+    case "card": return CreditCard;
+    default: return Wallet;
+  }
+};
+
+const fmtBDT = (n: number, bn = false) => {
+  const abs = Math.abs(n);
+  const s = new Intl.NumberFormat(bn ? "bn-BD" : "en-BD", { maximumFractionDigits: 0 }).format(abs);
+  return `${n < 0 ? "-" : ""}৳${s}`;
+};
+
+const startOfToday = () => { const d = new Date(); d.setHours(0,0,0,0); return d; };
+const startOfMonth = () => { const d = new Date(); d.setDate(1); d.setHours(0,0,0,0); return d; };
+
+const INCOME_TYPES: TxType[] = ["income","sale","loan_taken","repayment_in","return_in","stock_in"];
+const EXPENSE_TYPES: TxType[] = ["expense","purchase","loan_given","repayment_out","return_out","stock_out"];
+
+// ---------- Small components ----------
+const MetricCard = ({ label, value, icon: Icon, tone = "default", sub }: any) => (
+  <motion.div
+    initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}
+    className={cn(
+      "relative overflow-hidden rounded-2xl border border-border/60 bg-card/70 backdrop-blur-xl p-4 shadow-sm hover:shadow-md transition-all",
+      "hover:-translate-y-0.5"
+    )}
+  >
+    <div className="flex items-start justify-between gap-2">
+      <div className="min-w-0">
+        <p className="text-xs text-muted-foreground truncate">{label}</p>
+        <p className={cn(
+          "text-lg sm:text-xl font-semibold mt-1 tabular-nums truncate",
+          tone === "positive" && "text-emerald-500",
+          tone === "negative" && "text-rose-500",
+        )}>{value}</p>
+        {sub && <p className="text-[10px] text-muted-foreground mt-0.5 truncate">{sub}</p>}
+      </div>
+      <div className={cn(
+        "shrink-0 h-9 w-9 rounded-xl grid place-items-center",
+        tone === "positive" ? "bg-emerald-500/10 text-emerald-500" :
+        tone === "negative" ? "bg-rose-500/10 text-rose-500" :
+        "bg-primary/10 text-primary"
+      )}>
+        <Icon className="h-4 w-4" />
+      </div>
+    </div>
+  </motion.div>
+);
+
+const WalletCard = ({ w, today, month, onOpen }: { w: WalletRow; today: number; month: number; onOpen: () => void }) => {
+  const Icon = walletIcon(w.type);
+  return (
+    <motion.button
+      onClick={onOpen}
+      whileHover={{ y: -2 }} whileTap={{ scale: 0.98 }}
+      className="relative text-left w-full rounded-2xl overflow-hidden border border-border/60 shadow-sm"
+    >
+      <div className={cn("absolute inset-0 bg-gradient-to-br opacity-90", w.color ?? "from-primary to-primary/60")} />
+      <div className="absolute inset-0 bg-black/10" />
+      <div className="relative p-4 text-white">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <div className="h-8 w-8 rounded-lg bg-white/20 grid place-items-center backdrop-blur">
+              <Icon className="h-4 w-4" />
+            </div>
+            <div>
+              <p className="text-sm font-medium leading-tight">{w.name}</p>
+              <p className="text-[10px] uppercase tracking-wide opacity-80">
+                {w.scope} · {w.provider ?? w.type}
+              </p>
+            </div>
+          </div>
+          {w.is_default && <Badge className="bg-white/20 text-white border-0 text-[10px]">Default</Badge>}
+        </div>
+        <p className="text-2xl font-semibold mt-4 tabular-nums">{fmtBDT(Number(w.balance || 0))}</p>
+        <div className="flex items-center justify-between mt-2 text-[11px]">
+          <span className="flex items-center gap-1"><ArrowUpRight className="h-3 w-3" /> Today {fmtBDT(today)}</span>
+          <span className="flex items-center gap-1"><ArrowDownRight className="h-3 w-3" /> Month {fmtBDT(month)}</span>
+        </div>
+      </div>
+    </motion.button>
+  );
+};
+
+// ---------- Page ----------
 const Finance = () => {
-  const { user, loading, signOut } = useAuth();
+  const { user, loading } = useAuth();
   const { language } = useLanguage();
-  const nav = useNavigate();
   const bn = language === "bn";
-  const expCats = bn ? EXPENSE_CATS_BN : EXPENSE_CATS_EN;
-  const incCats = bn ? INCOME_CATS_BN : INCOME_CATS_EN;
+  const nav = useNavigate();
 
-  const [profile, setProfile] = useState<Profile | null>(null);
-  const [txs, setTxs] = useState<Tx[]>([]);
-  const [debts, setDebts] = useState<Debt[]>([]);
-  const [budgets, setBudgets] = useState<Budget[]>([]);
-  const [goals, setGoals] = useState<Goal[]>([]);
-  const [plans, setPlans] = useState<Plan[]>([]);
-  const [assets, setAssets] = useState<Asset[]>([]);
-  const [insight, setInsight] = useState<string>("");
-  const [insightBusy, setInsightBusy] = useState(false);
+  const [wallets, setWallets] = useState<WalletRow[]>([]);
+  const [txs, setTxs] = useState<TxRow[]>([]);
+  const [scope, setScope] = useState<Scope>("all");
+  const [busy, setBusy] = useState(false);
+  const [tab, setTab] = useState("dashboard");
+  const [q, setQ] = useState("");
+
+  // quick action state
+  const [qaOpen, setQaOpen] = useState(false);
+  const [qaType, setQaType] = useState<TxType | null>(null);
+  const [qaAmount, setQaAmount] = useState("");
+  const [qaWallet, setQaWallet] = useState<string>("");
+  const [qaWallet2, setQaWallet2] = useState<string>("");
+  const [qaCategory, setQaCategory] = useState<string>("");
+  const [qaParty, setQaParty] = useState("");
+  const [qaNote, setQaNote] = useState("");
+  const [qaScope, setQaScope] = useState<"personal" | "business">("personal");
+
+  // wallet detail
+  const [detailWallet, setDetailWallet] = useState<WalletRow | null>(null);
+
+  // AI assistant
+  const [aiText, setAiText] = useState("");
+  const [aiBusy, setAiBusy] = useState(false);
+  const [aiPreview, setAiPreview] = useState<any>(null);
 
   useEffect(() => {
-    if (!loading && !user) nav("/auth", { replace: true });
-  }, [user, loading, nav]);
+    if (!loading && !user) nav("/auth");
+  }, [loading, user, nav]);
 
-  const loadAll = async () => {
+  const loadAll = useCallback(async () => {
     if (!user) return;
-    const [p, t, d, b, g, pl, a] = await Promise.all([
-      supabase.from("profiles").select("*").eq("user_id", user.id).maybeSingle(),
-      supabase.from("transactions").select("*").eq("user_id", user.id).order("occurred_on", { ascending: false }).limit(500),
-      supabase.from("debts").select("*").eq("user_id", user.id).order("created_at", { ascending: false }),
-      supabase.from("budgets").select("*").eq("user_id", user.id),
-      supabase.from("savings_goals").select("*").eq("user_id", user.id).order("created_at", { ascending: false }),
-      (supabase as any).from("planned_purchases").select("*").eq("user_id", user.id).order("created_at", { ascending: false }),
-      (supabase as any).from("sellable_assets").select("*").eq("user_id", user.id).order("created_at", { ascending: false }),
+    const [{ data: w }, { data: t }] = await Promise.all([
+      supabase.from("finance_wallets").select("*").eq("user_id", user.id).order("sort_order").order("created_at"),
+      supabase.from("finance_transactions").select("*").eq("user_id", user.id).order("occurred_at", { ascending: false }).limit(500),
     ]);
-    if (p.data) setProfile(p.data as Profile);
-    if (t.data) setTxs(t.data as Tx[]);
-    if (d.data) setDebts(d.data as Debt[]);
-    if (b.data) setBudgets(b.data as Budget[]);
-    if (g.data) setGoals(g.data as Goal[]);
-    if (pl.data) setPlans(pl.data as Plan[]);
-    if (a.data) setAssets(a.data as Asset[]);
+    setWallets((w as any) ?? []);
+    setTxs((t as any) ?? []);
+  }, [user]);
+
+  // seed default wallets on first visit
+  useEffect(() => {
+    if (!user) return;
+    (async () => {
+      const { count } = await supabase.from("finance_wallets").select("*", { count: "exact", head: true }).eq("user_id", user.id);
+      if ((count ?? 0) === 0) {
+        const rows = DEFAULT_WALLETS.map((w, i) => ({ ...w, user_id: user.id, sort_order: i }));
+        await supabase.from("finance_wallets").insert(rows);
+      }
+      await loadAll();
+    })();
+  }, [user, loadAll]);
+
+  // ---------- Derived metrics ----------
+  const filteredWallets = useMemo(
+    () => scope === "all" ? wallets : wallets.filter(w => w.scope === scope),
+    [wallets, scope]
+  );
+  const filteredTxs = useMemo(
+    () => scope === "all" ? txs : txs.filter(t => t.scope === scope),
+    [txs, scope]
+  );
+
+  const metrics = useMemo(() => {
+    const today0 = startOfToday().getTime();
+    const month0 = startOfMonth().getTime();
+    let todayIn = 0, todayOut = 0, monthIn = 0, monthOut = 0;
+    for (const t of filteredTxs) {
+      const at = new Date(t.occurred_at).getTime();
+      const amt = Number(t.amount) || 0;
+      if (INCOME_TYPES.includes(t.type)) {
+        if (at >= today0) todayIn += amt;
+        if (at >= month0) monthIn += amt;
+      } else if (EXPENSE_TYPES.includes(t.type)) {
+        if (at >= today0) todayOut += amt;
+        if (at >= month0) monthOut += amt;
+      }
+    }
+    const cashTotal = wallets.filter(w => w.type === "cash").reduce((s,w) => s + Number(w.balance||0), 0);
+    const bankTotal = wallets.filter(w => w.type === "bank").reduce((s,w) => s + Number(w.balance||0), 0);
+    const mbTotal   = wallets.filter(w => w.type === "mobile").reduce((s,w) => s + Number(w.balance||0), 0);
+    const personal  = wallets.filter(w => w.scope === "personal").reduce((s,w) => s + Number(w.balance||0), 0);
+    const business  = wallets.filter(w => w.scope === "business").reduce((s,w) => s + Number(w.balance||0), 0);
+    const netWorth  = wallets.reduce((s,w) => s + Number(w.balance||0), 0);
+    return {
+      todayIn, todayOut, todayProfit: todayIn - todayOut,
+      monthIn, monthOut, monthProfit: monthIn - monthOut,
+      cashTotal, bankTotal, mbTotal, personal, business, netWorth,
+    };
+  }, [filteredTxs, wallets]);
+
+  const walletDelta = useCallback((walletId: string, since: number) => {
+    let delta = 0;
+    for (const t of txs) {
+      const at = new Date(t.occurred_at).getTime();
+      if (at < since) continue;
+      const amt = Number(t.amount) || 0;
+      if (t.wallet_id === walletId) {
+        if (INCOME_TYPES.includes(t.type)) delta += amt;
+        else if (EXPENSE_TYPES.includes(t.type)) delta -= amt;
+        else if (t.type === "transfer") delta -= amt;
+      }
+      if (t.transfer_to_wallet_id === walletId && t.type === "transfer") delta += amt;
+    }
+    return delta;
+  }, [txs]);
+
+  // ---------- Actions ----------
+  const openQuick = (type: TxType) => {
+    setQaType(type);
+    setQaAmount(""); setQaCategory(""); setQaParty(""); setQaNote(""); setQaWallet2("");
+    const def = filteredWallets.find(w => w.is_default) ?? filteredWallets[0];
+    setQaWallet(def?.id ?? "");
+    setQaScope(type === "sale" || type === "purchase" ? "business" : "personal");
+    setQaOpen(true);
   };
 
-  useEffect(() => { loadAll(); /* eslint-disable-next-line */ }, [user]);
+  const saveQuick = async () => {
+    if (!user || !qaType) return;
+    const amount = Number(qaAmount);
+    if (!amount || amount <= 0) { toast.error(bn ? "সঠিক টাকা লিখুন" : "Enter amount"); return; }
+    if (!qaWallet) { toast.error(bn ? "ওয়ালেট নির্বাচন করুন" : "Pick a wallet"); return; }
+    if (qaType === "transfer" && !qaWallet2) { toast.error("Pick destination wallet"); return; }
+    setBusy(true);
+    const { error } = await supabase.from("finance_transactions").insert({
+      user_id: user.id, wallet_id: qaWallet,
+      transfer_to_wallet_id: qaType === "transfer" ? qaWallet2 : null,
+      type: qaType, amount, category: qaCategory || null,
+      scope: qaScope, party: qaParty || null, note: qaNote || null,
+    });
+    setBusy(false);
+    if (error) { toast.error(error.message); return; }
+    toast.success(bn ? "সংরক্ষিত হয়েছে" : "Saved");
+    setQaOpen(false);
+    await loadAll();
+  };
 
-  // Derived analytics — current month
-  const stats = useMemo(() => {
-    const now = new Date();
-    const ym = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,"0")}`;
-    const monthTx = txs.filter(t => t.occurred_on.startsWith(ym));
-    const income = monthTx.filter(t => t.type === "income").reduce((s,t)=>s+t.amount,0);
-    const expense = monthTx.filter(t => t.type === "expense").reduce((s,t)=>s+t.amount,0);
-    const net = income - expense;
-    const lent = debts.filter(d=>d.direction==="lent" && !d.is_settled).reduce((s,d)=>s+(d.amount-d.paid_amount),0);
-    const borrowed = debts.filter(d=>d.direction==="borrowed" && !d.is_settled).reduce((s,d)=>s+(d.amount-d.paid_amount),0);
-    const byCat: Record<string,number> = {};
-    monthTx.filter(t=>t.type==="expense").forEach(t => { byCat[t.category] = (byCat[t.category]||0)+t.amount; });
-    const pieData = Object.entries(byCat).map(([name,value])=>({name,value}));
-    // last 6 months bar
-    const months: { m:string; income:number; expense:number }[] = [];
-    for (let i=5;i>=0;i--) {
-      const dt = new Date(now.getFullYear(), now.getMonth()-i, 1);
-      const k = `${dt.getFullYear()}-${String(dt.getMonth()+1).padStart(2,"0")}`;
-      const ms = txs.filter(t=>t.occurred_on.startsWith(k));
-      months.push({
-        m: dt.toLocaleString(bn?"bn-BD":"en-US",{month:"short"}),
-        income: ms.filter(t=>t.type==="income").reduce((s,t)=>s+t.amount,0),
-        expense: ms.filter(t=>t.type==="expense").reduce((s,t)=>s+t.amount,0),
+  const deleteTx = async (id: string) => {
+    const { error } = await supabase.from("finance_transactions").delete().eq("id", id);
+    if (error) { toast.error(error.message); return; }
+    toast.success(bn ? "মুছে ফেলা হয়েছে" : "Deleted");
+    await loadAll();
+  };
+
+  const runAI = async () => {
+    if (!aiText.trim()) return;
+    setAiBusy(true); setAiPreview(null);
+    try {
+      const { data, error } = await supabase.functions.invoke("finance-ai-parse", {
+        body: { text: aiText, wallets: wallets.map(w => ({ id: w.id, name: w.name, type: w.type, provider: w.provider })) },
       });
-    }
-    return { income, expense, net, lent, borrowed, pieData, months };
-  }, [txs, debts, bn]);
+      if (error) throw error;
+      setAiPreview(data?.parsed ?? null);
+    } catch (e: any) {
+      toast.error(e?.message ?? "AI failed");
+    } finally { setAiBusy(false); }
+  };
 
-  // ----- forms -----
-  const [tx, setTx] = useState<{ type:"income"|"expense"; category:string; amount:string; note:string; occurred_on:string }>({
-    type: "expense", category: "", amount: "", note: "", occurred_on: new Date().toISOString().slice(0,10),
-  });
-  const addTx = async () => {
-    if (!user || !tx.category || !tx.amount) { toast.error(bn?"ক্যাটেগরি ও পরিমাণ দিন":"Fill category and amount"); return; }
-    const amt = Math.round(Number(tx.amount));
-    if (!Number.isFinite(amt) || amt < 0) { toast.error("Invalid amount"); return; }
-    const { error } = await supabase.from("transactions").insert({
-      user_id: user.id, type: tx.type, category: tx.category, amount: amt, note: tx.note || null, occurred_on: tx.occurred_on,
+  const confirmAI = async () => {
+    if (!user || !aiPreview) return;
+    const p = aiPreview;
+    const wallet_id = p.wallet_id || wallets.find(w => w.is_default)?.id || wallets[0]?.id;
+    const { error } = await supabase.from("finance_transactions").insert({
+      user_id: user.id,
+      wallet_id,
+      transfer_to_wallet_id: p.transfer_to_wallet_id || null,
+      type: p.type, amount: Number(p.amount) || 0,
+      category: p.category || null,
+      scope: (p.scope === "business" ? "business" : "personal"),
+      party: p.party || null,
+      note: p.note || aiText,
     });
     if (error) { toast.error(error.message); return; }
-    toast.success(bn?"যোগ হয়েছে":"Added");
-    setTx({ ...tx, amount:"", note:"" });
-    loadAll();
-  };
-  const delTx = async (id: string) => {
-    const { error } = await supabase.from("transactions").delete().eq("id", id);
-    if (error) return toast.error(error.message);
-    setTxs(txs.filter(t=>t.id!==id));
+    toast.success(bn ? "AI দিয়ে সংরক্ষিত" : "Saved via AI");
+    setAiText(""); setAiPreview(null);
+    await loadAll();
   };
 
-  const [debt, setDebt] = useState<{ direction:"lent"|"borrowed"; counterparty:string; amount:string; due_date:string; note:string }>({
-    direction: "lent", counterparty: "", amount: "", due_date: "", note: "",
-  });
-  const addDebt = async () => {
-    if (!user || !debt.counterparty || !debt.amount) { toast.error(bn?"নাম ও পরিমাণ দিন":"Fill name and amount"); return; }
-    const { error } = await supabase.from("debts").insert({
-      user_id: user.id, direction: debt.direction, counterparty: debt.counterparty,
-      amount: Math.round(Number(debt.amount)), due_date: debt.due_date || null, note: debt.note || null,
-    });
-    if (error) return toast.error(error.message);
-    setDebt({ ...debt, counterparty:"", amount:"", note:"", due_date:"" });
-    toast.success(bn?"যোগ হয়েছে":"Added");
-    loadAll();
-  };
-  const settleDebt = async (d: Debt) => {
-    const { error } = await supabase.from("debts").update({ is_settled: true, paid_amount: d.amount }).eq("id", d.id);
-    if (error) return toast.error(error.message);
-    loadAll();
-  };
-  const delDebt = async (id: string) => {
-    const { error } = await supabase.from("debts").delete().eq("id", id);
-    if (error) return toast.error(error.message);
-    setDebts(debts.filter(d=>d.id!==id));
-  };
+  const visibleTxs = useMemo(() => {
+    let list = filteredTxs;
+    if (q.trim()) {
+      const s = q.toLowerCase();
+      list = list.filter(t =>
+        (t.category ?? "").toLowerCase().includes(s) ||
+        (t.party ?? "").toLowerCase().includes(s) ||
+        (t.note ?? "").toLowerCase().includes(s) ||
+        String(t.amount).includes(s)
+      );
+    }
+    return list;
+  }, [filteredTxs, q]);
 
-  const [budget, setBudget] = useState({ category: "", monthly_limit: "" });
-  const addBudget = async () => {
-    if (!user || !budget.category || !budget.monthly_limit) return toast.error(bn?"সব ফিল্ড পূরণ করুন":"Fill all fields");
-    const { error } = await supabase.from("budgets").upsert({
-      user_id: user.id, category: budget.category, monthly_limit: Math.round(Number(budget.monthly_limit)),
-    }, { onConflict: "user_id,category" });
-    if (error) return toast.error(error.message);
-    setBudget({ category:"", monthly_limit:"" });
-    loadAll();
-  };
-  const delBudget = async (id: string) => {
-    await supabase.from("budgets").delete().eq("id", id);
-    loadAll();
-  };
+  const walletById = (id: string | null) => wallets.find(w => w.id === id);
 
-  const [goal, setGoal] = useState({ title:"", target_amount:"", target_date:"" });
-  const addGoal = async () => {
-    if (!user || !goal.title || !goal.target_amount) return toast.error(bn?"টাইটেল ও লক্ষ্য দিন":"Fill title and target");
-    const { error } = await supabase.from("savings_goals").insert({
-      user_id: user.id, title: goal.title, target_amount: Math.round(Number(goal.target_amount)),
-      target_date: goal.target_date || null,
-    });
-    if (error) return toast.error(error.message);
-    setGoal({ title:"", target_amount:"", target_date:"" });
-    loadAll();
-  };
-  const addToGoal = async (g: Goal, add: number) => {
-    const { error } = await supabase.from("savings_goals").update({ saved_amount: g.saved_amount + add }).eq("id", g.id);
-    if (error) return toast.error(error.message);
-    loadAll();
-  };
-  const delGoal = async (id: string) => {
-    await supabase.from("savings_goals").delete().eq("id", id);
-    loadAll();
-  };
+  // ---------- Render ----------
+  if (loading || !user) {
+    return <div className="min-h-screen grid place-items-center"><Loader2 className="h-6 w-6 animate-spin text-muted-foreground" /></div>;
+  }
 
-  // Planned purchases
-  const [plan, setPlan] = useState({ item: "", est_price: "", priority: "medium", plan_date: "", note: "" });
-  const addPlan = async () => {
-    if (!user || !plan.item || !plan.est_price) return toast.error(bn?"আইটেম ও দাম দিন":"Fill item and price");
-    const { error } = await (supabase as any).from("planned_purchases").insert({
-      user_id: user.id, item: plan.item, est_price: Math.round(Number(plan.est_price)),
-      priority: plan.priority, plan_date: plan.plan_date || null, note: plan.note || null,
-    });
-    if (error) return toast.error(error.message);
-    setPlan({ item:"", est_price:"", priority:"medium", plan_date:"", note:"" });
-    toast.success(bn?"যোগ হয়েছে":"Added");
-    loadAll();
-  };
-  const togglePlanDone = async (p: Plan) => {
-    await (supabase as any).from("planned_purchases").update({ is_done: !p.is_done }).eq("id", p.id);
-    loadAll();
-  };
-  const delPlan = async (id: string) => {
-    await (supabase as any).from("planned_purchases").delete().eq("id", id);
-    setPlans(plans.filter(p=>p.id!==id));
-  };
-
-  // Sellable assets
-  const [asset, setAsset] = useState({ item: "", est_value: "", condition: "good", note: "" });
-  const addAsset = async () => {
-    if (!user || !asset.item || !asset.est_value) return toast.error(bn?"আইটেম ও মূল্য দিন":"Fill item and value");
-    const { error } = await (supabase as any).from("sellable_assets").insert({
-      user_id: user.id, item: asset.item, est_value: Math.round(Number(asset.est_value)),
-      condition: asset.condition, note: asset.note || null,
-    });
-    if (error) return toast.error(error.message);
-    setAsset({ item:"", est_value:"", condition:"good", note:"" });
-    toast.success(bn?"যোগ হয়েছে":"Added");
-    loadAll();
-  };
-  const markAssetSold = async (a: Asset) => {
-    const amt = prompt(bn?"কত টাকায় বিক্রি হলো?":"Sold for how much?", String(a.est_value));
-    if (!amt) return;
-    await (supabase as any).from("sellable_assets").update({ is_sold: true, sold_amount: Math.round(Number(amt)) }).eq("id", a.id);
-    loadAll();
-  };
-  const delAsset = async (id: string) => {
-    await (supabase as any).from("sellable_assets").delete().eq("id", id);
-    setAssets(assets.filter(a=>a.id!==id));
-  };
-
-  const planTotal = plans.filter(p=>!p.is_done).reduce((s,p)=>s+Number(p.est_price),0);
-  const assetTotal = assets.filter(a=>!a.is_sold).reduce((s,a)=>s+Number(a.est_value),0);
-  const assetSoldTotal = assets.filter(a=>a.is_sold).reduce((s,a)=>s+Number(a.sold_amount||0),0);
-
-  // Comprehensive (all-time) snapshot
-  const snapshot = useMemo(() => {
-    const totalIncome = txs.filter(t=>t.type==="income").reduce((s,t)=>s+t.amount,0);
-    const totalExpense = txs.filter(t=>t.type==="expense").reduce((s,t)=>s+t.amount,0);
-    const lifetimeNet = totalIncome - totalExpense;
-    const debtNet = stats.lent - stats.borrowed; // +ve = others owe you
-    const liquidAssets = assetTotal; // could be turned into cash
-    const estimatedNetWorth = lifetimeNet + debtNet + liquidAssets;
-    const goalsSaved = goals.reduce((s,g)=>s+Number(g.saved_amount||0),0);
-    const goalsTarget = goals.reduce((s,g)=>s+Number(g.target_amount||0),0);
-    return { totalIncome, totalExpense, lifetimeNet, debtNet, liquidAssets, estimatedNetWorth, goalsSaved, goalsTarget };
-  }, [txs, stats.lent, stats.borrowed, assetTotal, goals]);
-
-  const saveProfile = async () => {
-    if (!user || !profile) return;
-    const { error } = await supabase.from("profiles").update({
-      full_name: profile.full_name, phone: profile.phone, monthly_income: profile.monthly_income, currency: profile.currency,
-    }).eq("user_id", user.id);
-    if (error) return toast.error(error.message);
-    toast.success(bn?"সংরক্ষিত":"Saved");
-  };
-
-  const askAI = async () => {
-    setInsightBusy(true);
-    setInsight("");
-    try {
-      const summary = {
-        currency: profile?.currency || "BDT",
-        monthly_income_target: profile?.monthly_income || 0,
-        this_month: { income: stats.income, expense: stats.expense, net: stats.net },
-        expenses_by_category: stats.pieData,
-        debts: { lent_outstanding: stats.lent, borrowed_outstanding: stats.borrowed, items: debts.filter(d=>!d.is_settled).map(d=>({direction:d.direction, party:d.counterparty, owed:d.amount-d.paid_amount, due:d.due_date})) },
-        budgets: budgets.map(b=>({category:b.category, limit:b.monthly_limit})),
-        goals: goals.map(g=>({title:g.title, target:g.target_amount, saved:g.saved_amount, by:g.target_date})),
-      };
-      const { data, error } = await supabase.functions.invoke("finance-insight", { body: { summary, language } });
-      if (error) throw error;
-      if ((data as any)?.error) throw new Error((data as any).error);
-      setInsight((data as any).insight || "");
-    } catch (e:any) {
-      toast.error(e.message || "AI error");
-    } finally { setInsightBusy(false); }
-  };
-
-  if (loading || !user) return <div className="min-h-[60vh] flex items-center justify-center">Loading…</div>;
-
-  const cur = (n: number) => `${profile?.currency==="USD"?"$":"৳"}${n.toLocaleString(bn?"bn-BD":"en-US")}`;
-
-  // budget usage
-  const monthExpByCat: Record<string,number> = {};
-  const ym = new Date().toISOString().slice(0,7);
-  txs.filter(t=>t.type==="expense" && t.occurred_on.startsWith(ym)).forEach(t=>{ monthExpByCat[t.category]=(monthExpByCat[t.category]||0)+t.amount; });
+  const CATEGORIES = qaScope === "business" ? CATEGORIES_BUSINESS : CATEGORIES_PERSONAL;
 
   return (
-    <div className="container py-6 lg:py-10 space-y-6">
+    <div className="min-h-screen bg-gradient-to-b from-background via-background to-muted/30 pb-32">
       {/* Header */}
-      <motion.div initial={{opacity:0,y:-10}} animate={{opacity:1,y:0}} className="flex items-center justify-between gap-3 flex-wrap">
-        <div className="flex items-center gap-3">
-          <div className="w-12 h-12 rounded-2xl gradient-bg-primary text-white flex items-center justify-center shadow-glow">
-            <Wallet className="w-6 h-6" />
+      <div className="sticky top-0 z-30 border-b border-border/60 bg-background/70 backdrop-blur-xl">
+        <div className="container mx-auto px-3 sm:px-6 py-3 flex items-center gap-2 flex-wrap">
+          <div className="flex items-center gap-2 min-w-0">
+            <div className="h-9 w-9 rounded-xl bg-gradient-to-br from-primary to-primary/60 text-primary-foreground grid place-items-center shadow-sm">
+              <Wallet className="h-4 w-4" />
+            </div>
+            <div className="min-w-0">
+              <p className="text-sm sm:text-base font-semibold leading-tight truncate">{bn ? "ফিন্যান্স" : "Finance"}</p>
+              <p className="text-[10px] text-muted-foreground">{bn ? "লাইফ OS" : "Life OS"}</p>
+            </div>
           </div>
-          <div>
-            <h1 className="font-display text-2xl lg:text-3xl font-bold">
-              {bn?"আপনার ফিন্যান্স":"Your Finance"}
-            </h1>
-            <p className="text-xs text-muted-foreground">{profile?.full_name || user.email}</p>
+          <div className="ml-auto flex items-center gap-1 rounded-full bg-muted p-1">
+            {(["all","personal","business"] as Scope[]).map(s => (
+              <button key={s} onClick={() => setScope(s)}
+                className={cn(
+                  "text-[11px] px-3 py-1 rounded-full transition-all capitalize",
+                  scope === s ? "bg-background shadow-sm" : "text-muted-foreground"
+                )}>
+                {s === "personal" ? <span className="flex items-center gap-1"><UserIcon className="h-3 w-3" /> {bn?"ব্যক্তিগত":"Personal"}</span> :
+                 s === "business" ? <span className="flex items-center gap-1"><Building2 className="h-3 w-3" /> {bn?"ব্যবসা":"Business"}</span> :
+                 <span>{bn?"সব":"All"}</span>}
+              </button>
+            ))}
           </div>
+          <Button variant="ghost" size="icon" onClick={loadAll} className="h-8 w-8">
+            <RefreshCw className="h-4 w-4" />
+          </Button>
         </div>
-        <Button variant="outline" size="sm" onClick={async()=>{ await signOut(); nav("/"); }}>
-          <LogOut className="w-4 h-4 mr-2" /> {bn?"লগআউট":"Sign out"}
-        </Button>
-      </motion.div>
-
-      {/* Stat cards */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-        {[
-          { label: bn?"এই মাসের আয়":"Income (mo)", value: stats.income, icon: TrendingUp, color: "from-emerald-500 to-green-600" },
-          { label: bn?"এই মাসের ব্যয়":"Expense (mo)", value: stats.expense, icon: TrendingDown, color: "from-rose-500 to-red-600" },
-          { label: bn?"নেট সঞ্চয়":"Net Savings", value: stats.net, icon: PiggyBank, color: stats.net>=0?"from-blue-500 to-indigo-600":"from-orange-500 to-amber-600" },
-          { label: bn?"বকেয়া (নেট)":"Net Owed", value: stats.lent - stats.borrowed, icon: HandCoins, color: "from-violet-500 to-fuchsia-600" },
-        ].map((s,i)=>(
-          <Card key={i} className="overflow-hidden border-border/60">
-            <CardContent className="p-4">
-              <div className={`w-9 h-9 rounded-xl bg-gradient-to-br ${s.color} text-white flex items-center justify-center mb-2`}>
-                <s.icon className="w-4 h-4" />
-              </div>
-              <div className="text-[11px] uppercase tracking-wider text-muted-foreground font-semibold">{s.label}</div>
-              <div className="font-display font-bold text-xl mt-0.5">{cur(s.value)}</div>
-            </CardContent>
-          </Card>
-        ))}
       </div>
 
-      <Tabs defaultValue="dashboard" className="w-full">
-        <TabsList className="grid grid-cols-3 lg:grid-cols-9 w-full h-auto">
-          <TabsTrigger value="dashboard">{bn?"ড্যাশবোর্ড":"Dashboard"}</TabsTrigger>
-          <TabsTrigger value="tx">{bn?"লেনদেন":"Transactions"}</TabsTrigger>
-          <TabsTrigger value="plans">{bn?"পরিকল্পনা":"Plans"}</TabsTrigger>
-          <TabsTrigger value="assets">{bn?"আমার সম্পদ":"My Assets"}</TabsTrigger>
-          <TabsTrigger value="debts">{bn?"ধার-দেনা":"Debts"}</TabsTrigger>
-          <TabsTrigger value="budget">{bn?"বাজেট":"Budgets"}</TabsTrigger>
-          <TabsTrigger value="goals">{bn?"লক্ষ্য":"Goals"}</TabsTrigger>
-          <TabsTrigger value="calc">{bn?"ক্যালকুলেটর":"Calculator"}</TabsTrigger>
-          <TabsTrigger value="profile">{bn?"প্রোফাইল":"Profile"}</TabsTrigger>
-        </TabsList>
+      <div className="container mx-auto px-3 sm:px-6 pt-4">
+        <Tabs value={tab} onValueChange={setTab}>
+          <TabsList className="w-full grid grid-cols-4 h-10 bg-muted/60 backdrop-blur">
+            <TabsTrigger value="dashboard">{bn?"ড্যাশবোর্ড":"Dashboard"}</TabsTrigger>
+            <TabsTrigger value="wallets">{bn?"ওয়ালেট":"Wallets"}</TabsTrigger>
+            <TabsTrigger value="tx">{bn?"লেনদেন":"Transactions"}</TabsTrigger>
+            <TabsTrigger value="ai"><span className="flex items-center gap-1"><Sparkles className="h-3.5 w-3.5" />AI</span></TabsTrigger>
+          </TabsList>
 
-        <TabsContent value="calc" className="mt-4">
-          <FinanceCalculator />
-        </TabsContent>
-
-
-
-        {/* DASHBOARD */}
-        <TabsContent value="dashboard" className="mt-4 space-y-4">
-          {/* Comprehensive financial snapshot */}
-          <Card className="border-primary/30 bg-gradient-to-br from-primary/5 via-background to-secondary/5">
-            <CardContent className="p-5">
-              <div className="flex items-center justify-between mb-4 flex-wrap gap-2">
-                <div className="flex items-center gap-2">
-                  <div className="w-9 h-9 rounded-xl gradient-bg-primary text-white flex items-center justify-center">
-                    <Wallet className="w-4 h-4" />
-                  </div>
-                  <div>
-                    <h3 className="font-display font-bold">{bn?"আর্থিক সারাংশ":"Financial Snapshot"}</h3>
-                    <p className="text-[11px] text-muted-foreground">{bn?"আপনার সব ডেটা একসাথে — জীবনের সম্পূর্ণ চিত্র":"All your data combined — full lifetime picture"}</p>
-                  </div>
-                </div>
-                <Badge variant="outline" className="text-[10px]">{bn?"স্বয়ংক্রিয় হিসাব":"Auto-calculated"}</Badge>
+          {/* Dashboard */}
+          <TabsContent value="dashboard" className="mt-4 space-y-4">
+            {/* Hero balance */}
+            <Card className="relative overflow-hidden border-border/60 bg-gradient-to-br from-primary/10 via-background to-background p-5">
+              <div className="absolute -top-16 -right-16 h-48 w-48 rounded-full bg-primary/20 blur-3xl" />
+              <p className="text-xs text-muted-foreground">{bn?"বর্তমান নেট ওয়ার্থ":"Current Net Worth"}</p>
+              <p className="text-3xl sm:text-4xl font-semibold mt-1 tabular-nums">{fmtBDT(metrics.netWorth, bn)}</p>
+              <div className="flex flex-wrap items-center gap-3 mt-2 text-xs text-muted-foreground">
+                <span className="flex items-center gap-1"><UserIcon className="h-3 w-3"/> {bn?"ব্যক্তিগত":"Personal"} <b className="text-foreground">{fmtBDT(metrics.personal)}</b></span>
+                <span className="flex items-center gap-1"><Building2 className="h-3 w-3"/> {bn?"ব্যবসা":"Business"} <b className="text-foreground">{fmtBDT(metrics.business)}</b></span>
               </div>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-sm">
-                <div className="p-3 rounded-xl bg-emerald-500/10">
-                  <div className="text-[10px] uppercase font-semibold text-emerald-700 dark:text-emerald-400 mb-1">{bn?"মোট আয় (সর্বমোট)":"Total Income (lifetime)"}</div>
-                  <div className="font-display font-bold text-lg">{cur(snapshot.totalIncome)}</div>
-                </div>
-                <div className="p-3 rounded-xl bg-rose-500/10">
-                  <div className="text-[10px] uppercase font-semibold text-rose-700 dark:text-rose-400 mb-1">{bn?"মোট ব্যয় (সর্বমোট)":"Total Expense (lifetime)"}</div>
-                  <div className="font-display font-bold text-lg">{cur(snapshot.totalExpense)}</div>
-                </div>
-                <div className={`p-3 rounded-xl ${snapshot.lifetimeNet>=0?"bg-blue-500/10":"bg-amber-500/10"}`}>
-                  <div className="text-[10px] uppercase font-semibold mb-1">{bn?"নেট সঞ্চয় (সর্বমোট)":"Net Saved (lifetime)"}</div>
-                  <div className={`font-display font-bold text-lg ${snapshot.lifetimeNet>=0?"text-blue-700 dark:text-blue-400":"text-amber-700 dark:text-amber-400"}`}>{cur(snapshot.lifetimeNet)}</div>
-                </div>
-                <div className="p-3 rounded-xl bg-violet-500/10">
-                  <div className="text-[10px] uppercase font-semibold text-violet-700 dark:text-violet-400 mb-1">{bn?"ধার-দেনা (নেট)":"Debts (net)"}</div>
-                  <div className="font-display font-bold text-lg">{cur(snapshot.debtNet)}</div>
-                  <div className="text-[10px] text-muted-foreground mt-0.5">
-                    {bn?"পাবো":"In"}: {cur(stats.lent)} • {bn?"দিবো":"Out"}: {cur(stats.borrowed)}
+            </Card>
+
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+              <MetricCard label={bn?"আজকের আয়":"Today's Income"} value={fmtBDT(metrics.todayIn)} icon={TrendingUp} tone="positive" />
+              <MetricCard label={bn?"আজকের খরচ":"Today's Expense"} value={fmtBDT(metrics.todayOut)} icon={TrendingDown} tone="negative" />
+              <MetricCard label={bn?"আজকের লাভ":"Today's Profit"} value={fmtBDT(metrics.todayProfit)} icon={PiggyBank} tone={metrics.todayProfit>=0?"positive":"negative"} />
+              <MetricCard label={bn?"মাসিক আয়":"Monthly Income"} value={fmtBDT(metrics.monthIn)} icon={TrendingUp} tone="positive" />
+              <MetricCard label={bn?"মাসিক খরচ":"Monthly Expense"} value={fmtBDT(metrics.monthOut)} icon={TrendingDown} tone="negative" />
+              <MetricCard label={bn?"মাসিক লাভ":"Monthly Profit"} value={fmtBDT(metrics.monthProfit)} icon={PiggyBank} tone={metrics.monthProfit>=0?"positive":"negative"} />
+              <MetricCard label={bn?"মোট নগদ":"Total Cash"} value={fmtBDT(metrics.cashTotal)} icon={Coins} />
+              <MetricCard label={bn?"মোট ব্যাংক":"Total Bank"} value={fmtBDT(metrics.bankTotal)} icon={Landmark} />
+              <MetricCard label={bn?"মোবাইল ব্যাংকিং":"Mobile Banking"} value={fmtBDT(metrics.mbTotal)} icon={Smartphone} />
+            </div>
+
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+              {[
+                { t: "income", label: bn?"আয় যোগ":"Add Income", icon: TrendingUp },
+                { t: "expense", label: bn?"খরচ যোগ":"Add Expense", icon: TrendingDown },
+                { t: "transfer", label: bn?"ট্রান্সফার":"Transfer", icon: ArrowLeftRight },
+                { t: "sale", label: bn?"বিক্রি":"Sale", icon: ShoppingCart },
+                { t: "purchase", label: bn?"ক্রয়":"Purchase", icon: Package },
+                { t: "loan_given", label: bn?"ধার দেয়া":"Loan Given", icon: Send },
+              ].map(a => (
+                <button key={a.t} onClick={() => openQuick(a.t as TxType)}
+                  className="rounded-2xl border border-border/60 bg-card/70 backdrop-blur p-3 flex items-center gap-2 hover:shadow-md hover:-translate-y-0.5 transition-all text-left">
+                  <div className="h-9 w-9 rounded-xl bg-primary/10 text-primary grid place-items-center">
+                    <a.icon className="h-4 w-4" />
                   </div>
-                </div>
-                <div className="p-3 rounded-xl bg-teal-500/10">
-                  <div className="text-[10px] uppercase font-semibold text-teal-700 dark:text-teal-400 mb-1">{bn?"বিক্রয়যোগ্য সম্পদ":"Sellable Assets"}</div>
-                  <div className="font-display font-bold text-lg">{cur(snapshot.liquidAssets)}</div>
-                  {assetSoldTotal>0 && <div className="text-[10px] text-muted-foreground mt-0.5">{bn?"ইতিমধ্যে বিক্রি":"Already sold"}: {cur(assetSoldTotal)}</div>}
-                </div>
-                <div className="p-3 rounded-xl bg-orange-500/10">
-                  <div className="text-[10px] uppercase font-semibold text-orange-700 dark:text-orange-400 mb-1">{bn?"পরিকল্পিত খরচ":"Planned Spend"}</div>
-                  <div className="font-display font-bold text-lg">{cur(planTotal)}</div>
-                </div>
-                <div className="p-3 rounded-xl bg-pink-500/10">
-                  <div className="text-[10px] uppercase font-semibold text-pink-700 dark:text-pink-400 mb-1">{bn?"লক্ষ্যে সঞ্চিত":"Saved for Goals"}</div>
-                  <div className="font-display font-bold text-lg">{cur(snapshot.goalsSaved)}</div>
-                  {snapshot.goalsTarget>0 && <div className="text-[10px] text-muted-foreground mt-0.5">/ {cur(snapshot.goalsTarget)}</div>}
-                </div>
-                <div className={`p-3 rounded-xl ${snapshot.estimatedNetWorth>=0?"bg-gradient-to-br from-primary/20 to-secondary/20":"bg-destructive/10"}`}>
-                  <div className="text-[10px] uppercase font-semibold mb-1">{bn?"আনুমানিক নেট ওয়ার্থ":"Est. Net Worth"}</div>
-                  <div className={`font-display font-bold text-lg ${snapshot.estimatedNetWorth>=0?"gradient-text":"text-destructive"}`}>{cur(snapshot.estimatedNetWorth)}</div>
-                  <div className="text-[10px] text-muted-foreground mt-0.5">{bn?"সঞ্চয় + পাবো + সম্পদ":"savings + receivable + assets"}</div>
-                </div>
-              </div>
-              {snapshot.debtNet < 0 && (
-                <div className="mt-3 text-xs p-2 rounded-lg bg-amber-500/10 text-amber-900 dark:text-amber-200">
-                  💡 {bn?`আপনার মোট দেনা পাওনার চেয়ে ${cur(Math.abs(snapshot.debtNet))} বেশি — পরিকল্পনা করে পরিশোধ করুন।`:`You owe ${cur(Math.abs(snapshot.debtNet))} more than you're owed — plan repayments.`}
+                  <span className="text-sm font-medium">{a.label}</span>
+                </button>
+              ))}
+            </div>
+          </TabsContent>
+
+          {/* Wallets */}
+          <TabsContent value="wallets" className="mt-4 space-y-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+              {filteredWallets.map(w => (
+                <WalletCard key={w.id} w={w}
+                  today={walletDelta(w.id, startOfToday().getTime())}
+                  month={walletDelta(w.id, startOfMonth().getTime())}
+                  onOpen={() => setDetailWallet(w)} />
+              ))}
+            </div>
+          </TabsContent>
+
+          {/* Transactions */}
+          <TabsContent value="tx" className="mt-4 space-y-3">
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Input value={q} onChange={e => setQ(e.target.value)} placeholder={bn?"খুঁজুন...":"Search transactions..."} className="pl-9 rounded-xl" />
+            </div>
+            <div className="space-y-2">
+              {visibleTxs.length === 0 && (
+                <div className="text-center py-16 text-sm text-muted-foreground">
+                  {bn?"কোন লেনদেন নেই":"No transactions yet"}
                 </div>
               )}
-              {stats.net < 0 && assetTotal > 0 && (
-                <div className="mt-2 text-xs p-2 rounded-lg bg-teal-500/10 text-teal-900 dark:text-teal-200">
-                  💡 {bn?`এই মাসে ঘাটতি ${cur(Math.abs(stats.net))} — সম্পদ বিক্রি করে ${cur(assetTotal)} তোলা সম্ভব।`:`Monthly shortfall ${cur(Math.abs(stats.net))} — you could liquidate ${cur(assetTotal)} from assets.`}
-                </div>
-              )}
-            </CardContent>
-          </Card>
-
-          {/* Friendly persona-based tips */}
-          <Card className="border-secondary/30 bg-gradient-to-br from-secondary/5 via-background to-primary/5">
-            <CardContent className="p-5">
-              <div className="flex items-center gap-2 mb-3">
-                <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 text-white flex items-center justify-center">💡</div>
-                <div>
-                  <h3 className="font-display font-bold">{bn?"সবার জন্য আর্থিক গাইড":"Money Guide For Everyone"}</h3>
-                  <p className="text-[11px] text-muted-foreground">{bn?"আপনি যেই পেশারই হোন — আপনার জন্য সাহায্য":"Whoever you are — help tailored for you"}</p>
-                </div>
-              </div>
-              <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
-                {[
-                  {
-                    icon:"👔", title: bn?"চাকরিজীবী":"Salaried Employee", color:"from-blue-500/10 to-indigo-500/10 border-blue-500/30",
-                    tips: bn?[
-                      "৫০/৩০/২০ নিয়ম: ৫০% প্রয়োজন, ৩০% ইচ্ছা, ২০% সঞ্চয়",
-                      "জরুরি তহবিল: ৬ মাসের খরচ আলাদা রাখুন",
-                      "DPS/সঞ্চয়পত্র দিয়ে কর সাশ্রয় করুন",
-                      "EMI মোট আয়ের ৪০% এর বেশি নয়",
-                    ]:[
-                      "50/30/20 rule: 50% needs, 30% wants, 20% savings",
-                      "Emergency fund: keep 6 months of expenses",
-                      "Use DPS/savings certificates to save tax",
-                      "Keep EMIs under 40% of income",
-                    ],
-                  },
-                  {
-                    icon:"🏪", title: bn?"ব্যবসায়ী":"Business Owner", color:"from-amber-500/10 to-orange-500/10 border-amber-500/30",
-                    tips: bn?[
-                      "ব্যবসা ও ব্যক্তিগত হিসাব আলাদা রাখুন",
-                      "নগদ প্রবাহ (cash flow) সাপ্তাহিক ট্র্যাক করুন",
-                      "ইনভেন্টরি = টাকা; অলস স্টক বিক্রি করুন",
-                      "ভ্যাট/আয়কর সময়মতো; ৩-৬ মাসের চলতি মূলধন সংরক্ষণ",
-                    ]:[
-                      "Separate business and personal accounts",
-                      "Track cash flow weekly, not monthly",
-                      "Inventory = cash; liquidate dead stock",
-                      "Pay VAT/tax on time; keep 3-6 months working capital",
-                    ],
-                  },
-                  {
-                    icon:"🌾", title: bn?"কৃষক":"Farmer", color:"from-emerald-500/10 to-green-500/10 border-emerald-500/30",
-                    tips: bn?[
-                      "ফসল বিমা ও কৃষি ঋণ সুবিধা নিন (BKB, RAKUB)",
-                      "মৌসুমী আয় ভেবে বাৎসরিক বাজেট করুন",
-                      "শস্য বহুমুখীকরণ — সব ডিম এক ঝুড়িতে নয়",
-                      "সরকারি ভর্তুকি ও ন্যায্যমূল্য কেন্দ্র খোঁজ রাখুন",
-                    ]:[
-                      "Use crop insurance & agri loans (BKB, RAKUB)",
-                      "Budget yearly — income is seasonal",
-                      "Diversify crops — don't depend on one",
-                      "Track govt subsidies & fair-price centres",
-                    ],
-                  },
-                  {
-                    icon:"🎓", title: bn?"স্টুডেন্ট":"Student", color:"from-violet-500/10 to-purple-500/10 border-violet-500/30",
-                    tips: bn?[
-                      "মাসিক খরচ লিখুন — চা-নাস্তাও যোগ করুন",
-                      "টিউশন/ফ্রিল্যান্স দিয়ে ছোট আয়ের অভ্যাস",
-                      "প্রতি মাসে ১০০-৫০০ টাকা হলেও জমান",
-                      "অপ্রয়োজনীয় সাবস্ক্রিপশন বাদ দিন",
-                    ]:[
-                      "Log every expense — even small snacks",
-                      "Build small income via tutoring/freelance",
-                      "Save even 100-500 BDT every month",
-                      "Cancel unused subscriptions",
-                    ],
-                  },
-                  {
-                    icon:"🔍", title: bn?"বেকার/চাকরি খুঁজছেন":"Job Seeker", color:"from-rose-500/10 to-pink-500/10 border-rose-500/30",
-                    tips: bn?[
-                      "জরুরি খরচ আগে — খাবার, বাসা, যাতায়াত",
-                      "ছোট অনলাইন কাজ (Fiverr, Upwork) চেষ্টা করুন",
-                      "ফ্যামিলি/বন্ধুর ধার রেকর্ড রাখুন",
-                      "বিক্রয়যোগ্য সম্পদ চিহ্নিত করে নগদে আনুন",
-                    ]:[
-                      "Prioritise: food, rent, transport",
-                      "Try micro-gigs (Fiverr, Upwork, local)",
-                      "Track loans from family/friends",
-                      "Identify sellable assets to raise cash",
-                    ],
-                  },
-                  {
-                    icon:"🏠", title: bn?"গৃহিণী":"Homemaker", color:"from-pink-500/10 to-fuchsia-500/10 border-pink-500/30",
-                    tips: bn?[
-                      "মাসিক বাজার বাজেট আগে থেকে ঠিক করুন",
-                      "ছোট সঞ্চয় (সমিতি, DPS) দিয়ে শুরু করুন",
-                      "হোম-বেইজড আয়: সেলাই, রান্না, টিউশন",
-                      "সব রসিদ একসাথে রাখুন — খরচ যাচাইয়ের জন্য",
-                    ]:[
-                      "Set monthly grocery budget in advance",
-                      "Start small (samity, DPS) to save",
-                      "Home income: tailoring, cooking, tutoring",
-                      "Keep receipts together to review spending",
-                    ],
-                  },
-                ].map((p,i)=>(
-                  <div key={i} className={`p-3 rounded-xl border bg-gradient-to-br ${p.color}`}>
-                    <div className="flex items-center gap-2 mb-2">
-                      <span className="text-xl">{p.icon}</span>
-                      <p className="font-semibold text-sm">{p.title}</p>
+              {visibleTxs.map(t => {
+                const income = INCOME_TYPES.includes(t.type);
+                const isTransfer = t.type === "transfer";
+                const w1 = walletById(t.wallet_id);
+                const w2 = walletById(t.transfer_to_wallet_id);
+                return (
+                  <div key={t.id} className="rounded-xl border border-border/60 bg-card/70 backdrop-blur p-3 flex items-center gap-3">
+                    <div className={cn(
+                      "h-9 w-9 rounded-xl grid place-items-center shrink-0",
+                      isTransfer ? "bg-sky-500/10 text-sky-500" :
+                      income ? "bg-emerald-500/10 text-emerald-500" : "bg-rose-500/10 text-rose-500"
+                    )}>
+                      {isTransfer ? <ArrowLeftRight className="h-4 w-4" /> :
+                       income ? <TrendingUp className="h-4 w-4" /> : <TrendingDown className="h-4 w-4" />}
                     </div>
-                    <ul className="space-y-1 text-[11px] text-muted-foreground">
-                      {p.tips.map((tip,j)=>(<li key={j} className="flex gap-1.5"><span className="text-primary">•</span><span>{tip}</span></li>))}
-                    </ul>
+                    <div className="min-w-0 flex-1">
+                      <p className="text-sm font-medium truncate capitalize">
+                        {t.category ?? t.type.replace(/_/g, " ")}
+                        {t.party ? <span className="text-muted-foreground font-normal"> · {t.party}</span> : null}
+                      </p>
+                      <p className="text-[11px] text-muted-foreground truncate">
+                        {new Date(t.occurred_at).toLocaleString(bn?"bn-BD":"en-BD", { dateStyle: "medium", timeStyle: "short" })}
+                        {" · "}{w1?.name ?? "—"}{isTransfer && w2 ? ` → ${w2.name}` : ""}
+                        {t.note ? ` · ${t.note}` : ""}
+                      </p>
+                    </div>
+                    <div className={cn("text-sm font-semibold tabular-nums shrink-0",
+                      isTransfer ? "text-sky-500" : income ? "text-emerald-500" : "text-rose-500")}>
+                      {isTransfer ? "↔" : income ? "+" : "-"}{fmtBDT(Number(t.amount))}
+                    </div>
+                    <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-rose-500" onClick={() => deleteTx(t.id)}>
+                      <Trash2 className="h-3.5 w-3.5" />
+                    </Button>
                   </div>
-                ))}
-              </div>
+                );
+              })}
+            </div>
+          </TabsContent>
 
-              <div className="mt-4 p-3 rounded-xl bg-primary/5 border border-primary/20 text-xs">
-                <p className="font-semibold mb-1">🎯 {bn?"যেকোনো অবস্থায় ৫টি মূলনীতি":"5 rules for any situation"}</p>
-                <ol className="list-decimal list-inside space-y-0.5 text-muted-foreground">
-                  <li>{bn?"আয়ের চেয়ে কম খরচ করুন":"Spend less than you earn"}</li>
-                  <li>{bn?"প্রতি মাসে কিছু না কিছু সঞ্চয় করুন":"Save something every month"}</li>
-                  <li>{bn?"উচ্চ-সুদের ঋণ আগে শোধ করুন":"Pay off high-interest debt first"}</li>
-                  <li>{bn?"একাধিক আয়ের উৎস তৈরি করুন":"Build multiple income streams"}</li>
-                  <li>{bn?"স্বাস্থ্য ও জীবন বিমা নিন":"Get health & life insurance"}</li>
-                </ol>
-              </div>
-            </CardContent>
-          </Card>
-
-          <div className="grid lg:grid-cols-2 gap-4">
-            <Card><CardContent className="p-4">
-              <div className="flex items-center justify-between mb-3">
-                <h3 className="font-display font-bold">{bn?"৬ মাসের প্রবণতা":"6-Month Trend"}</h3>
-              </div>
-              <div className="h-64">
-                <ResponsiveContainer>
-                  <BarChart data={stats.months}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
-                    <XAxis dataKey="m" stroke="hsl(var(--muted-foreground))" fontSize={11} />
-                    <YAxis stroke="hsl(var(--muted-foreground))" fontSize={11} />
-                    <Tooltip contentStyle={{ background:"hsl(var(--card))", border:"1px solid hsl(var(--border))", borderRadius:8 }} />
-                    <Legend wrapperStyle={{ fontSize: 12 }} />
-                    <Bar dataKey="income" name={bn?"আয়":"Income"} fill="hsl(var(--primary))" radius={[6,6,0,0]} />
-                    <Bar dataKey="expense" name={bn?"ব্যয়":"Expense"} fill="hsl(var(--secondary))" radius={[6,6,0,0]} />
-                  </BarChart>
-                </ResponsiveContainer>
-              </div>
-            </CardContent></Card>
-
-            <Card><CardContent className="p-4">
-              <h3 className="font-display font-bold mb-3">{bn?"ক্যাটেগরি অনুযায়ী ব্যয় (এই মাস)":"Expenses by Category (This month)"}</h3>
-              {stats.pieData.length === 0 ? (
-                <div className="h-64 flex items-center justify-center text-sm text-muted-foreground">
-                  {bn?"কোনো ব্যয় নেই":"No expenses yet"}
+          {/* AI Assistant */}
+          <TabsContent value="ai" className="mt-4 space-y-4">
+            <Card className="p-4 border-border/60 bg-gradient-to-br from-primary/5 to-background">
+              <div className="flex items-center gap-2 mb-3">
+                <div className="h-8 w-8 rounded-xl bg-primary/10 text-primary grid place-items-center">
+                  <Wand2 className="h-4 w-4" />
                 </div>
-              ) : (
-                <div className="h-64">
-                  <ResponsiveContainer>
-                    <PieChart>
-                      <Pie data={stats.pieData} dataKey="value" nameKey="name" outerRadius={90} label={(e)=>`${e.name}`}>
-                        {stats.pieData.map((_,i)=>(<Cell key={i} fill={COLORS[i%COLORS.length]} />))}
-                      </Pie>
-                      <Tooltip formatter={(v:any)=>cur(Number(v))} contentStyle={{ background:"hsl(var(--card))", border:"1px solid hsl(var(--border))", borderRadius:8 }} />
-                    </PieChart>
-                  </ResponsiveContainer>
+                <div>
+                  <p className="font-medium text-sm">{bn?"AI ফিন্যান্স সহকারী":"AI Finance Assistant"}</p>
+                  <p className="text-[11px] text-muted-foreground">
+                    {bn?"বাংলা/ইংরেজি/বাংলিশে লিখুন — যেকোনো লেনদেন এক লাইনে":"Write in Bangla/English/Banglish — any transaction in one line"}
+                  </p>
                 </div>
-              )}
-            </CardContent></Card>
-          </div>
-
-          {/* AI insight */}
-          <Card className="border-primary/30 bg-gradient-to-br from-primary/5 via-background to-secondary/5">
-            <CardContent className="p-5">
-              <div className="flex items-center justify-between mb-3 flex-wrap gap-2">
-                <div className="flex items-center gap-2">
-                  <div className="w-9 h-9 rounded-xl gradient-bg-primary text-white flex items-center justify-center">
-                    <Brain className="w-4 h-4" />
-                  </div>
-                  <div>
-                    <h3 className="font-display font-bold">{bn?"AI ফিন্যান্স কোচ":"AI Finance Coach"}</h3>
-                    <p className="text-[11px] text-muted-foreground">{bn?"আপনার ডেটা দেখে স্মার্ট পরামর্শ":"Smart tips from your data"}</p>
-                  </div>
-                </div>
-                <Button onClick={askAI} disabled={insightBusy} size="sm" className="gradient-bg-primary text-white">
-                  <Sparkles className="w-4 h-4 mr-2" />
-                  {insightBusy ? (bn?"ভাবছে...":"Thinking...") : (bn?"পরামর্শ নিন":"Get advice")}
+              </div>
+              <Textarea
+                value={aiText} onChange={e => setAiText(e.target.value)}
+                placeholder={bn?"যেমন: bKash theke 500 tk tullam" : "e.g. Spent 350 on food, or Sold 2 projectors 16000 tk"}
+                rows={3}
+                className="resize-none"
+              />
+              <div className="flex items-center justify-between mt-3">
+                <p className="text-[11px] text-muted-foreground">{bn?"AI স্বয়ংক্রিয়ভাবে ধরন, ওয়ালেট, ক্যাটাগরি বুঝবে":"AI auto-detects type, wallet, category"}</p>
+                <Button size="sm" onClick={runAI} disabled={aiBusy || !aiText.trim()}>
+                  {aiBusy ? <Loader2 className="h-4 w-4 animate-spin" /> : <><Sparkles className="h-4 w-4 mr-1" /> {bn?"পার্স করুন":"Parse"}</>}
                 </Button>
               </div>
-              {insight && (
-                <div className="mt-2 p-4 rounded-xl bg-background/70 border border-border/60 whitespace-pre-wrap text-sm leading-relaxed">
-                  {insight}
-                </div>
-              )}
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        {/* TRANSACTIONS */}
-        <TabsContent value="tx" className="mt-4 space-y-4">
-          <Card><CardContent className="p-4 space-y-3">
-            <h3 className="font-display font-bold">{bn?"নতুন লেনদেন":"New Transaction"}</h3>
-            <div className="grid grid-cols-2 lg:grid-cols-5 gap-2">
-              <Select value={tx.type} onValueChange={(v:any)=>setTx({...tx, type:v, category:""})}>
-                <SelectTrigger><SelectValue /></SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="expense">{bn?"ব্যয়":"Expense"}</SelectItem>
-                  <SelectItem value="income">{bn?"আয়":"Income"}</SelectItem>
-                </SelectContent>
-              </Select>
-              <Select value={tx.category} onValueChange={(v)=>setTx({...tx, category:v})}>
-                <SelectTrigger><SelectValue placeholder={bn?"ক্যাটেগরি":"Category"} /></SelectTrigger>
-                <SelectContent>
-                  {(tx.type==="expense"?expCats:incCats).map(c=>(<SelectItem key={c} value={c}>{c}</SelectItem>))}
-                </SelectContent>
-              </Select>
-              <Input type="number" placeholder={bn?"৳ পরিমাণ":"Amount"} value={tx.amount} onChange={e=>setTx({...tx, amount:e.target.value})} />
-              <Input type="date" value={tx.occurred_on} onChange={e=>setTx({...tx, occurred_on:e.target.value})} />
-              <Button onClick={addTx} className="gradient-bg-primary text-white"><Plus className="w-4 h-4 mr-1" />{bn?"যোগ":"Add"}</Button>
-            </div>
-            <Textarea placeholder={bn?"নোট (ঐচ্ছিক)":"Note (optional)"} value={tx.note} onChange={e=>setTx({...tx, note:e.target.value})} maxLength={300} />
-          </CardContent></Card>
-
-          <Card><CardContent className="p-0">
-            <div className="max-h-[500px] overflow-auto divide-y divide-border">
-              {txs.length===0 && <div className="p-6 text-center text-sm text-muted-foreground">{bn?"কোনো লেনদেন নেই":"No transactions yet"}</div>}
-              {txs.map(t => (
-                <div key={t.id} className="flex items-center gap-3 p-3 hover:bg-muted/40">
-                  <div className={`w-9 h-9 rounded-xl flex items-center justify-center ${t.type==="income"?"bg-emerald-500/15 text-emerald-600":"bg-rose-500/15 text-rose-600"}`}>
-                    {t.type==="income"?<TrendingUp className="w-4 h-4" />:<TrendingDown className="w-4 h-4" />}
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="font-semibold text-sm truncate">{t.category}</div>
-                    <div className="text-[11px] text-muted-foreground truncate">{t.occurred_on}{t.note?` • ${t.note}`:""}</div>
-                  </div>
-                  <div className={`font-display font-bold ${t.type==="income"?"text-emerald-600":"text-rose-600"}`}>
-                    {t.type==="income"?"+":"−"}{cur(t.amount)}
-                  </div>
-                  <Button size="icon" variant="ghost" onClick={()=>delTx(t.id)}><Trash2 className="w-4 h-4 text-muted-foreground" /></Button>
-                </div>
-              ))}
-            </div>
-          </CardContent></Card>
-        </TabsContent>
-
-        {/* DEBTS */}
-        {/* PLANNED PURCHASES */}
-        <TabsContent value="plans" className="mt-4 space-y-4">
-          <Card><CardContent className="p-4 space-y-3">
-            <div className="flex items-center justify-between flex-wrap gap-2">
-              <h3 className="font-display font-bold flex items-center gap-2"><ShoppingCart className="w-4 h-4" />{bn?"এই মাসে কী কিনবেন":"What to buy this month"}</h3>
-              <Badge variant="outline">{bn?"মোট পরিকল্পিত":"Planned total"}: {cur(planTotal)}</Badge>
-            </div>
-            <div className="grid grid-cols-2 lg:grid-cols-5 gap-2">
-              <Input placeholder={bn?"আইটেম":"Item"} value={plan.item} onChange={e=>setPlan({...plan, item:e.target.value})} maxLength={80} />
-              <Input type="number" placeholder={bn?"৳ আনুমানিক":"Est. price"} value={plan.est_price} onChange={e=>setPlan({...plan, est_price:e.target.value})} />
-              <Select value={plan.priority} onValueChange={(v)=>setPlan({...plan, priority:v})}>
-                <SelectTrigger><SelectValue /></SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="high">{bn?"জরুরি":"High"}</SelectItem>
-                  <SelectItem value="medium">{bn?"মাঝারি":"Medium"}</SelectItem>
-                  <SelectItem value="low">{bn?"কম":"Low"}</SelectItem>
-                </SelectContent>
-              </Select>
-              <Input type="date" value={plan.plan_date} onChange={e=>setPlan({...plan, plan_date:e.target.value})} />
-              <Button onClick={addPlan} className="gradient-bg-primary text-white"><Plus className="w-4 h-4 mr-1" />{bn?"যোগ":"Add"}</Button>
-            </div>
-            <Textarea placeholder={bn?"নোট (ঐচ্ছিক)":"Note (optional)"} value={plan.note} onChange={e=>setPlan({...plan, note:e.target.value})} maxLength={300} />
-          </CardContent></Card>
-
-          <Card><CardContent className="p-0">
-            <div className="divide-y divide-border max-h-[500px] overflow-auto">
-              {plans.length===0 && <div className="p-6 text-center text-sm text-muted-foreground">{bn?"কোনো পরিকল্পনা নেই":"No plans yet"}</div>}
-              {plans.map(p=>(
-                <div key={p.id} className={`p-3 flex items-center gap-3 ${p.is_done?"opacity-60":""}`}>
-                  <Button size="icon" variant={p.is_done?"default":"outline"} className="w-8 h-8 shrink-0" onClick={()=>togglePlanDone(p)}>
-                    <Check className="w-4 h-4" />
-                  </Button>
-                  <div className="flex-1 min-w-0">
-                    <div className={`font-semibold text-sm truncate ${p.is_done?"line-through":""}`}>{p.item}</div>
-                    <div className="text-[11px] text-muted-foreground truncate">
-                      {p.plan_date || (bn?"যে কোনো সময়":"Anytime")}
-                      {p.note?` • ${p.note}`:""}
+              <AnimatePresence>
+                {aiPreview && (
+                  <motion.div initial={{opacity:0, y:8}} animate={{opacity:1,y:0}} exit={{opacity:0}}
+                    className="mt-4 rounded-xl border border-primary/30 bg-primary/5 p-3">
+                    <p className="text-xs text-muted-foreground mb-2">{bn?"পূর্বরূপ":"Preview"}</p>
+                    <div className="grid grid-cols-2 gap-2 text-xs">
+                      <div><span className="text-muted-foreground">Type:</span> <b className="capitalize">{aiPreview.type}</b></div>
+                      <div><span className="text-muted-foreground">Amount:</span> <b>{fmtBDT(Number(aiPreview.amount)||0)}</b></div>
+                      <div><span className="text-muted-foreground">Category:</span> <b>{aiPreview.category ?? "—"}</b></div>
+                      <div><span className="text-muted-foreground">Scope:</span> <b className="capitalize">{aiPreview.scope ?? "personal"}</b></div>
+                      <div className="col-span-2"><span className="text-muted-foreground">Wallet:</span> <b>{walletById(aiPreview.wallet_id)?.name ?? (wallets.find(w=>w.is_default)?.name ?? "—")}</b></div>
+                      {aiPreview.party && <div className="col-span-2"><span className="text-muted-foreground">Party:</span> <b>{aiPreview.party}</b></div>}
                     </div>
-                  </div>
-                  <Badge variant={p.priority==="high"?"destructive":p.priority==="low"?"outline":"secondary"} className="text-[10px]">
-                    {p.priority==="high"?(bn?"জরুরি":"High"):p.priority==="low"?(bn?"কম":"Low"):(bn?"মাঝারি":"Med")}
-                  </Badge>
-                  <div className="font-display font-bold">{cur(Number(p.est_price))}</div>
-                  <Button size="icon" variant="ghost" onClick={()=>delPlan(p.id)}><Trash2 className="w-4 h-4 text-muted-foreground" /></Button>
-                </div>
-              ))}
-            </div>
-          </CardContent></Card>
-
-          {plans.length>0 && (
-            <Card className="border-primary/30 bg-primary/5"><CardContent className="p-4 text-sm">
-              <div className="flex justify-between items-center flex-wrap gap-2">
-                <div><span className="font-semibold">{bn?"নেট হিসাব":"Net check"}:</span> {bn?"এই মাসের আয়":"This month income"} {cur(stats.income)} − {bn?"পরিকল্পিত":"Planned"} {cur(planTotal)} = <span className={`font-display font-bold ${stats.income-planTotal>=0?"text-emerald-600":"text-rose-600"}`}>{cur(stats.income-planTotal)}</span></div>
-                {stats.income-planTotal < 0 && <Badge variant="destructive">{bn?"বাজেট ছাড়িয়ে গেছে":"Over income"}</Badge>}
-              </div>
-            </CardContent></Card>
-          )}
-        </TabsContent>
-
-        {/* SELLABLE ASSETS */}
-        <TabsContent value="assets" className="mt-4 space-y-4">
-          <Card><CardContent className="p-4 space-y-3">
-            <div className="flex items-center justify-between flex-wrap gap-2">
-              <h3 className="font-display font-bold flex items-center gap-2"><Package className="w-4 h-4" />{bn?"বিক্রয়যোগ্য সম্পদ":"Sellable items"}</h3>
-              <Badge variant="outline">{bn?"মোট আনুমানিক মূল্য":"Est. liquid value"}: {cur(assetTotal)}</Badge>
-            </div>
-            <p className="text-xs text-muted-foreground">{bn?"আপনার কাছে যে প্রোডাক্টগুলো আছে—দরকার হলে বিক্রি করে খরচ মেটাতে পারবেন":"Things you own and could sell to cover expenses if needed"}</p>
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-2">
-              <Input placeholder={bn?"আইটেম (যেমন: পুরাতন ফোন)":"Item (e.g. old phone)"} value={asset.item} onChange={e=>setAsset({...asset, item:e.target.value})} maxLength={80} />
-              <Input type="number" placeholder={bn?"৳ আনুমানিক মূল্য":"Est. value"} value={asset.est_value} onChange={e=>setAsset({...asset, est_value:e.target.value})} />
-              <Select value={asset.condition} onValueChange={(v)=>setAsset({...asset, condition:v})}>
-                <SelectTrigger><SelectValue /></SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="new">{bn?"নতুনের মতো":"Like new"}</SelectItem>
-                  <SelectItem value="good">{bn?"ভালো":"Good"}</SelectItem>
-                  <SelectItem value="fair">{bn?"মোটামুটি":"Fair"}</SelectItem>
-                  <SelectItem value="poor">{bn?"পুরাতন":"Poor"}</SelectItem>
-                </SelectContent>
-              </Select>
-              <Button onClick={addAsset} className="gradient-bg-primary text-white"><Plus className="w-4 h-4 mr-1" />{bn?"যোগ":"Add"}</Button>
-            </div>
-            <Textarea placeholder={bn?"নোট (ব্র্যান্ড, কোথায় বিক্রি করবেন)":"Note (brand, where to sell)"} value={asset.note} onChange={e=>setAsset({...asset, note:e.target.value})} maxLength={300} />
-          </CardContent></Card>
-
-          <Card><CardContent className="p-0">
-            <div className="divide-y divide-border max-h-[500px] overflow-auto">
-              {assets.length===0 && <div className="p-6 text-center text-sm text-muted-foreground">{bn?"কোনো আইটেম যোগ করা হয়নি":"No items added"}</div>}
-              {assets.map(a=>(
-                <div key={a.id} className={`p-3 flex items-center gap-3 ${a.is_sold?"opacity-60":""}`}>
-                  <div className="w-9 h-9 rounded-xl bg-violet-500/15 text-violet-600 flex items-center justify-center shrink-0">
-                    <Package className="w-4 h-4" />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <div className={`font-semibold text-sm truncate ${a.is_sold?"line-through":""}`}>{a.item}</div>
-                    <div className="text-[11px] text-muted-foreground truncate">
-                      {a.condition}{a.note?` • ${a.note}`:""}
-                      {a.is_sold && a.sold_amount!=null ? ` • ${bn?"বিক্রি":"Sold"}: ${cur(Number(a.sold_amount))}` : ""}
+                    <div className="flex gap-2 justify-end mt-3">
+                      <Button size="sm" variant="ghost" onClick={() => setAiPreview(null)}><X className="h-4 w-4" /></Button>
+                      <Button size="sm" onClick={confirmAI}>{bn?"সংরক্ষণ":"Save"}<ChevronRight className="h-4 w-4 ml-1" /></Button>
                     </div>
-                  </div>
-                  <div className="font-display font-bold">{cur(Number(a.est_value))}</div>
-                  {!a.is_sold && <Button size="sm" variant="outline" onClick={()=>markAssetSold(a)}>{bn?"বিক্রি":"Sold"}</Button>}
-                  {a.is_sold && <Badge variant="secondary">{bn?"বিক্রিত":"Sold"}</Badge>}
-                  <Button size="icon" variant="ghost" onClick={()=>delAsset(a.id)}><Trash2 className="w-4 h-4 text-muted-foreground" /></Button>
-                </div>
-              ))}
-            </div>
-          </CardContent></Card>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </Card>
 
-          {assets.length>0 && stats.net<0 && (
-            <Card className="border-amber-500/30 bg-amber-500/5"><CardContent className="p-4 text-sm">
-              💡 {bn?`এই মাসে ঘাটতি ${cur(Math.abs(stats.net))}—আপনার সম্পদ থেকে বিক্রি করলে ${cur(assetTotal)} পর্যন্ত পেতে পারেন।`:`Shortfall this month: ${cur(Math.abs(stats.net))}. You could raise up to ${cur(assetTotal)} from your assets.`}
-            </CardContent></Card>
-          )}
-        </TabsContent>
-
-        <TabsContent value="debts" className="mt-4 space-y-4">
-          <Card><CardContent className="p-4 space-y-3">
-            <h3 className="font-display font-bold">{bn?"ধার যোগ করুন":"Add Debt"}</h3>
-            <div className="grid grid-cols-2 lg:grid-cols-5 gap-2">
-              <Select value={debt.direction} onValueChange={(v:any)=>setDebt({...debt, direction:v})}>
-                <SelectTrigger><SelectValue /></SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="lent">{bn?"আমি দিয়েছি":"I lent"}</SelectItem>
-                  <SelectItem value="borrowed">{bn?"আমি নিয়েছি":"I borrowed"}</SelectItem>
-                </SelectContent>
-              </Select>
-              <Input placeholder={bn?"কার সাথে":"Who"} value={debt.counterparty} onChange={e=>setDebt({...debt, counterparty:e.target.value})} maxLength={80} />
-              <Input type="number" placeholder={bn?"৳":"Amount"} value={debt.amount} onChange={e=>setDebt({...debt, amount:e.target.value})} />
-              <Input type="date" value={debt.due_date} onChange={e=>setDebt({...debt, due_date:e.target.value})} />
-              <Button onClick={addDebt} className="gradient-bg-primary text-white"><Plus className="w-4 h-4 mr-1" />{bn?"যোগ":"Add"}</Button>
-            </div>
-            <Textarea placeholder={bn?"নোট":"Note"} value={debt.note} onChange={e=>setDebt({...debt, note:e.target.value})} maxLength={300} />
-          </CardContent></Card>
-
-          <Card><CardContent className="p-0">
-            <div className="divide-y divide-border max-h-[500px] overflow-auto">
-              {debts.length===0 && <div className="p-6 text-center text-sm text-muted-foreground">{bn?"কোনো ধার নেই":"No debts"}</div>}
-              {debts.map(d=>(
-                <div key={d.id} className="p-3 flex items-center gap-3">
-                  <Badge className={d.direction==="lent"?"bg-emerald-500/15 text-emerald-700 border-emerald-300":"bg-rose-500/15 text-rose-700 border-rose-300"}>
-                    {d.direction==="lent"?(bn?"পাবো":"Receivable"):(bn?"দিবো":"Payable")}
-                  </Badge>
-                  <div className="flex-1 min-w-0">
-                    <div className="font-semibold truncate">{d.counterparty}</div>
-                    <div className="text-[11px] text-muted-foreground">
-                      {bn?"বাকি":"Outstanding"}: {cur(d.amount-d.paid_amount)}{d.due_date?` • ${bn?"নির্ধারিত":"Due"}: ${d.due_date}`:""}
-                    </div>
-                  </div>
-                  {!d.is_settled && (
-                    <Button size="sm" variant="outline" onClick={()=>settleDebt(d)}>{bn?"পরিশোধ":"Settle"}</Button>
-                  )}
-                  {d.is_settled && <Badge variant="secondary">{bn?"পরিশোধিত":"Settled"}</Badge>}
-                  <Button size="icon" variant="ghost" onClick={()=>delDebt(d.id)}><Trash2 className="w-4 h-4 text-muted-foreground" /></Button>
-                </div>
-              ))}
-            </div>
-          </CardContent></Card>
-        </TabsContent>
-
-        {/* BUDGETS */}
-        <TabsContent value="budget" className="mt-4 space-y-4">
-          <Card><CardContent className="p-4 space-y-3">
-            <h3 className="font-display font-bold">{bn?"মাসিক বাজেট সেট করুন":"Set Monthly Budget"}</h3>
-            <div className="grid grid-cols-2 lg:grid-cols-3 gap-2">
-              <Select value={budget.category} onValueChange={(v)=>setBudget({...budget, category:v})}>
-                <SelectTrigger><SelectValue placeholder={bn?"ক্যাটেগরি":"Category"} /></SelectTrigger>
-                <SelectContent>{expCats.map(c=>(<SelectItem key={c} value={c}>{c}</SelectItem>))}</SelectContent>
-              </Select>
-              <Input type="number" placeholder={bn?"৳ মাসিক লিমিট":"Monthly limit"} value={budget.monthly_limit} onChange={e=>setBudget({...budget, monthly_limit:e.target.value})} />
-              <Button onClick={addBudget} className="gradient-bg-primary text-white"><Save className="w-4 h-4 mr-1" />{bn?"সংরক্ষণ":"Save"}</Button>
-            </div>
-          </CardContent></Card>
-
-          <div className="grid sm:grid-cols-2 gap-3">
-            {budgets.length===0 && <div className="p-6 text-center text-sm text-muted-foreground col-span-2">{bn?"কোনো বাজেট নেই":"No budgets"}</div>}
-            {budgets.map(b=>{
-              const used = monthExpByCat[b.category]||0;
-              const pct = Math.min(100, Math.round((used/b.monthly_limit)*100));
-              const over = used > b.monthly_limit;
-              return (
-                <Card key={b.id}><CardContent className="p-4">
-                  <div className="flex items-start justify-between mb-2">
-                    <div>
-                      <div className="font-semibold">{b.category}</div>
-                      <div className="text-[11px] text-muted-foreground">{cur(used)} / {cur(b.monthly_limit)}</div>
-                    </div>
-                    <div className="flex gap-1">
-                      <Badge variant={over?"destructive":pct>=80?"secondary":"outline"}>{pct}%</Badge>
-                      <Button size="icon" variant="ghost" onClick={()=>delBudget(b.id)}><Trash2 className="w-4 h-4 text-muted-foreground" /></Button>
-                    </div>
-                  </div>
-                  <Progress value={pct} className={over?"[&>div]:bg-destructive":""} />
-                  {over && <p className="text-xs text-destructive mt-1.5 font-semibold">⚠ {bn?"লিমিট পার হয়ে গেছে":"Over budget!"}</p>}
-                </CardContent></Card>
-              );
-            })}
-          </div>
-        </TabsContent>
-
-        {/* GOALS */}
-        <TabsContent value="goals" className="mt-4 space-y-4">
-          <Card><CardContent className="p-4 space-y-3">
-            <h3 className="font-display font-bold">{bn?"নতুন সঞ্চয় লক্ষ্য":"New Savings Goal"}</h3>
-            <div className="grid grid-cols-1 lg:grid-cols-4 gap-2">
-              <Input placeholder={bn?"লক্ষ্যের নাম":"Goal title"} value={goal.title} onChange={e=>setGoal({...goal, title:e.target.value})} maxLength={80} />
-              <Input type="number" placeholder={bn?"৳ লক্ষ্য":"Target amount"} value={goal.target_amount} onChange={e=>setGoal({...goal, target_amount:e.target.value})} />
-              <Input type="date" value={goal.target_date} onChange={e=>setGoal({...goal, target_date:e.target.value})} />
-              <Button onClick={addGoal} className="gradient-bg-primary text-white"><Target className="w-4 h-4 mr-1" />{bn?"যোগ":"Add"}</Button>
-            </div>
-          </CardContent></Card>
-
-          <div className="grid sm:grid-cols-2 gap-3">
-            {goals.length===0 && <div className="p-6 text-center text-sm text-muted-foreground col-span-2">{bn?"কোনো লক্ষ্য নেই":"No goals"}</div>}
-            {goals.map(g=>{
-              const pct = Math.min(100, Math.round((g.saved_amount/g.target_amount)*100));
-              return (
-                <Card key={g.id}><CardContent className="p-4 space-y-2">
-                  <div className="flex justify-between items-start">
-                    <div>
-                      <div className="font-semibold">{g.title}</div>
-                      <div className="text-[11px] text-muted-foreground">{cur(g.saved_amount)} / {cur(g.target_amount)}{g.target_date?` • ${g.target_date}`:""}</div>
-                    </div>
-                    <Button size="icon" variant="ghost" onClick={()=>delGoal(g.id)}><Trash2 className="w-4 h-4 text-muted-foreground" /></Button>
-                  </div>
-                  <Progress value={pct} />
-                  <div className="flex gap-1 pt-1">
-                    {[100,500,1000,5000].map(v=>(
-                      <Button key={v} size="sm" variant="outline" className="text-xs flex-1" onClick={()=>addToGoal(g, v)}>+{v}</Button>
-                    ))}
-                  </div>
-                </CardContent></Card>
-              );
-            })}
-          </div>
-        </TabsContent>
-
-        {/* PROFILE */}
-        <TabsContent value="profile" className="mt-4">
-          <Card><CardContent className="p-5 space-y-3 max-w-xl">
-            <div className="flex items-center gap-3 mb-2">
-              <div className="w-12 h-12 rounded-2xl bg-muted flex items-center justify-center"><UserIcon className="w-6 h-6" /></div>
-              <div>
-                <h3 className="font-display font-bold">{bn?"প্রোফাইল":"Profile"}</h3>
-                <p className="text-xs text-muted-foreground">{user.email}</p>
-              </div>
-            </div>
-            <div>
-              <Label>{bn?"পুরো নাম":"Full name"}</Label>
-              <Input value={profile?.full_name || ""} onChange={e=>setProfile(p=>p?{...p, full_name:e.target.value}:p)} maxLength={80} />
-            </div>
-            <div>
-              <Label>{bn?"ফোন":"Phone"}</Label>
-              <Input value={profile?.phone || ""} onChange={e=>setProfile(p=>p?{...p, phone:e.target.value}:p)} maxLength={20} />
-            </div>
             <div className="grid grid-cols-2 gap-2">
+              {[
+                bn?"bKash theke 500 tk tullam":"Spent 350 on food",
+                bn?"2 ta projector bikri korlam 16000 tk":"Sold 2 projectors 16000 tk",
+                bn?"courier bill 250 dilam":"Paid courier bill 250",
+                bn?"salary pelam 45000":"Received salary 45000",
+              ].map(ex => (
+                <button key={ex} onClick={() => setAiText(ex)} className="text-left text-xs rounded-xl border border-border/60 bg-card/70 p-3 hover:bg-muted transition">
+                  <Sparkles className="h-3 w-3 inline mr-1 text-primary" />{ex}
+                </button>
+              ))}
+            </div>
+          </TabsContent>
+        </Tabs>
+      </div>
+
+      {/* Floating action bar */}
+      <div className="fixed bottom-4 inset-x-0 z-40 flex justify-center pointer-events-none">
+        <div className="pointer-events-auto flex items-center gap-1 bg-background/90 backdrop-blur-xl border border-border/60 shadow-lg rounded-full p-1">
+          <Button size="sm" variant="ghost" className="rounded-full h-9 px-3" onClick={() => openQuick("income")}>
+            <TrendingUp className="h-4 w-4 mr-1 text-emerald-500" />{bn?"আয়":"Income"}
+          </Button>
+          <Button size="sm" variant="ghost" className="rounded-full h-9 px-3" onClick={() => openQuick("expense")}>
+            <TrendingDown className="h-4 w-4 mr-1 text-rose-500" />{bn?"খরচ":"Expense"}
+          </Button>
+          <Button size="sm" className="rounded-full h-9 px-3 shadow-md" onClick={() => openQuick("transfer")}>
+            <ArrowLeftRight className="h-4 w-4 mr-1" />{bn?"ট্রান্সফার":"Transfer"}
+          </Button>
+          <Button size="sm" variant="ghost" className="rounded-full h-9 px-3" onClick={() => { setTab("ai"); }}>
+            <Sparkles className="h-4 w-4 mr-1 text-primary" />AI
+          </Button>
+        </div>
+      </div>
+
+      {/* Quick action sheet */}
+      <Sheet open={qaOpen} onOpenChange={setQaOpen}>
+        <SheetContent side="bottom" className="rounded-t-3xl max-h-[90vh] overflow-y-auto">
+          <SheetHeader>
+            <SheetTitle className="capitalize">{qaType?.replace(/_/g, " ") ?? ""}</SheetTitle>
+          </SheetHeader>
+          <div className="mt-4 space-y-3">
+            <div className="flex items-center gap-1 rounded-full bg-muted p-1 w-fit">
+              {(["personal","business"] as const).map(s => (
+                <button key={s} onClick={() => setQaScope(s)} className={cn(
+                  "text-[11px] px-3 py-1 rounded-full capitalize",
+                  qaScope === s ? "bg-background shadow-sm" : "text-muted-foreground"
+                )}>{s}</button>
+              ))}
+            </div>
+
+            <div>
+              <Label className="text-xs">{bn?"টাকা":"Amount (৳)"}</Label>
+              <Input type="number" inputMode="decimal" value={qaAmount} onChange={e => setQaAmount(e.target.value)}
+                className="text-2xl font-semibold h-14 rounded-xl mt-1" placeholder="0" autoFocus />
+            </div>
+
+            <div>
+              <Label className="text-xs">{qaType === "transfer" ? (bn?"যেখান থেকে":"From wallet") : (bn?"ওয়ালেট":"Wallet")}</Label>
+              <Select value={qaWallet} onValueChange={setQaWallet}>
+                <SelectTrigger className="mt-1"><SelectValue placeholder="Pick wallet" /></SelectTrigger>
+                <SelectContent>
+                  {wallets.map(w => <SelectItem key={w.id} value={w.id}>{w.name} · ৳{Number(w.balance||0).toFixed(0)}</SelectItem>)}
+                </SelectContent>
+              </Select>
+            </div>
+
+            {qaType === "transfer" && (
               <div>
-                <Label>{bn?"মাসিক আয় (লক্ষ্য)":"Monthly income (target)"}</Label>
-                <Input type="number" value={profile?.monthly_income || 0} onChange={e=>setProfile(p=>p?{...p, monthly_income:Math.round(Number(e.target.value)||0)}:p)} />
-              </div>
-              <div>
-                <Label>{bn?"মুদ্রা":"Currency"}</Label>
-                <Select value={profile?.currency || "BDT"} onValueChange={(v)=>setProfile(p=>p?{...p, currency:v}:p)}>
-                  <SelectTrigger><SelectValue /></SelectTrigger>
+                <Label className="text-xs">{bn?"যেখানে":"To wallet"}</Label>
+                <Select value={qaWallet2} onValueChange={setQaWallet2}>
+                  <SelectTrigger className="mt-1"><SelectValue placeholder="Pick wallet" /></SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="BDT">BDT (৳)</SelectItem>
-                    <SelectItem value="USD">USD ($)</SelectItem>
+                    {wallets.filter(w => w.id !== qaWallet).map(w => <SelectItem key={w.id} value={w.id}>{w.name}</SelectItem>)}
                   </SelectContent>
                 </Select>
               </div>
+            )}
+
+            {qaType !== "transfer" && (
+              <div>
+                <Label className="text-xs">{bn?"ক্যাটাগরি":"Category"}</Label>
+                <Select value={qaCategory} onValueChange={setQaCategory}>
+                  <SelectTrigger className="mt-1"><SelectValue placeholder="Select category" /></SelectTrigger>
+                  <SelectContent>
+                    {CATEGORIES.map(c => <SelectItem key={c} value={c}>{c}</SelectItem>)}
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
+
+            {(qaType === "sale" || qaType === "purchase" || qaType?.startsWith("loan") || qaType?.startsWith("repayment")) && (
+              <div>
+                <Label className="text-xs">{qaType === "sale" ? (bn?"গ্রাহক":"Customer") : (qaType === "purchase" ? (bn?"সরবরাহকারী":"Supplier") : (bn?"পক্ষ":"Party"))}</Label>
+                <Input value={qaParty} onChange={e => setQaParty(e.target.value)} className="mt-1" />
+              </div>
+            )}
+
+            <div>
+              <Label className="text-xs">{bn?"নোট":"Note"}</Label>
+              <Input value={qaNote} onChange={e => setQaNote(e.target.value)} className="mt-1" placeholder={bn?"ঐচ্ছিক":"Optional"} />
             </div>
-            <Button onClick={saveProfile} className="gradient-bg-primary text-white">
-              <Save className="w-4 h-4 mr-2" /> {bn?"সংরক্ষণ":"Save"}
+
+            <Button className="w-full h-12 rounded-xl mt-2" onClick={saveQuick} disabled={busy}>
+              {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : <>{bn?"সংরক্ষণ":"Save"} <ChevronRight className="h-4 w-4 ml-1" /></>}
             </Button>
-          </CardContent></Card>
-        </TabsContent>
-      </Tabs>
+          </div>
+        </SheetContent>
+      </Sheet>
+
+      {/* Wallet detail */}
+      <Dialog open={!!detailWallet} onOpenChange={(o) => !o && setDetailWallet(null)}>
+        <DialogContent className="max-w-lg">
+          {detailWallet && (
+            <>
+              <DialogHeader>
+                <DialogTitle>{detailWallet.name}</DialogTitle>
+              </DialogHeader>
+              <div className={cn("rounded-2xl p-4 text-white bg-gradient-to-br", detailWallet.color ?? "from-primary to-primary/60")}>
+                <p className="text-xs opacity-80 capitalize">{detailWallet.scope} · {detailWallet.provider ?? detailWallet.type}</p>
+                <p className="text-3xl font-semibold tabular-nums mt-1">{fmtBDT(Number(detailWallet.balance||0))}</p>
+                <div className="flex justify-between text-[11px] mt-2 opacity-90">
+                  <span>Today {fmtBDT(walletDelta(detailWallet.id, startOfToday().getTime()))}</span>
+                  <span>Month {fmtBDT(walletDelta(detailWallet.id, startOfMonth().getTime()))}</span>
+                </div>
+              </div>
+              <ScrollArea className="max-h-72 mt-2">
+                <div className="space-y-1.5">
+                  {txs.filter(t => t.wallet_id === detailWallet.id || t.transfer_to_wallet_id === detailWallet.id).slice(0, 60).map(t => {
+                    const income = INCOME_TYPES.includes(t.type);
+                    const incoming = t.transfer_to_wallet_id === detailWallet.id;
+                    const sign = t.type === "transfer" ? (incoming ? "+" : "-") : income ? "+" : "-";
+                    return (
+                      <div key={t.id} className="flex items-center justify-between text-xs px-2 py-2 rounded-lg hover:bg-muted/50">
+                        <div className="min-w-0">
+                          <p className="capitalize truncate">{t.category ?? t.type.replace(/_/g, " ")}</p>
+                          <p className="text-[10px] text-muted-foreground truncate">{new Date(t.occurred_at).toLocaleString()}</p>
+                        </div>
+                        <span className={cn("tabular-nums font-medium", sign === "+" ? "text-emerald-500" : "text-rose-500")}>
+                          {sign}{fmtBDT(Number(t.amount))}
+                        </span>
+                      </div>
+                    );
+                  })}
+                  {txs.filter(t => t.wallet_id === detailWallet.id || t.transfer_to_wallet_id === detailWallet.id).length === 0 && (
+                    <p className="text-center text-xs text-muted-foreground py-6">No transactions</p>
+                  )}
+                </div>
+              </ScrollArea>
+            </>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

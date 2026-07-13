@@ -59,8 +59,8 @@ const DEFAULT_WALLETS: Array<Omit<WalletRow, "id" | "balance" | "currency" | "so
   { name: "Digital Wallet",type:"digital", provider: null,     scope: "personal", icon: "wallet",   color: "from-fuchsia-500 to-pink-600",   is_default: false, archived: false },
 ];
 
-const CATEGORIES_PERSONAL = ["Food","Transport","Shopping","Medicine","Education","Family","Kids","Entertainment","Internet","Mobile Recharge","Bills","Travel","Rent","Investment","Savings","Other"];
-const CATEGORIES_BUSINESS = ["Sale","Purchase","Salary","Advertising","Courier","Office Rent","Utility","Refund","Investment","Loan","Other"];
+const CATEGORIES_PERSONAL = ["Food","Transport","Shopping","Medicine","Education","Family","Kids","Entertainment","Internet","WiFi Bill (Village)","WiFi Bill (City)","Dish Bill","Electricity Bill","Installment","Mobile Recharge","Bills","Travel","Rent","Investment","Savings","Other"];
+const CATEGORIES_BUSINESS = ["Sale","Purchase","Salary","Advertising","Courier","Office Rent","Utility","WiFi Bill (Village)","WiFi Bill (City)","Dish Bill","Electricity Bill","Installment","Refund","Investment","Loan","Other"];
 
 const walletIcon = (t: WalletType) => {
   switch (t) {

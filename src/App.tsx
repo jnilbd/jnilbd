@@ -138,6 +138,7 @@ const App = () => (
                 <Route path="/phone-root-unlock" element={<PhoneRootUnlock />} />
                 <Route path="/offers" element={<Offers />} />
                 <Route path="/capcut-pro" element={<CapCutPro />} />
+                <Route path="/mini-projector" element={<MiniProjector />} />
                 <Route path="/cart" element={<Cart />} />
                 <Route path="/checkout" element={<Checkout />} />
                 <Route path="/profile" element={<Profile />} />

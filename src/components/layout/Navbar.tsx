@@ -66,7 +66,7 @@ const Navbar = () => {
     { to: "/namaz", key: "nav.namaz", icon: Compass },
     { to: "/shop", key: "nav.shop", icon: Store },
     { to: "/offers", key: "nav.offers", icon: Gift },
-    { to: "/ad-maker", key: "nav.adMaker", icon: Wand2 },
+    { to: "/finance", key: "nav.finance", icon: Wallet },
     { to: "/services", key: "nav.services", icon: Briefcase },
   ];
 

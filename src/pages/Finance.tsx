@@ -30,6 +30,8 @@ import { DebtsTab } from "@/components/finance/DebtsTab";
 import { SmartReminders, type Reminder } from "@/components/finance/SmartReminders";
 import { InventoryTab } from "@/components/finance/InventoryTab";
 import { PlannerTab } from "@/components/finance/PlannerTab";
+import { SalesTab } from "@/components/finance/SalesTab";
+import { ReportsTab } from "@/components/finance/ReportsTab";
 
 
 // ---------- Types ----------
@@ -582,7 +584,9 @@ const Finance = () => {
               <TabsTrigger value="analytics" className="text-xs px-3">{bn?"বিশ্লেষণ":"Analytics"}</TabsTrigger>
               <TabsTrigger value="budget" className="text-xs px-3">{bn?"বাজেট":"Budget"}</TabsTrigger>
               <TabsTrigger value="debts" className="text-xs px-3">{bn?"দেনা-পাওনা":"Debts"}</TabsTrigger>
+              <TabsTrigger value="sales" className="text-xs px-3">{bn?"বিক্রয়":"Sales"}</TabsTrigger>
               <TabsTrigger value="inventory" className="text-xs px-3">{bn?"স্টক":"Inventory"}</TabsTrigger>
+              <TabsTrigger value="reports" className="text-xs px-3">{bn?"রিপোর্ট":"Reports"}</TabsTrigger>
               <TabsTrigger value="planner" className="text-xs px-3">{bn?"পরিকল্পনা":"Planner"}</TabsTrigger>
 
               <TabsTrigger value="ai" className="text-xs px-3"><span className="flex items-center gap-1"><Sparkles className="h-3.5 w-3.5" />AI</span></TabsTrigger>
@@ -867,6 +871,21 @@ const Finance = () => {
               monthlyIncome={monthTotals.inc}
               monthlyExpense={monthTotals.exp}
               totalBalance={totalBalance}
+            />
+          </TabsContent>
+
+          {/* Sales: order → payment → courier → delivery */}
+          <TabsContent value="sales" className="mt-4">
+            <SalesTab userId={user.id} bn={bn} />
+          </TabsContent>
+
+          {/* Reports: daily/weekly/monthly P&L + top products + top expense categories */}
+          <TabsContent value="reports" className="mt-4">
+            <ReportsTab
+              userId={user.id}
+              bn={bn}
+              txs={txs as any}
+              categoryLabel={(c) => bn ? (CATEGORY_BN[c] ?? TX_TYPE_BN[c] ?? c) : c}
             />
           </TabsContent>
         </Tabs>

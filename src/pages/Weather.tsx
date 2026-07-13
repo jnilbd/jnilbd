@@ -258,16 +258,13 @@ const Weather = () => {
       });
     }
 
-    // ⛈️ Thunderstorm
-    if ([95, 96, 99].includes(c.weather_code) || (hasThunder24 && c.weather_code !== 0)) {
-      const isNow = [95, 96, 99].includes(c.weather_code);
+    // ⛈️ Thunderstorm — only show when it's actually happening now (skip "expected" to avoid overlap with rain alerts)
+    if ([95, 96, 99].includes(c.weather_code)) {
       alerts.push({
-        severity: c.weather_code === 99 ? "extreme" : isNow ? "severe" : "moderate",
+        severity: c.weather_code === 99 ? "extreme" : "severe",
         icon: "⛈️",
-        title: isBn ? (isNow ? "বজ্রঝড় চলছে" : "আসন্ন বজ্রঝড়") : (isNow ? "Thunderstorm Active" : "Thunderstorm Expected"),
-        detail: isBn
-          ? (isNow ? "বজ্রপাত ও দমকা হাওয়ার ঝুঁকি।" : "আগামী ২৪ ঘণ্টায় বজ্রঝড়ের পূর্বাভাস।")
-          : (isNow ? "Active lightning and gusty wind risk." : "Thunderstorm forecast within 24h."),
+        title: isBn ? "বজ্রঝড় চলছে" : "Thunderstorm Active",
+        detail: isBn ? "বজ্রপাত ও দমকা হাওয়ার ঝুঁকি।" : "Active lightning and gusty wind risk.",
         actions: isBn
           ? ["খোলা মাঠ, গাছ ও বৈদ্যুতিক খুঁটি থেকে দূরে থাকুন", "পাকা ভবনের ভেতরে আশ্রয় নিন", "টিভি/ফ্রিজ/চার্জার আনপ্লাগ করুন", "মোবাইল চার্জে রেখে কথা বলবেন না", "ধাতব ছাতা/ছাদ এড়িয়ে চলুন"]
           : ["Stay away from open fields, trees, and poles", "Shelter inside a concrete building", "Unplug TVs, fridges, chargers", "Avoid using phones while charging", "Avoid metal umbrellas and roofs"],

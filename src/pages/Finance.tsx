@@ -190,6 +190,11 @@ const Finance = () => {
   const [tab, setTab] = useState("dashboard");
   const [q, setQ] = useState("");
 
+  // date filter for transactions
+  const [dateRange, setDateRange] = useState<"all"|"today"|"yesterday"|"week"|"month"|"custom">("all");
+  const [customFrom, setCustomFrom] = useState<string>("");
+  const [customTo, setCustomTo] = useState<string>("");
+
   // quick action state
   const [qaOpen, setQaOpen] = useState(false);
   const [typePickerOpen, setTypePickerOpen] = useState(false);
@@ -201,6 +206,7 @@ const Finance = () => {
   const [qaParty, setQaParty] = useState("");
   const [qaNote, setQaNote] = useState("");
   const [qaScope, setQaScope] = useState<"personal" | "business">("personal");
+  const [qaDate, setQaDate] = useState<string>(""); // datetime-local; empty = now
 
   // wallet detail
   const [detailWallet, setDetailWallet] = useState<WalletRow | null>(null);
@@ -298,6 +304,10 @@ const Finance = () => {
     const def = filteredWallets.find(w => w.is_default) ?? filteredWallets[0];
     setQaWallet(def?.id ?? "");
     setQaScope(type === "sale" || type === "purchase" ? "business" : "personal");
+    // default to "now" in local datetime-local format
+    const now = new Date();
+    const pad = (n: number) => String(n).padStart(2, "0");
+    setQaDate(`${now.getFullYear()}-${pad(now.getMonth()+1)}-${pad(now.getDate())}T${pad(now.getHours())}:${pad(now.getMinutes())}`);
     setQaOpen(true);
   };
 
@@ -308,11 +318,13 @@ const Finance = () => {
     if (!qaWallet) { toast.error(bn ? "ওয়ালেট নির্বাচন করুন" : "Pick a wallet"); return; }
     if (qaType === "transfer" && !qaWallet2) { toast.error(bn ? "গন্তব্য ওয়ালেট নির্বাচন করুন" : "Pick destination wallet"); return; }
     setBusy(true);
+    const occurred_at = qaDate ? new Date(qaDate).toISOString() : new Date().toISOString();
     const { error } = await supabase.from("finance_transactions").insert({
       user_id: user.id, wallet_id: qaWallet,
       transfer_to_wallet_id: qaType === "transfer" ? qaWallet2 : null,
       type: qaType, amount, category: qaCategory || null,
       scope: qaScope, party: qaParty || null, note: qaNote || null,
+      occurred_at,
     });
     setBusy(false);
     if (error) { toast.error(error.message); return; }
@@ -364,6 +376,30 @@ const Finance = () => {
 
   const visibleTxs = useMemo(() => {
     let list = filteredTxs;
+    // date range
+    if (dateRange !== "all") {
+      const now = new Date();
+      let from = 0, to = Infinity;
+      if (dateRange === "today") {
+        from = startOfToday().getTime();
+      } else if (dateRange === "yesterday") {
+        const y = startOfToday(); y.setDate(y.getDate() - 1);
+        from = y.getTime();
+        to = startOfToday().getTime();
+      } else if (dateRange === "week") {
+        const d = startOfToday(); d.setDate(d.getDate() - 6);
+        from = d.getTime();
+      } else if (dateRange === "month") {
+        from = startOfMonth().getTime();
+      } else if (dateRange === "custom") {
+        if (customFrom) from = new Date(customFrom + "T00:00:00").getTime();
+        if (customTo) to = new Date(customTo + "T23:59:59").getTime();
+      }
+      list = list.filter(t => {
+        const at = new Date(t.occurred_at).getTime();
+        return at >= from && at <= to;
+      });
+    }
     if (q.trim()) {
       const s = q.toLowerCase();
       list = list.filter(t =>
@@ -374,7 +410,17 @@ const Finance = () => {
       );
     }
     return list;
-  }, [filteredTxs, q]);
+  }, [filteredTxs, q, dateRange, customFrom, customTo]);
+
+  const rangeTotals = useMemo(() => {
+    let inc = 0, exp = 0;
+    for (const t of visibleTxs) {
+      const amt = Number(t.amount) || 0;
+      if (INCOME_TYPES.includes(t.type)) inc += amt;
+      else if (EXPENSE_TYPES.includes(t.type)) exp += amt;
+    }
+    return { inc, exp, net: inc - exp };
+  }, [visibleTxs]);
 
   const walletById = (id: string | null) => wallets.find(w => w.id === id);
 
@@ -498,6 +544,55 @@ const Finance = () => {
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input value={q} onChange={e => setQ(e.target.value)} placeholder={bn?"খুঁজুন...":"Search transactions..."} className="pl-9 rounded-xl" />
             </div>
+
+            {/* Date range filter */}
+            <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar -mx-1 px-1 py-1">
+              {([
+                ["all", bn?"সব":"All"],
+                ["today", bn?"আজ":"Today"],
+                ["yesterday", bn?"গতকাল":"Yesterday"],
+                ["week", bn?"৭ দিন":"7 Days"],
+                ["month", bn?"এই মাস":"This Month"],
+                ["custom", bn?"কাস্টম":"Custom"],
+              ] as const).map(([k, l]) => (
+                <button key={k} onClick={() => setDateRange(k as any)}
+                  className={cn(
+                    "shrink-0 text-[11px] px-3 py-1.5 rounded-full border transition-all",
+                    dateRange === k ? "border-primary bg-primary text-primary-foreground shadow-sm" : "border-border/60 bg-card/50 hover:bg-muted"
+                  )}>{l}</button>
+              ))}
+            </div>
+            {dateRange === "custom" && (
+              <div className="grid grid-cols-2 gap-2">
+                <div>
+                  <Label className="text-[10px] text-muted-foreground">{bn?"থেকে":"From"}</Label>
+                  <Input type="date" value={customFrom} onChange={e => setCustomFrom(e.target.value)} className="h-9 rounded-xl mt-0.5" />
+                </div>
+                <div>
+                  <Label className="text-[10px] text-muted-foreground">{bn?"পর্যন্ত":"To"}</Label>
+                  <Input type="date" value={customTo} onChange={e => setCustomTo(e.target.value)} className="h-9 rounded-xl mt-0.5" />
+                </div>
+              </div>
+            )}
+
+            {/* Range totals */}
+            <div className="grid grid-cols-3 gap-2">
+              <div className="rounded-xl border border-emerald-500/20 bg-emerald-500/5 p-2 text-center">
+                <p className="text-[10px] text-muted-foreground">{bn?"আয়":"Income"}</p>
+                <p className="text-sm font-semibold text-emerald-500 tabular-nums">{fmtBDT(rangeTotals.inc, bn)}</p>
+              </div>
+              <div className="rounded-xl border border-rose-500/20 bg-rose-500/5 p-2 text-center">
+                <p className="text-[10px] text-muted-foreground">{bn?"খরচ":"Expense"}</p>
+                <p className="text-sm font-semibold text-rose-500 tabular-nums">{fmtBDT(rangeTotals.exp, bn)}</p>
+              </div>
+              <div className={cn("rounded-xl border p-2 text-center",
+                rangeTotals.net >= 0 ? "border-emerald-500/20 bg-emerald-500/5" : "border-rose-500/20 bg-rose-500/5")}>
+                <p className="text-[10px] text-muted-foreground">{bn?"নেট":"Net"}</p>
+                <p className={cn("text-sm font-semibold tabular-nums",
+                  rangeTotals.net >= 0 ? "text-emerald-500" : "text-rose-500")}>{fmtBDT(rangeTotals.net, bn)}</p>
+              </div>
+            </div>
+
             <div className="space-y-2">
               {visibleTxs.length === 0 && (
                 <div className="text-center py-16 text-sm text-muted-foreground">
@@ -770,6 +865,34 @@ const Finance = () => {
             <div>
               <Label className="text-xs">{bn?"নোট":"Note"}</Label>
               <Input value={qaNote} onChange={e => setQaNote(e.target.value)} className="mt-1" placeholder={bn?"ঐচ্ছিক":"Optional"} />
+            </div>
+
+            <div>
+              <Label className="text-xs">{bn?"তারিখ ও সময়":"Date & Time"}</Label>
+              <Input type="datetime-local" value={qaDate} onChange={e => setQaDate(e.target.value)} className="mt-1 rounded-xl" />
+              <div className="flex flex-wrap gap-1.5 mt-2">
+                {([
+                  ["now", bn?"এখন":"Now", 0],
+                  ["1h", bn?"১ ঘন্টা আগে":"-1h", -60],
+                  ["today9", bn?"আজ সকাল ৯টা":"Today 9am", -1],
+                  ["yesterday", bn?"গতকাল":"Yesterday", -1440],
+                  ["2d", bn?"২ দিন আগে":"-2d", -2880],
+                  ["7d", bn?"৭ দিন আগে":"-7d", -10080],
+                ] as const).map(([k, l, mins]) => (
+                  <button
+                    key={k}
+                    type="button"
+                    onClick={() => {
+                      const d = new Date();
+                      if (k === "today9") { d.setHours(9,0,0,0); }
+                      else { d.setMinutes(d.getMinutes() + (mins as number)); }
+                      const pad = (n: number) => String(n).padStart(2, "0");
+                      setQaDate(`${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`);
+                    }}
+                    className="text-[11px] px-2.5 py-1 rounded-full bg-muted hover:bg-muted/70 border border-border/60"
+                  >{l}</button>
+                ))}
+              </div>
             </div>
 
 

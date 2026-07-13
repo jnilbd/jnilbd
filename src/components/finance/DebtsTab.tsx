@@ -275,8 +275,10 @@ export const DebtsTab = ({ userId, bn }: { userId: string; bn: boolean }) => {
               <Input type="date" value={dueDate} onChange={e => setDueDate(e.target.value)} className="mt-1 rounded-xl" />
             </div>
             <div>
-              <Label className="text-xs">{bn?"নোট":"Note"}</Label>
-              <Input value={note} onChange={e => setNote(e.target.value)} className="mt-1 rounded-xl" placeholder={bn?"ঐচ্ছিক":"Optional"} />
+              <Label className="text-xs">{bn?"কারণ / উদ্দেশ্য":"Purpose / Reason"}</Label>
+              <Input value={note} onChange={e => setNote(e.target.value)} className="mt-1 rounded-xl"
+                placeholder={bn?"কেন ধার? কী কাজে? (যেমন: চিকিৎসা, ব্যবসা)":"Why? What for? (e.g. medical, business)"} />
+
             </div>
             <Button className="w-full h-12 rounded-xl" onClick={save} disabled={busy}>
               {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : (bn?"সংরক্ষণ":"Save")}

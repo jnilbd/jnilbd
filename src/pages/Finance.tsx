@@ -989,8 +989,10 @@ const Finance = () => {
             )}
 
             <div>
-              <Label className="text-xs">{bn?"নোট":"Note"}</Label>
-              <Input value={qaNote} onChange={e => setQaNote(e.target.value)} className="mt-1" placeholder={bn?"ঐচ্ছিক":"Optional"} />
+              <Label className="text-xs">{bn?"কারণ / উদ্দেশ্য":"Purpose / Reason"}</Label>
+              <Input value={qaNote} onChange={e => setQaNote(e.target.value)} className="mt-1"
+                placeholder={bn?"কেন? কী কাজে? (যেমন: বাজার, বিদ্যুৎ বিল, বন্ধুকে ধার)":"Why? What for? (e.g. groceries, bill, loan)"} />
+
             </div>
 
             <div>

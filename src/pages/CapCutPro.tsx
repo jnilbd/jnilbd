@@ -114,61 +114,62 @@ export default function CapCutPro() {
           className="absolute inset-0 opacity-40"
           style={{ background: "var(--gradient-hero)" }}
         />
-        <div className="relative container mx-auto px-4 py-12 sm:py-20 grid lg:grid-cols-2 gap-10 items-center">
+        <div className="relative container mx-auto px-4 py-8 sm:py-16 lg:py-20 grid lg:grid-cols-2 gap-8 items-center">
           <motion.div
             initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}
           >
-            <Badge className="bg-secondary text-secondary-foreground border-0 mb-4 font-semibold">
-              <Crown className="h-3.5 w-3.5 mr-1" /> #১ ট্রাস্টেড সেলার বাংলাদেশ
+            <Badge className="bg-secondary text-secondary-foreground border-0 mb-3 font-semibold text-[11px] sm:text-xs">
+              <Crown className="h-3 w-3 mr-1" /> #১ ট্রাস্টেড সেলার বাংলাদেশ
             </Badge>
-            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold leading-[1.1] tracking-tight">
+            <h1 className="text-[28px] leading-[1.15] sm:text-5xl lg:text-6xl font-bold tracking-tight">
               <span className="block">CapCut Pro</span>
-              <span className="block mt-2 bg-gradient-to-r from-secondary via-accent to-secondary bg-clip-text text-transparent">
+              <span className="block mt-1 sm:mt-2 bg-gradient-to-r from-secondary via-accent to-secondary bg-clip-text text-transparent">
                 মাত্র ৳১৪৯ থেকে
               </span>
             </h1>
-            <p className="mt-5 text-lg text-muted-foreground max-w-xl">
+            <p className="mt-4 text-sm sm:text-lg text-muted-foreground max-w-xl">
               অফিসিয়াল CapCut Pro আনলক — <b className="text-foreground">4K এক্সপোর্ট, AI ফিচার, ওয়াটারমার্ক মুক্ত</b>, ৫,০০০+ প্রিমিয়াম ইফেক্ট। ২ মিনিটে অ্যাক্টিভ, ১০০% সেফ, রিফান্ড গ্যারান্টি।
             </p>
 
             {/* Countdown */}
-            <div className="mt-6 flex items-center gap-3 flex-wrap">
-              <div className="flex items-center gap-1.5 text-xs uppercase tracking-widest text-muted-foreground">
-                <Clock className="h-4 w-4 text-destructive" /> অফার শেষ হবে:
+            <div className="mt-5">
+              <div className="flex items-center gap-1.5 text-[10px] sm:text-xs uppercase tracking-widest text-muted-foreground mb-2">
+                <Clock className="h-3.5 w-3.5 text-destructive" /> অফার শেষ হবে:
               </div>
               <div className="flex gap-2">
                 {[{l:"ঘণ্টা",v:h},{l:"মিনিট",v:m},{l:"সেকেন্ড",v:s}].map((x,i)=>(
-                  <div key={i} className="bg-primary text-primary-foreground rounded-lg px-3 py-2 min-w-[64px] text-center shadow-lg">
-                    <div className="text-2xl font-bold tabular-nums">{bn(x.v)}</div>
-                    <div className="text-[10px] opacity-70">{x.l}</div>
+                  <div key={i} className="bg-primary text-primary-foreground rounded-lg px-2 sm:px-3 py-1.5 sm:py-2 min-w-[52px] sm:min-w-[64px] text-center shadow-lg">
+                    <div className="text-lg sm:text-2xl font-bold tabular-nums leading-tight">{bn(x.v)}</div>
+                    <div className="text-[9px] sm:text-[10px] opacity-70">{x.l}</div>
                   </div>
                 ))}
               </div>
             </div>
 
-            <div className="mt-7 flex flex-wrap gap-3">
-              <Button size="lg" className="bg-secondary hover:bg-secondary/90 text-secondary-foreground font-bold shadow-[var(--shadow-orange)] h-12 px-6" onClick={()=>orderWhatsApp(selectedPlan)}>
+            <div className="mt-5 sm:mt-7 flex flex-col sm:flex-row gap-2.5 sm:gap-3">
+              <Button size="lg" className="bg-secondary hover:bg-secondary/90 text-secondary-foreground font-bold shadow-[var(--shadow-orange)] h-12 px-6 w-full sm:w-auto" onClick={()=>orderWhatsApp(selectedPlan)}>
                 <Rocket className="h-4 w-4 mr-2" /> এখনই কিনুন — ৳১৪৯
               </Button>
-              <Button size="lg" variant="outline" className="h-12" onClick={()=>document.getElementById("plans")?.scrollIntoView({behavior:"smooth"})}>
+              <Button size="lg" variant="outline" className="h-12 w-full sm:w-auto" onClick={()=>document.getElementById("plans")?.scrollIntoView({behavior:"smooth"})}>
                 সব প্ল্যান দেখুন
               </Button>
             </div>
 
             {/* Trust bar */}
-            <div className="mt-8 grid grid-cols-3 gap-3 max-w-md">
+            <div className="mt-6 sm:mt-8 grid grid-cols-3 gap-2 sm:gap-3 max-w-md">
               {[
                 { n: "৫,০০০+", l: "খুশি ইউজার" },
                 { n: "৪.৯★", l: "রেটিং" },
                 { n: "২ মিনিট", l: "অ্যাক্টিভেশন" },
               ].map((x,i)=>(
-                <div key={i} className="text-center border-l border-border first:border-l-0 pl-3 first:pl-0">
-                  <div className="text-xl font-bold text-secondary">{x.n}</div>
-                  <div className="text-[11px] text-muted-foreground">{x.l}</div>
+                <div key={i} className="text-center border-l border-border first:border-l-0 pl-2 sm:pl-3 first:pl-0">
+                  <div className="text-base sm:text-xl font-bold text-secondary">{x.n}</div>
+                  <div className="text-[10px] sm:text-[11px] text-muted-foreground leading-tight">{x.l}</div>
                 </div>
               ))}
             </div>
           </motion.div>
+
 
           {/* Hero card */}
           <motion.div

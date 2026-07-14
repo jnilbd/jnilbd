@@ -803,24 +803,28 @@ const LiveTV = () => {
           <div className="inline-flex md:flex md:justify-center rounded-full bg-muted p-1 mx-auto w-max md:w-auto">
 
             {([
-              { k: "mrgify", label: t("বাংলাদেশ","Bangladesh"), icon: Flag },
-              { k: "tv", label: t("ইন্ডিয়া","India"), icon: Tv },
-              { k: "bdix", label: "BDIX", icon: Wifi },
-              { k: "world", label: `${t("ওয়ার্ল্ড","World")}${worldChannels.length ? ` (${worldChannels.length})` : ""}`, icon: Globe2 },
-              { k: "sports", label: t("স্পোর্টস","Sports"), icon: Trophy },
-              
-              
-              { k: "radio", label: t("রেডিও","Radio"), icon: Radio },
-              { k: "working", label: `${t("ওয়ার্কিং ✅","Working ✅")}${workingChannels.length ? ` (${workingChannels.length})` : ""}`, icon: CheckCircle2 },
-              { k: "offline", label: `${t("অফলাইন","Offline")}${offlineChannels.length ? ` (${offlineChannels.length})` : ""}`, icon: XCircle },
-            ] as { k: Tab; label: string; icon: any }[]).map(({ k, label, icon: Icon }) => (
+              { k: "mrgify", label: t("বাংলাদেশ","Bangladesh"), icon: Flag, count: (mergedByTab.mrgify || []).length },
+              { k: "tv", label: t("ইন্ডিয়া","India"), icon: Tv, count: (mergedByTab.tv || []).length },
+              { k: "bdix", label: "BDIX", icon: Wifi, count: (mergedByTab.bdix || []).length },
+              { k: "world", label: t("ওয়ার্ল্ড","World"), icon: Globe2, count: (mergedByTab.world || []).length },
+              { k: "sports", label: t("স্পোর্টস","Sports"), icon: Trophy, count: (mergedByTab.sports || []).length },
+              { k: "radio", label: t("রেডিও","Radio"), icon: Radio, count: (mergedByTab.radio || []).length },
+              { k: "working", label: t("ওয়ার্কিং ✅","Working ✅"), icon: CheckCircle2, count: workingChannels.length },
+              { k: "offline", label: t("অফলাইন","Offline"), icon: XCircle, count: offlineChannels.length },
+            ] as { k: Tab; label: string; icon: any; count: number }[]).map(({ k, label, icon: Icon, count }) => (
               <button
                 key={k}
                 onClick={() => { setTab(k); setActive(null); setCountryFilter("all"); setExpandedWorld(null); }}
                 className={`px-3 py-2 rounded-full text-xs sm:text-sm font-semibold flex items-center gap-1.5 transition-smooth whitespace-nowrap ${tab === k ? "gradient-bg-primary text-white shadow-glow" : ""}`}
               >
                 <Icon className="w-4 h-4" /> {label}
+                {count > 0 && (
+                  <span className={`ml-0.5 px-1.5 py-0.5 rounded-full text-[10px] font-bold ${tab === k ? "bg-white/25 text-white" : "bg-primary/15 text-primary"}`}>
+                    {count}
+                  </span>
+                )}
               </button>
+
             ))}
           </div>
         </div>

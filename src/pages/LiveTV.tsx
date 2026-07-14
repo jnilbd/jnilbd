@@ -231,14 +231,27 @@ const LiveTV = () => {
   const [dead, setDead] = useState<Set<string>>(() => {
     try { return new Set(JSON.parse(localStorage.getItem(DEAD_KEY) || "[]")); } catch { return new Set(); }
   });
+  const [working, setWorking] = useState<Set<string>>(() => {
+    try { return new Set(JSON.parse(localStorage.getItem(WORKING_KEY) || "[]")); } catch { return new Set(); }
+  });
   const [recent, setRecent] = useState<string[]>(() => {
     try { return JSON.parse(localStorage.getItem(RECENT_KEY) || "[]"); } catch { return []; }
   });
   const [health, setHealth] = useState<Record<string, Health>>({});
 
   useEffect(() => { localStorage.setItem(DEAD_KEY, JSON.stringify([...dead])); }, [dead]);
+  useEffect(() => { localStorage.setItem(WORKING_KEY, JSON.stringify([...working])); }, [working]);
   useEffect(() => { localStorage.setItem(FAV_KEY, JSON.stringify([...favs])); }, [favs]);
   useEffect(() => { localStorage.setItem(RECENT_KEY, JSON.stringify(recent.slice(0, 20))); }, [recent]);
+
+  const markWorking = useCallback((id: string) => {
+    setWorking(prev => (prev.has(id) ? prev : new Set(prev).add(id)));
+    setDead(prev => {
+      if (!prev.has(id)) return prev;
+      const next = new Set(prev); next.delete(id); return next;
+    });
+    setHealth(h => (h[id] === "live" ? h : { ...h, [id]: "live" }));
+  }, []);
 
   const reportDead = (id: string, name: string) => {
     setDead(prev => new Set(prev).add(id));

@@ -789,7 +789,7 @@ const Finance = () => {
               { v: "tx", label: bn?"লেনদেন":"Transactions", Icon: ArrowRightLeft },
               { v: "recurring", label: bn?"মাসিক বিল":"Recurring", Icon: RepeatIcon },
               { v: "debts", label: bn?"দেনা-পাওনা":"Debts", Icon: HandCoins },
-              { v: "sales", label: bn?"বিক্রয়":"Sales", Icon: ShoppingBag },
+              
               { v: "jobs", label: bn?"সার্ভিস":"Service", Icon: WrenchIcon },
               { v: "assets", label: bn?"সম্পদ":"Assets", Icon: ArchiveIcon },
               { v: "inventory", label: bn?"ইনভেন্টরি":"Inventory", Icon: Boxes },
@@ -1125,10 +1125,6 @@ const Finance = () => {
             <FinanceCalculator />
           </TabsContent>
 
-          {/* Sales: order → payment → courier → delivery */}
-          <TabsContent value="sales" className="mt-4">
-            <SalesTab userId={user.id} bn={bn} />
-          </TabsContent>
 
           {/* Service / Repair jobs (gadget lock unlock, FRP, root, repair, resale) */}
           <TabsContent value="jobs" className="mt-4">

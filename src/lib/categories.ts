@@ -31,7 +31,7 @@ export const ALL_CATEGORIES: CategoryItem[] = [
   { to: "/shop", icon: Store, bn: "শপ", en: "Shop" },
   { to: "/services", icon: Briefcase, bn: "সার্ভিস", en: "Services" },
   // Remaining (unchanged order)
-  { to: "/courier", icon: Truck, bn: "স্মার্ট কুরিয়ার ট্র্যাকার", en: "Smart Courier Tracker" },
+  { to: "/business-tools", icon: Briefcase, bn: "স্মার্ট বিজনেস টুলস", en: "Smart Business Tools" },
   { to: "/free-internet", icon: Wifi, bn: "ফ্রি ইন্টারনেট", en: "Free Internet" },
   { to: "/railway", icon: Train, bn: "রেলওয়ে টিকেট", en: "Railway" },
   { to: "/phone-lookup", icon: Phone, bn: "ফোন লুকআপ", en: "Phone Lookup" },

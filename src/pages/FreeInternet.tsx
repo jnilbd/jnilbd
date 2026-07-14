@@ -112,7 +112,7 @@ const FreeInternet = () => {
           {operators.map((o) => (
             <button
               key={o.id}
-              onClick={() => { setOp(o.id); setItems([]); setTopic(""); }}
+              onClick={() => { setOp(o.id); load("cheap-mb", o.id); }}
               className={`p-3 rounded-2xl text-white text-left bg-gradient-to-br ${o.color} transition-bounce ${op === o.id ? "ring-4 ring-primary/60 scale-[1.02]" : "opacity-80 hover:opacity-100"}`}
             >
               <div className="text-sm font-bold leading-tight">{o.name}</div>
@@ -124,26 +124,22 @@ const FreeInternet = () => {
 
       {op && (
         <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
-          <h2 className="text-sm font-semibold mb-2 text-muted-foreground uppercase tracking-wider">
-            {bn ? "২. কী দেখতে চান?" : "2. What do you want to see?"}
-          </h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+          <div className="flex gap-2 overflow-x-auto pb-1 -mx-1 px-1 scrollbar-thin">
             {topics.map((tp) => (
               <button
                 key={tp.id}
                 onClick={() => load(tp.id)}
                 disabled={loading}
-                className={`flex items-center gap-3 p-3 rounded-xl border text-left transition-smooth ${topic === tp.id ? "border-primary bg-primary/10" : "border-border hover:border-primary/50 bg-card"} disabled:opacity-50`}
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full border text-xs font-medium whitespace-nowrap transition-smooth ${topic === tp.id ? "border-primary bg-primary text-primary-foreground" : "border-border bg-card hover:border-primary/50"} disabled:opacity-50`}
               >
-                <div className="w-9 h-9 rounded-lg gradient-bg-primary text-white flex items-center justify-center shrink-0">
-                  <tp.icon className="w-4 h-4" />
-                </div>
-                <span className="text-sm font-medium">{tp.label}</span>
+                <tp.icon className="w-3.5 h-3.5" />
+                {tp.label}
               </button>
             ))}
           </div>
         </motion.div>
       )}
+
 
       {(loading || items.length > 0) && (
         <Card className="overflow-hidden">

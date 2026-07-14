@@ -398,7 +398,22 @@ const LiveTV = () => {
       return [];
     };
     (async () => {
-      const [bd, ind] = await Promise.all([fetchCountry("BD"), fetchCountry("IN")]);
+      const codes = ["BD", "IN", "PK", "SA", "AE", "US", "GB", "TR", "MY", "ID"];
+      const results = await Promise.all(codes.map(fetchCountry));
+
+      const detectSub = (s: any): string => {
+        const tags = (s.tags || "").toLowerCase() + " " + (s.name || "").toLowerCase();
+        if (/news|talk|khabar|খবর|সংবাদ|bulletin/.test(tags)) return "news";
+        if (/quran|islam|religio|hindu|christ|gospel|bhajan|naat|ধর্ম|nasheed/.test(tags)) return "religious";
+        if (/sport|cricket|football/.test(tags)) return "sports";
+        if (/kid|children|শিশু/.test(tags)) return "kids";
+        if (/classic|ghazal|folk|rabindra|nazrul|লোক/.test(tags)) return "classical";
+        if (/pop|rock|dance|hits|top 40|edm|electronic|hip hop|rap|remix/.test(tags)) return "pop";
+        if (/bolly|filmi|movie|cinema|film/.test(tags)) return "bollywood";
+        if (/music|song|fm|radio/.test(tags)) return "music";
+        return "other";
+      };
+
       const map = (arr: any[], cc: string): Channel[] =>
         arr.filter((s) => s.url_resolved && s.lastcheckok === 1).map((s, i) => ({
           id: `r-${cc}-${s.stationuuid || i}`,
@@ -406,14 +421,18 @@ const LiveTV = () => {
           country: cc,
           countryName: COUNTRY_NAMES[cc] || cc,
           category: "radio" as const,
+          subCategory: detectSub(s),
           logo: s.favicon || undefined,
           url: s.url_resolved,
           urls: [s.url_resolved],
         }));
-      if (!cancelled) setRadioChannels([...map(bd, "BD"), ...map(ind, "IN")]);
+
+      const all = codes.flatMap((cc, i) => map(results[i], cc));
+      if (!cancelled) setRadioChannels(all);
     })();
     return () => { cancelled = true; };
   }, []);
+
 
   // ----- Merge external M3U playlist (Mrgify BDIX IPTV — 715+ channels) into TV tab -----
   useEffect(() => {
@@ -1044,19 +1063,23 @@ const LiveTV = () => {
               }
 
               // BDIX & Mrgify tabs: group by category with country jump
-              if ((tab === "bdix" || tab === "mrgify") && countryFilter === "all") {
+              if ((tab === "bdix" || tab === "mrgify" || tab === "radio") && countryFilter === "all") {
                 const CAT_LABELS: Record<string, { bn: string; en: string; icon: any }> = {
                   news: { bn: "নিউজ", en: "News", icon: Activity },
                   entertainment: { bn: "বিনোদন", en: "Entertainment", icon: Tv },
                   movies: { bn: "মুভি", en: "Movies", icon: Play },
                   sports: { bn: "স্পোর্টস", en: "Sports", icon: Trophy },
                   music: { bn: "মিউজিক", en: "Music", icon: Radio },
+                  pop: { bn: "পপ/হিটস", en: "Pop / Hits", icon: Radio },
+                  bollywood: { bn: "বলিউড/ফিল্মি", en: "Bollywood / Filmi", icon: Play },
+                  classical: { bn: "ক্লাসিক্যাল/লোক", en: "Classical / Folk", icon: Radio },
                   kids: { bn: "কিডস", en: "Kids", icon: Star },
                   religious: { bn: "ধর্মীয়", en: "Religious", icon: Star },
                   documentary: { bn: "ডকুমেন্টারি", en: "Documentary", icon: Globe2 },
                   other: { bn: "অন্যান্য", en: "Other", icon: Layers },
                 };
-                const ORDER = ["news", "entertainment", "movies", "sports", "music", "kids", "religious", "documentary", "other"];
+                const ORDER = ["news", "music", "pop", "bollywood", "classical", "entertainment", "movies", "sports", "kids", "religious", "documentary", "other"];
+
 
                 const groups = new Map<string, typeof filtered>();
                 for (const c of filtered) {

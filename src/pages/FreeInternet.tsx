@@ -47,14 +47,12 @@ const FreeInternet = () => {
   const [items, setItems] = useState<Item[]>([]);
 
   const topics = [
-    { id: "social-packs", icon: Wifi, label: bn ? "সোশ্যাল প্যাক (FB/WA/Imo)" : "Social Packs (FB/WA/Imo)" },
-    { id: "cheap-mb", icon: Gift, label: bn ? "সবচেয়ে সস্তা MB অফার" : "Cheapest MB Offers" },
-    { id: "night-packs", icon: Radio, label: bn ? "নাইট প্যাক ও বোনাস" : "Night Packs & Bonus" },
-    { id: "free-internet-vpn", icon: Settings, label: bn ? "ফ্রি নেট (VPN/Handler)" : "Free Net (VPN/Handler)" },
-    { id: "emergency-balance", icon: Phone, label: bn ? "ইমার্জেন্সি ব্যালেন্স/MB লোন" : "Emergency Balance/MB Loan" },
-    { id: "student-offers", icon: Gift, label: bn ? "স্টুডেন্ট ও বান্ডেল অফার" : "Student & Bundle Offers" },
-    { id: "apn-settings", icon: Settings, label: bn ? "APN ও সেটিংস" : "APN & Settings" },
+    { id: "cheap-mb", icon: Gift, label: bn ? "সস্তা MB" : "Cheap MB" },
+    { id: "social-packs", icon: Wifi, label: bn ? "সোশ্যাল" : "Social" },
+    { id: "night-packs", icon: Radio, label: bn ? "নাইট প্যাক" : "Night" },
+    { id: "emergency-balance", icon: Phone, label: bn ? "ইমার্জেন্সি" : "Emergency" },
   ];
+
 
   const load = async (selectedTopic: string) => {
     if (!op) return;

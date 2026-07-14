@@ -464,17 +464,24 @@ const LiveTV = () => {
   }, []);
 
 
-  const bdixChannels: Channel[] = useMemo(() =>
-    BDIX_CHANNELS.map(b => ({
-      id: b.id,
-      name: b.name,
-      country: "BD",
-      countryName: "Bangladesh",
-      category: "bdix" as any,
-      provider: b.provider,
-      url: b.url,
-      urls: [b.url],
-    })), []);
+  const bdixChannels: Channel[] = useMemo(() => {
+    // Heuristic: detect Indian channels among BDIX imports
+    const IN_RE = /\b(star|sony|zee|colors|aaj tak|abp|ndtv|india today|republic|times now|dd national|dd sports|set max|sab|discovery india|jaya|sun tv|asianet|vijay|kalaignar|udaya|gemini|kairali|surya|mazhavil|manorama|amrita|tv9|etv|abp ananda|zee bangla|colors bangla|akash aath|sony aath|sony sab|movies now|romedy|max2|pix|hbo india|zee cinema|zee anmol|utsav|bindass|sony yay|pogo|nick india|cartoon network india|hungama|disney india|animal planet india|nat geo india|tlc india|history india|fox life|axn india|comedy central india|mtv india|vh1 india|9x|9xm|mastiii|b4u|zoom|et now|cnbc india|nation|news nation|india tv|zee news|abp news|republic bharat|dd bharati|dd urdu)\b/i;
+    return BDIX_CHANNELS.map(b => {
+      const isIN = IN_RE.test(b.name);
+      return {
+        id: b.id,
+        name: b.name,
+        country: isIN ? "IN" : "BD",
+        countryName: isIN ? "India" : "Bangladesh",
+        category: "bdix" as any,
+        subCategory: b.category || "other",
+        provider: b.provider,
+        url: b.url,
+        urls: [b.url],
+      };
+    });
+  }, []);
 
   const checkHealth = useCallback(async (ch: Channel) => {
     setHealth(h => ({ ...h, [ch.id]: "checking" }));

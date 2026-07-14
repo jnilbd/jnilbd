@@ -890,7 +890,8 @@ const Finance = () => {
                   today={walletDelta(w.id, startOfToday().getTime())}
                   month={walletDelta(w.id, startOfMonth().getTime())}
                   onOpen={() => setDetailWallet(w)}
-                  onAdd={() => openQuick("income", w.id)}
+                  onIncome={() => openQuick("income", w.id)}
+                  onDeposit={() => openQuick("transfer", w.id, { asDestination: true })}
                   onSpend={() => openQuick("expense", w.id)}
                   onTransfer={() => openQuick("transfer", w.id)} />
               ))}

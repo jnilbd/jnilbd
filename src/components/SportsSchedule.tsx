@@ -123,18 +123,53 @@ async function fetchLeague(l: typeof LEAGUES[number]): Promise<SportEvent[]> {
         match = `${tourneyName} — ${phaseLabel}`;
       }
 
+      // Date-based phase inference for FIFA World Cup 2026 (official schedule)
+      // — ESPN's `notes` field is empty for these matches, so we derive the
+      // round from the match date. All dates are UTC.
+      const matchDateUtc = ev?.date ? new Date(ev.date) : null;
+      if (!phaseLabel && matchDateUtc && /fifa\.world/i.test(l.path)) {
+        const t = matchDateUtc.getTime();
+        const R = (y: number, m: number, d: number) => Date.UTC(y, m - 1, d);
+        // FIFA World Cup 2026 official round windows (inclusive, UTC)
+        const wcPhases: [number, number, string][] = [
+          [R(2026, 6, 11), R(2026, 6, 27), "Group Stage"],
+          [R(2026, 6, 28), R(2026, 7, 3),  "Round of 32"],
+          [R(2026, 7, 4),  R(2026, 7, 7),  "Round of 16"],
+          [R(2026, 7, 9),  R(2026, 7, 11), "Quarterfinal"],
+          [R(2026, 7, 14), R(2026, 7, 15), "Semifinal"],
+          [R(2026, 7, 18), R(2026, 7, 18), "3rd-place Play-off"],
+          [R(2026, 7, 19), R(2026, 7, 19), "Final"],
+        ];
+        for (const [s, e, label] of wcPhases) {
+          if (t >= s && t <= e + 86400000 - 1) {
+            phaseLabel = label;
+            // Rewrite match name for knockout rounds only (keep group stage as team names)
+            if (label !== "Group Stage") {
+              match = homeName && awayName
+                ? `${homeName} vs ${awayName} — ${label}`
+                : `${tourneyName} — ${label}`;
+            }
+            break;
+          }
+        }
+      }
+
       const state: "pre" | "in" | "post" = ev?.status?.type?.state || "pre";
       const score = (home?.score && away?.score) ? `${homeName} ${home.score} — ${away.score} ${awayName}` : undefined;
       // Detect knockout / final / semifinal from notes or season type
       const notes: string = (comp?.notes || []).map((n: any) => n?.headline || n?.type || "").join(" ").toLowerCase();
       const seasonType: string = (ev?.season?.slug || ev?.seasonType?.name || "").toLowerCase();
-      const knockoutRe = /(final|semifinal|semi-final|semi final|quarterfinal|quarter-final|quarter final|round of 16|knockout|championship|title|3rd-place|third place)/;
-      const isKnockout = !!phaseLabel || knockoutRe.test(notes) || knockoutRe.test(seasonType) || knockoutRe.test(match.toLowerCase());
+      const knockoutRe = /(final|semifinal|semi-final|semi final|quarterfinal|quarter-final|quarter final|round of 16|round of 32|knockout|championship|title|3rd-place|third place)/;
+      const phaseIsKnockout = !!phaseLabel && phaseLabel !== "Group Stage";
+      const isKnockout = phaseIsKnockout || knockoutRe.test(notes) || knockoutRe.test(seasonType) || knockoutRe.test(match.toLowerCase());
       const isFinal = phaseLabel === "Final" || /(^|\s)final(\s|$)/i.test(notes);
+      const isSemi  = phaseLabel === "Semifinal";
       let priority = l.tier;
-      if (isFinal && l.tier >= 2) priority = 5; // Final of a mega tournament: absolute top
+      if (isFinal && l.tier >= 2) priority = 6;      // Final of a mega tournament: absolute top
+      else if (isSemi && l.tier >= 2) priority = 5;  // Semifinals right below the Final
       else if (isKnockout && l.tier >= 2) priority = 4; // pin knockouts of majors to very top
       else if (isKnockout) priority = Math.max(l.tier, 2);
+
 
       return {
         id: `${l.path}-${ev.id}`,

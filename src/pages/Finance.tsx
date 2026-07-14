@@ -793,7 +793,7 @@ const Finance = () => {
               { v: "jobs", label: bn?"সার্ভিস":"Service", Icon: WrenchIcon },
               { v: "assets", label: bn?"সম্পদ":"Assets", Icon: ArchiveIcon },
               { v: "inventory", label: bn?"ইনভেন্টরি":"Inventory", Icon: Boxes },
-              { v: "courier", label: bn?"কুরিয়ার":"Courier", Icon: TruckIcon },
+              
               { v: "ai", label: "AI", Icon: Sparkles },
               { v: "calc", label: bn?"ক্যালকুলেটর":"Calculator", Icon: CalculatorIcon },
               { v: "planner", label: bn?"পরিকল্পনা":"Planner", Icon: ClipboardList },

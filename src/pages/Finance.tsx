@@ -109,12 +109,15 @@ const INCOME_TYPES: TxType[] = ["income","sale","loan_taken","repayment_in","ret
 const EXPENSE_TYPES: TxType[] = ["expense","purchase","loan_given","repayment_out","return_out","stock_out"];
 
 // ---------- Small components ----------
-const MetricCard = ({ label, value, icon: Icon, tone = "default", sub }: any) => (
-  <motion.div
+const MetricCard = ({ label, value, icon: Icon, tone = "default", sub, onClick }: any) => (
+  <motion.button
+    type="button"
+    onClick={onClick}
     initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}
     className={cn(
-      "relative overflow-hidden rounded-2xl border border-border/60 bg-card/70 backdrop-blur-xl p-4 shadow-sm hover:shadow-md transition-all",
-      "hover:-translate-y-0.5"
+      "relative overflow-hidden rounded-2xl border border-border/60 bg-card/70 backdrop-blur-xl p-4 shadow-sm hover:shadow-md transition-all text-left w-full",
+      "hover:-translate-y-0.5",
+      onClick && "cursor-pointer focus:outline-none focus:ring-2 focus:ring-primary/40"
     )}
   >
     <div className="flex items-start justify-between gap-2">
@@ -136,7 +139,12 @@ const MetricCard = ({ label, value, icon: Icon, tone = "default", sub }: any) =>
         <Icon className="h-4 w-4" />
       </div>
     </div>
-  </motion.div>
+    {onClick && (
+      <span className="absolute bottom-1.5 right-2 text-[9px] text-muted-foreground/70">
+        →
+      </span>
+    )}
+  </motion.button>
 );
 
 const SCOPE_BN: Record<string, string> = { personal: "ব্যক্তিগত", business: "ব্যবসা" };
@@ -261,6 +269,9 @@ const Finance = () => {
 
   // wallet detail
   const [detailWallet, setDetailWallet] = useState<WalletRow | null>(null);
+
+  // metric detail (dashboard analytics drill-down)
+  const [metricKey, setMetricKey] = useState<string | null>(null);
 
   // withdrawals (cash-out log, independent from transactions)
   const [withdrawals, setWithdrawals] = useState<any[]>([]);
@@ -776,14 +787,18 @@ const Finance = () => {
           {/* Dashboard */}
           <TabsContent value="dashboard" className="mt-4 space-y-4">
             {/* Hero balance */}
-            <Card className="relative overflow-hidden border-border/60 bg-gradient-to-br from-primary/10 via-background to-background p-5">
+            <Card
+              onClick={() => setMetricKey("networth")}
+              className="relative overflow-hidden border-border/60 bg-gradient-to-br from-primary/10 via-background to-background p-5 cursor-pointer hover:shadow-md transition-all"
+            >
               <div className="absolute -top-16 -right-16 h-48 w-48 rounded-full bg-primary/20 blur-3xl" />
-              <p className="text-xs text-muted-foreground">{bn?"বর্তমান নেট ওয়ার্থ":"Current Net Worth"}</p>
+              <p className="text-xs text-muted-foreground">{bn?"বর্তমান মোট সম্পদ":"Current Net Worth"}</p>
               <p className="text-3xl sm:text-4xl font-semibold mt-1 tabular-nums">{fmtBDT(metrics.netWorth, bn)}</p>
               <div className="flex flex-wrap items-center gap-3 mt-2 text-xs text-muted-foreground">
                 <span className="flex items-center gap-1"><UserIcon className="h-3 w-3"/> {bn?"ব্যক্তিগত":"Personal"} <b className="text-foreground">{fmtBDT(metrics.personal, bn)}</b></span>
                 <span className="flex items-center gap-1"><Building2 className="h-3 w-3"/> {bn?"ব্যবসা":"Business"} <b className="text-foreground">{fmtBDT(metrics.business, bn)}</b></span>
               </div>
+              <span className="absolute bottom-2 right-3 text-[10px] text-muted-foreground/70">{bn?"বিস্তারিত →":"Details →"}</span>
             </Card>
 
             <SmartReminders reminders={reminders} bn={bn} />
@@ -791,17 +806,18 @@ const Finance = () => {
 
 
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-              <MetricCard label={bn?"আজকের আয়":"Today's Income"} value={fmtBDT(metrics.todayIn, bn)} icon={TrendingUp} tone="positive" />
-              <MetricCard label={bn?"আজকের খরচ":"Today's Expense"} value={fmtBDT(metrics.todayOut, bn)} icon={TrendingDown} tone="negative" />
-              <MetricCard label={bn?"আজকের লাভ":"Today's Profit"} value={fmtBDT(metrics.todayProfit, bn)} icon={PiggyBank} tone={metrics.todayProfit>=0?"positive":"negative"} />
-              <MetricCard label={bn?"মাসিক আয়":"Monthly Income"} value={fmtBDT(metrics.monthIn, bn)} icon={TrendingUp} tone="positive" />
-              <MetricCard label={bn?"মাসিক খরচ":"Monthly Expense"} value={fmtBDT(metrics.monthOut, bn)} icon={TrendingDown} tone="negative" />
-              <MetricCard label={bn?"মাসিক লাভ":"Monthly Profit"} value={fmtBDT(metrics.monthProfit, bn)} icon={PiggyBank} tone={metrics.monthProfit>=0?"positive":"negative"} />
-              <MetricCard label={bn?"মোট নগদ":"Total Cash"} value={fmtBDT(metrics.cashTotal, bn)} icon={Coins} />
-              <MetricCard label={bn?"মোট ব্যাংক":"Total Bank"} value={fmtBDT(metrics.bankTotal, bn)} icon={Landmark} />
-              <MetricCard label={bn?"মোবাইল ব্যাংকিং":"Mobile Banking"} value={fmtBDT(metrics.mbTotal, bn)} icon={Smartphone} />
-              <MetricCard label={bn?"স্টকের মূল্য":"Stock Value"} value={fmtBDT(invStats.stockValue, bn)} icon={Boxes} />
+              <MetricCard onClick={() => setMetricKey("todayIn")} label={bn?"আজকের আয়":"Today's Income"} value={fmtBDT(metrics.todayIn, bn)} icon={TrendingUp} tone="positive" />
+              <MetricCard onClick={() => setMetricKey("todayOut")} label={bn?"আজকের খরচ":"Today's Expense"} value={fmtBDT(metrics.todayOut, bn)} icon={TrendingDown} tone="negative" />
+              <MetricCard onClick={() => setMetricKey("todayProfit")} label={bn?"আজকের লাভ":"Today's Profit"} value={fmtBDT(metrics.todayProfit, bn)} icon={PiggyBank} tone={metrics.todayProfit>=0?"positive":"negative"} />
+              <MetricCard onClick={() => setMetricKey("monthIn")} label={bn?"মাসিক আয়":"Monthly Income"} value={fmtBDT(metrics.monthIn, bn)} icon={TrendingUp} tone="positive" />
+              <MetricCard onClick={() => setMetricKey("monthOut")} label={bn?"মাসিক খরচ":"Monthly Expense"} value={fmtBDT(metrics.monthOut, bn)} icon={TrendingDown} tone="negative" />
+              <MetricCard onClick={() => setMetricKey("monthProfit")} label={bn?"মাসিক লাভ":"Monthly Profit"} value={fmtBDT(metrics.monthProfit, bn)} icon={PiggyBank} tone={metrics.monthProfit>=0?"positive":"negative"} />
+              <MetricCard onClick={() => setMetricKey("cash")} label={bn?"মোট নগদ":"Total Cash"} value={fmtBDT(metrics.cashTotal, bn)} icon={Coins} />
+              <MetricCard onClick={() => setMetricKey("bank")} label={bn?"মোট ব্যাংক":"Total Bank"} value={fmtBDT(metrics.bankTotal, bn)} icon={Landmark} />
+              <MetricCard onClick={() => setMetricKey("mobile")} label={bn?"মোবাইল ব্যাংকিং":"Mobile Banking"} value={fmtBDT(metrics.mbTotal, bn)} icon={Smartphone} />
+              <MetricCard onClick={() => { setTab("inventory"); }} label={bn?"স্টকের মূল্য":"Stock Value"} value={fmtBDT(invStats.stockValue, bn)} icon={Boxes} />
               <MetricCard
+                onClick={() => { setTab("inventory"); }}
                 label={bn?"কম স্টক":"Low Stock"}
                 value={bn ? invStats.lowCount.toLocaleString("bn-BD") : String(invStats.lowCount)}
                 icon={AlertTriangle}
@@ -1605,6 +1621,117 @@ const Finance = () => {
               })()}
             </>
           )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Metric detail (analytics drill-down) */}
+      <Dialog open={!!metricKey} onOpenChange={(o) => !o && setMetricKey(null)}>
+        <DialogContent className="max-w-lg">
+          {metricKey && (() => {
+            const today0 = startOfToday().getTime();
+            const month0 = startOfMonth().getTime();
+            const cfg: Record<string, { title: string; from?: number; filter: (t: any) => boolean; walletFilter?: (w: any) => boolean; showProfit?: boolean }> = {
+              todayIn: { title: bn?"আজকের আয় — বিস্তারিত":"Today's Income — Details", from: today0, filter: (t) => new Date(t.occurred_at).getTime() >= today0 && INCOME_TYPES.includes(t.type) },
+              todayOut: { title: bn?"আজকের খরচ — বিস্তারিত":"Today's Expense — Details", from: today0, filter: (t) => new Date(t.occurred_at).getTime() >= today0 && EXPENSE_TYPES.includes(t.type) },
+              todayProfit: { title: bn?"আজকের লাভ — বিস্তারিত":"Today's Profit — Details", from: today0, filter: (t) => new Date(t.occurred_at).getTime() >= today0 && (INCOME_TYPES.includes(t.type) || EXPENSE_TYPES.includes(t.type)), showProfit: true },
+              monthIn: { title: bn?"মাসিক আয় — বিস্তারিত":"Monthly Income — Details", from: month0, filter: (t) => new Date(t.occurred_at).getTime() >= month0 && INCOME_TYPES.includes(t.type) },
+              monthOut: { title: bn?"মাসিক খরচ — বিস্তারিত":"Monthly Expense — Details", from: month0, filter: (t) => new Date(t.occurred_at).getTime() >= month0 && EXPENSE_TYPES.includes(t.type) },
+              monthProfit: { title: bn?"মাসিক লাভ — বিস্তারিত":"Monthly Profit — Details", from: month0, filter: (t) => new Date(t.occurred_at).getTime() >= month0 && (INCOME_TYPES.includes(t.type) || EXPENSE_TYPES.includes(t.type)), showProfit: true },
+              cash: { title: bn?"মোট নগদ — বিস্তারিত":"Total Cash — Details", filter: () => false, walletFilter: (w) => w.type === "cash" },
+              bank: { title: bn?"মোট ব্যাংক — বিস্তারিত":"Total Bank — Details", filter: () => false, walletFilter: (w) => w.type === "bank" },
+              mobile: { title: bn?"মোবাইল ব্যাংকিং — বিস্তারিত":"Mobile Banking — Details", filter: () => false, walletFilter: (w) => w.type === "mobile" },
+              networth: { title: bn?"মোট সম্পদ — বিস্তারিত":"Net Worth — Breakdown", filter: () => false, walletFilter: () => true },
+            };
+            const c = cfg[metricKey]; if (!c) return null;
+            const items = c.filter ? filteredTxs.filter(c.filter).sort((a,b) => new Date(b.occurred_at).getTime() - new Date(a.occurred_at).getTime()) : [];
+            const walletList = c.walletFilter ? filteredWallets.filter(c.walletFilter) : [];
+            let inSum = 0, outSum = 0;
+            for (const t of items) {
+              const amt = Number(t.amount) || 0;
+              if (INCOME_TYPES.includes(t.type)) inSum += amt;
+              else if (EXPENSE_TYPES.includes(t.type)) outSum += amt;
+            }
+            const walletTotal = walletList.reduce((s,w) => s + Number(w.balance||0), 0);
+            return (
+              <>
+                <DialogHeader>
+                  <DialogTitle>{c.title}</DialogTitle>
+                </DialogHeader>
+
+                {c.walletFilter ? (
+                  <>
+                    <div className="rounded-xl border border-border/60 p-3 bg-muted/30">
+                      <p className="text-xs text-muted-foreground">{bn?"মোট":"Total"}</p>
+                      <p className="text-2xl font-semibold tabular-nums">{fmtBDT(walletTotal, bn)}</p>
+                      <p className="text-[10px] text-muted-foreground mt-1">{walletList.length} {bn?"টি ওয়ালেট":"wallets"}</p>
+                    </div>
+                    <ScrollArea className="h-[55vh]">
+                      <div className="space-y-1.5">
+                        {walletList.sort((a,b) => Number(b.balance||0) - Number(a.balance||0)).map((w) => (
+                          <button key={w.id} onClick={() => { setMetricKey(null); setDetailWallet(w); }}
+                            className="w-full flex items-center justify-between gap-2 rounded-xl border border-border/50 p-2.5 hover:bg-muted/50 transition-colors text-left">
+                            <div className="min-w-0">
+                              <p className="text-sm font-medium truncate">{w.name}</p>
+                              <p className="text-[10px] text-muted-foreground capitalize truncate">
+                                {bn ? SCOPE_BN[w.scope] : w.scope} · {w.provider ?? (bn ? TYPE_BN[w.type] : w.type)}
+                              </p>
+                            </div>
+                            <span className="tabular-nums font-semibold text-sm shrink-0">{fmtBDT(Number(w.balance||0), bn)}</span>
+                          </button>
+                        ))}
+                        {walletList.length === 0 && <p className="text-center text-xs text-muted-foreground py-6">{bn?"কোন ওয়ালেট নেই":"No wallets"}</p>}
+                      </div>
+                    </ScrollArea>
+                  </>
+                ) : (
+                  <>
+                    <div className="grid grid-cols-3 gap-2">
+                      <div className="rounded-xl border border-border/60 p-2.5 bg-emerald-500/5">
+                        <p className="text-[10px] text-muted-foreground">{bn?"আয়":"In"}</p>
+                        <p className="text-sm font-semibold text-emerald-500 tabular-nums">{fmtBDT(inSum, bn)}</p>
+                      </div>
+                      <div className="rounded-xl border border-border/60 p-2.5 bg-rose-500/5">
+                        <p className="text-[10px] text-muted-foreground">{bn?"খরচ":"Out"}</p>
+                        <p className="text-sm font-semibold text-rose-500 tabular-nums">{fmtBDT(outSum, bn)}</p>
+                      </div>
+                      <div className="rounded-xl border border-border/60 p-2.5 bg-primary/5">
+                        <p className="text-[10px] text-muted-foreground">{bn?"নেট":"Net"}</p>
+                        <p className={cn("text-sm font-semibold tabular-nums", (inSum-outSum)>=0?"text-emerald-500":"text-rose-500")}>{fmtBDT(inSum-outSum, bn)}</p>
+                      </div>
+                    </div>
+                    <ScrollArea className="h-[50vh]">
+                      <div className="space-y-1.5">
+                        {items.map((t: any) => {
+                          const isIn = INCOME_TYPES.includes(t.type);
+                          const w1 = walletById(t.wallet_id);
+                          return (
+                            <div key={t.id} className="flex items-start justify-between gap-2 rounded-xl border border-border/50 p-2.5">
+                              <div className="min-w-0 flex-1">
+                                <div className="flex items-center gap-1.5 flex-wrap">
+                                  <span className={cn("text-[10px] px-1.5 py-0.5 rounded-md font-medium", isIn?"bg-emerald-500/10 text-emerald-600":"bg-rose-500/10 text-rose-600")}>
+                                    {bn ? TX_TYPE_BN[t.type] : t.type}
+                                  </span>
+                                  {t.category && <span className="text-[10px] text-muted-foreground">{t.category}</span>}
+                                  {w1 && <span className="text-[10px] text-muted-foreground">· {w1.name}</span>}
+                                </div>
+                                {t.party_name && <p className="text-xs mt-0.5 truncate">{t.party_name}</p>}
+                                {t.note && <p className="text-[10px] text-muted-foreground truncate">{t.note}</p>}
+                                <p className="text-[10px] text-muted-foreground">{new Date(t.occurred_at).toLocaleString(bn?"bn-BD":"en-BD")}</p>
+                              </div>
+                              <span className={cn("tabular-nums font-semibold text-sm shrink-0", isIn?"text-emerald-500":"text-rose-500")}>
+                                {isIn?"+":"−"}{fmtBDT(Number(t.amount), bn)}
+                              </span>
+                            </div>
+                          );
+                        })}
+                        {items.length === 0 && <p className="text-center text-xs text-muted-foreground py-6">{bn?"কোন লেনদেন নেই":"No transactions"}</p>}
+                      </div>
+                    </ScrollArea>
+                  </>
+                )}
+              </>
+            );
+          })()}
         </DialogContent>
       </Dialog>
     </div>

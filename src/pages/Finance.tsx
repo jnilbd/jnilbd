@@ -79,8 +79,8 @@ const DEFAULT_WALLETS: Array<Omit<WalletRow, "id" | "balance" | "currency" | "so
 ];
 
 // Income categories — where money comes from
-const INCOME_CATEGORIES_PERSONAL = ["Salary","Freelance","Business Income","Mobile Sale","Laptop Sale","Mobile Repair","Laptop Repair","Gift","Bonus","Interest","Rental Income","Investment Return","Refund","Family Support","Other Income"];
-const INCOME_CATEGORIES_BUSINESS = ["Sale","Mobile Sale","Laptop Sale","Mobile Repair","Laptop Repair","Service Income","Advance Received","Commission","Investment Return","Loan Received","Refund","Other Income"];
+const INCOME_CATEGORIES_PERSONAL = ["Salary","Freelance","Business Income","Advance Received","Loan Received","Mobile Sale","Laptop Sale","Mobile Repair","Laptop Repair","Gift","Bonus","Interest","Rental Income","Investment Return","Refund","Family Support","Other Income"];
+const INCOME_CATEGORIES_BUSINESS = ["Sale","Advance Received","Loan Received","Mobile Sale","Laptop Sale","Mobile Repair","Laptop Repair","Service Income","Commission","Investment Return","Refund","Other Income"];
 // Expense categories — where money goes
 const EXPENSE_CATEGORIES_PERSONAL = ["Food","Groceries","Fruits","Wife Shopping","Mobile Bill","bKash Loan","Transport","Shopping","Medicine","Education","Family","Kids","Entertainment","Internet","WiFi Bill (Village)","WiFi Bill (City)","Dish Bill","Electricity Bill","Gas Bill","Water Bill","Installment","Mobile Recharge","Bills","Travel","Rent","Investment","Business Investment","Savings","Charity","Other"];
 const EXPENSE_CATEGORIES_BUSINESS = ["Purchase","Business Investment","bKash Loan","Mobile Bill","Salary Paid","Advertising","Facebook Boosting","Courier","Office Rent","Utility","WiFi Bill (Village)","WiFi Bill (City)","Dish Bill","Electricity Bill","Gas Bill","Installment","Transport","Maintenance","Tax","Investment","Loan Repayment","Other"];
@@ -186,7 +186,7 @@ const CATEGORY_BN: Record<string, string> = {
 const bnLabel = (m: Record<string,string>, k: string | null | undefined, bn: boolean) =>
   !k ? "—" : (bn ? (m[k] ?? k) : k);
 
-const WalletCard = ({ w, today, month, onOpen, onIncome, onDeposit, onSpend, onTransfer, bn }: { w: WalletRow; today: number; month: number; onOpen: () => void; onIncome: () => void; onDeposit: () => void; onSpend: () => void; onTransfer: () => void; bn: boolean }) => {
+const WalletCard = ({ w, today, month, onOpen, onIncome, onDeposit, onAdvance, onSpend, onTransfer, bn }: { w: WalletRow; today: number; month: number; onOpen: () => void; onIncome: () => void; onDeposit: () => void; onAdvance: () => void; onSpend: () => void; onTransfer: () => void; bn: boolean }) => {
   const Icon = walletIcon(w.type);
   const stop = (fn: () => void) => (e: React.MouseEvent) => { e.stopPropagation(); fn(); };
   return (
@@ -230,6 +230,13 @@ const WalletCard = ({ w, today, month, onOpen, onIncome, onDeposit, onSpend, onT
                 <div className="min-w-0">
                   <p className="font-medium leading-tight">{bn?"আয়":"Income"}</p>
                   <p className="text-[10px] text-muted-foreground leading-tight">{bn?"বাইরে থেকে আয়":"External income"}</p>
+                </div>
+              </button>
+              <button onClick={stop(onAdvance)} className="w-full flex items-center gap-2 rounded-md px-2 py-2 text-left text-sm hover:bg-muted transition-colors">
+                <Wallet className="h-4 w-4 text-amber-500" />
+                <div className="min-w-0">
+                  <p className="font-medium leading-tight">{bn?"অগ্রিম নেওয়া":"Advance Received"}</p>
+                  <p className="text-[10px] text-muted-foreground leading-tight">{bn?"ক্লায়েন্ট/পার্টি থেকে অগ্রিম":"Upfront from client/party"}</p>
                 </div>
               </button>
               <button onClick={stop(onDeposit)} className="w-full flex items-center gap-2 rounded-md px-2 py-2 text-left text-sm hover:bg-muted transition-colors">
@@ -456,10 +463,10 @@ const Finance = () => {
   // ---------- Actions ----------
   const [editTxId, setEditTxId] = useState<string | null>(null);
 
-  const openQuick = (type: TxType, presetWalletId?: string, opts?: { asDestination?: boolean }) => {
+  const openQuick = (type: TxType, presetWalletId?: string, opts?: { asDestination?: boolean; presetCategory?: string }) => {
     setEditTxId(null);
     setQaType(type);
-    setQaAmount(""); setQaCategory(""); setQaParty(""); setQaNote(""); setQaWallet2(""); setQaFee("");
+    setQaAmount(""); setQaCategory(opts?.presetCategory ?? ""); setQaParty(""); setQaNote(""); setQaWallet2(""); setQaFee("");
     const preset = presetWalletId ? wallets.find(w => w.id === presetWalletId) : undefined;
     if (preset) {
       if (opts?.asDestination && type === "transfer") {
@@ -892,6 +899,7 @@ const Finance = () => {
                   onOpen={() => setDetailWallet(w)}
                   onIncome={() => openQuick("income", w.id)}
                   onDeposit={() => openQuick("transfer", w.id, { asDestination: true })}
+                  onAdvance={() => openQuick("income", w.id, { presetCategory: "Advance Received" })}
                   onSpend={() => openQuick("expense", w.id)}
                   onTransfer={() => openQuick("transfer", w.id)} />
               ))}

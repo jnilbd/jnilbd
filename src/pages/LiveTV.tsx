@@ -439,12 +439,9 @@ const LiveTV = () => {
         });
       }
       if (parsed.length && !cancelled) {
-        setTvChannels(prev => {
-          const existing = new Set(prev.map(c => `${c.name.toLowerCase()}|${c.url}`));
-          const merged = parsed.filter(p => !existing.has(`${p.name.toLowerCase()}|${p.url}`));
-          return [...merged, ...prev];
-        });
+        setMrgifyChannels(parsed);
       }
+
     })();
     return () => { cancelled = true; };
   }, []);

@@ -947,16 +947,6 @@ const Finance = () => {
             />
           </TabsContent>
 
-          {/* Budget */}
-          <TabsContent value="budget" className="mt-4">
-            <BudgetTab
-              userId={user.id}
-              txs={filteredTxs}
-              bn={bn}
-              categories={Array.from(new Set([...CATEGORIES_PERSONAL, ...CATEGORIES_BUSINESS]))}
-              categoryLabel={(c) => bn ? (CATEGORY_BN[c] ?? c) : c}
-            />
-          </TabsContent>
 
           {/* Debts */}
           <TabsContent value="debts" className="mt-4">

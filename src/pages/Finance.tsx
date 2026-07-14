@@ -257,6 +257,7 @@ const Finance = () => {
   const [qaNote, setQaNote] = useState("");
   const [qaScope, setQaScope] = useState<"personal" | "business">("personal");
   const [qaDate, setQaDate] = useState<string>(""); // datetime-local; empty = now
+  const [qaFee, setQaFee] = useState<string>(""); // cash-out / transfer fee
 
   // wallet detail
   const [detailWallet, setDetailWallet] = useState<WalletRow | null>(null);

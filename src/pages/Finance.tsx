@@ -270,6 +270,9 @@ const Finance = () => {
   // wallet detail
   const [detailWallet, setDetailWallet] = useState<WalletRow | null>(null);
 
+  // metric detail (dashboard analytics drill-down)
+  const [metricKey, setMetricKey] = useState<string | null>(null);
+
   // withdrawals (cash-out log, independent from transactions)
   const [withdrawals, setWithdrawals] = useState<any[]>([]);
   const [wdOpen, setWdOpen] = useState(false);

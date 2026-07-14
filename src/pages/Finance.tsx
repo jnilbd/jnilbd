@@ -1066,7 +1066,7 @@ const Finance = () => {
       </Sheet>
 
       {/* Quick action sheet */}
-      <Sheet open={qaOpen} onOpenChange={setQaOpen}>
+      <Sheet open={qaOpen} onOpenChange={(o) => { setQaOpen(o); if (!o) setEditTxId(null); }}>
         <SheetContent side="bottom" className="rounded-t-3xl max-h-[90vh] overflow-y-auto">
           <SheetHeader>
             <SheetTitle className="capitalize">{qaType ? bnLabel(TX_TYPE_BN, qaType, bn) : ""}</SheetTitle>

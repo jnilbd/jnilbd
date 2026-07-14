@@ -115,10 +115,14 @@ Deno.serve(async (req) => {
       `https://news.google.com/rss/search?q=${encodeURIComponent(qEn)}${WHEN}&hl=en&gl=BD&ceid=BD:en`,
       `https://news.google.com/rss/search?q=${encodeURIComponent(qSite)}${WHEN}&hl=en&gl=BD&ceid=BD:en`,
       `https://news.google.com/rss/search?q=${encodeURIComponent(qEn + " techtunes trickbd")}${WHEN}&hl=en&gl=BD&ceid=BD:en`,
-      // Fallback without date filter to guarantee something shows
+      // Fallback without date filter
       `https://news.google.com/rss/search?q=${encodeURIComponent(qEn)}&hl=en&gl=BD&ceid=BD:en`,
       `https://news.google.com/rss/search?q=${encodeURIComponent(qBn)}&hl=bn&gl=BD&ceid=BD:bn`,
+      // Bing News fallback (works from any region, no consent wall)
+      `https://www.bing.com/news/search?q=${encodeURIComponent(qEn + " bangladesh")}&format=rss&cc=bd`,
+      `https://www.bing.com/news/search?q=${encodeURIComponent(qSite + " bangladesh")}&format=rss&cc=bd`,
     ];
+
 
     const results = await Promise.all(feeds.map(fetchRss));
     const seen = new Set<string>();

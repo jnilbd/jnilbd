@@ -513,10 +513,12 @@ const LiveTV = () => {
       return i === -1 ? 999 : i; // lower = more recent
     };
     return base.sort((a, b) => {
-      // Dead always at bottom
-      const da = dead.has(a.id) ? 1 : 0;
-      const db = dead.has(b.id) ? 1 : 0;
-      if (da !== db) return da - db;
+      // Dead always at bottom (except in Offline tab where all are dead)
+      if (tab !== "offline") {
+        const da = dead.has(a.id) ? 1 : 0;
+        const db = dead.has(b.id) ? 1 : 0;
+        if (da !== db) return da - db;
+      }
       // Recently-played first
       const ra = recentRank(a.id);
       const rb = recentRank(b.id);

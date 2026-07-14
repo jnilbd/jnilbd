@@ -618,6 +618,7 @@ const LiveTV = () => {
         <div className="flex justify-center mb-5 overflow-x-auto">
           <div className="inline-flex rounded-full bg-muted p-1">
             {([
+              { k: "mrgify", label: `Mrgify 🔥${mrgifyChannels.length ? ` (${mrgifyChannels.length})` : ""}`, icon: Flag },
               { k: "tv", label: t("টিভি","TV"), icon: Tv },
               { k: "bdix", label: "BDIX", icon: Wifi },
               { k: "direct", label: t("ডিরেক্ট","Direct"), icon: Zap },

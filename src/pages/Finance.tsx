@@ -186,7 +186,7 @@ const CATEGORY_BN: Record<string, string> = {
 const bnLabel = (m: Record<string,string>, k: string | null | undefined, bn: boolean) =>
   !k ? "—" : (bn ? (m[k] ?? k) : k);
 
-const WalletCard = ({ w, today, month, onOpen, onAdd, onSpend, onTransfer, bn }: { w: WalletRow; today: number; month: number; onOpen: () => void; onAdd: () => void; onSpend: () => void; onTransfer: () => void; bn: boolean }) => {
+const WalletCard = ({ w, today, month, onOpen, onIncome, onDeposit, onSpend, onTransfer, bn }: { w: WalletRow; today: number; month: number; onOpen: () => void; onIncome: () => void; onDeposit: () => void; onSpend: () => void; onTransfer: () => void; bn: boolean }) => {
   const Icon = walletIcon(w.type);
   const stop = (fn: () => void) => (e: React.MouseEvent) => { e.stopPropagation(); fn(); };
   return (
@@ -218,9 +218,29 @@ const WalletCard = ({ w, today, month, onOpen, onAdd, onSpend, onTransfer, bn }:
           <span className="flex items-center gap-1"><ArrowDownRight className="h-3 w-3" /> {bn?"মাস":"Month"} {fmtBDT(month, bn)}</span>
         </div>
         <div className="mt-3 grid grid-cols-3 gap-1.5">
-          <button onClick={stop(onAdd)} className="flex items-center justify-center gap-1 rounded-lg bg-white/20 hover:bg-white/30 backdrop-blur px-2 py-1.5 text-[11px] font-medium transition-colors">
-            <Plus className="h-3 w-3" /> {bn?"যোগ":"Add"}
-          </button>
+          <Popover>
+            <PopoverTrigger asChild>
+              <button onClick={(e) => e.stopPropagation()} className="flex items-center justify-center gap-1 rounded-lg bg-white/20 hover:bg-white/30 backdrop-blur px-2 py-1.5 text-[11px] font-medium transition-colors">
+                <Plus className="h-3 w-3" /> {bn?"যোগ":"Add"}
+              </button>
+            </PopoverTrigger>
+            <PopoverContent align="start" className="w-44 p-1.5" onClick={(e) => e.stopPropagation()}>
+              <button onClick={stop(onIncome)} className="w-full flex items-center gap-2 rounded-md px-2 py-2 text-left text-sm hover:bg-muted transition-colors">
+                <TrendingUp className="h-4 w-4 text-emerald-500" />
+                <div className="min-w-0">
+                  <p className="font-medium leading-tight">{bn?"আয়":"Income"}</p>
+                  <p className="text-[10px] text-muted-foreground leading-tight">{bn?"বাইরে থেকে আয়":"External income"}</p>
+                </div>
+              </button>
+              <button onClick={stop(onDeposit)} className="w-full flex items-center gap-2 rounded-md px-2 py-2 text-left text-sm hover:bg-muted transition-colors">
+                <ArrowLeftRight className="h-4 w-4 text-sky-500" />
+                <div className="min-w-0">
+                  <p className="font-medium leading-tight">{bn?"জমা":"Deposit"}</p>
+                  <p className="text-[10px] text-muted-foreground leading-tight">{bn?"অন্য ওয়ালেট থেকে":"From another wallet"}</p>
+                </div>
+              </button>
+            </PopoverContent>
+          </Popover>
           <button onClick={stop(onSpend)} className="flex items-center justify-center gap-1 rounded-lg bg-white/20 hover:bg-white/30 backdrop-blur px-2 py-1.5 text-[11px] font-medium transition-colors">
             <TrendingDown className="h-3 w-3" /> {bn?"খরচ":"Spend"}
           </button>

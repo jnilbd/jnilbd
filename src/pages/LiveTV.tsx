@@ -18,7 +18,7 @@ const WORKING_KEY = "livetv:working:v1";
 const FAV_KEY = "livetv:favorites:v2";
 const RECENT_KEY = "livetv:recent:v1";
 
-type Tab = "mrgify" | "tv" | "bdix" | "direct" | "world" | "sports" | "radio" | "scores" | "offline" | "working";
+type Tab = "mrgify" | "tv" | "bdix" | "world" | "sports" | "radio" | "scores" | "offline" | "working";
 type Health = "unknown" | "checking" | "live" | "dead";
 
 type Channel = {
@@ -494,7 +494,7 @@ const LiveTV = () => {
   const offlineChannels = useMemo(() => {
     const pool = [
       ...mrgifyChannels, ...tvChannels, ...worldChannels,
-      ...bdixChannels, ...DIRECT_CHANNELS, ...sportsChannels, ...radioChannels,
+      ...bdixChannels, ...sportsChannels, ...radioChannels,
     ];
     const seen = new Set<string>();
     return pool.filter(c => dead.has(c.id) && !seen.has(c.id) && seen.add(c.id));
@@ -503,7 +503,7 @@ const LiveTV = () => {
   const workingChannels = useMemo(() => {
     const pool = [
       ...mrgifyChannels, ...tvChannels, ...worldChannels,
-      ...bdixChannels, ...DIRECT_CHANNELS, ...sportsChannels, ...radioChannels,
+      ...bdixChannels, ...sportsChannels, ...radioChannels,
     ];
     const seen = new Set<string>();
     return pool.filter(c => working.has(c.id) && !dead.has(c.id) && !seen.has(c.id) && seen.add(c.id));
@@ -522,7 +522,7 @@ const LiveTV = () => {
       { key: "mrgify", list: mrgifyChannels },
       { key: "tv", list: tvChannels },
       { key: "bdix", list: bdixChannels },
-      { key: "direct", list: DIRECT_CHANNELS },
+      
       { key: "world", list: worldChannels },
       { key: "sports", list: sportsChannels },
       { key: "radio", list: radioChannels },
@@ -554,7 +554,7 @@ const LiveTV = () => {
     tab === "tv" ? (mergedByTab.tv || []) :
     tab === "world" ? (mergedByTab.world || []) :
     tab === "bdix" ? (mergedByTab.bdix || []) :
-    tab === "direct" ? (mergedByTab.direct || []) :
+    
     tab === "sports" ? (mergedByTab.sports || []) :
     tab === "offline" ? offlineChannels :
     tab === "working" ? workingChannels :
@@ -703,7 +703,7 @@ const LiveTV = () => {
               { k: "mrgify", label: `Mrgify 🔥${mrgifyChannels.length ? ` (${mrgifyChannels.length})` : ""}`, icon: Flag },
               { k: "tv", label: t("টিভি","TV"), icon: Tv },
               { k: "bdix", label: "BDIX", icon: Wifi },
-              { k: "direct", label: t("ডিরেক্ট","Direct"), icon: Zap },
+              
               { k: "world", label: t("ওয়ার্ল্ড","World"), icon: Globe2 },
               { k: "sports", label: t("স্পোর্টস","Sports"), icon: Trophy },
               { k: "scores", label: t("স্কোর","Scores"), icon: Activity },

@@ -9,6 +9,8 @@ import Marquee from "@/components/Marquee";
 import { PAGE_BANNERS } from "@/lib/siteImages";
 import DailyWidgets from "@/components/DailyWidgets";
 import { supabase } from "@/integrations/supabase/client";
+import { ALL_CATEGORIES } from "@/lib/categories";
+
 
 type DbProduct = { id: string; name: string; name_bn?: string | null; price: number; discount_price?: number | null; image?: string | null; category?: string | null; badge?: string | null; badge_color?: string | null };
 type DbReview = { id: string; reviewer_name: string | null; rating: number; comment: string | null; created_at: string };

@@ -668,6 +668,7 @@ const Finance = () => {
               { v: "wallets", label: bn?"ওয়ালেট":"Wallets", Icon: WalletCards },
               { v: "tx", label: bn?"লেনদেন":"Transactions", Icon: ArrowRightLeft },
               { v: "planner", label: bn?"পরিকল্পনা":"Planner", Icon: ClipboardList },
+              { v: "recurring", label: bn?"মাসিক বিল":"Recurring", Icon: RepeatIcon },
               { v: "calc", label: bn?"ক্যালকুলেটর":"Calculator", Icon: CalculatorIcon },
               { v: "analytics", label: bn?"বিশ্লেষণ":"Analytics", Icon: PieChart },
               { v: "budget", label: bn?"বাজেট":"Budget", Icon: Target },

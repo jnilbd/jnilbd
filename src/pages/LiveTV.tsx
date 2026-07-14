@@ -854,15 +854,17 @@ const LiveTV = () => {
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                 <Input value={search} onChange={(e) => setSearch(e.target.value)} placeholder={t("চ্যানেল খুঁজুন...", "Search channels...")} className="pl-9 rounded-full" />
               </div>
-              <Select value={countryFilter} onValueChange={setCountryFilter}>
-                <SelectTrigger className="rounded-full min-w-[140px]"><Globe2 className="w-4 h-4 mr-1" /><SelectValue /></SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">{t("সব দেশ", "All countries")}</SelectItem>
-                  {availableCountries.map(c => (
-                    <SelectItem key={c} value={c}>{COUNTRY_NAMES[c] || c}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              {availableCountries.length > 1 && (
+                <Select value={countryFilter} onValueChange={setCountryFilter}>
+                  <SelectTrigger className="rounded-full min-w-[140px]"><Globe2 className="w-4 h-4 mr-1" /><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">{t("সব দেশ", "All countries")}</SelectItem>
+                    {availableCountries.map(c => (
+                      <SelectItem key={c} value={c}>{COUNTRY_NAMES[c] || c}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              )}
               <Button variant={onlyFavs ? "default" : "outline"} className="rounded-full" onClick={() => setOnlyFavs(v => !v)}>
                 <Star className={`w-4 h-4 ${onlyFavs ? "fill-current" : ""}`} />
                 <span className="ml-1">{favs.size}</span>

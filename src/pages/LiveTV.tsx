@@ -1063,19 +1063,23 @@ const LiveTV = () => {
               }
 
               // BDIX & Mrgify tabs: group by category with country jump
-              if ((tab === "bdix" || tab === "mrgify") && countryFilter === "all") {
+              if ((tab === "bdix" || tab === "mrgify" || tab === "radio") && countryFilter === "all") {
                 const CAT_LABELS: Record<string, { bn: string; en: string; icon: any }> = {
                   news: { bn: "নিউজ", en: "News", icon: Activity },
                   entertainment: { bn: "বিনোদন", en: "Entertainment", icon: Tv },
                   movies: { bn: "মুভি", en: "Movies", icon: Play },
                   sports: { bn: "স্পোর্টস", en: "Sports", icon: Trophy },
                   music: { bn: "মিউজিক", en: "Music", icon: Radio },
+                  pop: { bn: "পপ/হিটস", en: "Pop / Hits", icon: Radio },
+                  bollywood: { bn: "বলিউড/ফিল্মি", en: "Bollywood / Filmi", icon: Play },
+                  classical: { bn: "ক্লাসিক্যাল/লোক", en: "Classical / Folk", icon: Radio },
                   kids: { bn: "কিডস", en: "Kids", icon: Star },
                   religious: { bn: "ধর্মীয়", en: "Religious", icon: Star },
                   documentary: { bn: "ডকুমেন্টারি", en: "Documentary", icon: Globe2 },
                   other: { bn: "অন্যান্য", en: "Other", icon: Layers },
                 };
-                const ORDER = ["news", "entertainment", "movies", "sports", "music", "kids", "religious", "documentary", "other"];
+                const ORDER = ["news", "music", "pop", "bollywood", "classical", "entertainment", "movies", "sports", "kids", "religious", "documentary", "other"];
+
 
                 const groups = new Map<string, typeof filtered>();
                 for (const c of filtered) {

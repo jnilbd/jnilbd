@@ -70,6 +70,17 @@ const Navbar = () => {
     { to: "/services", key: "nav.services", icon: Briefcase },
   ];
 
+  // Mobile drawer — user-curated shortlist
+  const mobilePrimary = [
+    { to: "/", key: "nav.home", icon: Home },
+    { to: "/hadith", key: "nav.hadith", icon: ScrollText },
+    { to: "/ruqyah", key: "nav.ruqyah", icon: ShieldCheck },
+    { to: "/namaz", key: "nav.namaz", icon: Compass },
+    { to: "/shop", key: "nav.shop", icon: Store },
+    { to: "/finance", key: "nav.finance", icon: Wallet },
+    { to: "/livetv", key: "nav.livetv", icon: Tv },
+  ];
+
 
   // Categories panel = all categories (priority order, Appointment last/highlighted)
   const categories = ALL_CATEGORIES;
@@ -485,7 +496,7 @@ const Navbar = () => {
             className="lg:hidden overflow-hidden border-b border-border/60 bg-background/98 backdrop-blur-xl"
           >
             <nav className="container py-4 flex flex-col gap-0.5">
-              {primary.map((l) => (
+              {mobilePrimary.map((l) => (
                 <NavLink
                   key={l.to}
                   to={l.to}

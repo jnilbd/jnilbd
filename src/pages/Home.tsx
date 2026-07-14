@@ -55,43 +55,51 @@ const Home = () => {
     })();
   }, []);
 
+  // Order matches ALL_CATEGORIES (menu priority): quran, hadith, ruqyah, namaz, weather,
+  // finance, offers, livetv, business-guide, health, travel, politics, war, stocks,
+  // newspapers, shop, services, then the rest.
+  const gradients = ["gradient-bg-primary", "gradient-bg-cool", "gradient-bg-warm"] as const;
   const sectionCards = [
-    // Sensitive / spiritual first
-    { to: "/quran", icon: BookOpen, titleKey: "nav.quran", descKey: "card.quran", color: "gradient-bg-primary" },
-    { to: "/namaz", icon: Compass, titleKey: "nav.namaz", descKey: "card.namaz", color: "gradient-bg-cool" },
-    // Daily-life essentials
-    { to: "/weather", icon: CloudRain, titleKey: "nav.weather", descKey: "card.weather", color: "gradient-bg-warm" },
-    { to: "/free-internet", icon: Wifi, titleKey: "nav.freeNet", descKey: "card.freeNet", color: "gradient-bg-cool" },
-    { to: "/health", icon: HeartPulse, titleKey: "nav.health", descKey: "card.health", color: "gradient-bg-primary" },
-    { to: "/finance", icon: Wallet, titleKey: "nav.finance", descKey: "card.finance", color: "gradient-bg-cool" },
-    { to: "/vault", icon: Lock, titleKey: "nav.vault", descKey: "card.vault", color: "gradient-bg-warm" },
-    // Calculators
-    { to: "/tax", icon: Receipt, titleKey: "nav.tax", descKey: "card.tax", color: "gradient-bg-primary" },
-    { to: "/warish", icon: Scale, titleKey: "nav.warish", descKey: "card.warish", color: "gradient-bg-cool" },
-    { to: "/profit-loss", icon: Percent, titleKey: "nav.profitLoss", descKey: "card.profitLoss", color: "gradient-bg-warm" },
-    { to: "/land", icon: Map, titleKey: "nav.land", descKey: "card.land", color: "gradient-bg-primary" },
-    { to: "/height", icon: Ruler, titleKey: "nav.height", descKey: "card.height", color: "gradient-bg-cool" },
-    { to: "/solar", icon: Sun, titleKey: "nav.solar", descKey: "card.solar", color: "gradient-bg-warm" },
-    { to: "/gadget", icon: Smartphone, titleKey: "nav.gadget", descKey: "card.gadget", color: "gradient-bg-primary" },
-    // Tools
-    { to: "/converter", icon: FileType, titleKey: "nav.converter", descKey: "card.converter", color: "gradient-bg-cool" },
-    { to: "/downloader", icon: Download, titleKey: "nav.downloader", descKey: "card.downloader", color: "gradient-bg-warm" },
-    { to: "/thumbnail", icon: ImageIcon, titleKey: "nav.thumbnail", descKey: "card.thumbnail", color: "gradient-bg-primary" },
-    { to: "/voice", icon: Mic, titleKey: "nav.voice", descKey: "card.voice", color: "gradient-bg-cool" },
-    { to: "/scheduler", icon: Clock, titleKey: "nav.scheduler", descKey: "card.scheduler", color: "gradient-bg-warm" },
-    { to: "/livetv", icon: Tv, titleKey: "nav.livetv", descKey: "card.livetv", color: "gradient-bg-primary" },
-    { to: "/chat", icon: MessageCircle, titleKey: "nav.chat", descKey: "card.chat", color: "gradient-bg-cool" },
-    // Commerce / community
-    { to: "/shop", icon: ShoppingBag, titleKey: "nav.shop", descKey: "card.shop", color: "gradient-bg-warm" },
-    { to: "/services", icon: Briefcase, titleKey: "nav.services", descKey: "card.services", color: "gradient-bg-primary" },
-    
-    { to: "/movies", icon: Film, titleKey: "nav.movies", descKey: "card.movies", color: "gradient-bg-cool" },
-    { to: "/marketplace", icon: Tag, titleKey: "nav.marketplace", descKey: "card.marketplace", color: "gradient-bg-cool" },
-    { to: "/rentals", icon: HomeIcon, titleKey: "nav.rentals", descKey: "card.rentals", color: "gradient-bg-warm" },
-    { to: "/appointment", icon: CalendarClock, titleKey: "nav.appointment", descKey: "card.appointment", color: "gradient-bg-primary" },
-    { to: "/portfolio", icon: FolderKanban, titleKey: "nav.portfolio", descKey: "card.portfolio", color: "gradient-bg-cool" },
-    { to: "/blog", icon: BookOpen, titleKey: "nav.blog", descKey: "card.blog", color: "gradient-bg-warm" },
-  ];
+    { to: "/quran", icon: BookOpen, titleKey: "nav.quran", descKey: "card.quran" },
+    { to: "/hadith", icon: BookOpen, titleKey: "nav.hadith", descKey: "card.hadith" },
+    { to: "/ruqyah", icon: ShieldCheck, titleKey: "nav.ruqyah", descKey: "card.ruqyah" },
+    { to: "/namaz", icon: Compass, titleKey: "nav.namaz", descKey: "card.namaz" },
+    { to: "/weather", icon: CloudRain, titleKey: "nav.weather", descKey: "card.weather" },
+    { to: "/finance", icon: Wallet, titleKey: "nav.finance", descKey: "card.finance" },
+    { to: "/offers", icon: Tag, titleKey: "nav.offers", descKey: "card.offers" },
+    { to: "/livetv", icon: Tv, titleKey: "nav.livetv", descKey: "card.livetv" },
+    { to: "/business-guide", icon: Briefcase, titleKey: "nav.businessGuide", descKey: "card.businessGuide" },
+    { to: "/health", icon: HeartPulse, titleKey: "nav.health", descKey: "card.health" },
+    { to: "/travel", icon: Map, titleKey: "nav.travel", descKey: "card.travel" },
+    { to: "/politics", icon: Megaphone, titleKey: "nav.politics", descKey: "card.politics" },
+    { to: "/war", icon: ShieldCheck, titleKey: "nav.war", descKey: "card.war" },
+    { to: "/stocks", icon: TrendingUp, titleKey: "nav.stocks", descKey: "card.stocks" },
+    { to: "/newspapers", icon: BookOpen, titleKey: "nav.newspapers", descKey: "card.newspapers" },
+    { to: "/shop", icon: ShoppingBag, titleKey: "nav.shop", descKey: "card.shop" },
+    { to: "/services", icon: Briefcase, titleKey: "nav.services", descKey: "card.services" },
+    // Remaining (previous order)
+    { to: "/free-internet", icon: Wifi, titleKey: "nav.freeNet", descKey: "card.freeNet" },
+    { to: "/vault", icon: Lock, titleKey: "nav.vault", descKey: "card.vault" },
+    { to: "/tax", icon: Receipt, titleKey: "nav.tax", descKey: "card.tax" },
+    { to: "/warish", icon: Scale, titleKey: "nav.warish", descKey: "card.warish" },
+    { to: "/profit-loss", icon: Percent, titleKey: "nav.profitLoss", descKey: "card.profitLoss" },
+    { to: "/land", icon: Map, titleKey: "nav.land", descKey: "card.land" },
+    { to: "/height", icon: Ruler, titleKey: "nav.height", descKey: "card.height" },
+    { to: "/solar", icon: Sun, titleKey: "nav.solar", descKey: "card.solar" },
+    { to: "/gadget", icon: Smartphone, titleKey: "nav.gadget", descKey: "card.gadget" },
+    { to: "/converter", icon: FileType, titleKey: "nav.converter", descKey: "card.converter" },
+    { to: "/downloader", icon: Download, titleKey: "nav.downloader", descKey: "card.downloader" },
+    { to: "/thumbnail", icon: ImageIcon, titleKey: "nav.thumbnail", descKey: "card.thumbnail" },
+    { to: "/voice", icon: Mic, titleKey: "nav.voice", descKey: "card.voice" },
+    { to: "/scheduler", icon: Clock, titleKey: "nav.scheduler", descKey: "card.scheduler" },
+    { to: "/chat", icon: MessageCircle, titleKey: "nav.chat", descKey: "card.chat" },
+    { to: "/movies", icon: Film, titleKey: "nav.movies", descKey: "card.movies" },
+    { to: "/marketplace", icon: Tag, titleKey: "nav.marketplace", descKey: "card.marketplace" },
+    { to: "/rentals", icon: HomeIcon, titleKey: "nav.rentals", descKey: "card.rentals" },
+    { to: "/appointment", icon: CalendarClock, titleKey: "nav.appointment", descKey: "card.appointment" },
+    { to: "/portfolio", icon: FolderKanban, titleKey: "nav.portfolio", descKey: "card.portfolio" },
+    { to: "/blog", icon: BookOpen, titleKey: "nav.blog", descKey: "card.blog" },
+  ].map((c, i) => ({ ...c, color: gradients[i % gradients.length] }));
 
   return (
     <div>

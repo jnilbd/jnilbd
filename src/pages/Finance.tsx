@@ -776,7 +776,10 @@ const Finance = () => {
                 <WalletCard key={w.id} w={w} bn={bn}
                   today={walletDelta(w.id, startOfToday().getTime())}
                   month={walletDelta(w.id, startOfMonth().getTime())}
-                  onOpen={() => setDetailWallet(w)} />
+                  onOpen={() => setDetailWallet(w)}
+                  onAdd={() => { openQuick("income"); setTimeout(() => setQaWallet(w.id), 0); }}
+                  onSpend={() => { openQuick("expense"); setTimeout(() => setQaWallet(w.id), 0); }}
+                  onTransfer={() => { openQuick("transfer"); setTimeout(() => setQaWallet(w.id), 0); }} />
               ))}
             </div>
           </TabsContent>

@@ -497,23 +497,27 @@ const Navbar = () => {
             className="lg:hidden overflow-hidden border-b border-border/60 bg-background/98 backdrop-blur-xl"
           >
             <nav className="container py-4 flex flex-col gap-0.5">
-              {mobilePrimary.map((l) => (
-                <NavLink
-                  key={l.to}
-                  to={l.to}
-                  end={l.to === "/"}
-                  onClick={() => setMobileNavOpen(false)}
-                  className={({ isActive }) =>
-                    `px-4 py-3 rounded-lg font-medium transition-smooth border-l-2 ${
-                      isActive
-                        ? "text-foreground bg-muted border-secondary"
-                        : "text-foreground/70 hover:bg-muted border-transparent"
-                    }`
-                  }
-                >
-                  {t(l.key)}
-                </NavLink>
-              ))}
+              {mobilePrimary.map((l) => {
+                const Icon = l.icon;
+                return (
+                  <NavLink
+                    key={l.to}
+                    to={l.to}
+                    end={l.to === "/"}
+                    onClick={() => setMobileNavOpen(false)}
+                    className={({ isActive }) =>
+                      `flex items-center gap-3 px-4 py-3 rounded-lg font-medium transition-smooth border-l-2 ${
+                        isActive
+                          ? "text-foreground bg-muted border-secondary"
+                          : "text-foreground/70 hover:bg-muted border-transparent"
+                      }`
+                    }
+                  >
+                    <Icon className="w-4 h-4 text-secondary" />
+                    <span>{t(l.key)}</span>
+                  </NavLink>
+                );
+              })}
               <Link
                 to="/appointment"
                 onClick={() => setMobileNavOpen(false)}

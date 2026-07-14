@@ -706,7 +706,7 @@ const LiveTV = () => {
               
               { k: "world", label: t("ওয়ার্ল্ড","World"), icon: Globe2 },
               { k: "sports", label: t("স্পোর্টস","Sports"), icon: Trophy },
-              { k: "scores", label: t("স্কোর","Scores"), icon: Activity },
+              
               { k: "radio", label: t("রেডিও","Radio"), icon: Radio },
               { k: "working", label: `${t("ওয়ার্কিং ✅","Working ✅")}${workingChannels.length ? ` (${workingChannels.length})` : ""}`, icon: CheckCircle2 },
               { k: "offline", label: `${t("অফলাইন","Offline")}${offlineChannels.length ? ` (${offlineChannels.length})` : ""}`, icon: XCircle },

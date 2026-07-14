@@ -94,7 +94,7 @@ export function InventoryTab({ userId, bn }: { userId: string; bn: boolean }) {
     low_stock_threshold: "5", opening_stock: "0", note: "",
   });
 
-  const [mvSheet, setMvSheet] = useState<{ product: Product; type: MvType } | null>(null);
+  const [mvSheet, setMvSheet] = useState<{ product: Product; type: MvType; editingId?: string } | null>(null);
   const [mvForm, setMvForm] = useState({
     qty: "", unit_price: "", amount_paid: "", note: "",
     location: "office" as MvLocation, party_name: "", party_phone: "",

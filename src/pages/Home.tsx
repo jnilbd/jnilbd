@@ -55,52 +55,46 @@ const Home = () => {
     })();
   }, []);
 
-  // Order matches ALL_CATEGORIES (menu priority): quran, hadith, ruqyah, namaz, weather,
-  // finance, offers, livetv, business-guide, health, travel, politics, war, stocks,
-  // newspapers, shop, services, then the rest.
+  // Home cards mirror the menu (ALL_CATEGORIES) order exactly, minus the Home entry itself.
   const gradients = ["gradient-bg-primary", "gradient-bg-cool", "gradient-bg-warm"] as const;
-  const sectionCards = [
-    { to: "/quran", icon: BookOpen, titleKey: "nav.quran", descKey: "card.quran" },
-    { to: "/hadith", icon: BookOpen, titleKey: "nav.hadith", descKey: "card.hadith" },
-    { to: "/ruqyah", icon: ShieldCheck, titleKey: "nav.ruqyah", descKey: "card.ruqyah" },
-    { to: "/namaz", icon: Compass, titleKey: "nav.namaz", descKey: "card.namaz" },
-    { to: "/weather", icon: CloudRain, titleKey: "nav.weather", descKey: "card.weather" },
-    { to: "/finance", icon: Wallet, titleKey: "nav.finance", descKey: "card.finance" },
-    { to: "/offers", icon: Tag, titleKey: "nav.offers", descKey: "card.offers" },
-    { to: "/livetv", icon: Tv, titleKey: "nav.livetv", descKey: "card.livetv" },
-    { to: "/business-guide", icon: Briefcase, titleKey: "nav.businessGuide", descKey: "card.businessGuide" },
-    { to: "/health", icon: HeartPulse, titleKey: "nav.health", descKey: "card.health" },
-    { to: "/travel", icon: Map, titleKey: "nav.travel", descKey: "card.travel" },
-    { to: "/politics", icon: Megaphone, titleKey: "nav.politics", descKey: "card.politics" },
-    { to: "/war", icon: ShieldCheck, titleKey: "nav.war", descKey: "card.war" },
-    { to: "/stocks", icon: TrendingUp, titleKey: "nav.stocks", descKey: "card.stocks" },
-    { to: "/newspapers", icon: BookOpen, titleKey: "nav.newspapers", descKey: "card.newspapers" },
-    { to: "/shop", icon: ShoppingBag, titleKey: "nav.shop", descKey: "card.shop" },
-    { to: "/services", icon: Briefcase, titleKey: "nav.services", descKey: "card.services" },
-    // Remaining (previous order)
-    { to: "/free-internet", icon: Wifi, titleKey: "nav.freeNet", descKey: "card.freeNet" },
-    { to: "/vault", icon: Lock, titleKey: "nav.vault", descKey: "card.vault" },
-    { to: "/tax", icon: Receipt, titleKey: "nav.tax", descKey: "card.tax" },
-    { to: "/warish", icon: Scale, titleKey: "nav.warish", descKey: "card.warish" },
-    { to: "/profit-loss", icon: Percent, titleKey: "nav.profitLoss", descKey: "card.profitLoss" },
-    { to: "/land", icon: Map, titleKey: "nav.land", descKey: "card.land" },
-    { to: "/height", icon: Ruler, titleKey: "nav.height", descKey: "card.height" },
-    { to: "/solar", icon: Sun, titleKey: "nav.solar", descKey: "card.solar" },
-    { to: "/gadget", icon: Smartphone, titleKey: "nav.gadget", descKey: "card.gadget" },
-    { to: "/converter", icon: FileType, titleKey: "nav.converter", descKey: "card.converter" },
-    { to: "/downloader", icon: Download, titleKey: "nav.downloader", descKey: "card.downloader" },
-    { to: "/thumbnail", icon: ImageIcon, titleKey: "nav.thumbnail", descKey: "card.thumbnail" },
-    { to: "/voice", icon: Mic, titleKey: "nav.voice", descKey: "card.voice" },
-    { to: "/scheduler", icon: Clock, titleKey: "nav.scheduler", descKey: "card.scheduler" },
-    { to: "/chat", icon: MessageCircle, titleKey: "nav.chat", descKey: "card.chat" },
-    { to: "/movies", icon: Film, titleKey: "nav.movies", descKey: "card.movies" },
-    { to: "/marketplace", icon: Tag, titleKey: "nav.marketplace", descKey: "card.marketplace" },
-    { to: "/rentals", icon: HomeIcon, titleKey: "nav.rentals", descKey: "card.rentals" },
-    { to: "/portfolio", icon: FolderKanban, titleKey: "nav.portfolio", descKey: "card.portfolio" },
-    { to: "/blog", icon: BookOpen, titleKey: "nav.blog", descKey: "card.blog" },
-    { to: "/about", icon: User, titleKey: "nav.about", descKey: "card.about" },
-    { to: "/appointment", icon: CalendarClock, titleKey: "nav.appointment", descKey: "card.appointment" },
-  ].map((c, i) => ({ ...c, color: gradients[i % gradients.length] }));
+  const descKeyMap: Record<string, string> = {
+    "/quran": "card.quran", "/hadith": "card.hadith", "/ruqyah": "card.ruqyah",
+    "/namaz": "card.namaz", "/weather": "card.weather", "/finance": "card.finance",
+    "/offers": "card.offers", "/livetv": "card.livetv", "/business-guide": "card.businessGuide",
+    "/health": "card.health", "/travel": "card.travel", "/politics": "card.politics",
+    "/war": "card.war", "/stocks": "card.stocks", "/newspapers": "card.newspapers",
+    "/shop": "card.shop", "/services": "card.services", "/free-internet": "card.freeNet",
+    "/vault": "card.vault", "/tax": "card.tax", "/warish": "card.warish",
+    "/profit-loss": "card.profitLoss", "/land": "card.land", "/height": "card.height",
+    "/solar": "card.solar", "/gadget": "card.gadget", "/converter": "card.converter",
+    "/downloader": "card.downloader", "/thumbnail": "card.thumbnail", "/voice": "card.voice",
+    "/scheduler": "card.scheduler", "/chat": "card.chat", "/movies": "card.movies",
+    "/marketplace": "card.marketplace", "/rentals": "card.rentals",
+    "/portfolio": "card.portfolio", "/blog": "card.blog", "/about": "card.about",
+    "/appointment": "card.appointment",
+  };
+  const inlineDesc: Record<string, { bn: string; en: string }> = {
+    "/railway": { bn: "অনলাইনে ট্রেনের টিকেট ও শিডিউল", en: "Train tickets & schedule online" },
+    "/phone-lookup": { bn: "যেকোনো নম্বর — অপারেটর ও তথ্য", en: "Any number — operator & details" },
+    "/phone-root-unlock": { bn: "রুট, বুটলোডার আনলক ও গাইড", en: "Root, bootloader unlock & guides" },
+    "/ad-maker": { bn: "AI দিয়ে অ্যাড ইমেজ ও প্রমো ভিডিও", en: "AI ad images & promo videos" },
+    "/policies": { bn: "প্রাইভেসি, শর্তাবলী ও রিফান্ড নীতি", en: "Privacy, terms & refund policies" },
+  };
+  const sectionCards = ALL_CATEGORIES
+    .filter((c) => c.to !== "/")
+    .map((c, i) => {
+      const descKey = descKeyMap[c.to];
+      const inline = inlineDesc[c.to];
+      const desc = descKey ? t(descKey) : inline ? (isBn ? inline.bn : inline.en) : "";
+      return {
+        to: c.to,
+        icon: c.icon,
+        title: isBn ? c.bn : c.en,
+        desc,
+        color: gradients[i % gradients.length],
+      };
+    });
+
 
   return (
     <div>

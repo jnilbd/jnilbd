@@ -707,8 +707,9 @@ const LiveTV = () => {
           </p>
         </div>
 
-        <div className="flex justify-center mb-5 overflow-x-auto">
-          <div className="inline-flex rounded-full bg-muted p-1">
+        <div className="mb-5 -mx-4 px-4 overflow-x-auto scrollbar-hide">
+          <div className="inline-flex md:flex md:justify-center rounded-full bg-muted p-1 mx-auto w-max md:w-auto">
+
             {([
               { k: "mrgify", label: `Mrgify 🔥${mrgifyChannels.length ? ` (${mrgifyChannels.length})` : ""}`, icon: Flag },
               { k: "tv", label: t("টিভি","TV"), icon: Tv },

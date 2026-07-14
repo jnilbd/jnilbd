@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState, useCallback } from "react";
-import { Calendar, Clock, Tv as TvIcon, Trophy, MapPin, Filter, RefreshCw, ExternalLink } from "lucide-react";
+import { Calendar, Clock, Tv as TvIcon, Trophy, MapPin, Filter, RefreshCw, ExternalLink, Star, Flame } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -7,8 +7,8 @@ import { useLanguage } from "@/contexts/LanguageContext";
 
 /**
  * 100% live sports schedule powered by ESPN's public scoreboard API.
- * No hard-coded matches, no mock data — every event comes from the live feed
- * and status (pre / in / post) is read directly from the API.
+ * High-priority tournaments (World Cup, UCL, ICC finals) are fetched with a
+ * wider date window and pinned to the top with a highlighted badge.
  */
 
 type Sport = "football" | "cricket" | "basketball" | "tennis" | "f1" | "americanfootball" | "baseball" | "hockey";

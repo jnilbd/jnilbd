@@ -713,7 +713,11 @@ const LiveTV = () => {
         const db = dead.has(b.id) ? 1 : 0;
         if (da !== db) return da - db;
       }
-      // Recently-played first
+      // Confirmed LIVE / working channels first (auto-checked on load)
+      const la = (working.has(a.id) || health[a.id] === "live") ? 0 : 1;
+      const lb = (working.has(b.id) || health[b.id] === "live") ? 0 : 1;
+      if (la !== lb) return la - lb;
+      // Recently-played next
       const ra = recentRank(a.id);
       const rb = recentRank(b.id);
       if (ra !== rb) return ra - rb;
@@ -731,13 +735,70 @@ const LiveTV = () => {
       if (ia !== ib) return ia - ib;
       return a.name.localeCompare(b.name);
     });
-  }, [allChannels, search, countryFilter, onlyFavs, favs, dead, recent]);
+  }, [allChannels, search, countryFilter, onlyFavs, favs, dead, recent, working, health, tab]);
+
 
   useEffect(() => {
     const targets = filtered.slice(0, 12).filter(c => !(c.id in health));
     targets.forEach(c => checkHealth(c));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filtered]);
+
+  // Auto-sweep on site load: check a wide sample of channels in the background
+  // with limited concurrency so live/working ones bubble to the top automatically.
+  const sweptRef = useRef(false);
+  useEffect(() => {
+    if (sweptRef.current) return;
+    if (loading) return;
+    const pool = [
+      ...mrgifyChannels, ...tvChannels, ...worldChannels,
+      ...bdixChannels, ...sportsChannels, ...radioChannels,
+    ];
+    if (pool.length === 0) return;
+    sweptRef.current = true;
+
+    // Dedupe + skip known-dead + skip already-checked
+    const seen = new Set<string>();
+    const queue = pool.filter(c => {
+      if (seen.has(c.id)) return false;
+      seen.add(c.id);
+      if (dead.has(c.id)) return false;
+      if (health[c.id]) return false;
+      return true;
+    });
+
+    // Prioritise: favourites → recent → BD → IN → important → rest
+    queue.sort((a, b) => {
+      const fa = favs.has(a.id) ? 0 : 1, fb = favs.has(b.id) ? 0 : 1;
+      if (fa !== fb) return fa - fb;
+      const ra = recent.indexOf(a.id), rb = recent.indexOf(b.id);
+      const rra = ra === -1 ? 999 : ra, rrb = rb === -1 ? 999 : rb;
+      if (rra !== rrb) return rra - rrb;
+      const pa = countryPriority(a.country), pb = countryPriority(b.country);
+      if (pa !== pb) return pa - pb;
+      return importanceScore(a) - importanceScore(b);
+    });
+
+    const MAX = Math.min(queue.length, 400);
+    const CONCURRENCY = 6;
+    let idx = 0;
+    let cancelled = false;
+
+    const runNext = async (): Promise<void> => {
+      if (cancelled) return;
+      const my = idx++;
+      if (my >= MAX) return;
+      try { await checkHealth(queue[my]); } catch { /* ignore */ }
+      // small stagger to avoid hammering
+      await new Promise(r => setTimeout(r, 40));
+      return runNext();
+    };
+    for (let i = 0; i < CONCURRENCY; i++) runNext();
+
+    return () => { cancelled = true; };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [loading, mrgifyChannels, tvChannels, worldChannels, bdixChannels, sportsChannels, radioChannels]);
+
 
   // Try a given URL index, auto-fallback on error
   const playUrl = useCallback((ch: Channel, urlIdx: number) => {

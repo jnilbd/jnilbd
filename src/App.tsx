@@ -137,6 +137,7 @@ const App = () => (
                 <Route path="/newspapers" element={<Newspapers />} />
                 <Route path="/ad-maker" element={<AdMaker />} />
                 <Route path="/phone-root-unlock" element={<PhoneRootUnlock />} />
+                <Route path="/courier" element={<Courier />} />
                 <Route path="/offers" element={<Offers />} />
                 <Route path="/capcut-pro" element={<CapCutPro />} />
                 <Route path="/mini-projector" element={<MiniProjector />} />

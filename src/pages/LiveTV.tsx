@@ -345,6 +345,24 @@ const LiveTV = () => {
           if (g) sp.urls = g.urls;
         });
 
+        const detectTvSub = (meta: any): string => {
+          const cats: string[] = (meta.categories || []).map((c: string) => c.toLowerCase());
+          const name = (meta.name || "").toLowerCase();
+          const hay = cats.join(" ") + " " + name;
+          if (cats.includes("news") || /news|khabar|24|bulletin|আজতক|সংবাদ/.test(hay)) return "news";
+          if (cats.includes("sports") || /sport|cricket|football|star sport|sony sport|ten sport|willow/.test(hay)) return "sports";
+          if (cats.includes("movies") || /movie|cinema|film|pix|max|hbo|zee cinema|set max|romedy/.test(hay)) return "movies";
+          if (cats.includes("music") || /music|song|mtv|9xm|b4u|mastiii|zoom|vh1|gaan/.test(hay)) return "music";
+          if (cats.includes("kids") || /kids|cartoon|pogo|nick|hungama|disney|baby|chuchu/.test(hay)) return "kids";
+          if (cats.includes("religious") || /religio|islam|quran|hindu|christian|bhakti|aastha|sanskar|peace tv/.test(hay)) return "religious";
+          if (cats.includes("documentary") || /discovery|nat geo|animal planet|history|tlc|knowledge|science|epic/.test(hay)) return "documentary";
+          if (cats.includes("entertainment") || cats.includes("general") || /entertain|drama|serial|show|star plus|colors|zee tv|sony|sab tv/.test(hay)) return "entertainment";
+          if (/bolly|filmi/.test(hay)) return "bollywood";
+          if (cats.includes("business")) return "news";
+          if (cats.includes("education")) return "documentary";
+          return "other";
+        };
+
         const tvList: Channel[] = [];
         const worldList: Channel[] = [];
         for (const { meta, urls } of grouped.values()) {
@@ -355,6 +373,7 @@ const LiveTV = () => {
             countryName: COUNTRY_NAMES[meta.country] || meta.country,
             category: "tv",
             categories: meta.categories,
+            subCategory: detectTvSub(meta),
             logo: meta.logo,
             url: urls[0],
             urls,
@@ -362,6 +381,7 @@ const LiveTV = () => {
           if (meta.country === "IN") tvList.push(ch);
           worldList.push({ ...ch, category: "world" as any });
         }
+
 
         if (!cancelled) {
           setTvChannels(tvList);

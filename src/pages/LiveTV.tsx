@@ -453,19 +453,51 @@ const LiveTV = () => {
         const key = `${name.toLowerCase()}|${url}`;
         if (seen.has(key)) continue;
         seen.add(key);
+
+        // Country detection from name
+        const IN_NAME_RE = /\b(star|sony|zee|colors|aaj tak|abp|ndtv|india today|republic|times now|dd national|dd sports|set max|sab|discovery india|jaya|sun tv|asianet|vijay|kalaignar|udaya|gemini|kairali|surya|mazhavil|manorama|amrita|tv9|etv|abp ananda|zee bangla|colors bangla|akash aath|sony aath|sony sab|movies now|romedy|max2|pix|hbo india|zee cinema|zee anmol|utsav|bindass|sony yay|pogo|nick india|cartoon network india|hungama|disney india|animal planet india|nat geo india|tlc india|history india|fox life|axn india|comedy central india|mtv india|vh1 india|9xm|mastiii|b4u|zoom|et now|cnbc india|news nation|india tv|zee news|abp news|republic bharat|dd bharati|dd urdu|aaj|india)\b/i;
+        const PK_RE = /\b(ary|geo|hum|ptv|dunya|samaa|92 news|express news|dawn)\b/i;
+        const AR_RE = /\b(al jazeera|mbc|dubai|abu dhabi|saudi|quran|makkah|madinah|iqra|sunnah|arabic|arabica|almasira|al ekhbaria|al sunnah|peace tv)\b/i;
+        const US_RE = /\b(cnn|fox|nbc|cbs|abc news|bloomberg|hbo|espn|cartoon network|nickelodeon|discovery|history|nat geo|animal planet)\b/i;
+        const UK_RE = /\b(bbc|itv|sky|channel 4|channel4)\b/i;
+        const TR_RE = /\b(trt|show tv|kanal d|atv turk)\b/i;
+        const lname = name.toLowerCase();
+        const grp = (group || "").toLowerCase();
+        let country = "BD";
+        if (IN_NAME_RE.test(lname) || /\b(india|indian|hindi|bengali\s*india|tamil|telugu|kannada|malayalam)\b/.test(grp)) country = "IN";
+        else if (PK_RE.test(lname) || /pakistan|urdu/.test(grp)) country = "PK";
+        else if (AR_RE.test(lname) || /arab|islamic|quran|saudi|makkah/.test(grp)) country = "SA";
+        else if (US_RE.test(lname) || /\busa\b|american/.test(grp)) country = "US";
+        else if (UK_RE.test(lname) || /\buk\b|british/.test(grp)) country = "GB";
+        else if (TR_RE.test(lname) || /turk/.test(grp)) country = "TR";
+
+        // Sub-category detection from group + name
+        const gl = grp + " " + lname;
+        let subCategory = "other";
+        if (/news|খবর|সংবাদ|24|bulletin/i.test(gl)) subCategory = "news";
+        else if (/sport|খেলা|cricket|football|soccer|espn|ten sport|star sport|sony sport|t sport|willow/i.test(gl)) subCategory = "sports";
+        else if (/movie|cinema|film|hbo|max|pix|romedy|utsav|zee cinema|set max|movies/i.test(gl)) subCategory = "movies";
+        else if (/music|song|mtv|9xm|mastiii|b4u|zoom|vh1|gaan|গান/i.test(gl)) subCategory = "music";
+        else if (/kids|cartoon|pogo|nick|hungama|disney|baby|শিশু|children/i.test(gl)) subCategory = "kids";
+        else if (/religio|islam|quran|hindu|christian|peace tv|madani|sunnah|makkah|iqra|ধর্ম/i.test(gl)) subCategory = "religious";
+        else if (/entertain|drama|serial|natok|নাটক|বিনোদন|show/i.test(gl)) subCategory = "entertainment";
+        else if (/discovery|nat geo|animal planet|history|tlc|knowledge|science/i.test(gl)) subCategory = "documentary";
+
         parsed.push({
           id: `mrg-${parsed.length}-${name.replace(/[^a-z0-9]/gi, "").slice(0, 20).toLowerCase()}`,
           name,
-          country: "BD",
-          countryName: "Bangladesh",
+          country,
+          countryName: COUNTRY_NAMES[country] || country,
           category: "tv",
           categories: group ? [group] : undefined,
+          subCategory,
           logo,
           provider: group || "Mrgify BDIX",
           url,
           urls: [url],
         });
       }
+
       if (parsed.length && !cancelled) {
         setMrgifyChannels(parsed);
       }

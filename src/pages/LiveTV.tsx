@@ -476,6 +476,7 @@ const LiveTV = () => {
   }, []);
 
   const allChannels =
+    tab === "mrgify" ? mrgifyChannels :
     tab === "tv" ? tvChannels :
     tab === "world" ? worldChannels :
     tab === "bdix" ? bdixChannels :

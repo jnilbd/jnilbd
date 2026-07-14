@@ -977,6 +977,18 @@ const Finance = () => {
             />
           </TabsContent>
 
+          {/* Recurring monthly bills */}
+          <TabsContent value="recurring" className="mt-4">
+            <RecurringBillsTab
+              userId={user.id}
+              bn={bn}
+              wallets={wallets as any}
+              onPaid={loadAll}
+            />
+          </TabsContent>
+
+
+
           {/* Calculator */}
           <TabsContent value="calc" className="mt-4">
             <FinanceCalculator />

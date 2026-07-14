@@ -78,8 +78,8 @@ const DEFAULT_WALLETS: Array<Omit<WalletRow, "id" | "balance" | "currency" | "so
 const INCOME_CATEGORIES_PERSONAL = ["Salary","Freelance","Business Income","Mobile Sale","Laptop Sale","Mobile Repair","Laptop Repair","Gift","Bonus","Interest","Rental Income","Investment Return","Refund","Family Support","Other Income"];
 const INCOME_CATEGORIES_BUSINESS = ["Sale","Mobile Sale","Laptop Sale","Mobile Repair","Laptop Repair","Service Income","Advance Received","Commission","Investment Return","Loan Received","Refund","Other Income"];
 // Expense categories — where money goes
-const EXPENSE_CATEGORIES_PERSONAL = ["Food","Transport","Shopping","Medicine","Education","Family","Kids","Entertainment","Internet","WiFi Bill (Village)","WiFi Bill (City)","Dish Bill","Electricity Bill","Gas Bill","Water Bill","Installment","Mobile Recharge","Bills","Travel","Rent","Investment","Savings","Charity","Other"];
-const EXPENSE_CATEGORIES_BUSINESS = ["Purchase","Salary Paid","Advertising","Courier","Office Rent","Utility","WiFi Bill (Village)","WiFi Bill (City)","Dish Bill","Electricity Bill","Gas Bill","Installment","Transport","Maintenance","Tax","Investment","Loan Repayment","Other"];
+const EXPENSE_CATEGORIES_PERSONAL = ["Food","Groceries","Fruits","Wife Shopping","Mobile Bill","bKash Loan","Transport","Shopping","Medicine","Education","Family","Kids","Entertainment","Internet","WiFi Bill (Village)","WiFi Bill (City)","Dish Bill","Electricity Bill","Gas Bill","Water Bill","Installment","Mobile Recharge","Bills","Travel","Rent","Investment","Business Investment","Savings","Charity","Other"];
+const EXPENSE_CATEGORIES_BUSINESS = ["Purchase","Business Investment","bKash Loan","Mobile Bill","Salary Paid","Advertising","Courier","Office Rent","Utility","WiFi Bill (Village)","WiFi Bill (City)","Dish Bill","Electricity Bill","Gas Bill","Installment","Transport","Maintenance","Tax","Investment","Loan Repayment","Other"];
 const CATEGORIES_PERSONAL = Array.from(new Set([...INCOME_CATEGORIES_PERSONAL, ...EXPENSE_CATEGORIES_PERSONAL]));
 const CATEGORIES_BUSINESS = Array.from(new Set([...INCOME_CATEGORIES_BUSINESS, ...EXPENSE_CATEGORIES_BUSINESS]));
 
@@ -167,6 +167,9 @@ const CATEGORY_BN: Record<string, string> = {
   Charity: "দান/সদকা", Maintenance: "মেরামত", Tax: "কর",
   "Mobile Sale": "মোবাইল বিক্রি", "Laptop Sale": "ল্যাপটপ বিক্রি",
   "Mobile Repair": "মোবাইল সারাই", "Laptop Repair": "ল্যাপটপ সারাই",
+  Groceries: "বাজার সদাই", Fruits: "ফল ফ্রুট", "Wife Shopping": "বৌয়ের নেশা",
+  "Mobile Bill": "মোবাইল বিল", "bKash Loan": "বিকাশ লোন",
+  "Business Investment": "ব্যবসায়িক ইনভেস্টমেন্ট",
 };
 const bnLabel = (m: Record<string,string>, k: string | null | undefined, bn: boolean) =>
   !k ? "—" : (bn ? (m[k] ?? k) : k);

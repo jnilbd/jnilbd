@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
-import { ArrowRight, Sparkles, ShoppingBag, Briefcase, FolderKanban, BookOpen, Tag, Home as HomeIcon, Star, Facebook, Instagram, MessageCircle, Youtube, Linkedin, CalendarClock, Wallet, Image as ImageIcon, Mic, Compass, FileType, Tv, Download, Clock, Map, Ruler, HeartPulse, Sun, Lock, Receipt, Scale, Percent, CloudRain, Smartphone, Wifi, Send, Film, ShieldCheck, Zap, Users, Award, TrendingUp, Globe2, PlayCircle, Megaphone } from "lucide-react";
+import { ArrowRight, Sparkles, ShoppingBag, Briefcase, FolderKanban, BookOpen, Tag, Home as HomeIcon, Star, Facebook, Instagram, MessageCircle, Youtube, Linkedin, CalendarClock, Wallet, Image as ImageIcon, Mic, Compass, FileType, Tv, Download, Clock, Map, Ruler, HeartPulse, Sun, Lock, Receipt, Scale, Percent, CloudRain, Smartphone, Wifi, Send, Film, ShieldCheck, Zap, Users, Award, TrendingUp, Globe2, PlayCircle, Megaphone, User } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -96,9 +96,10 @@ const Home = () => {
     { to: "/movies", icon: Film, titleKey: "nav.movies", descKey: "card.movies" },
     { to: "/marketplace", icon: Tag, titleKey: "nav.marketplace", descKey: "card.marketplace" },
     { to: "/rentals", icon: HomeIcon, titleKey: "nav.rentals", descKey: "card.rentals" },
-    { to: "/appointment", icon: CalendarClock, titleKey: "nav.appointment", descKey: "card.appointment" },
     { to: "/portfolio", icon: FolderKanban, titleKey: "nav.portfolio", descKey: "card.portfolio" },
     { to: "/blog", icon: BookOpen, titleKey: "nav.blog", descKey: "card.blog" },
+    { to: "/about", icon: User, titleKey: "nav.about", descKey: "card.about" },
+    { to: "/appointment", icon: CalendarClock, titleKey: "nav.appointment", descKey: "card.appointment" },
   ].map((c, i) => ({ ...c, color: gradients[i % gradients.length] }));
 
   return (

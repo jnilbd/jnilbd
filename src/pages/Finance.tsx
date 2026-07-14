@@ -81,7 +81,7 @@ const INCOME_CATEGORIES_PERSONAL = ["Salary","Freelance","Business Income","Mobi
 const INCOME_CATEGORIES_BUSINESS = ["Sale","Mobile Sale","Laptop Sale","Mobile Repair","Laptop Repair","Service Income","Advance Received","Commission","Investment Return","Loan Received","Refund","Other Income"];
 // Expense categories — where money goes
 const EXPENSE_CATEGORIES_PERSONAL = ["Food","Groceries","Fruits","Wife Shopping","Mobile Bill","bKash Loan","Transport","Shopping","Medicine","Education","Family","Kids","Entertainment","Internet","WiFi Bill (Village)","WiFi Bill (City)","Dish Bill","Electricity Bill","Gas Bill","Water Bill","Installment","Mobile Recharge","Bills","Travel","Rent","Investment","Business Investment","Savings","Charity","Other"];
-const EXPENSE_CATEGORIES_BUSINESS = ["Purchase","Business Investment","bKash Loan","Mobile Bill","Salary Paid","Advertising","Courier","Office Rent","Utility","WiFi Bill (Village)","WiFi Bill (City)","Dish Bill","Electricity Bill","Gas Bill","Installment","Transport","Maintenance","Tax","Investment","Loan Repayment","Other"];
+const EXPENSE_CATEGORIES_BUSINESS = ["Purchase","Business Investment","bKash Loan","Mobile Bill","Salary Paid","Advertising","Facebook Boosting","Courier","Office Rent","Utility","WiFi Bill (Village)","WiFi Bill (City)","Dish Bill","Electricity Bill","Gas Bill","Installment","Transport","Maintenance","Tax","Investment","Loan Repayment","Other"];
 const CATEGORIES_PERSONAL = Array.from(new Set([...INCOME_CATEGORIES_PERSONAL, ...EXPENSE_CATEGORIES_PERSONAL]));
 const CATEGORIES_BUSINESS = Array.from(new Set([...INCOME_CATEGORIES_BUSINESS, ...EXPENSE_CATEGORIES_BUSINESS]));
 

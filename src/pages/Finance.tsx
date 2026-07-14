@@ -669,7 +669,6 @@ const Finance = () => {
               { v: "tx", label: bn?"লেনদেন":"Transactions", Icon: ArrowRightLeft },
               { v: "planner", label: bn?"পরিকল্পনা":"Planner", Icon: ClipboardList },
               { v: "recurring", label: bn?"মাসিক বিল":"Recurring", Icon: RepeatIcon },
-              { v: "calc", label: bn?"ক্যালকুলেটর":"Calculator", Icon: CalculatorIcon },
               { v: "analytics", label: bn?"বিশ্লেষণ":"Analytics", Icon: PieChart },
               { v: "budget", label: bn?"বাজেট":"Budget", Icon: Target },
               { v: "debts", label: bn?"দেনা-পাওনা":"Debts", Icon: HandCoins },
@@ -679,6 +678,7 @@ const Finance = () => {
               { v: "inventory", label: bn?"স্টক":"Stock", Icon: Boxes },
               { v: "reports", label: bn?"রিপোর্ট":"Reports", Icon: FileBarChart2 },
               { v: "ai", label: "AI", Icon: Sparkles },
+              { v: "calc", label: bn?"ক্যালকুলেটর":"Calculator", Icon: CalculatorIcon },
             ];
             return (
               <TabsList className="h-auto w-full bg-transparent p-0 grid grid-cols-5 sm:grid-cols-8 lg:grid-cols-8 gap-1.5">

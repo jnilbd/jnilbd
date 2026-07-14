@@ -262,13 +262,15 @@ const Finance = () => {
 
   const loadAll = useCallback(async () => {
     if (!user) return;
-    const [{ data: w }, { data: t }, { data: prods }] = await Promise.all([
+    const [{ data: w }, { data: t }, { data: prods }, { data: wd }] = await Promise.all([
       supabase.from("finance_wallets").select("*").eq("user_id", user.id).order("sort_order").order("created_at"),
       supabase.from("finance_transactions").select("*").eq("user_id", user.id).order("occurred_at", { ascending: false }).limit(500),
       supabase.from("inventory_products").select("current_stock,sell_price,low_stock_threshold").eq("user_id", user.id),
+      (supabase as any).from("finance_withdrawals").select("*").eq("user_id", user.id).order("occurred_at", { ascending: false }).limit(200),
     ]);
     setWallets((w as any) ?? []);
     setTxs((t as any) ?? []);
+    setWithdrawals((wd as any) ?? []);
     let sv = 0, lc = 0;
     for (const p of (prods ?? []) as any[]) {
       sv += Number(p.current_stock) * Number(p.sell_price);

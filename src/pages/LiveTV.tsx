@@ -1081,7 +1081,7 @@ const LiveTV = () => {
                         </div>
                         <Select
                           onValueChange={(key) => {
-                            setTimeout(() => document.getElementById(`bdix-cat-${key}`)?.scrollIntoView({ behavior: "smooth", block: "start" }), 50);
+                            setTimeout(() => document.getElementById(`cat-jump-${key}`)?.scrollIntoView({ behavior: "smooth", block: "start" }), 50);
                           }}
                         >
                           <SelectTrigger className="h-8 rounded-full text-xs min-w-[180px] w-auto">
@@ -1104,7 +1104,7 @@ const LiveTV = () => {
                             return (
                               <button
                                 key={key}
-                                onClick={() => document.getElementById(`bdix-cat-${key}`)?.scrollIntoView({ behavior: "smooth", block: "start" })}
+                                onClick={() => document.getElementById(`cat-jump-${key}`)?.scrollIntoView({ behavior: "smooth", block: "start" })}
                                 className="px-2.5 py-1 rounded-full text-[11px] font-semibold bg-muted hover:bg-primary hover:text-white transition-smooth"
                               >
                                 {t(meta.bn, meta.en)} <span className="opacity-70">({list.length})</span>
@@ -1134,7 +1134,7 @@ const LiveTV = () => {
                       const meta = CAT_LABELS[key] || CAT_LABELS.other;
                       const Icon = meta.icon;
                       return (
-                        <section key={key} id={`bdix-cat-${key}`} className="scroll-mt-24">
+                        <section key={key} id={`cat-jump-${key}`} className="scroll-mt-24">
                           <div className="flex items-center gap-2 mb-3">
                             <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center text-white">
                               <Icon className="w-4 h-4" />

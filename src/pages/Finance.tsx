@@ -177,13 +177,14 @@ const CATEGORY_BN: Record<string, string> = {
 const bnLabel = (m: Record<string,string>, k: string | null | undefined, bn: boolean) =>
   !k ? "—" : (bn ? (m[k] ?? k) : k);
 
-const WalletCard = ({ w, today, month, onOpen, bn }: { w: WalletRow; today: number; month: number; onOpen: () => void; bn: boolean }) => {
+const WalletCard = ({ w, today, month, onOpen, onAdd, onSpend, onTransfer, bn }: { w: WalletRow; today: number; month: number; onOpen: () => void; onAdd: () => void; onSpend: () => void; onTransfer: () => void; bn: boolean }) => {
   const Icon = walletIcon(w.type);
+  const stop = (fn: () => void) => (e: React.MouseEvent) => { e.stopPropagation(); fn(); };
   return (
-    <motion.button
+    <motion.div
+      whileHover={{ y: -2 }}
+      className="relative w-full rounded-2xl overflow-hidden border border-border/60 shadow-sm cursor-pointer"
       onClick={onOpen}
-      whileHover={{ y: -2 }} whileTap={{ scale: 0.98 }}
-      className="relative text-left w-full rounded-2xl overflow-hidden border border-border/60 shadow-sm"
     >
       <div className={cn("absolute inset-0 bg-gradient-to-br opacity-90", w.color ?? "from-primary to-primary/60")} />
       <div className="absolute inset-0 bg-black/10" />
@@ -207,8 +208,19 @@ const WalletCard = ({ w, today, month, onOpen, bn }: { w: WalletRow; today: numb
           <span className="flex items-center gap-1"><ArrowUpRight className="h-3 w-3" /> {bn?"আজ":"Today"} {fmtBDT(today, bn)}</span>
           <span className="flex items-center gap-1"><ArrowDownRight className="h-3 w-3" /> {bn?"মাস":"Month"} {fmtBDT(month, bn)}</span>
         </div>
+        <div className="mt-3 grid grid-cols-3 gap-1.5">
+          <button onClick={stop(onAdd)} className="flex items-center justify-center gap-1 rounded-lg bg-white/20 hover:bg-white/30 backdrop-blur px-2 py-1.5 text-[11px] font-medium transition-colors">
+            <Plus className="h-3 w-3" /> {bn?"যোগ":"Add"}
+          </button>
+          <button onClick={stop(onSpend)} className="flex items-center justify-center gap-1 rounded-lg bg-white/20 hover:bg-white/30 backdrop-blur px-2 py-1.5 text-[11px] font-medium transition-colors">
+            <TrendingDown className="h-3 w-3" /> {bn?"খরচ":"Spend"}
+          </button>
+          <button onClick={stop(onTransfer)} className="flex items-center justify-center gap-1 rounded-lg bg-white/20 hover:bg-white/30 backdrop-blur px-2 py-1.5 text-[11px] font-medium transition-colors">
+            <ArrowLeftRight className="h-3 w-3" /> {bn?"ট্রান্সফার":"Move"}
+          </button>
+        </div>
       </div>
-    </motion.button>
+    </motion.div>
   );
 };
 

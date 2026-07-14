@@ -26,7 +26,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { cn } from "@/lib/utils";
 import { AnalyticsTab } from "@/components/finance/AnalyticsTab";
-import { BudgetTab } from "@/components/finance/BudgetTab";
+
 import { DebtsTab } from "@/components/finance/DebtsTab";
 import { SmartReminders, type Reminder } from "@/components/finance/SmartReminders";
 import { InventoryTab } from "@/components/finance/InventoryTab";
@@ -671,7 +671,7 @@ const Finance = () => {
               { v: "planner", label: bn?"পরিকল্পনা":"Planner", Icon: ClipboardList },
               { v: "recurring", label: bn?"মাসিক বিল":"Recurring", Icon: RepeatIcon },
               { v: "analytics", label: bn?"বিশ্লেষণ":"Analytics", Icon: PieChart },
-              { v: "budget", label: bn?"বাজেট":"Budget", Icon: Target },
+              
               { v: "debts", label: bn?"দেনা-পাওনা":"Debts", Icon: HandCoins },
               { v: "sales", label: bn?"বিক্রয়":"Sales", Icon: ShoppingBag },
               { v: "jobs", label: bn?"সার্ভিস":"Service", Icon: WrenchIcon },
@@ -947,16 +947,6 @@ const Finance = () => {
             />
           </TabsContent>
 
-          {/* Budget */}
-          <TabsContent value="budget" className="mt-4">
-            <BudgetTab
-              userId={user.id}
-              txs={filteredTxs}
-              bn={bn}
-              categories={Array.from(new Set([...CATEGORIES_PERSONAL, ...CATEGORIES_BUSINESS]))}
-              categoryLabel={(c) => bn ? (CATEGORY_BN[c] ?? c) : c}
-            />
-          </TabsContent>
 
           {/* Debts */}
           <TabsContent value="debts" className="mt-4">

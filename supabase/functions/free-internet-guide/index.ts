@@ -194,14 +194,10 @@ Deno.serve(async (req) => {
       topic,
       language,
       fetchedAt: new Date().toISOString(),
-      debug: {
-        feedCounts: results.map((r) => r.length),
-        mergedCount: merged.length,
-        scoredCount: scored.length,
-      },
       note: bn
-        ? "লাইভ Google News + অপারেটর ব্লগ থেকে সরাসরি আনা — কোনো AI ব্যবহার হয়নি।"
-        : "Live from Google News + operator blogs — no AI used.",
+        ? "লাইভ RSS ফিড থেকে সরাসরি আনা — কোনো AI ব্যবহার হয়নি।"
+        : "Live from RSS feeds — no AI used.",
+
     }), { headers: { ...corsHeaders, "Content-Type": "application/json" } });
 
   } catch (e) {

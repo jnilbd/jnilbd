@@ -32,7 +32,7 @@ export type Product = {
 };
 
 type MvType = "stock_in" | "stock_out" | "customer_return" | "supplier_return" | "damage" | "sale";
-type MvLocation = "office" | "courier" | "with_person" | "supplier" | "customer" | "damaged";
+type MvLocation = "office" | "with_me" | "courier" | "with_person" | "supplier" | "customer" | "damaged";
 type MvStatus = "completed" | "in_transit" | "pending" | "returned" | "cancelled";
 
 export type Movement = {
@@ -54,7 +54,7 @@ export type Movement = {
 
 const MV_META: Record<MvType, { bn: string; en: string; icon: any; tone: string; sign: 1 | -1; defaultLoc: MvLocation }> = {
   stock_in:        { bn: "স্টক ইন",           en: "Stock In",        icon: ArrowDownToLine, tone: "text-emerald-600 bg-emerald-500/10", sign: 1,  defaultLoc: "office" },
-  stock_out:       { bn: "স্টক আউট",          en: "Stock Out",       icon: ArrowUpFromLine, tone: "text-rose-600 bg-rose-500/10",       sign: -1, defaultLoc: "courier" },
+  stock_out:       { bn: "স্টক আউট",          en: "Stock Out",       icon: ArrowUpFromLine, tone: "text-rose-600 bg-rose-500/10",       sign: -1, defaultLoc: "with_me" },
   customer_return: { bn: "কাস্টমার রিটার্ন",   en: "Customer Return", icon: Undo2,           tone: "text-sky-600 bg-sky-500/10",         sign: 1,  defaultLoc: "office" },
   supplier_return: { bn: "সাপ্লায়ার রিটার্ন",  en: "Supplier Return", icon: RotateCcw,       tone: "text-amber-600 bg-amber-500/10",     sign: -1, defaultLoc: "supplier" },
   damage:          { bn: "ড্যামেজ",            en: "Damage",          icon: AlertTriangle,   tone: "text-red-600 bg-red-500/10",         sign: -1, defaultLoc: "damaged" },
@@ -63,6 +63,7 @@ const MV_META: Record<MvType, { bn: string; en: string; icon: any; tone: string;
 
 const LOC_META: Record<MvLocation, { bn: string; en: string; icon: any; tone: string }> = {
   office:      { bn: "অফিসে",         en: "At Office",     icon: Building2,   tone: "text-emerald-700 bg-emerald-500/10 border-emerald-500/30" },
+  with_me:     { bn: "আমার কাছে",     en: "With Me",       icon: UserRound,   tone: "text-indigo-700 bg-indigo-500/10 border-indigo-500/30" },
   courier:     { bn: "কুরিয়ারে",      en: "In Courier",    icon: Truck,       tone: "text-amber-700 bg-amber-500/10 border-amber-500/30" },
   with_person: { bn: "ব্যক্তির কাছে",  en: "With Person",   icon: UserRound,   tone: "text-violet-700 bg-violet-500/10 border-violet-500/30" },
   supplier:    { bn: "সাপ্লায়ারে",    en: "To Supplier",   icon: Factory,     tone: "text-orange-700 bg-orange-500/10 border-orange-500/30" },

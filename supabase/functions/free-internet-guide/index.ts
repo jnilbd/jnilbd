@@ -87,22 +87,21 @@ Deno.serve(async (req) => {
     const tp = TOPIC_KEYWORDS[topic] || TOPIC_KEYWORDS["cheap-mb"];
     const bn = language === "bn";
 
-    // Restrict Google News to last 45 days so old posts don't dominate
-    const RECENT = "when:45d";
-    const year = new Date().getFullYear();
-    const qBn = `${op.bn} ${tp.bn} ${year} ${RECENT}`;
-    const qEn = `${op.en} ${tp.en} ${year} ${RECENT}`;
-    const qSite = op.site ? `${tp.en} site:${op.site} ${RECENT}` : qEn;
+    const qBn = `${op.bn} ${tp.bn}`;
+    const qEn = `${op.en} ${tp.en}`;
+    const qSite = op.site ? `${tp.en} site:${op.site}` : qEn;
+
+    // `when:` is a Google News URL param, not a query token.
+    const WHEN = "&when=60d";
 
     const feeds = [
-      // Bangla news coverage (recent)
-      `https://news.google.com/rss/search?q=${encodeURIComponent(qBn)}&hl=bn&gl=BD&ceid=BD:bn`,
-      // English coverage (recent)
+      `https://news.google.com/rss/search?q=${encodeURIComponent(qBn)}${WHEN}&hl=bn&gl=BD&ceid=BD:bn`,
+      `https://news.google.com/rss/search?q=${encodeURIComponent(qEn)}${WHEN}&hl=en&gl=BD&ceid=BD:en`,
+      `https://news.google.com/rss/search?q=${encodeURIComponent(qSite)}${WHEN}&hl=en&gl=BD&ceid=BD:en`,
+      `https://news.google.com/rss/search?q=${encodeURIComponent(qEn + " techtunes trickbd")}${WHEN}&hl=en&gl=BD&ceid=BD:en`,
+      // Fallback without date filter to guarantee something shows
       `https://news.google.com/rss/search?q=${encodeURIComponent(qEn)}&hl=en&gl=BD&ceid=BD:en`,
-      // Operator's own site (recent)
-      `https://news.google.com/rss/search?q=${encodeURIComponent(qSite)}&hl=en&gl=BD&ceid=BD:en`,
-      // Community blogs / techtunes / trickbd (recent)
-      `https://news.google.com/rss/search?q=${encodeURIComponent(qEn + " techtunes trickbd bdix " + RECENT)}&hl=en&gl=BD&ceid=BD:en`,
+      `https://news.google.com/rss/search?q=${encodeURIComponent(qBn)}&hl=bn&gl=BD&ceid=BD:bn`,
     ];
 
     const results = await Promise.all(feeds.map(fetchRss));
@@ -117,12 +116,14 @@ Deno.serve(async (req) => {
       }
     }
 
-    // Drop anything older than 120 days as a safety filter
-    const CUTOFF = Date.now() - 120 * 24 * 60 * 60 * 1000;
-    const fresh = merged.filter((it) => {
+    // Prefer items within 180 days; if none, fall back to whatever we got
+    const CUTOFF = Date.now() - 180 * 24 * 60 * 60 * 1000;
+    const recent = merged.filter((it) => {
       const t = Date.parse(it.pubDate);
-      return !t || t >= CUTOFF;
+      return t && t >= CUTOFF;
     });
+    const fresh = recent.length > 0 ? recent : merged;
+
 
     // Sort newest first
     fresh.sort((a, b) => {

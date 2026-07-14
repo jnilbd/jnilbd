@@ -32,7 +32,7 @@ export type Product = {
 };
 
 type MvType = "stock_in" | "stock_out" | "customer_return" | "supplier_return" | "damage" | "sale";
-type MvLocation = "office" | "courier" | "with_person" | "supplier" | "customer" | "damaged";
+type MvLocation = "office" | "with_me" | "courier" | "with_person" | "supplier" | "customer" | "damaged";
 type MvStatus = "completed" | "in_transit" | "pending" | "returned" | "cancelled";
 
 export type Movement = {
@@ -54,7 +54,7 @@ export type Movement = {
 
 const MV_META: Record<MvType, { bn: string; en: string; icon: any; tone: string; sign: 1 | -1; defaultLoc: MvLocation }> = {
   stock_in:        { bn: "স্টক ইন",           en: "Stock In",        icon: ArrowDownToLine, tone: "text-emerald-600 bg-emerald-500/10", sign: 1,  defaultLoc: "office" },
-  stock_out:       { bn: "স্টক আউট",          en: "Stock Out",       icon: ArrowUpFromLine, tone: "text-rose-600 bg-rose-500/10",       sign: -1, defaultLoc: "courier" },
+  stock_out:       { bn: "স্টক আউট",          en: "Stock Out",       icon: ArrowUpFromLine, tone: "text-rose-600 bg-rose-500/10",       sign: -1, defaultLoc: "with_me" },
   customer_return: { bn: "কাস্টমার রিটার্ন",   en: "Customer Return", icon: Undo2,           tone: "text-sky-600 bg-sky-500/10",         sign: 1,  defaultLoc: "office" },
   supplier_return: { bn: "সাপ্লায়ার রিটার্ন",  en: "Supplier Return", icon: RotateCcw,       tone: "text-amber-600 bg-amber-500/10",     sign: -1, defaultLoc: "supplier" },
   damage:          { bn: "ড্যামেজ",            en: "Damage",          icon: AlertTriangle,   tone: "text-red-600 bg-red-500/10",         sign: -1, defaultLoc: "damaged" },
@@ -63,6 +63,7 @@ const MV_META: Record<MvType, { bn: string; en: string; icon: any; tone: string;
 
 const LOC_META: Record<MvLocation, { bn: string; en: string; icon: any; tone: string }> = {
   office:      { bn: "অফিসে",         en: "At Office",     icon: Building2,   tone: "text-emerald-700 bg-emerald-500/10 border-emerald-500/30" },
+  with_me:     { bn: "আমার কাছে",     en: "With Me",       icon: UserRound,   tone: "text-indigo-700 bg-indigo-500/10 border-indigo-500/30" },
   courier:     { bn: "কুরিয়ারে",      en: "In Courier",    icon: Truck,       tone: "text-amber-700 bg-amber-500/10 border-amber-500/30" },
   with_person: { bn: "ব্যক্তির কাছে",  en: "With Person",   icon: UserRound,   tone: "text-violet-700 bg-violet-500/10 border-violet-500/30" },
   supplier:    { bn: "সাপ্লায়ারে",    en: "To Supplier",   icon: Factory,     tone: "text-orange-700 bg-orange-500/10 border-orange-500/30" },
@@ -93,7 +94,7 @@ export function InventoryTab({ userId, bn }: { userId: string; bn: boolean }) {
     low_stock_threshold: "5", opening_stock: "0", note: "",
   });
 
-  const [mvSheet, setMvSheet] = useState<{ product: Product; type: MvType } | null>(null);
+  const [mvSheet, setMvSheet] = useState<{ product: Product; type: MvType; editingId?: string } | null>(null);
   const [mvForm, setMvForm] = useState({
     qty: "", unit_price: "", amount_paid: "", note: "",
     location: "office" as MvLocation, party_name: "", party_phone: "",
@@ -116,14 +117,12 @@ export function InventoryTab({ userId, bn }: { userId: string; bn: boolean }) {
 
   // ---------- Aggregate breakdowns ----------
   const breakdown = useMemo(() => {
-    // Units currently at each location (net of subsequent inbound movements)
-    // Simple rule: a "sent out" movement (sign -1) with a location keeps qty there
-    // until a matching customer_return / stock_in reduces the outstanding.
-    // For clarity we compute two views:
-    //   (a) outstanding units per location — sum of qty of outbound moves with status ∈ (in_transit, pending)
-    //   (b) money receivable — Σ (qty*unit_price − amount_paid) for sale/stock_out where status ≠ cancelled/returned
+    // Show CURRENT position per location:
+    //  - office comes from products.current_stock (already reflects returns via triggers)
+    //  - every other location is: cumulative outbound qty tagged to that location,
+    //    excluding cancelled/returned entries.
     const perLoc: Record<MvLocation, number> = {
-      office: 0, courier: 0, with_person: 0, supplier: 0, customer: 0, damaged: 0,
+      office: 0, with_me: 0, courier: 0, with_person: 0, supplier: 0, customer: 0, damaged: 0,
     };
     let receivable = 0;
     let inTransitValue = 0;
@@ -131,11 +130,9 @@ export function InventoryTab({ userId, bn }: { userId: string; bn: boolean }) {
 
     for (const m of movements) {
       const meta = MV_META[m.type];
-      // Outbound not-yet-settled -> those units are still "out there"
-      if (meta.sign === -1 && m.location && (m.status === "in_transit" || m.status === "pending")) {
+      if (meta.sign === -1 && m.location && m.status !== "cancelled" && m.status !== "returned") {
         perLoc[m.location] += Number(m.qty);
       }
-      // Money receivable for sales/outs that aren't fully paid & not cancelled/returned
       if ((m.type === "sale" || m.type === "stock_out") && m.status !== "cancelled" && m.status !== "returned") {
         const due = Number(m.qty) * Number(m.unit_price) - Number(m.amount_paid || 0);
         if (due > 0) receivable += due;
@@ -143,7 +140,6 @@ export function InventoryTab({ userId, bn }: { userId: string; bn: boolean }) {
       if (m.status === "in_transit") inTransitValue += Number(m.qty) * Number(m.unit_price);
       if (m.status === "pending") pendingCount++;
     }
-    // Office = current on-hand (from products.current_stock)
     perLoc.office = products.reduce((s, p) => s + Number(p.current_stock), 0);
     return { perLoc, receivable, inTransitValue, pendingCount };
   }, [movements, products]);
@@ -211,14 +207,27 @@ export function InventoryTab({ userId, bn }: { userId: string; bn: boolean }) {
     });
   }
 
+  function openEditMv(product: Product, m: Movement) {
+    setMvSheet({ product, type: m.type, editingId: m.id });
+    setMvForm({
+      qty: String(m.qty),
+      unit_price: String(m.unit_price ?? 0),
+      amount_paid: String(m.amount_paid ?? 0),
+      note: m.note ?? "",
+      location: (m.location ?? MV_META[m.type].defaultLoc) as MvLocation,
+      party_name: m.party_name ?? "",
+      party_phone: m.party_phone ?? "",
+      courier_name: m.courier_name ?? "",
+      tracking_no: m.tracking_no ?? "",
+      status: m.status,
+    });
+  }
+
   async function submitMovement() {
     if (!mvSheet) return;
     const qty = Number(mvForm.qty);
     if (!qty || qty <= 0) { toast.error(bn ? "সঠিক পরিমাণ দিন" : "Enter valid qty"); return; }
-    const { error } = await supabase.from("inventory_movements").insert({
-      user_id: userId,
-      product_id: mvSheet.product.id,
-      type: mvSheet.type,
+    const payload = {
       qty,
       unit_price: Number(mvForm.unit_price) || 0,
       amount_paid: Number(mvForm.amount_paid) || 0,
@@ -229,8 +238,16 @@ export function InventoryTab({ userId, bn }: { userId: string; bn: boolean }) {
       courier_name: mvForm.courier_name.trim() || null,
       tracking_no: mvForm.tracking_no.trim() || null,
       status: mvForm.status,
-    });
-    if (error) { toast.error(error.message); return; }
+    };
+    const res = mvSheet.editingId
+      ? await supabase.from("inventory_movements").update(payload).eq("id", mvSheet.editingId)
+      : await supabase.from("inventory_movements").insert({
+          user_id: userId,
+          product_id: mvSheet.product.id,
+          type: mvSheet.type,
+          ...payload,
+        });
+    if (res.error) { toast.error(res.error.message); return; }
     toast.success(bn ? "সংরক্ষিত" : "Saved");
     setMvSheet(null);
     loadAll();
@@ -306,7 +323,7 @@ export function InventoryTab({ userId, bn }: { userId: string; bn: boolean }) {
             </span>
           </div>
         </div>
-        <div className="grid grid-cols-3 sm:grid-cols-6 gap-2">
+        <div className="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-7 gap-2">
           {(Object.keys(LOC_META) as MvLocation[]).map(loc => {
             const L = LOC_META[loc];
             const qty = breakdown.perLoc[loc];
@@ -363,8 +380,9 @@ export function InventoryTab({ userId, bn }: { userId: string; bn: boolean }) {
           {filteredProducts.map(p => {
             const low = Number(p.current_stock) <= Number(p.low_stock_threshold);
             const pmoves = movements.filter(m => m.product_id === p.id);
-            const outCourier = pmoves.filter(m => m.location === "courier" && (m.status === "in_transit" || m.status === "pending")).reduce((s, m) => s + Number(m.qty), 0);
-            const outPerson = pmoves.filter(m => m.location === "with_person" && (m.status === "in_transit" || m.status === "pending")).reduce((s, m) => s + Number(m.qty), 0);
+            const locSum = (loc: MvLocation) =>
+              pmoves.filter(m => m.location === loc && MV_META[m.type].sign === -1 && m.status !== "cancelled" && m.status !== "returned")
+                    .reduce((s, m) => s + Number(m.qty), 0);
             const due = pmoves.filter(m => (m.type === "sale" || m.type === "stock_out") && m.status !== "cancelled" && m.status !== "returned")
               .reduce((s, m) => s + Math.max(0, Number(m.qty) * Number(m.unit_price) - Number(m.amount_paid || 0)), 0);
 
@@ -395,18 +413,18 @@ export function InventoryTab({ userId, bn }: { userId: string; bn: boolean }) {
                   )}
                 </div>
 
-                {/* per-product breakdown chips */}
+                {/* per-product breakdown chips — all non-office destinations */}
                 <div className="flex flex-wrap gap-1 text-[10px]">
-                  {outCourier > 0 && (
-                    <span className="rounded-full px-1.5 py-0.5 bg-amber-500/10 text-amber-700 flex items-center gap-1">
-                      <Truck className="h-3 w-3" /> {bn ? "কুরিয়ারে" : "Courier"}: <b>{outCourier}</b>
-                    </span>
-                  )}
-                  {outPerson > 0 && (
-                    <span className="rounded-full px-1.5 py-0.5 bg-violet-500/10 text-violet-700 flex items-center gap-1">
-                      <UserRound className="h-3 w-3" /> {bn ? "ব্যক্তি" : "Person"}: <b>{outPerson}</b>
-                    </span>
-                  )}
+                  {(["with_me","with_person","courier","customer","supplier","damaged"] as MvLocation[]).map(loc => {
+                    const n = locSum(loc);
+                    if (n <= 0) return null;
+                    const L = LOC_META[loc];
+                    return (
+                      <span key={loc} className={cn("rounded-full px-1.5 py-0.5 border flex items-center gap-1", L.tone)}>
+                        <L.icon className="h-3 w-3" /> {bn ? L.bn : L.en}: <b>{n}</b>
+                      </span>
+                    );
+                  })}
                   {due > 0 && (
                     <span className="rounded-full px-1.5 py-0.5 bg-orange-500/10 text-orange-700 flex items-center gap-1">
                       <Wallet className="h-3 w-3" /> {bn ? "বাকি" : "Due"}: <b>{fmtBDT(due, bn)}</b>
@@ -692,7 +710,11 @@ export function InventoryTab({ userId, bn }: { userId: string; bn: boolean }) {
                       {m.note && <p className="text-[11px] text-muted-foreground pl-10">📝 {m.note}</p>}
 
                       {/* quick actions */}
-                      <div className="flex gap-1 pl-10">
+                      <div className="flex gap-1 pl-10 flex-wrap">
+                        <Button size="sm" variant="outline" className="h-6 text-[10px] px-2"
+                          onClick={() => { openEditMv(historyOf!, m); }}>
+                          {bn ? "এডিট" : "Edit"}
+                        </Button>
                         {m.status !== "completed" && (
                           <Button size="sm" variant="outline" className="h-6 text-[10px] px-2"
                             onClick={() => updateMvStatus(m, "completed", due > 0 ? due : 0)}>

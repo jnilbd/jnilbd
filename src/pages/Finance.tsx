@@ -797,7 +797,6 @@ const Finance = () => {
               { v: "ai", label: "AI", Icon: Sparkles },
               { v: "calc", label: bn?"ক্যালকুলেটর":"Calculator", Icon: CalculatorIcon },
             ];
-            ];
             return (
               <TabsList className="h-auto w-full bg-transparent p-0 grid grid-cols-5 sm:grid-cols-8 lg:grid-cols-8 gap-1.5">
                 {items.map(({ v, label, Icon }) => (

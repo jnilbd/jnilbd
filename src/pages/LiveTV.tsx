@@ -494,7 +494,7 @@ const LiveTV = () => {
   const offlineChannels = useMemo(() => {
     const pool = [
       ...mrgifyChannels, ...tvChannels, ...worldChannels,
-      ...bdixChannels, ...DIRECT_CHANNELS, ...sportsChannels, ...radioChannels,
+      ...bdixChannels, ...sportsChannels, ...radioChannels,
     ];
     const seen = new Set<string>();
     return pool.filter(c => dead.has(c.id) && !seen.has(c.id) && seen.add(c.id));

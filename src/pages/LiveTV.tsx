@@ -17,7 +17,7 @@ const DEAD_KEY = "livetv:dead:v2";
 const FAV_KEY = "livetv:favorites:v2";
 const RECENT_KEY = "livetv:recent:v1";
 
-type Tab = "mrgify" | "tv" | "bdix" | "direct" | "world" | "sports" | "radio" | "scores";
+type Tab = "mrgify" | "tv" | "bdix" | "direct" | "world" | "sports" | "radio" | "scores" | "offline";
 type Health = "unknown" | "checking" | "live" | "dead";
 
 type Channel = {
@@ -470,10 +470,20 @@ const LiveTV = () => {
       const txt = (await res.text()).slice(0, 200);
       const ok = txt.includes("#EXTM3U") || ch.category === "radio";
       setHealth(h => ({ ...h, [ch.id]: ok ? "live" : "dead" }));
+      if (!ok) setDead(prev => (prev.has(ch.id) ? prev : new Set(prev).add(ch.id)));
     } catch {
       setHealth(h => ({ ...h, [ch.id]: "unknown" }));
     }
   }, []);
+
+  const offlineChannels = useMemo(() => {
+    const pool = [
+      ...mrgifyChannels, ...tvChannels, ...worldChannels,
+      ...bdixChannels, ...DIRECT_CHANNELS, ...sportsChannels, ...radioChannels,
+    ];
+    const seen = new Set<string>();
+    return pool.filter(c => dead.has(c.id) && !seen.has(c.id) && seen.add(c.id));
+  }, [mrgifyChannels, tvChannels, worldChannels, bdixChannels, sportsChannels, radioChannels, dead]);
 
   const allChannels =
     tab === "mrgify" ? mrgifyChannels :
@@ -482,6 +492,7 @@ const LiveTV = () => {
     tab === "bdix" ? bdixChannels :
     tab === "direct" ? DIRECT_CHANNELS :
     tab === "sports" ? sportsChannels :
+    tab === "offline" ? offlineChannels :
     tab === "radio" ? radioChannels : [];
 
   const availableCountries = useMemo(() => {
@@ -502,10 +513,12 @@ const LiveTV = () => {
       return i === -1 ? 999 : i; // lower = more recent
     };
     return base.sort((a, b) => {
-      // Dead always at bottom
-      const da = dead.has(a.id) ? 1 : 0;
-      const db = dead.has(b.id) ? 1 : 0;
-      if (da !== db) return da - db;
+      // Dead always at bottom (except in Offline tab where all are dead)
+      if (tab !== "offline") {
+        const da = dead.has(a.id) ? 1 : 0;
+        const db = dead.has(b.id) ? 1 : 0;
+        if (da !== db) return da - db;
+      }
       // Recently-played first
       const ra = recentRank(a.id);
       const rb = recentRank(b.id);
@@ -626,6 +639,7 @@ const LiveTV = () => {
               { k: "sports", label: t("স্পোর্টস","Sports"), icon: Trophy },
               { k: "scores", label: t("স্কোর","Scores"), icon: Activity },
               { k: "radio", label: t("রেডিও","Radio"), icon: Radio },
+              { k: "offline", label: `${t("অফলাইন","Offline")}${offlineChannels.length ? ` (${offlineChannels.length})` : ""}`, icon: XCircle },
             ] as { k: Tab; label: string; icon: any }[]).map(({ k, label, icon: Icon }) => (
               <button
                 key={k}

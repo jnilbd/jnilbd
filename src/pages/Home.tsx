@@ -300,8 +300,9 @@ const Home = () => {
                 <div className={`relative h-full p-6 md:p-8 rounded-3xl ${card.color} text-white shadow-elegant overflow-hidden hover:scale-[1.02] transition-bounce`}>
                   <div className="absolute -top-10 -right-10 w-40 h-40 rounded-full bg-white/10 group-hover:scale-150 transition-bounce" />
                   <card.icon className="w-10 h-10 md:w-12 md:h-12 mb-3 md:mb-4 relative z-10" />
-                  <h3 className="text-xl md:text-2xl font-display font-bold mb-2 relative z-10">{t(card.titleKey)}</h3>
-                  <p className="text-sm md:text-base text-white/90 mb-5 relative z-10 line-clamp-2">{t(card.descKey)}</p>
+                  <h3 className="text-xl md:text-2xl font-display font-bold mb-2 relative z-10">{card.title}</h3>
+                  {card.desc && <p className="text-sm md:text-base text-white/90 mb-5 relative z-10 line-clamp-2">{card.desc}</p>}
+
                   <div className="flex items-center gap-2 font-semibold relative z-10 group-hover:gap-3 transition-smooth text-sm md:text-base">
                     <span>{t("btn.viewDetails")}</span>
                     <ArrowRight className="w-4 h-4 md:w-5 md:h-5" />

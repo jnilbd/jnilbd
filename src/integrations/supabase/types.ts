@@ -408,6 +408,50 @@ export type Database = {
         }
         Relationships: []
       }
+      finance_withdrawals: {
+        Row: {
+          amount: number
+          created_at: string
+          fee: number
+          id: string
+          method: string | null
+          note: string | null
+          occurred_at: string
+          user_id: string
+          wallet_id: string | null
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          fee?: number
+          id?: string
+          method?: string | null
+          note?: string | null
+          occurred_at?: string
+          user_id: string
+          wallet_id?: string | null
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          fee?: number
+          id?: string
+          method?: string | null
+          note?: string | null
+          occurred_at?: string
+          user_id?: string
+          wallet_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "finance_withdrawals_wallet_id_fkey"
+            columns: ["wallet_id"]
+            isOneToOne: false
+            referencedRelation: "finance_wallets"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       inventory_movements: {
         Row: {
           amount_paid: number

@@ -285,13 +285,24 @@ const LiveTV = () => {
     let cancelled = false;
     (async () => {
       try {
-        const [streamsRes, channelsRes] = await Promise.all([
+        const [streamsRes, channelsRes, logosRes] = await Promise.all([
           fetch("https://iptv-org.github.io/api/streams.json"),
           fetch("https://iptv-org.github.io/api/channels.json"),
+          fetch("https://iptv-org.github.io/api/logos.json").catch(() => null),
         ]);
         const streams = await streamsRes.json();
         const channels = await channelsRes.json();
-        const chMap = new Map<string, any>(channels.map((c: any) => [c.id, c]));
+        const logos: any[] = logosRes && logosRes.ok ? await logosRes.json() : [];
+        // Pick best logo per channel (prefer square PNG/SVG)
+        const logoMap = new Map<string, string>();
+        for (const l of logos) {
+          if (!l?.channel || !l?.url) continue;
+          const existing = logoMap.get(l.channel);
+          const isSquare = l.width && l.height && Math.abs(l.width - l.height) < 20;
+          if (!existing || isSquare) logoMap.set(l.channel, l.url);
+        }
+        const chMap = new Map<string, any>(channels.map((c: any) => [c.id, { ...c, logo: c.logo || logoMap.get(c.id) }]));
+
 
         // Group streams by channel id (for World multi-link)
         const grouped = new Map<string, { meta: any; urls: string[] }>();

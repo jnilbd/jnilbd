@@ -926,7 +926,11 @@ const LiveTV = () => {
                           {countryEntries.slice(0, 12).map(([code, list]) => (
                             <button
                               key={code}
-                              onClick={() => document.getElementById(`world-country-${code}`)?.scrollIntoView({ behavior: "smooth", block: "start" })}
+                              onClick={() => {
+                                const idx = countryEntries.findIndex(([c]) => c === code);
+                                if (idx >= worldCountriesShown) setWorldCountriesShown(idx + 1);
+                                setTimeout(() => document.getElementById(`world-country-${code}`)?.scrollIntoView({ behavior: "smooth", block: "start" }), 50);
+                              }}
                               className="px-2.5 py-1 rounded-full text-[11px] font-semibold bg-muted hover:bg-primary hover:text-white transition-smooth"
                             >
                               {COUNTRY_NAMES[code] || code} <span className="opacity-70">({list.length})</span>

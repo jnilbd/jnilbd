@@ -67,11 +67,24 @@ function parseRss(xml: string, limit = 25): Item[] {
 
 async function fetchRss(url: string): Promise<Item[]> {
   try {
-    const r = await fetch(url, { headers: { "User-Agent": "Mozilla/5.0" } });
+    const r = await fetch(url, {
+      redirect: "follow",
+      headers: {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0 Safari/537.36",
+        "Accept": "application/rss+xml, application/xml, text/xml, */*",
+        "Accept-Language": "en-US,en;q=0.9,bn;q=0.8",
+      },
+    });
+    const text = await r.text();
+    console.log(`[rss] ${r.status} ${text.length}b ${url.slice(0, 90)}`);
     if (!r.ok) return [];
-    return parseRss(await r.text());
-  } catch { return []; }
+    return parseRss(text);
+  } catch (e) {
+    console.log(`[rss-err] ${(e as Error).message} ${url.slice(0, 90)}`);
+    return [];
+  }
 }
+
 
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });

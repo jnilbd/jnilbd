@@ -73,6 +73,8 @@ async function fetchRss(url: string): Promise<Item[]> {
         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0 Safari/537.36",
         "Accept": "application/rss+xml, application/xml, text/xml, */*",
         "Accept-Language": "en-US,en;q=0.9,bn;q=0.8",
+        // Bypass Google's EU cookie consent wall (edge runs in EU region)
+        "Cookie": "CONSENT=YES+cb.20210328-17-p0.en+FX+123; SOCS=CAISHAgBEhJnd3NfMjAyMzExMjItMF9SQzEaAmVuIAEaBgiA1p2rBg",
       },
     });
     const text = await r.text();
@@ -84,6 +86,7 @@ async function fetchRss(url: string): Promise<Item[]> {
     return [];
   }
 }
+
 
 
 Deno.serve(async (req) => {

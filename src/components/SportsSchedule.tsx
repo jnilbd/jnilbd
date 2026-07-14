@@ -27,36 +27,35 @@ type SportEvent = {
   channelsIN?: string[];
   channelsWorld?: string[];
   espnLink?: string;
+  priority: number; // 0 = normal, 1 = top league, 2 = tournament (WC/UCL), 3 = knockout/final
 };
 
-// ESPN scoreboard leagues to poll. Each returns JSON with .events[].
-const LEAGUES: { sport: Sport; path: string; tournament: string; bd: string[]; in?: string[]; world?: string[] }[] = [
-  // Football / Soccer
-  { sport: "football", path: "soccer/fifa.world", tournament: "FIFA World Cup", bd: ["T Sports", "Toffee"], in: ["Sony Sports", "JioCinema"], world: ["FOX", "BBC", "beIN"] },
-  { sport: "football", path: "soccer/fifa.worldq.uefa", tournament: "FIFA WC Qualifying — UEFA", bd: ["Sony Sports (via cable)"], in: ["Sony Sports", "SonyLIV"] },
-  { sport: "football", path: "soccer/uefa.champions", tournament: "UEFA Champions League", bd: ["Sony Sports (cable)"], in: ["Sony Sports", "SonyLIV"], world: ["CBS Paramount+", "TNT Sports"] },
-  { sport: "football", path: "soccer/uefa.europa", tournament: "UEFA Europa League", bd: ["Sony Sports (cable)"], in: ["Sony Sports", "SonyLIV"] },
-  { sport: "football", path: "soccer/eng.1", tournament: "English Premier League", bd: ["Star Sports Select (cable)"], in: ["Star Sports", "Disney+ Hotstar"], world: ["NBC / Peacock", "Sky Sports"] },
-  { sport: "football", path: "soccer/esp.1", tournament: "LaLiga", bd: ["Sports18 (cable)"], in: ["Sports18", "JioCinema"] },
-  { sport: "football", path: "soccer/ita.1", tournament: "Serie A", bd: ["Sports18 (cable)"], in: ["Sports18", "JioCinema"] },
-  { sport: "football", path: "soccer/ger.1", tournament: "Bundesliga", bd: ["Sony Sports (cable)"], in: ["Sony Sports", "SonyLIV"] },
-  { sport: "football", path: "soccer/fra.1", tournament: "Ligue 1", bd: ["Sports18 (cable)"], in: ["Sports18", "JioCinema"] },
-  // Cricket (ESPN cricket scoreboard)
-  { sport: "cricket", path: "cricket/8039", tournament: "ICC / International Cricket", bd: ["T Sports", "Gazi TV", "Toffee"], in: ["Star Sports", "Disney+ Hotstar"], world: ["Willow TV (US)", "Sky Sports (UK)"] },
-  { sport: "cricket", path: "cricket/23431", tournament: "IPL", bd: ["Star Sports (cable)"], in: ["Star Sports", "JioCinema"] },
-  // Tennis
-  { sport: "tennis", path: "tennis/atp", tournament: "ATP Tour", bd: ["Sony Sports (cable)"], in: ["Sony Sports", "SonyLIV"] },
-  { sport: "tennis", path: "tennis/wta", tournament: "WTA Tour", bd: ["Sony Sports (cable)"], in: ["Sony Sports", "SonyLIV"] },
-  // Formula 1
-  { sport: "f1", path: "racing/f1", tournament: "Formula 1", bd: ["Star Sports Select (cable)"], in: ["Star Sports", "F1 TV Pro"], world: ["Sky Sports F1", "ESPN"] },
-  // Basketball
-  { sport: "basketball", path: "basketball/nba", tournament: "NBA", bd: ["Sony Sports (cable)"], in: ["Sony Sports", "SonyLIV"], world: ["ESPN", "TNT", "NBA League Pass"] },
-  // NFL
-  { sport: "americanfootball", path: "football/nfl", tournament: "NFL", bd: ["DAZN (VPN)"], world: ["FOX / CBS / NBC", "NFL Game Pass"] },
-  // MLB
-  { sport: "baseball", path: "baseball/mlb", tournament: "MLB", bd: ["MLB.TV"], world: ["FOX", "ESPN", "MLB.TV"] },
-  // NHL
-  { sport: "hockey", path: "hockey/nhl", tournament: "NHL", bd: ["NHL.TV"], world: ["ESPN+", "TNT", "Sportsnet"] },
+// tier: 3 = mega (World Cup / continental finals), 2 = major league, 1 = normal
+const LEAGUES: { sport: Sport; path: string; tournament: string; tier: number; wideWindow?: boolean; bd: string[]; in?: string[]; world?: string[] }[] = [
+  // ⭐ MEGA — always fetch 30-day window so semifinals / finals appear
+  { sport: "football", path: "soccer/fifa.world", tournament: "FIFA World Cup 2026", tier: 3, wideWindow: true, bd: ["T Sports", "Toffee"], in: ["Sony Sports", "JioCinema"], world: ["FOX", "BBC", "beIN"] },
+  { sport: "football", path: "soccer/uefa.champions", tournament: "UEFA Champions League", tier: 3, wideWindow: true, bd: ["Sony Sports (cable)"], in: ["Sony Sports", "SonyLIV"], world: ["CBS Paramount+", "TNT Sports"] },
+  { sport: "football", path: "soccer/conmebol.america", tournament: "Copa América", tier: 3, wideWindow: true, bd: ["Sony Sports"], in: ["Sony Sports", "SonyLIV"], world: ["FOX", "TUDN"] },
+  { sport: "football", path: "soccer/uefa.euro", tournament: "UEFA Euro", tier: 3, wideWindow: true, bd: ["Sony Sports"], in: ["Sony Sports", "SonyLIV"], world: ["ESPN", "BBC/ITV"] },
+  { sport: "cricket", path: "cricket/8039", tournament: "ICC International", tier: 3, wideWindow: true, bd: ["T Sports", "Gazi TV", "Toffee"], in: ["Star Sports", "Disney+ Hotstar"], world: ["Willow TV (US)", "Sky Sports (UK)"] },
+  // 🔥 MAJOR leagues
+  { sport: "football", path: "soccer/fifa.worldq.uefa", tournament: "FIFA WC Qualifying — UEFA", tier: 2, bd: ["Sony Sports (cable)"], in: ["Sony Sports", "SonyLIV"] },
+  { sport: "football", path: "soccer/fifa.worldq.conmebol", tournament: "FIFA WC Qualifying — CONMEBOL", tier: 2, bd: ["Sony Sports"], in: ["Sony Sports", "SonyLIV"] },
+  { sport: "football", path: "soccer/uefa.europa", tournament: "UEFA Europa League", tier: 2, bd: ["Sony Sports (cable)"], in: ["Sony Sports", "SonyLIV"] },
+  { sport: "football", path: "soccer/eng.1", tournament: "English Premier League", tier: 2, bd: ["Star Sports Select (cable)"], in: ["Star Sports", "Disney+ Hotstar"], world: ["NBC / Peacock", "Sky Sports"] },
+  { sport: "football", path: "soccer/esp.1", tournament: "LaLiga", tier: 2, bd: ["Sports18 (cable)"], in: ["Sports18", "JioCinema"] },
+  { sport: "football", path: "soccer/ita.1", tournament: "Serie A", tier: 2, bd: ["Sports18 (cable)"], in: ["Sports18", "JioCinema"] },
+  { sport: "football", path: "soccer/ger.1", tournament: "Bundesliga", tier: 2, bd: ["Sony Sports (cable)"], in: ["Sony Sports", "SonyLIV"] },
+  { sport: "football", path: "soccer/fra.1", tournament: "Ligue 1", tier: 2, bd: ["Sports18 (cable)"], in: ["Sports18", "JioCinema"] },
+  { sport: "cricket", path: "cricket/23431", tournament: "IPL", tier: 2, bd: ["Star Sports (cable)"], in: ["Star Sports", "JioCinema"] },
+  // Tennis / F1 / US leagues
+  { sport: "tennis", path: "tennis/atp", tournament: "ATP Tour", tier: 1, bd: ["Sony Sports (cable)"], in: ["Sony Sports", "SonyLIV"] },
+  { sport: "tennis", path: "tennis/wta", tournament: "WTA Tour", tier: 1, bd: ["Sony Sports (cable)"], in: ["Sony Sports", "SonyLIV"] },
+  { sport: "f1", path: "racing/f1", tournament: "Formula 1", tier: 2, wideWindow: true, bd: ["Star Sports Select (cable)"], in: ["Star Sports", "F1 TV Pro"], world: ["Sky Sports F1", "ESPN"] },
+  { sport: "basketball", path: "basketball/nba", tournament: "NBA", tier: 1, bd: ["Sony Sports (cable)"], in: ["Sony Sports", "SonyLIV"], world: ["ESPN", "TNT", "NBA League Pass"] },
+  { sport: "americanfootball", path: "football/nfl", tournament: "NFL", tier: 1, bd: ["DAZN (VPN)"], world: ["FOX / CBS / NBC", "NFL Game Pass"] },
+  { sport: "baseball", path: "baseball/mlb", tournament: "MLB", tier: 1, bd: ["MLB.TV"], world: ["FOX", "ESPN", "MLB.TV"] },
+  { sport: "hockey", path: "hockey/nhl", tournament: "NHL", tier: 1, bd: ["NHL.TV"], world: ["ESPN+", "TNT", "Sportsnet"] },
 ];
 
 const SPORT_LABEL: Record<Sport, { bn: string; en: string; emoji: string }> = {

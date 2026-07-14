@@ -741,11 +741,15 @@ const LiveTV = () => {
   }, [allChannels, search, countryFilter, onlyFavs, favs, dead, recent, working, health, tab]);
 
 
+  useEffect(() => { filteredRef.current = filtered; }, [filtered]);
+  useEffect(() => { deadRef.current = dead; }, [dead]);
+
   useEffect(() => {
     const targets = filtered.slice(0, 12).filter(c => !(c.id in health));
     targets.forEach(c => checkHealth(c));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filtered]);
+
 
   // Auto-sweep on site load: check a wide sample of channels in the background
   // with limited concurrency so live/working ones bubble to the top automatically.

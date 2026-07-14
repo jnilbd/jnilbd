@@ -1141,20 +1141,24 @@ const LiveTV = () => {
                           })}
                         </div>
 
-                        <div className="mx-2 h-4 w-px bg-border" />
-                        <div className="flex items-center gap-1.5 text-xs font-semibold text-muted-foreground shrink-0">
-                          <Globe2 className="w-3.5 h-3.5" />
-                          {t("দেশ:", "Country:")}
-                        </div>
-                        {[...countryCounts.entries()].sort((a,b) => countryPriority(a[0]) - countryPriority(b[0])).map(([code, n]) => (
-                          <button
-                            key={code}
-                            onClick={() => setCountryFilter(code)}
-                            className="px-2.5 py-1 rounded-full text-[11px] font-semibold bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 hover:bg-emerald-500 hover:text-white transition-smooth"
-                          >
-                            {COUNTRY_NAMES[code] || code} <span className="opacity-70">({n})</span>
-                          </button>
-                        ))}
+                        {countryCounts.size > 1 && (
+                          <>
+                            <div className="mx-2 h-4 w-px bg-border" />
+                            <div className="flex items-center gap-1.5 text-xs font-semibold text-muted-foreground shrink-0">
+                              <Globe2 className="w-3.5 h-3.5" />
+                              {t("দেশ:", "Country:")}
+                            </div>
+                            {[...countryCounts.entries()].sort((a,b) => countryPriority(a[0]) - countryPriority(b[0])).map(([code, n]) => (
+                              <button
+                                key={code}
+                                onClick={() => setCountryFilter(code)}
+                                className="px-2.5 py-1 rounded-full text-[11px] font-semibold bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 hover:bg-emerald-500 hover:text-white transition-smooth"
+                              >
+                                {COUNTRY_NAMES[code] || code} <span className="opacity-70">({n})</span>
+                              </button>
+                            ))}
+                          </>
+                        )}
                       </div>
                     </div>
 

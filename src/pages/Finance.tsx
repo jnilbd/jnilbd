@@ -1340,14 +1340,22 @@ const Finance = () => {
                     const incoming = t.transfer_to_wallet_id === detailWallet.id;
                     const sign = t.type === "transfer" ? (incoming ? "+" : "-") : income ? "+" : "-";
                     return (
-                      <div key={t.id} className="flex items-center justify-between text-xs px-2 py-2 rounded-lg hover:bg-muted/50">
-                        <div className="min-w-0">
+                      <div key={t.id} className="flex items-center justify-between gap-2 text-xs px-2 py-2 rounded-lg hover:bg-muted/50 group">
+                        <div className="min-w-0 flex-1">
                           <p className="capitalize truncate">{t.category ? bnLabel(CATEGORY_BN, t.category, bn) : bnLabel(TX_TYPE_BN, t.type, bn)}</p>
-                          <p className="text-[10px] text-muted-foreground truncate">{new Date(t.occurred_at).toLocaleString(bn?"bn-BD":"en-BD")}</p>
+                          <p className="text-[10px] text-muted-foreground truncate">{new Date(t.occurred_at).toLocaleString(bn?"bn-BD":"en-BD")}{(t as any).note ? ` · ${(t as any).note}` : ""}</p>
                         </div>
-                        <span className={cn("tabular-nums font-medium", sign === "+" ? "text-emerald-500" : "text-rose-500")}>
+                        <span className={cn("tabular-nums font-medium shrink-0", sign === "+" ? "text-emerald-500" : "text-rose-500")}>
                           {sign}{fmtBDT(Number(t.amount), bn)}
                         </span>
+                        <div className="flex items-center gap-0.5 shrink-0 opacity-60 group-hover:opacity-100 transition-opacity">
+                          <button onClick={() => openEditTx(t)} className="p-1.5 rounded-md hover:bg-primary/10 text-primary" title={bn?"সম্পাদনা":"Edit"}>
+                            <Pencil className="h-3 w-3" />
+                          </button>
+                          <button onClick={() => deleteTx(t.id)} className="p-1.5 rounded-md hover:bg-rose-500/10 text-rose-500" title={bn?"মুছুন":"Delete"}>
+                            <Trash2 className="h-3 w-3" />
+                          </button>
+                        </div>
                       </div>
                     );
                   })}

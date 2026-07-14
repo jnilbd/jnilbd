@@ -460,28 +460,60 @@ const Finance = () => {
     if (!amount || amount <= 0) { toast.error(bn ? "সঠিক টাকা লিখুন" : "Enter amount"); return; }
     if (!qaWallet) { toast.error(bn ? "ওয়ালেট নির্বাচন করুন" : "Pick a wallet"); return; }
     if (qaType === "transfer" && !qaWallet2) { toast.error(bn ? "গন্তব্য ওয়ালেট নির্বাচন করুন" : "Pick destination wallet"); return; }
-    if (qaType === "income" && qaWallet2 && qaWallet2 === qaWallet) {
+    if ((qaType === "income" || qaType === "expense") && qaWallet2 && qaWallet2 === qaWallet) {
       toast.error(bn ? "উৎস ও গন্তব্য ভিন্ন হতে হবে" : "Source and destination must differ"); return;
     }
     setBusy(true);
     const occurred_at = qaDate ? new Date(qaDate).toISOString() : new Date().toISOString();
-    // If user picked a "from wallet" while adding income, treat it as an internal transfer
-    const asTransfer = qaType === "income" && !!qaWallet2;
-    const effectiveType: TxType = asTransfer ? "transfer" : qaType;
+    const fee = Number(qaFee) || 0;
+
+    // If user picked a "from wallet" while adding income, treat as internal transfer
+    const incomeAsTransfer = qaType === "income" && !!qaWallet2;
+    // If user picked a "from wallet" while adding expense (route/cash-out), pre-insert a transfer
+    const expenseWithSource = qaType === "expense" && !!qaWallet2 && !editTxId;
+
     const payload = {
-      wallet_id: asTransfer ? qaWallet2 : qaWallet,
-      transfer_to_wallet_id: asTransfer ? qaWallet : (qaType === "transfer" ? qaWallet2 : null),
-      type: effectiveType, amount, category: qaCategory || null,
+      wallet_id: incomeAsTransfer ? qaWallet2 : qaWallet,
+      transfer_to_wallet_id: incomeAsTransfer ? qaWallet : (qaType === "transfer" ? qaWallet2 : null),
+      type: (incomeAsTransfer ? "transfer" : qaType) as TxType,
+      amount, category: qaCategory || null,
       scope: qaScope, party: qaParty || null, note: qaNote || null,
       occurred_at,
     };
-    let error;
+
+    let error: any;
     if (editTxId) {
-      // delete + re-insert so the finance_apply_tx trigger correctly reverses old effect and applies new
       const del = await supabase.from("finance_transactions").delete().eq("id", editTxId);
       if (del.error) { setBusy(false); toast.error(del.error.message); return; }
       const ins = await supabase.from("finance_transactions").insert({ user_id: user.id, ...payload });
       error = ins.error;
+    } else if (expenseWithSource) {
+      // 1) transfer amount+fee from source (qaWallet2) → destination (qaWallet)
+      const transferAmt = amount + fee;
+      const t1 = await supabase.from("finance_transactions").insert({
+        user_id: user.id,
+        wallet_id: qaWallet2,
+        transfer_to_wallet_id: qaWallet,
+        type: "transfer", amount: transferAmt,
+        category: null, scope: qaScope, party: null,
+        note: bn ? `${qaNote || "খরচের জন্য"} — রুট` : `${qaNote || "for expense"} — routed`,
+        occurred_at,
+      });
+      if (t1.error) { setBusy(false); toast.error(t1.error.message); return; }
+      // 2) fee as expense on destination (cash-out charge)
+      if (fee > 0) {
+        await supabase.from("finance_transactions").insert({
+          user_id: user.id,
+          wallet_id: qaWallet, transfer_to_wallet_id: null,
+          type: "expense", amount: fee, category: "fees",
+          scope: qaScope, party: null,
+          note: bn ? "ক্যাশ-আউট ফি" : "Cash-out fee",
+          occurred_at,
+        });
+      }
+      // 3) actual expense on destination
+      const t3 = await supabase.from("finance_transactions").insert({ user_id: user.id, ...payload });
+      error = t3.error;
     } else {
       const ins = await supabase.from("finance_transactions").insert({ user_id: user.id, ...payload });
       error = ins.error;
@@ -493,6 +525,7 @@ const Finance = () => {
     setQaOpen(false);
     await loadAll();
   };
+
 
   const deleteTx = async (id: string) => {
     if (!confirm(bn ? "এই লেনদেন মুছে ফেলবেন?" : "Delete this transaction?")) return;

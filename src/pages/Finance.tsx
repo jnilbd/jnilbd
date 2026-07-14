@@ -787,14 +787,18 @@ const Finance = () => {
           {/* Dashboard */}
           <TabsContent value="dashboard" className="mt-4 space-y-4">
             {/* Hero balance */}
-            <Card className="relative overflow-hidden border-border/60 bg-gradient-to-br from-primary/10 via-background to-background p-5">
+            <Card
+              onClick={() => setMetricKey("networth")}
+              className="relative overflow-hidden border-border/60 bg-gradient-to-br from-primary/10 via-background to-background p-5 cursor-pointer hover:shadow-md transition-all"
+            >
               <div className="absolute -top-16 -right-16 h-48 w-48 rounded-full bg-primary/20 blur-3xl" />
-              <p className="text-xs text-muted-foreground">{bn?"বর্তমান নেট ওয়ার্থ":"Current Net Worth"}</p>
+              <p className="text-xs text-muted-foreground">{bn?"বর্তমান মোট সম্পদ":"Current Net Worth"}</p>
               <p className="text-3xl sm:text-4xl font-semibold mt-1 tabular-nums">{fmtBDT(metrics.netWorth, bn)}</p>
               <div className="flex flex-wrap items-center gap-3 mt-2 text-xs text-muted-foreground">
                 <span className="flex items-center gap-1"><UserIcon className="h-3 w-3"/> {bn?"ব্যক্তিগত":"Personal"} <b className="text-foreground">{fmtBDT(metrics.personal, bn)}</b></span>
                 <span className="flex items-center gap-1"><Building2 className="h-3 w-3"/> {bn?"ব্যবসা":"Business"} <b className="text-foreground">{fmtBDT(metrics.business, bn)}</b></span>
               </div>
+              <span className="absolute bottom-2 right-3 text-[10px] text-muted-foreground/70">{bn?"বিস্তারিত →":"Details →"}</span>
             </Card>
 
             <SmartReminders reminders={reminders} bn={bn} />
@@ -802,17 +806,18 @@ const Finance = () => {
 
 
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-              <MetricCard label={bn?"আজকের আয়":"Today's Income"} value={fmtBDT(metrics.todayIn, bn)} icon={TrendingUp} tone="positive" />
-              <MetricCard label={bn?"আজকের খরচ":"Today's Expense"} value={fmtBDT(metrics.todayOut, bn)} icon={TrendingDown} tone="negative" />
-              <MetricCard label={bn?"আজকের লাভ":"Today's Profit"} value={fmtBDT(metrics.todayProfit, bn)} icon={PiggyBank} tone={metrics.todayProfit>=0?"positive":"negative"} />
-              <MetricCard label={bn?"মাসিক আয়":"Monthly Income"} value={fmtBDT(metrics.monthIn, bn)} icon={TrendingUp} tone="positive" />
-              <MetricCard label={bn?"মাসিক খরচ":"Monthly Expense"} value={fmtBDT(metrics.monthOut, bn)} icon={TrendingDown} tone="negative" />
-              <MetricCard label={bn?"মাসিক লাভ":"Monthly Profit"} value={fmtBDT(metrics.monthProfit, bn)} icon={PiggyBank} tone={metrics.monthProfit>=0?"positive":"negative"} />
-              <MetricCard label={bn?"মোট নগদ":"Total Cash"} value={fmtBDT(metrics.cashTotal, bn)} icon={Coins} />
-              <MetricCard label={bn?"মোট ব্যাংক":"Total Bank"} value={fmtBDT(metrics.bankTotal, bn)} icon={Landmark} />
-              <MetricCard label={bn?"মোবাইল ব্যাংকিং":"Mobile Banking"} value={fmtBDT(metrics.mbTotal, bn)} icon={Smartphone} />
-              <MetricCard label={bn?"স্টকের মূল্য":"Stock Value"} value={fmtBDT(invStats.stockValue, bn)} icon={Boxes} />
+              <MetricCard onClick={() => setMetricKey("todayIn")} label={bn?"আজকের আয়":"Today's Income"} value={fmtBDT(metrics.todayIn, bn)} icon={TrendingUp} tone="positive" />
+              <MetricCard onClick={() => setMetricKey("todayOut")} label={bn?"আজকের খরচ":"Today's Expense"} value={fmtBDT(metrics.todayOut, bn)} icon={TrendingDown} tone="negative" />
+              <MetricCard onClick={() => setMetricKey("todayProfit")} label={bn?"আজকের লাভ":"Today's Profit"} value={fmtBDT(metrics.todayProfit, bn)} icon={PiggyBank} tone={metrics.todayProfit>=0?"positive":"negative"} />
+              <MetricCard onClick={() => setMetricKey("monthIn")} label={bn?"মাসিক আয়":"Monthly Income"} value={fmtBDT(metrics.monthIn, bn)} icon={TrendingUp} tone="positive" />
+              <MetricCard onClick={() => setMetricKey("monthOut")} label={bn?"মাসিক খরচ":"Monthly Expense"} value={fmtBDT(metrics.monthOut, bn)} icon={TrendingDown} tone="negative" />
+              <MetricCard onClick={() => setMetricKey("monthProfit")} label={bn?"মাসিক লাভ":"Monthly Profit"} value={fmtBDT(metrics.monthProfit, bn)} icon={PiggyBank} tone={metrics.monthProfit>=0?"positive":"negative"} />
+              <MetricCard onClick={() => setMetricKey("cash")} label={bn?"মোট নগদ":"Total Cash"} value={fmtBDT(metrics.cashTotal, bn)} icon={Coins} />
+              <MetricCard onClick={() => setMetricKey("bank")} label={bn?"মোট ব্যাংক":"Total Bank"} value={fmtBDT(metrics.bankTotal, bn)} icon={Landmark} />
+              <MetricCard onClick={() => setMetricKey("mobile")} label={bn?"মোবাইল ব্যাংকিং":"Mobile Banking"} value={fmtBDT(metrics.mbTotal, bn)} icon={Smartphone} />
+              <MetricCard onClick={() => { setTab("inventory"); }} label={bn?"স্টকের মূল্য":"Stock Value"} value={fmtBDT(invStats.stockValue, bn)} icon={Boxes} />
               <MetricCard
+                onClick={() => { setTab("inventory"); }}
                 label={bn?"কম স্টক":"Low Stock"}
                 value={bn ? invStats.lowCount.toLocaleString("bn-BD") : String(invStats.lowCount)}
                 icon={AlertTriangle}

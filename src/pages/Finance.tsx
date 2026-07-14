@@ -681,7 +681,7 @@ const Finance = () => {
               { v: "ai", label: "AI", Icon: Sparkles },
             ];
             return (
-              <TabsList className="h-auto w-full bg-transparent p-0 grid grid-cols-5 sm:grid-cols-8 lg:grid-cols-15 gap-1.5">
+              <TabsList className="h-auto w-full bg-transparent p-0 grid grid-cols-5 sm:grid-cols-8 lg:grid-cols-8 xl:grid-cols-15 gap-1.5" style={{ gridTemplateColumns: undefined }}>
                 {items.map(({ v, label, Icon }) => (
                   <TabsTrigger
                     key={v}

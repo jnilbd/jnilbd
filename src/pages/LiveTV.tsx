@@ -217,6 +217,8 @@ const LiveTV = () => {
   const [onlyFavs, setOnlyFavs] = useState(false);
   const [active, setActive] = useState<Channel | null>(null);
   const [expandedWorld, setExpandedWorld] = useState<string | null>(null);
+  const [worldCountriesShown, setWorldCountriesShown] = useState(6);
+  const [worldExpandedCountries, setWorldExpandedCountries] = useState<Set<string>>(new Set());
 
   const [tvChannels, setTvChannels] = useState<Channel[]>([]);
   const [worldChannels, setWorldChannels] = useState<Channel[]>([]);

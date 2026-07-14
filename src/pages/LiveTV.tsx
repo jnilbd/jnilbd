@@ -554,7 +554,7 @@ const LiveTV = () => {
     tab === "tv" ? (mergedByTab.tv || []) :
     tab === "world" ? (mergedByTab.world || []) :
     tab === "bdix" ? (mergedByTab.bdix || []) :
-    tab === "direct" ? (mergedByTab.direct || []) :
+    
     tab === "sports" ? (mergedByTab.sports || []) :
     tab === "offline" ? offlineChannels :
     tab === "working" ? workingChannels :

@@ -55,10 +55,10 @@ export const ALL_CATEGORIES: CategoryItem[] = [
   
   { to: "/voice", icon: Mic, bn: "ভয়েস", en: "Voice" },
   { to: "/scheduler", icon: Clock, bn: "শিডিউল মেসেজ", en: "Scheduler" },
-  { to: "/chat", icon: MessageCircle, bn: "লাইভ চ্যাট", en: "Live Chat" },
   // Community / about
   { to: "/portfolio", icon: FolderKanban, bn: "পোর্টফোলিও", en: "Portfolio" },
   { to: "/blog", icon: BookOpen, bn: "ব্লগ", en: "Blog" },
+  { to: "/chat", icon: MessageCircle, bn: "লাইভ চ্যাট", en: "Live Chat" },
   { to: "/policies", icon: ShieldCheck, bn: "পলিসি", en: "Policies" },
   { to: "/about", icon: User, bn: "আমার গল্প", en: "About" },
   // Highlighted CTA — last

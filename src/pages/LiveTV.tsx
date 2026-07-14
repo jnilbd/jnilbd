@@ -895,9 +895,46 @@ const LiveTV = () => {
                 );
                 return (
                   <div className="space-y-8">
+                    {/* Quick country jump bar */}
+                    <div className="sticky top-0 z-20 -mx-2 px-2 py-2 bg-background/90 backdrop-blur border-b">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <div className="flex items-center gap-1.5 text-xs font-semibold text-muted-foreground shrink-0">
+                          <Globe2 className="w-3.5 h-3.5" />
+                          {t("দেশ:", "Jump:")}
+                        </div>
+                        <Select
+                          onValueChange={(code) => {
+                            document.getElementById(`world-country-${code}`)?.scrollIntoView({ behavior: "smooth", block: "start" });
+                          }}
+                        >
+                          <SelectTrigger className="h-8 rounded-full text-xs min-w-[180px] w-auto">
+                            <SelectValue placeholder={t("দেশ বেছে নিন...", "Select country...")} />
+                          </SelectTrigger>
+                          <SelectContent className="max-h-80">
+                            {countryEntries.map(([code, list]) => (
+                              <SelectItem key={code} value={code}>
+                                {COUNTRY_NAMES[code] || code} ({list.length})
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                        <div className="hidden md:flex items-center gap-1.5 flex-wrap">
+                          {countryEntries.slice(0, 12).map(([code, list]) => (
+                            <button
+                              key={code}
+                              onClick={() => document.getElementById(`world-country-${code}`)?.scrollIntoView({ behavior: "smooth", block: "start" })}
+                              className="px-2.5 py-1 rounded-full text-[11px] font-semibold bg-muted hover:bg-primary hover:text-white transition-smooth"
+                            >
+                              {COUNTRY_NAMES[code] || code} <span className="opacity-70">({list.length})</span>
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+
                     {countryEntries.map(([code, list]) => (
-                      <section key={code}>
-                        <div className="flex items-center gap-2 mb-3 sticky top-0 bg-background/80 backdrop-blur py-2 z-10">
+                      <section key={code} id={`world-country-${code}`} className="scroll-mt-24">
+                        <div className="flex items-center gap-2 mb-3">
                           <div className="w-8 h-8 rounded-lg gradient-bg-primary flex items-center justify-center text-white">
                             <Globe2 className="w-4 h-4" />
                           </div>

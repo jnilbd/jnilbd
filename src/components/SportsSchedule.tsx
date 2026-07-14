@@ -76,11 +76,22 @@ const toBDTime = (iso: string, bn: boolean) => {
   });
 };
 
+function ymd(d: Date) {
+  const y = d.getUTCFullYear();
+  const m = String(d.getUTCMonth() + 1).padStart(2, "0");
+  const day = String(d.getUTCDate()).padStart(2, "0");
+  return `${y}${m}${day}`;
+}
+
 async function fetchLeague(l: typeof LEAGUES[number]): Promise<SportEvent[]> {
   try {
-    const res = await fetch(`https://site.api.espn.com/apis/site/v2/sports/${l.path}/scoreboard`, {
-      headers: { Accept: "application/json" },
-    });
+    let url = `https://site.api.espn.com/apis/site/v2/sports/${l.path}/scoreboard`;
+    if (l.wideWindow) {
+      const start = new Date(Date.now() - 2 * 86400000);
+      const end = new Date(Date.now() + 30 * 86400000);
+      url += `?dates=${ymd(start)}-${ymd(end)}&limit=200`;
+    }
+    const res = await fetch(url, { headers: { Accept: "application/json" } });
     if (!res.ok) return [];
     const json: any = await res.json();
     const events: any[] = json?.events || [];
@@ -94,6 +105,14 @@ async function fetchLeague(l: typeof LEAGUES[number]): Promise<SportEvent[]> {
       const match = ev?.name || (homeName && awayName ? `${homeName} vs ${awayName}` : (ev?.shortName || "Match"));
       const state: "pre" | "in" | "post" = ev?.status?.type?.state || "pre";
       const score = (home?.score && away?.score) ? `${homeName} ${home.score} — ${away.score} ${awayName}` : undefined;
+      // Detect knockout / final / semifinal from notes or season type
+      const notes: string = (comp?.notes || []).map((n: any) => n?.headline || n?.type || "").join(" ").toLowerCase();
+      const seasonType: string = (ev?.season?.slug || ev?.seasonType?.name || "").toLowerCase();
+      const knockoutRe = /(final|semifinal|semi-final|semi final|quarterfinal|quarter-final|quarter final|round of 16|knockout|championship|title)/;
+      const isKnockout = knockoutRe.test(notes) || knockoutRe.test(seasonType) || knockoutRe.test(match.toLowerCase());
+      let priority = l.tier;
+      if (isKnockout && l.tier >= 2) priority = 4; // pin knockouts of majors to very top
+      else if (isKnockout) priority = Math.max(l.tier, 2);
       return {
         id: `${l.path}-${ev.id}`,
         sport: l.sport,
@@ -108,6 +127,7 @@ async function fetchLeague(l: typeof LEAGUES[number]): Promise<SportEvent[]> {
         channelsIN: l.in,
         channelsWorld: l.world,
         espnLink: ev?.links?.[0]?.href,
+        priority,
       };
     });
   } catch {

@@ -75,8 +75,8 @@ const DEFAULT_WALLETS: Array<Omit<WalletRow, "id" | "balance" | "currency" | "so
 ];
 
 // Income categories — where money comes from
-const INCOME_CATEGORIES_PERSONAL = ["Salary","Freelance","Business Income","Gift","Bonus","Interest","Rental Income","Investment Return","Refund","Family Support","Other Income"];
-const INCOME_CATEGORIES_BUSINESS = ["Sale","Service Income","Advance Received","Commission","Investment Return","Loan Received","Refund","Other Income"];
+const INCOME_CATEGORIES_PERSONAL = ["Salary","Freelance","Business Income","Mobile Sale","Laptop Sale","Mobile Repair","Laptop Repair","Gift","Bonus","Interest","Rental Income","Investment Return","Refund","Family Support","Other Income"];
+const INCOME_CATEGORIES_BUSINESS = ["Sale","Mobile Sale","Laptop Sale","Mobile Repair","Laptop Repair","Service Income","Advance Received","Commission","Investment Return","Loan Received","Refund","Other Income"];
 // Expense categories — where money goes
 const EXPENSE_CATEGORIES_PERSONAL = ["Food","Transport","Shopping","Medicine","Education","Family","Kids","Entertainment","Internet","WiFi Bill (Village)","WiFi Bill (City)","Dish Bill","Electricity Bill","Gas Bill","Water Bill","Installment","Mobile Recharge","Bills","Travel","Rent","Investment","Savings","Charity","Other"];
 const EXPENSE_CATEGORIES_BUSINESS = ["Purchase","Salary Paid","Advertising","Courier","Office Rent","Utility","WiFi Bill (Village)","WiFi Bill (City)","Dish Bill","Electricity Bill","Gas Bill","Installment","Transport","Maintenance","Tax","Investment","Loan Repayment","Other"];

@@ -934,7 +934,11 @@ const LiveTV = () => {
                       </div>
                     </div>
 
-                    {countryEntries.map(([code, list]) => (
+                    {countryEntries.slice(0, worldCountriesShown).map(([code, list]) => {
+                      const isCountryExpanded = worldExpandedCountries.has(code);
+                      const PER_COUNTRY = 15;
+                      const visible = isCountryExpanded ? list : list.slice(0, PER_COUNTRY);
+                      return (
                       <section key={code} id={`world-country-${code}`} className="scroll-mt-24">
                         <div className="flex items-center gap-2 mb-3">
                           <div className="w-8 h-8 rounded-lg gradient-bg-primary flex items-center justify-center text-white">
@@ -947,10 +951,36 @@ const LiveTV = () => {
                           <div className="flex-1 h-px bg-border ml-2" />
                         </div>
                         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
-                          {list.map(renderCard)}
+                          {visible.map(renderCard)}
                         </div>
+                        {list.length > PER_COUNTRY && (
+                          <div className="mt-3 flex justify-center">
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => {
+                                setWorldExpandedCountries(prev => {
+                                  const n = new Set(prev);
+                                  if (n.has(code)) n.delete(code); else n.add(code);
+                                  return n;
+                                });
+                              }}
+                            >
+                              {isCountryExpanded
+                                ? t("কম দেখান", "Show less")
+                                : t(`আরো ${list.length - PER_COUNTRY} টি দেখান`, `Show ${list.length - PER_COUNTRY} more`)}
+                            </Button>
+                          </div>
+                        )}
                       </section>
-                    ))}
+                    );})}
+                    {worldCountriesShown < countryEntries.length && (
+                      <div className="flex justify-center pt-4">
+                        <Button onClick={() => setWorldCountriesShown(n => n + 6)} variant="secondary">
+                          {t(`আরো দেশ লোড করুন (${countryEntries.length - worldCountriesShown} বাকি)`, `Load more countries (${countryEntries.length - worldCountriesShown} left)`)}
+                        </Button>
+                      </div>
+                    )}
                   </div>
                 );
               }

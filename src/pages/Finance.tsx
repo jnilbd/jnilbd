@@ -1231,6 +1231,45 @@ const Finance = () => {
               </div>
             )}
 
+            {qaType === "expense" && !editTxId && (
+              <div className="rounded-xl border border-dashed p-3 space-y-2 bg-muted/30">
+                <Label className="text-xs">
+                  {bn?"টাকার উৎস (ঐচ্ছিক — অন্য ওয়ালেট থেকে এনে খরচ)":"Money source (optional — routed from another wallet)"}
+                </Label>
+                <Select value={qaWallet2 || "__direct__"} onValueChange={(v) => setQaWallet2(v === "__direct__" ? "" : v)}>
+                  <SelectTrigger className="rounded-xl">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="__direct__">{bn?"সরাসরি এই ওয়ালেট থেকে":"Directly from this wallet"}</SelectItem>
+                    {wallets.filter(w => w.id !== qaWallet).map(w => (
+                      <SelectItem key={w.id} value={w.id}>
+                        <span className="flex items-center justify-between gap-3 w-full">
+                          <span className="truncate">{w.name}</span>
+                          <span className="text-[10px] text-muted-foreground tabular-nums">৳{Number(w.balance||0).toFixed(0)}</span>
+                        </span>
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                {qaWallet2 && (
+                  <>
+                    <div>
+                      <Label className="text-xs">{bn?"ক্যাশ-আউট / চার্জ (ঐচ্ছিক)":"Cash-out fee / charge (optional)"}</Label>
+                      <Input type="number" inputMode="decimal" value={qaFee}
+                        onChange={e => setQaFee(e.target.value)}
+                        placeholder="0" className="mt-1 rounded-xl" />
+                    </div>
+                    <p className="text-[10px] text-muted-foreground">
+                      {bn
+                        ? `প্রথমে ${walletById(qaWallet2)?.name ?? "উৎস"} → ${walletById(qaWallet)?.name ?? "গন্তব্য"} ট্রান্সফার, তারপর খরচ${Number(qaFee)>0?" + ফি":""}`
+                        : `Transfers ${walletById(qaWallet2)?.name ?? "source"} → ${walletById(qaWallet)?.name ?? "dest"} first, then records expense${Number(qaFee)>0?" + fee":""}`}
+                    </p>
+                  </>
+                )}
+              </div>
+            )}
+
             {qaType === "transfer" && (
               <div>
                 <Label className="text-xs">{bn?"যেখানে":"To wallet"}</Label>

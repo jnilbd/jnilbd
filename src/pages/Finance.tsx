@@ -427,7 +427,7 @@ const Finance = () => {
   const openQuick = (type: TxType) => {
     setEditTxId(null);
     setQaType(type);
-    setQaAmount(""); setQaCategory(""); setQaParty(""); setQaNote(""); setQaWallet2("");
+    setQaAmount(""); setQaCategory(""); setQaParty(""); setQaNote(""); setQaWallet2(""); setQaFee("");
     const def = filteredWallets.find(w => w.is_default) ?? filteredWallets[0];
     setQaWallet(def?.id ?? "");
     setQaScope(type === "sale" || type === "purchase" ? "business" : "personal");

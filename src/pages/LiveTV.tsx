@@ -210,7 +210,7 @@ const LiveTV = () => {
   const { language } = useLanguage();
   const t = (bn: string, en: string) => (language === "bn" ? bn : en);
 
-  const [tab, setTab] = useState<Tab>("tv");
+  const [tab, setTab] = useState<Tab>("mrgify");
   const [search, setSearch] = useState("");
   const [countryFilter, setCountryFilter] = useState<string>("all");
   const [onlyFavs, setOnlyFavs] = useState(false);

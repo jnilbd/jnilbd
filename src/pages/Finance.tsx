@@ -424,13 +424,19 @@ const Finance = () => {
   // ---------- Actions ----------
   const [editTxId, setEditTxId] = useState<string | null>(null);
 
-  const openQuick = (type: TxType) => {
+  const openQuick = (type: TxType, presetWalletId?: string) => {
     setEditTxId(null);
     setQaType(type);
     setQaAmount(""); setQaCategory(""); setQaParty(""); setQaNote(""); setQaWallet2(""); setQaFee("");
-    const def = filteredWallets.find(w => w.is_default) ?? filteredWallets[0];
-    setQaWallet(def?.id ?? "");
-    setQaScope(type === "sale" || type === "purchase" ? "business" : "personal");
+    const preset = presetWalletId ? wallets.find(w => w.id === presetWalletId) : undefined;
+    if (preset) {
+      setQaWallet(preset.id);
+      setQaScope(preset.scope);
+    } else {
+      const def = filteredWallets.find(w => w.is_default) ?? filteredWallets[0];
+      setQaWallet(def?.id ?? "");
+      setQaScope(type === "sale" || type === "purchase" ? "business" : "personal");
+    }
     const now = new Date();
     const pad = (n: number) => String(n).padStart(2, "0");
     setQaDate(`${now.getFullYear()}-${pad(now.getMonth()+1)}-${pad(now.getDate())}T${pad(now.getHours())}:${pad(now.getMinutes())}`);
@@ -817,9 +823,9 @@ const Finance = () => {
                   today={walletDelta(w.id, startOfToday().getTime())}
                   month={walletDelta(w.id, startOfMonth().getTime())}
                   onOpen={() => setDetailWallet(w)}
-                  onAdd={() => { openQuick("income"); setTimeout(() => setQaWallet(w.id), 0); }}
-                  onSpend={() => { openQuick("expense"); setTimeout(() => setQaWallet(w.id), 0); }}
-                  onTransfer={() => { openQuick("transfer"); setTimeout(() => setQaWallet(w.id), 0); }} />
+                  onAdd={() => openQuick("income", w.id)}
+                  onSpend={() => openQuick("expense", w.id)}
+                  onTransfer={() => openQuick("transfer", w.id)} />
               ))}
             </div>
           </TabsContent>
@@ -1190,7 +1196,7 @@ const Finance = () => {
                   <SelectValue placeholder={bn?"ওয়ালেট নির্বাচন করুন":"Select wallet"} />
                 </SelectTrigger>
                 <SelectContent>
-                  {wallets.filter(w => qaScope === w.scope || w.scope === "personal").map(w => (
+                  {wallets.map(w => (
                     <SelectItem key={w.id} value={w.id}>
                       <span className="flex items-center justify-between gap-3 w-full">
                         <span className="truncate">{w.name}</span>
@@ -1376,15 +1382,15 @@ const Finance = () => {
               </div>
               <div className="grid grid-cols-4 gap-1.5 mt-2">
                 <Button size="sm" variant="outline" className="h-9 rounded-xl text-[11px] px-1"
-                  onClick={() => { const w = detailWallet; setDetailWallet(null); openQuick("income"); setTimeout(() => setQaWallet(w.id), 0); }}>
+                  onClick={() => { const w = detailWallet; setDetailWallet(null); openQuick("income", w.id); }}>
                   <TrendingUp className="h-3.5 w-3.5 mr-1 text-emerald-500" />{bn?"আয়":"Income"}
                 </Button>
                 <Button size="sm" variant="outline" className="h-9 rounded-xl text-[11px] px-1"
-                  onClick={() => { const w = detailWallet; setDetailWallet(null); openQuick("expense"); setTimeout(() => setQaWallet(w.id), 0); }}>
+                  onClick={() => { const w = detailWallet; setDetailWallet(null); openQuick("expense", w.id); }}>
                   <TrendingDown className="h-3.5 w-3.5 mr-1 text-rose-500" />{bn?"খরচ":"Expense"}
                 </Button>
                 <Button size="sm" variant="outline" className="h-9 rounded-xl text-[11px] px-1"
-                  onClick={() => { const w = detailWallet; setDetailWallet(null); openQuick("transfer"); setTimeout(() => setQaWallet(w.id), 0); }}>
+                  onClick={() => { const w = detailWallet; setDetailWallet(null); openQuick("transfer", w.id); }}>
                   <ArrowLeftRight className="h-3.5 w-3.5 mr-1 text-sky-500" />{bn?"ট্রান্সফার":"Transfer"}
                 </Button>
                 <Button size="sm" variant="outline" className="h-9 rounded-xl text-[11px] px-1"

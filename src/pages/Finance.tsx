@@ -899,6 +899,7 @@ const Finance = () => {
                   onOpen={() => setDetailWallet(w)}
                   onIncome={() => openQuick("income", w.id)}
                   onDeposit={() => openQuick("transfer", w.id, { asDestination: true })}
+                  onAdvance={() => openQuick("income", w.id, { presetCategory: "Advance Received" })}
                   onSpend={() => openQuick("expense", w.id)}
                   onTransfer={() => openQuick("transfer", w.id)} />
               ))}

@@ -73,6 +73,7 @@ const Navbar = () => {
   // Mobile drawer — user-curated shortlist
   const mobilePrimary = [
     { to: "/", key: "nav.home", icon: Home },
+    { to: "/quran", key: "nav.quran", icon: BookOpen },
     { to: "/hadith", key: "nav.hadith", icon: ScrollText },
     { to: "/ruqyah", key: "nav.ruqyah", icon: ShieldCheck },
     { to: "/namaz", key: "nav.namaz", icon: Compass },

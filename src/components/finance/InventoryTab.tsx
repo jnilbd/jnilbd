@@ -117,14 +117,12 @@ export function InventoryTab({ userId, bn }: { userId: string; bn: boolean }) {
 
   // ---------- Aggregate breakdowns ----------
   const breakdown = useMemo(() => {
-    // Units currently at each location (net of subsequent inbound movements)
-    // Simple rule: a "sent out" movement (sign -1) with a location keeps qty there
-    // until a matching customer_return / stock_in reduces the outstanding.
-    // For clarity we compute two views:
-    //   (a) outstanding units per location — sum of qty of outbound moves with status ∈ (in_transit, pending)
-    //   (b) money receivable — Σ (qty*unit_price − amount_paid) for sale/stock_out where status ≠ cancelled/returned
+    // Show CURRENT position per location:
+    //  - office comes from products.current_stock (already reflects returns via triggers)
+    //  - every other location is: cumulative outbound qty tagged to that location,
+    //    excluding cancelled/returned entries.
     const perLoc: Record<MvLocation, number> = {
-      office: 0, courier: 0, with_person: 0, supplier: 0, customer: 0, damaged: 0,
+      office: 0, with_me: 0, courier: 0, with_person: 0, supplier: 0, customer: 0, damaged: 0,
     };
     let receivable = 0;
     let inTransitValue = 0;
@@ -132,11 +130,9 @@ export function InventoryTab({ userId, bn }: { userId: string; bn: boolean }) {
 
     for (const m of movements) {
       const meta = MV_META[m.type];
-      // Outbound not-yet-settled -> those units are still "out there"
-      if (meta.sign === -1 && m.location && (m.status === "in_transit" || m.status === "pending")) {
+      if (meta.sign === -1 && m.location && m.status !== "cancelled" && m.status !== "returned") {
         perLoc[m.location] += Number(m.qty);
       }
-      // Money receivable for sales/outs that aren't fully paid & not cancelled/returned
       if ((m.type === "sale" || m.type === "stock_out") && m.status !== "cancelled" && m.status !== "returned") {
         const due = Number(m.qty) * Number(m.unit_price) - Number(m.amount_paid || 0);
         if (due > 0) receivable += due;
@@ -144,7 +140,6 @@ export function InventoryTab({ userId, bn }: { userId: string; bn: boolean }) {
       if (m.status === "in_transit") inTransitValue += Number(m.qty) * Number(m.unit_price);
       if (m.status === "pending") pendingCount++;
     }
-    // Office = current on-hand (from products.current_stock)
     perLoc.office = products.reduce((s, p) => s + Number(p.current_stock), 0);
     return { perLoc, receivable, inTransitValue, pendingCount };
   }, [movements, products]);

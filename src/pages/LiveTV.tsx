@@ -547,23 +547,21 @@ const LiveTV = () => {
 
 
   const bdixChannels: Channel[] = useMemo(() => {
-    // Heuristic: detect Indian channels among BDIX imports
-    const IN_RE = /\b(star|sony|zee|colors|aaj tak|abp|ndtv|india today|republic|times now|dd national|dd sports|set max|sab|discovery india|jaya|sun tv|asianet|vijay|kalaignar|udaya|gemini|kairali|surya|mazhavil|manorama|amrita|tv9|etv|abp ananda|zee bangla|colors bangla|akash aath|sony aath|sony sab|movies now|romedy|max2|pix|hbo india|zee cinema|zee anmol|utsav|bindass|sony yay|pogo|nick india|cartoon network india|hungama|disney india|animal planet india|nat geo india|tlc india|history india|fox life|axn india|comedy central india|mtv india|vh1 india|9x|9xm|mastiii|b4u|zoom|et now|cnbc india|nation|news nation|india tv|zee news|abp news|republic bharat|dd bharati|dd urdu)\b/i;
-    return BDIX_CHANNELS.map(b => {
-      const isIN = IN_RE.test(b.name);
-      return {
-        id: b.id,
-        name: b.name,
-        country: isIN ? "IN" : "BD",
-        countryName: isIN ? "India" : "Bangladesh",
-        category: "bdix" as any,
-        subCategory: b.category || "other",
-        provider: b.provider,
-        url: b.url,
-        urls: [b.url],
-      };
-    });
+    // Only keep TV9 and Sony 8 from BDIX imports — everything else is dropped.
+    const KEEP_RE = /\b(tv[\s-]?9|sony[\s-]?(8|aath))\b/i;
+    return BDIX_CHANNELS.filter(b => KEEP_RE.test(b.name)).map(b => ({
+      id: b.id,
+      name: b.name,
+      country: "IN",
+      countryName: "India",
+      category: "tv" as any,
+      subCategory: b.category || "entertainment",
+      provider: b.provider,
+      url: b.url,
+      urls: [b.url],
+    }));
   }, []);
+
 
   const checkHealth = useCallback(async (ch: Channel) => {
     setHealth(h => ({ ...h, [ch.id]: "checking" }));
@@ -616,19 +614,17 @@ const LiveTV = () => {
     const mrgifyWorld = mrgifyChannels.filter(c => c.country !== "IN" && c.country !== "BD")
       .map(c => ({ ...c, category: "world" as any }));
     const mrgifyBD = mrgifyChannels.filter(c => c.country === "BD");
-    const bdixBD = bdixChannels.filter(c => c.country === "BD");
-    const bdixRest = bdixChannels.filter(c => c.country !== "BD");
     const worldBD = worldChannels.filter(c => c.country === "BD");
     const worldRest = worldChannels.filter(c => c.country !== "BD");
     const pools: { key: Tab; list: Channel[] }[] = [
       // mrgify (Bangladesh) FIRST so BD channels from every source dedupe here.
-      { key: "mrgify", list: [...mrgifyBD, ...bdixBD, ...worldBD] },
-      { key: "tv", list: [...tvChannels, ...mrgifyIN] },
+      { key: "mrgify", list: [...mrgifyBD, ...worldBD] },
+      { key: "tv", list: [...tvChannels, ...mrgifyIN, ...bdixChannels] },
       { key: "world", list: [...worldRest, ...mrgifyWorld] },
-      { key: "bdix", list: bdixRest },
       { key: "sports", list: sportsChannels },
       { key: "radio", list: radioChannels },
     ];
+
     const map = new Map<string, { primary: Tab; ch: Channel }>();
     for (const { key, list } of pools) {
       for (const c of list) {
@@ -805,7 +801,7 @@ const LiveTV = () => {
             {([
               { k: "mrgify", label: t("বাংলাদেশ","Bangladesh"), icon: Flag, count: (mergedByTab.mrgify || []).length },
               { k: "tv", label: t("ইন্ডিয়া","India"), icon: Tv, count: (mergedByTab.tv || []).length },
-              { k: "bdix", label: "BDIX", icon: Wifi, count: (mergedByTab.bdix || []).length },
+              
               { k: "world", label: t("ওয়ার্ল্ড","World"), icon: Globe2, count: (mergedByTab.world || []).length },
               { k: "sports", label: t("স্পোর্টস","Sports"), icon: Trophy, count: (mergedByTab.sports || []).length },
               { k: "radio", label: t("রেডিও","Radio"), icon: Radio, count: (mergedByTab.radio || []).length },

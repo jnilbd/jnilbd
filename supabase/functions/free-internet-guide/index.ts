@@ -62,9 +62,10 @@ function parseRss(xml: string, limit = 25): Item[] {
   while ((m = re.exec(xml)) && items.length < limit) {
     const block = m[1];
     const get = (tag: string) => {
-      const r = new RegExp(`<${tag}[^>]*>([\\s\\S]*?)<\\/${tag}>`).exec(block);
+      const r = new RegExp(`<${tag}[^>]*>([\\s\\S]*?)<\\/${tag}>`, "i").exec(block);
       return r ? decode(r[1]) : "";
     };
+
     const descRaw = (/\<description[^>]*\>([\s\S]*?)<\/description>/.exec(block) || [, ""])[1] || "";
     items.push({
       title: get("title"),

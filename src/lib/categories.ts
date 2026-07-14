@@ -59,8 +59,8 @@ export const ALL_CATEGORIES: CategoryItem[] = [
   // Community / about
   { to: "/portfolio", icon: FolderKanban, bn: "পোর্টফোলিও", en: "Portfolio" },
   { to: "/blog", icon: BookOpen, bn: "ব্লগ", en: "Blog" },
-  { to: "/about", icon: User, bn: "আমার গল্প", en: "About" },
   { to: "/policies", icon: ShieldCheck, bn: "পলিসি", en: "Policies" },
+  { to: "/about", icon: User, bn: "আমার গল্প", en: "About" },
   // Highlighted CTA — last
   { to: "/appointment", icon: CalendarClock, bn: "বুক অ্যাপয়েন্টমেন্ট", en: "Book Appointment", highlight: true },
 ];

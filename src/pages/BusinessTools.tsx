@@ -1,11 +1,12 @@
 import { Link, Navigate } from "react-router-dom";
-import { ArrowLeft, Briefcase, Loader2, ShoppingBag, Truck } from "lucide-react";
+import { ArrowLeft, Briefcase, Loader2, ShoppingBag, Truck, Boxes } from "lucide-react";
 import { useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { SalesTab } from "@/components/finance/SalesTab";
 import { CourierTrackerTab } from "@/components/finance/CourierTrackerTab";
+import { InventoryTab } from "@/components/finance/InventoryTab";
 
 const BusinessTools = () => {
   const { user, loading } = useAuth();
@@ -29,7 +30,8 @@ const BusinessTools = () => {
 
   const items = [
     { v: "sales", label: bn ? "বিক্রয়" : "Sales", Icon: ShoppingBag },
-    { v: "courier", label: bn ? "কুরিয়ার ট্র্যাকার" : "Courier Tracker", Icon: Truck },
+    { v: "inventory", label: bn ? "ইনভেন্টরি" : "Inventory", Icon: Boxes },
+    { v: "courier", label: bn ? "কুরিয়ার" : "Courier", Icon: Truck },
   ];
 
   return (
@@ -70,6 +72,9 @@ const BusinessTools = () => {
 
           <TabsContent value="sales" className="mt-4">
             <SalesTab userId={user.id} bn={bn} />
+          </TabsContent>
+          <TabsContent value="inventory" className="mt-4">
+            <InventoryTab userId={user.id} bn={bn} />
           </TabsContent>
           <TabsContent value="courier" className="mt-4">
             <CourierTrackerTab userId={user.id} bn={bn} />

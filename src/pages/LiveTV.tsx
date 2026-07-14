@@ -713,7 +713,11 @@ const LiveTV = () => {
         const db = dead.has(b.id) ? 1 : 0;
         if (da !== db) return da - db;
       }
-      // Recently-played first
+      // Confirmed LIVE / working channels first (auto-checked on load)
+      const la = (working.has(a.id) || health[a.id] === "live") ? 0 : 1;
+      const lb = (working.has(b.id) || health[b.id] === "live") ? 0 : 1;
+      if (la !== lb) return la - lb;
+      // Recently-played next
       const ra = recentRank(a.id);
       const rb = recentRank(b.id);
       if (ra !== rb) return ra - rb;
@@ -731,7 +735,8 @@ const LiveTV = () => {
       if (ia !== ib) return ia - ib;
       return a.name.localeCompare(b.name);
     });
-  }, [allChannels, search, countryFilter, onlyFavs, favs, dead, recent]);
+  }, [allChannels, search, countryFilter, onlyFavs, favs, dead, recent, working, health, tab]);
+
 
   useEffect(() => {
     const targets = filtered.slice(0, 12).filter(c => !(c.id in health));

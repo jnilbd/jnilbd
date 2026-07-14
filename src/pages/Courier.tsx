@@ -1,7 +1,6 @@
-import { Helmet } from "react-helmet-async";
 import { Link, Navigate } from "react-router-dom";
 import { ArrowLeft, Truck, Loader2 } from "lucide-react";
-import { useAuth } from "@/contexts/AuthContext";
+import { useAuth } from "@/hooks/useAuth";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { CourierTrackerTab } from "@/components/finance/CourierTrackerTab";
 

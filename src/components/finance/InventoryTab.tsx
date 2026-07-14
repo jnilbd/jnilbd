@@ -102,6 +102,7 @@ export function InventoryTab({ userId, bn }: { userId: string; bn: boolean }) {
   });
 
   const [historyOf, setHistoryOf] = useState<Product | null>(null);
+  const [locSheet, setLocSheet] = useState<MvLocation | null>(null);
 
   async function loadAll() {
     setLoading(true);
@@ -131,7 +132,12 @@ export function InventoryTab({ userId, bn }: { userId: string; bn: boolean }) {
     for (const m of movements) {
       const meta = MV_META[m.type];
       if (meta.sign === -1 && m.location && m.status !== "cancelled" && m.status !== "returned") {
-        perLoc[m.location] += Number(m.qty);
+        // For transit locations (courier / with_person) only count items still in motion.
+        // Once "completed" they've been delivered — remove from that bucket.
+        const inTransitLoc = m.location === "courier" || m.location === "with_person";
+        if (!inTransitLoc || m.status === "in_transit" || m.status === "pending") {
+          perLoc[m.location] += Number(m.qty);
+        }
       }
       if ((m.type === "sale" || m.type === "stock_out") && m.status !== "cancelled" && m.status !== "returned") {
         const due = Number(m.qty) * Number(m.unit_price) - Number(m.amount_paid || 0);
@@ -328,11 +334,21 @@ export function InventoryTab({ userId, bn }: { userId: string; bn: boolean }) {
             const L = LOC_META[loc];
             const qty = breakdown.perLoc[loc];
             return (
-              <div key={loc} className={cn("rounded-xl border p-2 flex flex-col items-center text-center", L.tone)}>
+              <button
+                type="button"
+                key={loc}
+                onClick={() => setLocSheet(loc)}
+                className={cn(
+                  "rounded-xl border p-2 flex flex-col items-center text-center transition hover:scale-[1.03] hover:shadow-md active:scale-95 focus:outline-none focus:ring-2 focus:ring-primary/40",
+                  L.tone
+                )}
+                title={bn ? "বিস্তারিত ও এডিট" : "View & edit"}
+              >
                 <L.icon className="h-4 w-4 mb-1" />
                 <p className="text-[10px] leading-tight">{bn ? L.bn : L.en}</p>
                 <p className="text-lg font-bold tabular-nums leading-tight">{bn ? qty.toLocaleString("bn-BD") : qty}</p>
-              </div>
+                <p className="text-[9px] opacity-70 mt-0.5">{bn ? "ট্যাপ করুন" : "Tap to edit"}</p>
+              </button>
             );
           })}
         </div>
@@ -740,6 +756,80 @@ export function InventoryTab({ userId, bn }: { userId: string; bn: boolean }) {
           )}
         </SheetContent>
       </Sheet>
+
+      {/* Per-location editor: shows all movements sitting at this location and lets you
+          change their status (in transit / delivered / returned / pending / cancelled).
+          The location counter above updates automatically from these statuses. */}
+      <Dialog open={!!locSheet} onOpenChange={(o) => !o && setLocSheet(null)}>
+        <DialogContent className="max-w-2xl max-h-[85vh] overflow-y-auto">
+          {locSheet && (() => {
+            const L = LOC_META[locSheet];
+            const items = movements
+              .filter(m => MV_META[m.type].sign === -1 && m.location === locSheet && m.status !== "cancelled" && m.status !== "returned")
+              .map(m => ({ ...m, product: products.find(p => p.id === m.product_id) }));
+            const isTransit = locSheet === "courier" || locSheet === "with_person";
+            return (
+              <>
+                <DialogHeader>
+                  <DialogTitle className="flex items-center gap-2">
+                    <L.icon className="h-5 w-5" />
+                    {bn ? L.bn : L.en}
+                    <Badge variant="outline" className="ml-1">{items.length}</Badge>
+                  </DialogTitle>
+                </DialogHeader>
+                {items.length === 0 ? (
+                  <div className="py-10 text-center text-sm text-muted-foreground">
+                    {bn ? "এই লোকেশনে কিছু নেই।" : "Nothing at this location."}
+                  </div>
+                ) : (
+                  <div className="space-y-2">
+                    <p className="text-[11px] text-muted-foreground">
+                      {isTransit
+                        ? (bn ? "স্ট্যাটাস পরিবর্তন করলেই কাউন্টার অটো আপডেট হবে। 'সম্পন্ন' করলে এখান থেকে সরে যাবে।" : "Change status to auto-update the counter. Marking 'Completed' removes it from this bucket.")
+                        : (bn ? "রিটার্ন/বাতিল করলে কাউন্টার থেকে সরে যাবে।" : "Returned / cancelled removes it from the counter.")}
+                    </p>
+                    {items.map(m => (
+                      <div key={m.id} className="rounded-lg border p-2.5 flex items-start gap-2 flex-wrap">
+                        <div className="flex-1 min-w-[180px]">
+                          <p className="text-sm font-medium">{m.product?.name ?? "—"}</p>
+                          <p className="text-[11px] text-muted-foreground">
+                            {new Date(m.occurred_at).toLocaleDateString(bn ? "bn-BD" : "en-BD")}
+                            {" · "}{bn ? m.qty.toLocaleString("bn-BD") : m.qty} {m.product?.unit ?? ""}
+                            {m.party_name ? ` · ${m.party_name}` : ""}
+                          </p>
+                          {(m.courier_name || m.tracking_no) && (
+                            <p className="text-[11px] text-muted-foreground flex items-center gap-1 mt-0.5">
+                              <Truck className="h-3 w-3" />
+                              {m.courier_name}{m.tracking_no ? ` · ${m.tracking_no}` : ""}
+                            </p>
+                          )}
+                        </div>
+                        <Select value={m.status} onValueChange={(v) => updateMvStatus(m, v as MvStatus)}>
+                          <SelectTrigger className="h-8 w-[140px] text-xs"><SelectValue /></SelectTrigger>
+                          <SelectContent>
+                            {(Object.keys(STATUS_META) as MvStatus[]).map(s => (
+                              <SelectItem key={s} value={s}>{bn ? STATUS_META[s].bn : STATUS_META[s].en}</SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                        <Button size="sm" variant="ghost" className="h-8 w-8 p-0 text-destructive"
+                          onClick={() => deleteMovement(m)}>
+                          <Trash2 className="h-3.5 w-3.5" />
+                        </Button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+                <DialogFooter>
+                  <Button variant="outline" onClick={() => setLocSheet(null)}>
+                    {bn ? "বন্ধ করুন" : "Close"}
+                  </Button>
+                </DialogFooter>
+              </>
+            );
+          })()}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

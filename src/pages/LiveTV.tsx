@@ -221,6 +221,7 @@ const LiveTV = () => {
   const [worldChannels, setWorldChannels] = useState<Channel[]>([]);
   const [sportsChannels, setSportsChannels] = useState<Channel[]>([]);
   const [radioChannels, setRadioChannels] = useState<Channel[]>([]);
+  const [mrgifyChannels, setMrgifyChannels] = useState<Channel[]>([]);
   const [loading, setLoading] = useState(true);
 
   const [favs, setFavs] = useState<Set<string>>(() => {

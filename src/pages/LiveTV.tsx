@@ -453,19 +453,51 @@ const LiveTV = () => {
         const key = `${name.toLowerCase()}|${url}`;
         if (seen.has(key)) continue;
         seen.add(key);
+
+        // Country detection from name
+        const IN_NAME_RE = /\b(star|sony|zee|colors|aaj tak|abp|ndtv|india today|republic|times now|dd national|dd sports|set max|sab|discovery india|jaya|sun tv|asianet|vijay|kalaignar|udaya|gemini|kairali|surya|mazhavil|manorama|amrita|tv9|etv|abp ananda|zee bangla|colors bangla|akash aath|sony aath|sony sab|movies now|romedy|max2|pix|hbo india|zee cinema|zee anmol|utsav|bindass|sony yay|pogo|nick india|cartoon network india|hungama|disney india|animal planet india|nat geo india|tlc india|history india|fox life|axn india|comedy central india|mtv india|vh1 india|9xm|mastiii|b4u|zoom|et now|cnbc india|news nation|india tv|zee news|abp news|republic bharat|dd bharati|dd urdu|aaj|india)\b/i;
+        const PK_RE = /\b(ary|geo|hum|ptv|dunya|samaa|92 news|express news|dawn)\b/i;
+        const AR_RE = /\b(al jazeera|mbc|dubai|abu dhabi|saudi|quran|makkah|madinah|iqra|sunnah|arabic|arabica|almasira|al ekhbaria|al sunnah|peace tv)\b/i;
+        const US_RE = /\b(cnn|fox|nbc|cbs|abc news|bloomberg|hbo|espn|cartoon network|nickelodeon|discovery|history|nat geo|animal planet)\b/i;
+        const UK_RE = /\b(bbc|itv|sky|channel 4|channel4)\b/i;
+        const TR_RE = /\b(trt|show tv|kanal d|atv turk)\b/i;
+        const lname = name.toLowerCase();
+        const grp = (group || "").toLowerCase();
+        let country = "BD";
+        if (IN_NAME_RE.test(lname) || /\b(india|indian|hindi|bengali\s*india|tamil|telugu|kannada|malayalam)\b/.test(grp)) country = "IN";
+        else if (PK_RE.test(lname) || /pakistan|urdu/.test(grp)) country = "PK";
+        else if (AR_RE.test(lname) || /arab|islamic|quran|saudi|makkah/.test(grp)) country = "SA";
+        else if (US_RE.test(lname) || /\busa\b|american/.test(grp)) country = "US";
+        else if (UK_RE.test(lname) || /\buk\b|british/.test(grp)) country = "GB";
+        else if (TR_RE.test(lname) || /turk/.test(grp)) country = "TR";
+
+        // Sub-category detection from group + name
+        const gl = grp + " " + lname;
+        let subCategory = "other";
+        if (/news|খবর|সংবাদ|24|bulletin/i.test(gl)) subCategory = "news";
+        else if (/sport|খেলা|cricket|football|soccer|espn|ten sport|star sport|sony sport|t sport|willow/i.test(gl)) subCategory = "sports";
+        else if (/movie|cinema|film|hbo|max|pix|romedy|utsav|zee cinema|set max|movies/i.test(gl)) subCategory = "movies";
+        else if (/music|song|mtv|9xm|mastiii|b4u|zoom|vh1|gaan|গান/i.test(gl)) subCategory = "music";
+        else if (/kids|cartoon|pogo|nick|hungama|disney|baby|শিশু|children/i.test(gl)) subCategory = "kids";
+        else if (/religio|islam|quran|hindu|christian|peace tv|madani|sunnah|makkah|iqra|ধর্ম/i.test(gl)) subCategory = "religious";
+        else if (/entertain|drama|serial|natok|নাটক|বিনোদন|show/i.test(gl)) subCategory = "entertainment";
+        else if (/discovery|nat geo|animal planet|history|tlc|knowledge|science/i.test(gl)) subCategory = "documentary";
+
         parsed.push({
           id: `mrg-${parsed.length}-${name.replace(/[^a-z0-9]/gi, "").slice(0, 20).toLowerCase()}`,
           name,
-          country: "BD",
-          countryName: "Bangladesh",
+          country,
+          countryName: COUNTRY_NAMES[country] || country,
           category: "tv",
           categories: group ? [group] : undefined,
+          subCategory,
           logo,
           provider: group || "Mrgify BDIX",
           url,
           urls: [url],
         });
       }
+
       if (parsed.length && !cancelled) {
         setMrgifyChannels(parsed);
       }
@@ -1011,18 +1043,21 @@ const LiveTV = () => {
                 );
               }
 
-              // BDIX tab: group by category (and show country badges via card)
-              if (tab === "bdix" && countryFilter === "all") {
+              // BDIX & Mrgify tabs: group by category with country jump
+              if ((tab === "bdix" || tab === "mrgify") && countryFilter === "all") {
                 const CAT_LABELS: Record<string, { bn: string; en: string; icon: any }> = {
                   news: { bn: "নিউজ", en: "News", icon: Activity },
                   entertainment: { bn: "বিনোদন", en: "Entertainment", icon: Tv },
+                  movies: { bn: "মুভি", en: "Movies", icon: Play },
                   sports: { bn: "স্পোর্টস", en: "Sports", icon: Trophy },
                   music: { bn: "মিউজিক", en: "Music", icon: Radio },
                   kids: { bn: "কিডস", en: "Kids", icon: Star },
                   religious: { bn: "ধর্মীয়", en: "Religious", icon: Star },
+                  documentary: { bn: "ডকুমেন্টারি", en: "Documentary", icon: Globe2 },
                   other: { bn: "অন্যান্য", en: "Other", icon: Layers },
                 };
-                const ORDER = ["news", "entertainment", "sports", "music", "kids", "religious", "other"];
+                const ORDER = ["news", "entertainment", "movies", "sports", "music", "kids", "religious", "documentary", "other"];
+
                 const groups = new Map<string, typeof filtered>();
                 for (const c of filtered) {
                   const key = (c.subCategory || "other").toLowerCase();
@@ -1046,7 +1081,7 @@ const LiveTV = () => {
                         </div>
                         <Select
                           onValueChange={(key) => {
-                            setTimeout(() => document.getElementById(`bdix-cat-${key}`)?.scrollIntoView({ behavior: "smooth", block: "start" }), 50);
+                            setTimeout(() => document.getElementById(`cat-jump-${key}`)?.scrollIntoView({ behavior: "smooth", block: "start" }), 50);
                           }}
                         >
                           <SelectTrigger className="h-8 rounded-full text-xs min-w-[180px] w-auto">
@@ -1069,7 +1104,7 @@ const LiveTV = () => {
                             return (
                               <button
                                 key={key}
-                                onClick={() => document.getElementById(`bdix-cat-${key}`)?.scrollIntoView({ behavior: "smooth", block: "start" })}
+                                onClick={() => document.getElementById(`cat-jump-${key}`)?.scrollIntoView({ behavior: "smooth", block: "start" })}
                                 className="px-2.5 py-1 rounded-full text-[11px] font-semibold bg-muted hover:bg-primary hover:text-white transition-smooth"
                               >
                                 {t(meta.bn, meta.en)} <span className="opacity-70">({list.length})</span>
@@ -1099,7 +1134,7 @@ const LiveTV = () => {
                       const meta = CAT_LABELS[key] || CAT_LABELS.other;
                       const Icon = meta.icon;
                       return (
-                        <section key={key} id={`bdix-cat-${key}`} className="scroll-mt-24">
+                        <section key={key} id={`cat-jump-${key}`} className="scroll-mt-24">
                           <div className="flex items-center gap-2 mb-3">
                             <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center text-white">
                               <Icon className="w-4 h-4" />

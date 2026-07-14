@@ -1480,38 +1480,99 @@ const Finance = () => {
                 );
               })()}
 
-              <p className="text-[11px] text-muted-foreground mt-3 mb-1 px-1">{bn?"লেনদেন":"Transactions"}</p>
-              <ScrollArea className="max-h-60">
-                <div className="space-y-1.5">
-                  {txs.filter(t => t.wallet_id === detailWallet.id || t.transfer_to_wallet_id === detailWallet.id).slice(0, 60).map(t => {
-                    const income = INCOME_TYPES.includes(t.type);
-                    const incoming = t.transfer_to_wallet_id === detailWallet.id;
-                    const sign = t.type === "transfer" ? (incoming ? "+" : "-") : income ? "+" : "-";
-                    return (
-                      <div key={t.id} className="flex items-center justify-between gap-2 text-xs px-2 py-2 rounded-lg hover:bg-muted/50 group">
-                        <div className="min-w-0 flex-1">
-                          <p className="capitalize truncate">{t.category ? bnLabel(CATEGORY_BN, t.category, bn) : bnLabel(TX_TYPE_BN, t.type, bn)}</p>
-                          <p className="text-[10px] text-muted-foreground truncate">{new Date(t.occurred_at).toLocaleString(bn?"bn-BD":"en-BD")}{(t as any).note ? ` · ${(t as any).note}` : ""}</p>
-                        </div>
-                        <span className={cn("tabular-nums font-medium shrink-0", sign === "+" ? "text-emerald-500" : "text-rose-500")}>
-                          {sign}{fmtBDT(Number(t.amount), bn)}
-                        </span>
-                        <div className="flex items-center gap-0.5 shrink-0 opacity-60 group-hover:opacity-100 transition-opacity">
-                          <button onClick={() => openEditTx(t)} className="p-1.5 rounded-md hover:bg-primary/10 text-primary" title={bn?"সম্পাদনা":"Edit"}>
-                            <Pencil className="h-3 w-3" />
-                          </button>
-                          <button onClick={() => deleteTx(t.id)} className="p-1.5 rounded-md hover:bg-rose-500/10 text-rose-500" title={bn?"মুছুন":"Delete"}>
-                            <Trash2 className="h-3 w-3" />
-                          </button>
-                        </div>
+              {(() => {
+                const walletTxs = txs.filter(t => t.wallet_id === detailWallet.id || t.transfer_to_wallet_id === detailWallet.id);
+                let inSum = 0, outSum = 0, trIn = 0, trOut = 0;
+                walletTxs.forEach(t => {
+                  const amt = Number(t.amount) || 0;
+                  if (t.type === "transfer") {
+                    if (t.transfer_to_wallet_id === detailWallet.id) { trIn += amt; inSum += amt; }
+                    else { trOut += amt; outSum += amt; }
+                  } else if (INCOME_TYPES.includes(t.type)) inSum += amt;
+                  else outSum += amt;
+                });
+                return (
+                  <>
+                    <div className="grid grid-cols-3 gap-1.5 mt-3">
+                      <div className="rounded-xl border border-emerald-500/30 bg-emerald-500/5 px-2 py-1.5">
+                        <p className="text-[9px] uppercase tracking-wide text-emerald-600 dark:text-emerald-400">{bn?"এসেছে":"In"}</p>
+                        <p className="text-xs font-semibold tabular-nums text-emerald-600 dark:text-emerald-400">{fmtBDT(inSum, bn)}</p>
+                        {trIn > 0 && <p className="text-[9px] text-muted-foreground">from transfer {fmtBDT(trIn, bn)}</p>}
                       </div>
-                    );
-                  })}
-                  {txs.filter(t => t.wallet_id === detailWallet.id || t.transfer_to_wallet_id === detailWallet.id).length === 0 && (
-                    <p className="text-center text-xs text-muted-foreground py-6">{bn?"কোন লেনদেন নেই":"No transactions"}</p>
-                  )}
-                </div>
-              </ScrollArea>
+                      <div className="rounded-xl border border-rose-500/30 bg-rose-500/5 px-2 py-1.5">
+                        <p className="text-[9px] uppercase tracking-wide text-rose-600 dark:text-rose-400">{bn?"গিয়েছে":"Out"}</p>
+                        <p className="text-xs font-semibold tabular-nums text-rose-600 dark:text-rose-400">{fmtBDT(outSum, bn)}</p>
+                        {trOut > 0 && <p className="text-[9px] text-muted-foreground">to transfer {fmtBDT(trOut, bn)}</p>}
+                      </div>
+                      <div className="rounded-xl border border-border/60 bg-muted/30 px-2 py-1.5">
+                        <p className="text-[9px] uppercase tracking-wide text-muted-foreground">{bn?"নেট":"Net"}</p>
+                        <p className={cn("text-xs font-semibold tabular-nums", (inSum-outSum) >= 0 ? "text-emerald-500" : "text-rose-500")}>{fmtBDT(inSum-outSum, bn)}</p>
+                        <p className="text-[9px] text-muted-foreground">{walletTxs.length} {bn?"এন্ট্রি":"entries"}</p>
+                      </div>
+                    </div>
+
+                    <p className="text-[11px] text-muted-foreground mt-3 mb-1 px-1">{bn?"সম্পূর্ণ লেনদেনের বিস্তারিত":"Full transaction details"}</p>
+                    <ScrollArea className="max-h-72">
+                      <div className="space-y-1.5">
+                        {walletTxs.slice(0, 100).map(t => {
+                          const income = INCOME_TYPES.includes(t.type);
+                          const isTransfer = t.type === "transfer";
+                          const incoming = isTransfer && t.transfer_to_wallet_id === detailWallet.id;
+                          const sign = isTransfer ? (incoming ? "+" : "-") : income ? "+" : "-";
+                          const src = walletById(t.wallet_id);
+                          const dst = walletById(t.transfer_to_wallet_id);
+                          return (
+                            <div key={t.id} className="flex items-start justify-between gap-2 text-xs px-2.5 py-2 rounded-lg border border-border/40 hover:bg-muted/50 group">
+                              <div className="min-w-0 flex-1 space-y-0.5">
+                                <div className="flex items-center gap-1.5 flex-wrap">
+                                  <Badge variant="outline" className={cn(
+                                    "text-[9px] px-1.5 py-0 h-4 font-normal",
+                                    isTransfer ? "border-sky-500/40 text-sky-600 dark:text-sky-400" :
+                                    income ? "border-emerald-500/40 text-emerald-600 dark:text-emerald-400" :
+                                    "border-rose-500/40 text-rose-600 dark:text-rose-400"
+                                  )}>{bnLabel(TX_TYPE_BN, t.type, bn)}</Badge>
+                                  {t.category && <span className="font-medium truncate">{bnLabel(CATEGORY_BN, t.category, bn)}</span>}
+                                  <Badge variant="outline" className="text-[9px] px-1.5 py-0 h-4 font-normal">{bn ? SCOPE_BN[t.scope] : t.scope}</Badge>
+                                </div>
+                                <div className="flex items-center gap-1 text-[10px] text-muted-foreground flex-wrap">
+                                  {isTransfer ? (
+                                    <span className="inline-flex items-center gap-1">
+                                      <b className={cn(incoming ? "text-muted-foreground" : "text-foreground")}>{src?.name ?? "—"}</b>
+                                      <ArrowLeftRight className="h-2.5 w-2.5" />
+                                      <b className={cn(incoming ? "text-foreground" : "text-muted-foreground")}>{dst?.name ?? "—"}</b>
+                                    </span>
+                                  ) : (
+                                    <span>{income ? (bn?"এসেছে →":"Received →") : (bn?"গিয়েছে ←":"Paid from")} <b className="text-foreground">{src?.name ?? "—"}</b></span>
+                                  )}
+                                  {t.party && <span>· {bn?"পক্ষ":"Party"}: <b className="text-foreground">{t.party}</b></span>}
+                                </div>
+                                {(t as any).note && <p className="text-[10px] text-muted-foreground truncate">{bn?"নোট":"Note"}: {(t as any).note}</p>}
+                                <p className="text-[10px] text-muted-foreground">{new Date(t.occurred_at).toLocaleString(bn?"bn-BD":"en-BD")}</p>
+                              </div>
+                              <div className="flex flex-col items-end gap-1 shrink-0">
+                                <span className={cn("tabular-nums font-semibold text-sm", sign === "+" ? "text-emerald-500" : "text-rose-500")}>
+                                  {sign}{fmtBDT(Number(t.amount), bn)}
+                                </span>
+                                <div className="flex items-center gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
+                                  <button onClick={() => openEditTx(t)} className="p-1 rounded-md hover:bg-primary/10 text-primary" title={bn?"সম্পাদনা":"Edit"}>
+                                    <Pencil className="h-3 w-3" />
+                                  </button>
+                                  <button onClick={() => deleteTx(t.id)} className="p-1 rounded-md hover:bg-rose-500/10 text-rose-500" title={bn?"মুছুন":"Delete"}>
+                                    <Trash2 className="h-3 w-3" />
+                                  </button>
+                                </div>
+                              </div>
+                            </div>
+                          );
+                        })}
+                        {walletTxs.length === 0 && (
+                          <p className="text-center text-xs text-muted-foreground py-6">{bn?"কোন লেনদেন নেই":"No transactions"}</p>
+                        )}
+                      </div>
+                    </ScrollArea>
+                  </>
+                );
+              })()}
             </>
           )}
         </DialogContent>

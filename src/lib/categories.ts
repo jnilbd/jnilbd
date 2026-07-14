@@ -1,4 +1,4 @@
-import { Home, Store, BookOpen, Compass, CloudRain, Wifi, HeartPulse, Wallet, Lock, Receipt, Scale, Percent, Map, Ruler, Sun, Smartphone, FileType, Download, Image as ImageIcon, Mic, Clock, Tv, MessageCircle, Briefcase, Tag, Home as HomeIcon, FolderKanban, User, ShieldCheck, CalendarClock, Send, Film, Train, Phone, Plane, Rocket, Newspaper, Swords, BarChart3, NewspaperIcon, Wand2, Unlock, Gift, Megaphone } from "lucide-react";
+import { Home, Store, BookOpen, Compass, CloudRain, Wifi, HeartPulse, Wallet, Lock, Receipt, Scale, Percent, Map, Ruler, Sun, Smartphone, FileType, Download, Image as ImageIcon, Mic, Clock, Tv, MessageCircle, Briefcase, Tag, Home as HomeIcon, FolderKanban, User, ShieldCheck, CalendarClock, Send, Film, Train, Phone, Plane, Rocket, Newspaper, Swords, BarChart3, NewspaperIcon, Wand2, Unlock, Gift, Megaphone, Truck } from "lucide-react";
 
 export type CategoryItem = {
   to: string;

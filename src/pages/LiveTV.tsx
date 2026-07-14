@@ -590,6 +590,7 @@ const LiveTV = () => {
       const hls = new Hls({ enableWorker: true });
       hls.loadSource(url);
       hls.attachMedia(mediaEl as HTMLMediaElement);
+      hls.on(Hls.Events.MANIFEST_PARSED, () => markWorking(ch.id));
       hls.on(Hls.Events.ERROR, (_e, data) => {
         if (data.fatal) {
           if (urlIdx + 1 < urls.length) {
@@ -610,8 +611,11 @@ const LiveTV = () => {
         else setDead(prev => new Set(prev).add(ch.id));
       };
     }
-    (mediaEl as HTMLMediaElement).play().catch(() => {});
-  }, [t]);
+    const el = mediaEl as HTMLMediaElement;
+    const onPlaying = () => markWorking(ch.id);
+    el.addEventListener("playing", onPlaying, { once: true });
+    el.play().catch(() => {});
+  }, [t, markWorking]);
 
   const openChannel = (ch: Channel) => {
     setActive(ch);

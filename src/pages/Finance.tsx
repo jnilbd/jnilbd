@@ -459,12 +459,18 @@ const Finance = () => {
     if (!amount || amount <= 0) { toast.error(bn ? "সঠিক টাকা লিখুন" : "Enter amount"); return; }
     if (!qaWallet) { toast.error(bn ? "ওয়ালেট নির্বাচন করুন" : "Pick a wallet"); return; }
     if (qaType === "transfer" && !qaWallet2) { toast.error(bn ? "গন্তব্য ওয়ালেট নির্বাচন করুন" : "Pick destination wallet"); return; }
+    if (qaType === "income" && qaWallet2 && qaWallet2 === qaWallet) {
+      toast.error(bn ? "উৎস ও গন্তব্য ভিন্ন হতে হবে" : "Source and destination must differ"); return;
+    }
     setBusy(true);
     const occurred_at = qaDate ? new Date(qaDate).toISOString() : new Date().toISOString();
+    // If user picked a "from wallet" while adding income, treat it as an internal transfer
+    const asTransfer = qaType === "income" && !!qaWallet2;
+    const effectiveType: TxType = asTransfer ? "transfer" : qaType;
     const payload = {
-      wallet_id: qaWallet,
-      transfer_to_wallet_id: qaType === "transfer" ? qaWallet2 : null,
-      type: qaType, amount, category: qaCategory || null,
+      wallet_id: asTransfer ? qaWallet2 : qaWallet,
+      transfer_to_wallet_id: asTransfer ? qaWallet : (qaType === "transfer" ? qaWallet2 : null),
+      type: effectiveType, amount, category: qaCategory || null,
       scope: qaScope, party: qaParty || null, note: qaNote || null,
       occurred_at,
     };
@@ -1136,7 +1142,13 @@ const Finance = () => {
             </div>
 
             <div>
-              <Label className="text-xs">{qaType === "transfer" ? (bn?"যেখান থেকে":"From wallet") : (bn?"ওয়ালেট":"Wallet")}</Label>
+              <Label className="text-xs">
+                {qaType === "transfer"
+                  ? (bn?"যেখান থেকে":"From wallet")
+                  : qaType === "income"
+                    ? (bn?"যে ওয়ালেটে জমা":"Deposit to wallet")
+                    : (bn?"ওয়ালেট":"Wallet")}
+              </Label>
               <Select value={qaWallet} onValueChange={setQaWallet}>
                 <SelectTrigger className="mt-1 rounded-xl">
                   <SelectValue placeholder={bn?"ওয়ালেট নির্বাচন করুন":"Select wallet"} />
@@ -1153,6 +1165,35 @@ const Finance = () => {
                 </SelectContent>
               </Select>
             </div>
+
+            {qaType === "income" && (
+              <div>
+                <Label className="text-xs">
+                  {bn?"উৎস ওয়ালেট (ঐচ্ছিক — অন্য ওয়ালেট থেকে আসলে)":"Source wallet (optional — if moved from another wallet)"}
+                </Label>
+                <Select value={qaWallet2 || "__external__"} onValueChange={(v) => setQaWallet2(v === "__external__" ? "" : v)}>
+                  <SelectTrigger className="mt-1 rounded-xl">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="__external__">{bn?"বাহির থেকে আয় (নতুন টাকা)":"External income (new money)"}</SelectItem>
+                    {wallets.filter(w => w.id !== qaWallet).map(w => (
+                      <SelectItem key={w.id} value={w.id}>
+                        <span className="flex items-center justify-between gap-3 w-full">
+                          <span className="truncate">{w.name}</span>
+                          <span className="text-[10px] text-muted-foreground tabular-nums">৳{Number(w.balance||0).toFixed(0)}</span>
+                        </span>
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                {qaWallet2 && (
+                  <p className="text-[10px] text-muted-foreground mt-1">
+                    {bn?"এটা ট্রান্সফার হিসেবে সেভ হবে (দ্বৈত-গণনা এড়াতে)":"Will be saved as a transfer (avoids double-counting income)"}
+                  </p>
+                )}
+              </div>
+            )}
 
             {qaType === "transfer" && (
               <div>

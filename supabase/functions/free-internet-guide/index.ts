@@ -11,23 +11,36 @@ type Item = {
   image?: string;
 };
 
-const OPERATOR_KEYWORDS: Record<string, { bn: string; en: string; site?: string }> = {
-  grameenphone: { bn: "গ্রামীণফোন GP অফার", en: "Grameenphone GP internet offer", site: "grameenphone.com" },
-  robi:         { bn: "রবি ইন্টারনেট অফার",   en: "Robi internet MB offer",         site: "robi.com.bd" },
-  banglalink:   { bn: "বাংলালিংক অফার",       en: "Banglalink internet offer",       site: "banglalink.net" },
-  airtel:       { bn: "এয়ারটেল অফার",         en: "Airtel BD internet offer",        site: "bd.airtel.com" },
-  teletalk:     { bn: "টেলিটক অফার",           en: "Teletalk internet offer",         site: "teletalk.com.bd" },
+const OPERATOR_KEYWORDS: Record<string, { bn: string; en: string; site?: string; aliases: string[] }> = {
+  grameenphone: { bn: "গ্রামীণফোন GP অফার", en: "Grameenphone GP internet offer", site: "grameenphone.com",
+    aliases: ["grameenphone", "gp ", "gp,", "গ্রামীণফোন", "জিপি"] },
+  robi:         { bn: "রবি ইন্টারনেট অফার",   en: "Robi internet MB offer",         site: "robi.com.bd",
+    aliases: ["robi", "রবি"] },
+  banglalink:   { bn: "বাংলালিংক অফার",       en: "Banglalink internet offer",       site: "banglalink.net",
+    aliases: ["banglalink", "বাংলালিংক", "bl "] },
+  airtel:       { bn: "এয়ারটেল অফার",         en: "Airtel BD internet offer",        site: "bd.airtel.com",
+    aliases: ["airtel", "এয়ারটেল"] },
+  teletalk:     { bn: "টেলিটক অফার",           en: "Teletalk internet offer",         site: "teletalk.com.bd",
+    aliases: ["teletalk", "টেলিটক"] },
 };
 
-const TOPIC_KEYWORDS: Record<string, { bn: string; en: string }> = {
-  "social-packs":         { bn: "সোশ্যাল প্যাক ফেসবুক হোয়াটসঅ্যাপ",   en: "social pack facebook whatsapp imo" },
-  "cheap-mb":             { bn: "সস্তা MB ইন্টারনেট প্যাক",             en: "cheapest internet MB pack" },
-  "night-packs":          { bn: "নাইট প্যাক বোনাস",                    en: "night pack bonus internet" },
-  "free-internet-vpn":    { bn: "ফ্রি ইন্টারনেট VPN হ্যান্ডলার",         en: "free internet vpn handler config" },
-  "emergency-balance":    { bn: "ইমার্জেন্সি ব্যালেন্স MB লোন",          en: "emergency balance MB loan code" },
-  "student-offers":       { bn: "স্টুডেন্ট অফার বান্ডেল",                en: "student bundle offer" },
-  "apn-settings":         { bn: "APN সেটিংস 4G ইন্টারনেট",             en: "APN settings 4G internet" },
+const TOPIC_KEYWORDS: Record<string, { bn: string; en: string; match: string[] }> = {
+  "social-packs":         { bn: "সোশ্যাল প্যাক ফেসবুক হোয়াটসঅ্যাপ",   en: "social pack facebook whatsapp imo",
+    match: ["social", "facebook", "whatsapp", "imo", "সোশ্যাল", "ফেসবুক"] },
+  "cheap-mb":             { bn: "সস্তা MB ইন্টারনেট প্যাক",             en: "cheapest internet MB pack",
+    match: ["mb", "internet", "pack", "offer", "প্যাক", "ইন্টারনেট", "অফার"] },
+  "night-packs":          { bn: "নাইট প্যাক বোনাস",                    en: "night pack bonus internet",
+    match: ["night", "bonus", "নাইট", "বোনাস"] },
+  "free-internet-vpn":    { bn: "ফ্রি ইন্টারনেট VPN হ্যান্ডলার",         en: "free internet vpn handler config",
+    match: ["free", "vpn", "handler", "ফ্রি"] },
+  "emergency-balance":    { bn: "ইমার্জেন্সি ব্যালেন্স MB লোন",          en: "emergency balance MB loan code",
+    match: ["emergency", "loan", "balance", "ধার", "ইমার্জেন্সি"] },
+  "student-offers":       { bn: "স্টুডেন্ট অফার বান্ডেল",                en: "student bundle offer",
+    match: ["student", "bundle", "স্টুডেন্ট"] },
+  "apn-settings":         { bn: "APN সেটিংস 4G ইন্টারনেট",             en: "APN settings 4G internet",
+    match: ["apn", "settings", "4g", "5g"] },
 };
+
 
 function decode(s: string) {
   return s

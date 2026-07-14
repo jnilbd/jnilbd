@@ -624,12 +624,32 @@ const LiveTV = () => {
     const mrgifyBD = mrgifyChannels.filter(c => c.country === "BD");
     const worldBD = worldChannels.filter(c => c.country === "BD");
     const worldRest = worldChannels.filter(c => c.country !== "BD");
+
+    // Route EVERY sports-like channel (from any source) into the Sports tab.
+    const SPORTS_RE = /\b(sport|sports|espn|willow|cricket|bein|fox\s*sport|sky\s*sport|nbc\s*sport|star\s*sport|sony\s*sport|ten\s*sport|ptv\s*sport|dd\s*sport|t\s*sport|geo\s*super|a\s*sport|gtv|nagin|tsn|eurosport|supersport|setanta|dazn)\b/i;
+    const isSports = (c: Channel) =>
+      c.category === "sports" ||
+      (c as any).subCategory === "sports" ||
+      SPORTS_RE.test(c.name);
+    const split = (list: Channel[]) => {
+      const s: Channel[] = [], r: Channel[] = [];
+      for (const c of list) {
+        if (isSports(c)) s.push({ ...c, category: "sports" as any });
+        else r.push(c);
+      }
+      return { s, r };
+    };
+    const p1 = split(mrgifyBD), p2 = split(worldBD);
+    const p3 = split(tvChannels), p4 = split(mrgifyIN), p5 = split(bdixChannels);
+    const p6 = split(worldRest), p7 = split(mrgifyWorld);
+
     const pools: { key: Tab; list: Channel[] }[] = [
-      // mrgify (Bangladesh) FIRST so BD channels from every source dedupe here.
-      { key: "mrgify", list: [...mrgifyBD, ...worldBD] },
-      { key: "tv", list: [...tvChannels, ...mrgifyIN, ...bdixChannels] },
-      { key: "world", list: [...worldRest, ...mrgifyWorld] },
-      { key: "sports", list: sportsChannels },
+      // Sports FIRST so any sports-like channel dedupes into the Sports tab.
+      { key: "sports", list: [...sportsChannels, ...p1.s, ...p2.s, ...p3.s, ...p4.s, ...p5.s, ...p6.s, ...p7.s] },
+      // mrgify (Bangladesh) next so BD channels dedupe here.
+      { key: "mrgify", list: [...p1.r, ...p2.r] },
+      { key: "tv", list: [...p3.r, ...p4.r, ...p5.r] },
+      { key: "world", list: [...p6.r, ...p7.r] },
       { key: "radio", list: radioChannels },
     ];
 

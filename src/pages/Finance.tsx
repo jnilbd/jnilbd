@@ -257,6 +257,7 @@ const Finance = () => {
   const [qaNote, setQaNote] = useState("");
   const [qaScope, setQaScope] = useState<"personal" | "business">("personal");
   const [qaDate, setQaDate] = useState<string>(""); // datetime-local; empty = now
+  const [qaFee, setQaFee] = useState<string>(""); // cash-out / transfer fee
 
   // wallet detail
   const [detailWallet, setDetailWallet] = useState<WalletRow | null>(null);
@@ -426,7 +427,7 @@ const Finance = () => {
   const openQuick = (type: TxType) => {
     setEditTxId(null);
     setQaType(type);
-    setQaAmount(""); setQaCategory(""); setQaParty(""); setQaNote(""); setQaWallet2("");
+    setQaAmount(""); setQaCategory(""); setQaParty(""); setQaNote(""); setQaWallet2(""); setQaFee("");
     const def = filteredWallets.find(w => w.is_default) ?? filteredWallets[0];
     setQaWallet(def?.id ?? "");
     setQaScope(type === "sale" || type === "purchase" ? "business" : "personal");
@@ -459,28 +460,60 @@ const Finance = () => {
     if (!amount || amount <= 0) { toast.error(bn ? "সঠিক টাকা লিখুন" : "Enter amount"); return; }
     if (!qaWallet) { toast.error(bn ? "ওয়ালেট নির্বাচন করুন" : "Pick a wallet"); return; }
     if (qaType === "transfer" && !qaWallet2) { toast.error(bn ? "গন্তব্য ওয়ালেট নির্বাচন করুন" : "Pick destination wallet"); return; }
-    if (qaType === "income" && qaWallet2 && qaWallet2 === qaWallet) {
+    if ((qaType === "income" || qaType === "expense") && qaWallet2 && qaWallet2 === qaWallet) {
       toast.error(bn ? "উৎস ও গন্তব্য ভিন্ন হতে হবে" : "Source and destination must differ"); return;
     }
     setBusy(true);
     const occurred_at = qaDate ? new Date(qaDate).toISOString() : new Date().toISOString();
-    // If user picked a "from wallet" while adding income, treat it as an internal transfer
-    const asTransfer = qaType === "income" && !!qaWallet2;
-    const effectiveType: TxType = asTransfer ? "transfer" : qaType;
+    const fee = Number(qaFee) || 0;
+
+    // If user picked a "from wallet" while adding income, treat as internal transfer
+    const incomeAsTransfer = qaType === "income" && !!qaWallet2;
+    // If user picked a "from wallet" while adding expense (route/cash-out), pre-insert a transfer
+    const expenseWithSource = qaType === "expense" && !!qaWallet2 && !editTxId;
+
     const payload = {
-      wallet_id: asTransfer ? qaWallet2 : qaWallet,
-      transfer_to_wallet_id: asTransfer ? qaWallet : (qaType === "transfer" ? qaWallet2 : null),
-      type: effectiveType, amount, category: qaCategory || null,
+      wallet_id: incomeAsTransfer ? qaWallet2 : qaWallet,
+      transfer_to_wallet_id: incomeAsTransfer ? qaWallet : (qaType === "transfer" ? qaWallet2 : null),
+      type: (incomeAsTransfer ? "transfer" : qaType) as TxType,
+      amount, category: qaCategory || null,
       scope: qaScope, party: qaParty || null, note: qaNote || null,
       occurred_at,
     };
-    let error;
+
+    let error: any;
     if (editTxId) {
-      // delete + re-insert so the finance_apply_tx trigger correctly reverses old effect and applies new
       const del = await supabase.from("finance_transactions").delete().eq("id", editTxId);
       if (del.error) { setBusy(false); toast.error(del.error.message); return; }
       const ins = await supabase.from("finance_transactions").insert({ user_id: user.id, ...payload });
       error = ins.error;
+    } else if (expenseWithSource) {
+      // 1) transfer amount+fee from source (qaWallet2) → destination (qaWallet)
+      const transferAmt = amount + fee;
+      const t1 = await supabase.from("finance_transactions").insert({
+        user_id: user.id,
+        wallet_id: qaWallet2,
+        transfer_to_wallet_id: qaWallet,
+        type: "transfer", amount: transferAmt,
+        category: null, scope: qaScope, party: null,
+        note: bn ? `${qaNote || "খরচের জন্য"} — রুট` : `${qaNote || "for expense"} — routed`,
+        occurred_at,
+      });
+      if (t1.error) { setBusy(false); toast.error(t1.error.message); return; }
+      // 2) fee as expense on destination (cash-out charge)
+      if (fee > 0) {
+        await supabase.from("finance_transactions").insert({
+          user_id: user.id,
+          wallet_id: qaWallet, transfer_to_wallet_id: null,
+          type: "expense", amount: fee, category: "fees",
+          scope: qaScope, party: null,
+          note: bn ? "ক্যাশ-আউট ফি" : "Cash-out fee",
+          occurred_at,
+        });
+      }
+      // 3) actual expense on destination
+      const t3 = await supabase.from("finance_transactions").insert({ user_id: user.id, ...payload });
+      error = t3.error;
     } else {
       const ins = await supabase.from("finance_transactions").insert({ user_id: user.id, ...payload });
       error = ins.error;
@@ -492,6 +525,7 @@ const Finance = () => {
     setQaOpen(false);
     await loadAll();
   };
+
 
   const deleteTx = async (id: string) => {
     if (!confirm(bn ? "এই লেনদেন মুছে ফেলবেন?" : "Delete this transaction?")) return;
@@ -1147,7 +1181,9 @@ const Finance = () => {
                   ? (bn?"যেখান থেকে":"From wallet")
                   : qaType === "income"
                     ? (bn?"যে ওয়ালেটে জমা":"Deposit to wallet")
-                    : (bn?"ওয়ালেট":"Wallet")}
+                    : qaType === "expense"
+                      ? (bn?"যে ওয়ালেট থেকে খরচ":"Paid from wallet")
+                      : (bn?"ওয়ালেট":"Wallet")}
               </Label>
               <Select value={qaWallet} onValueChange={setQaWallet}>
                 <SelectTrigger className="mt-1 rounded-xl">
@@ -1191,6 +1227,45 @@ const Finance = () => {
                   <p className="text-[10px] text-muted-foreground mt-1">
                     {bn?"এটা ট্রান্সফার হিসেবে সেভ হবে (দ্বৈত-গণনা এড়াতে)":"Will be saved as a transfer (avoids double-counting income)"}
                   </p>
+                )}
+              </div>
+            )}
+
+            {qaType === "expense" && !editTxId && (
+              <div className="rounded-xl border border-dashed p-3 space-y-2 bg-muted/30">
+                <Label className="text-xs">
+                  {bn?"টাকার উৎস (ঐচ্ছিক — অন্য ওয়ালেট থেকে এনে খরচ)":"Money source (optional — routed from another wallet)"}
+                </Label>
+                <Select value={qaWallet2 || "__direct__"} onValueChange={(v) => setQaWallet2(v === "__direct__" ? "" : v)}>
+                  <SelectTrigger className="rounded-xl">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="__direct__">{bn?"সরাসরি এই ওয়ালেট থেকে":"Directly from this wallet"}</SelectItem>
+                    {wallets.filter(w => w.id !== qaWallet).map(w => (
+                      <SelectItem key={w.id} value={w.id}>
+                        <span className="flex items-center justify-between gap-3 w-full">
+                          <span className="truncate">{w.name}</span>
+                          <span className="text-[10px] text-muted-foreground tabular-nums">৳{Number(w.balance||0).toFixed(0)}</span>
+                        </span>
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                {qaWallet2 && (
+                  <>
+                    <div>
+                      <Label className="text-xs">{bn?"ক্যাশ-আউট / চার্জ (ঐচ্ছিক)":"Cash-out fee / charge (optional)"}</Label>
+                      <Input type="number" inputMode="decimal" value={qaFee}
+                        onChange={e => setQaFee(e.target.value)}
+                        placeholder="0" className="mt-1 rounded-xl" />
+                    </div>
+                    <p className="text-[10px] text-muted-foreground">
+                      {bn
+                        ? `প্রথমে ${walletById(qaWallet2)?.name ?? "উৎস"} → ${walletById(qaWallet)?.name ?? "গন্তব্য"} ট্রান্সফার, তারপর খরচ${Number(qaFee)>0?" + ফি":""}`
+                        : `Transfers ${walletById(qaWallet2)?.name ?? "source"} → ${walletById(qaWallet)?.name ?? "dest"} first, then records expense${Number(qaFee)>0?" + fee":""}`}
+                    </p>
+                  </>
                 )}
               </div>
             )}

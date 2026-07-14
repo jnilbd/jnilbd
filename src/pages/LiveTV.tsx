@@ -348,7 +348,7 @@ const LiveTV = () => {
             url: urls[0],
             urls,
           };
-          if (meta.country === "BD" || meta.country === "IN") tvList.push(ch);
+          if (meta.country === "IN") tvList.push(ch);
           worldList.push({ ...ch, category: "world" as any });
         }
 

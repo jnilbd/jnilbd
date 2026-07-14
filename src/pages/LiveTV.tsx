@@ -353,7 +353,7 @@ const LiveTV = () => {
         }
 
         if (!cancelled) {
-          setTvChannels([...tvList, ...FALLBACK_TV]);
+          setTvChannels(tvList);
           setWorldChannels(worldList);
           setSportsChannels([...sportsList, ...FALLBACK_SPORTS]);
         }

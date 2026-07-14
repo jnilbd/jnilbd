@@ -401,16 +401,35 @@ const Finance = () => {
   }, [txs]);
 
   // ---------- Actions ----------
+  const [editTxId, setEditTxId] = useState<string | null>(null);
+
   const openQuick = (type: TxType) => {
+    setEditTxId(null);
     setQaType(type);
     setQaAmount(""); setQaCategory(""); setQaParty(""); setQaNote(""); setQaWallet2("");
     const def = filteredWallets.find(w => w.is_default) ?? filteredWallets[0];
     setQaWallet(def?.id ?? "");
     setQaScope(type === "sale" || type === "purchase" ? "business" : "personal");
-    // default to "now" in local datetime-local format
     const now = new Date();
     const pad = (n: number) => String(n).padStart(2, "0");
     setQaDate(`${now.getFullYear()}-${pad(now.getMonth()+1)}-${pad(now.getDate())}T${pad(now.getHours())}:${pad(now.getMinutes())}`);
+    setQaOpen(true);
+  };
+
+  const openEditTx = (t: TxRow) => {
+    setDetailWallet(null);
+    setEditTxId(t.id);
+    setQaType(t.type as TxType);
+    setQaAmount(String(t.amount ?? ""));
+    setQaWallet(t.wallet_id ?? "");
+    setQaWallet2((t as any).transfer_to_wallet_id ?? "");
+    setQaCategory(t.category ?? "");
+    setQaParty((t as any).party ?? "");
+    setQaNote((t as any).note ?? "");
+    setQaScope(((t as any).scope ?? "personal") as any);
+    const d = new Date(t.occurred_at);
+    const pad = (n: number) => String(n).padStart(2, "0");
+    setQaDate(`${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`);
     setQaOpen(true);
   };
 
@@ -422,26 +441,40 @@ const Finance = () => {
     if (qaType === "transfer" && !qaWallet2) { toast.error(bn ? "গন্তব্য ওয়ালেট নির্বাচন করুন" : "Pick destination wallet"); return; }
     setBusy(true);
     const occurred_at = qaDate ? new Date(qaDate).toISOString() : new Date().toISOString();
-    const { error } = await supabase.from("finance_transactions").insert({
-      user_id: user.id, wallet_id: qaWallet,
+    const payload = {
+      wallet_id: qaWallet,
       transfer_to_wallet_id: qaType === "transfer" ? qaWallet2 : null,
       type: qaType, amount, category: qaCategory || null,
       scope: qaScope, party: qaParty || null, note: qaNote || null,
       occurred_at,
-    });
+    };
+    let error;
+    if (editTxId) {
+      // delete + re-insert so the finance_apply_tx trigger correctly reverses old effect and applies new
+      const del = await supabase.from("finance_transactions").delete().eq("id", editTxId);
+      if (del.error) { setBusy(false); toast.error(del.error.message); return; }
+      const ins = await supabase.from("finance_transactions").insert({ user_id: user.id, ...payload });
+      error = ins.error;
+    } else {
+      const ins = await supabase.from("finance_transactions").insert({ user_id: user.id, ...payload });
+      error = ins.error;
+    }
     setBusy(false);
     if (error) { toast.error(error.message); return; }
     toast.success(bn ? "সংরক্ষিত হয়েছে" : "Saved");
+    setEditTxId(null);
     setQaOpen(false);
     await loadAll();
   };
 
   const deleteTx = async (id: string) => {
+    if (!confirm(bn ? "এই লেনদেন মুছে ফেলবেন?" : "Delete this transaction?")) return;
     const { error } = await supabase.from("finance_transactions").delete().eq("id", id);
     if (error) { toast.error(error.message); return; }
     toast.success(bn ? "মুছে ফেলা হয়েছে" : "Deleted");
     await loadAll();
   };
+
 
   const saveWithdrawal = async () => {
     if (!user || !detailWallet) return;

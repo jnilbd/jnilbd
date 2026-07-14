@@ -1095,7 +1095,7 @@ const LiveTV = () => {
               }
 
               // BDIX & Mrgify tabs: group by category with country jump
-              if ((tab === "bdix" || tab === "mrgify" || tab === "radio") && countryFilter === "all") {
+              if ((tab === "bdix" || tab === "mrgify" || tab === "radio" || tab === "tv") && countryFilter === "all") {
                 const CAT_LABELS: Record<string, { bn: string; en: string; icon: any }> = {
                   news: { bn: "নিউজ", en: "News", icon: Activity },
                   entertainment: { bn: "বিনোদন", en: "Entertainment", icon: Tv },

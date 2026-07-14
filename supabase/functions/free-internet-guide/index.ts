@@ -71,7 +71,7 @@ function parseRss(xml: string, limit = 25): Item[] {
       title: get("title"),
       link: get("link"),
       source: get("source") || "Google News",
-      pubDate: get("pubDate"),
+      pubDate: get("pubDate") || get("dc:date") || get("published") || get("updated"),
       description: decode(descRaw).slice(0, 260),
       image: extractImg(descRaw),
     });

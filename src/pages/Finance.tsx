@@ -232,6 +232,13 @@ const WalletCard = ({ w, today, month, onOpen, onIncome, onDeposit, onAdvance, o
                   <p className="text-[10px] text-muted-foreground leading-tight">{bn?"বাইরে থেকে আয়":"External income"}</p>
                 </div>
               </button>
+              <button onClick={stop(onAdvance)} className="w-full flex items-center gap-2 rounded-md px-2 py-2 text-left text-sm hover:bg-muted transition-colors">
+                <Wallet className="h-4 w-4 text-amber-500" />
+                <div className="min-w-0">
+                  <p className="font-medium leading-tight">{bn?"অগ্রিম নেওয়া":"Advance Received"}</p>
+                  <p className="text-[10px] text-muted-foreground leading-tight">{bn?"ক্লায়েন্ট/পার্টি থেকে অগ্রিম":"Upfront from client/party"}</p>
+                </div>
+              </button>
               <button onClick={stop(onDeposit)} className="w-full flex items-center gap-2 rounded-md px-2 py-2 text-left text-sm hover:bg-muted transition-colors">
                 <ArrowLeftRight className="h-4 w-4 text-sky-500" />
                 <div className="min-w-0">

@@ -526,6 +526,21 @@ const Finance = () => {
     }
     setBusy(false);
     if (error) { toast.error(error.message); return; }
+
+    // Auto-create a debt entry so lending/borrowing is visible in the Debts tab
+    if (!editTxId && (qaType === "loan_given" || qaType === "loan_taken") && (qaParty || "").trim()) {
+      const { error: debtErr } = await supabase.from("debts").insert({
+        user_id: user.id,
+        direction: qaType === "loan_given" ? "owed_to_me" : "i_owe",
+        counterparty: qaParty.trim(),
+        amount: Math.round(amount),
+        paid_amount: 0,
+        is_settled: false,
+        note: qaNote || (bn ? `${walletById(qaWallet)?.name ?? ""} থেকে` : `from ${walletById(qaWallet)?.name ?? ""}`),
+      });
+      if (debtErr) toast.warning(bn ? "লেনদেন সেভ হয়েছে, দেনা-পাওনা এন্ট্রি বাদ পড়েছে" : "Tx saved but debt entry skipped");
+    }
+
     toast.success(bn ? "সংরক্ষিত হয়েছে" : "Saved");
     setEditTxId(null);
     setQaOpen(false);

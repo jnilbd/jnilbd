@@ -6,7 +6,7 @@ import {
   Landmark, Smartphone, CreditCard, Coins, Banknote, PiggyBank, Package,
   ShoppingCart, ReceiptText, Trash2, RefreshCw, Loader2, X, ArrowUpRight, ArrowDownRight,
   Building2, User as UserIcon, Wand2, ChevronRight, Search, Boxes, AlertTriangle,
-  HandCoins as HandCoinsIcon
+  HandCoins as HandCoinsIcon, Pencil
 } from "lucide-react";
 
 import { toast } from "sonner";
@@ -401,16 +401,35 @@ const Finance = () => {
   }, [txs]);
 
   // ---------- Actions ----------
+  const [editTxId, setEditTxId] = useState<string | null>(null);
+
   const openQuick = (type: TxType) => {
+    setEditTxId(null);
     setQaType(type);
     setQaAmount(""); setQaCategory(""); setQaParty(""); setQaNote(""); setQaWallet2("");
     const def = filteredWallets.find(w => w.is_default) ?? filteredWallets[0];
     setQaWallet(def?.id ?? "");
     setQaScope(type === "sale" || type === "purchase" ? "business" : "personal");
-    // default to "now" in local datetime-local format
     const now = new Date();
     const pad = (n: number) => String(n).padStart(2, "0");
     setQaDate(`${now.getFullYear()}-${pad(now.getMonth()+1)}-${pad(now.getDate())}T${pad(now.getHours())}:${pad(now.getMinutes())}`);
+    setQaOpen(true);
+  };
+
+  const openEditTx = (t: TxRow) => {
+    setDetailWallet(null);
+    setEditTxId(t.id);
+    setQaType(t.type as TxType);
+    setQaAmount(String(t.amount ?? ""));
+    setQaWallet(t.wallet_id ?? "");
+    setQaWallet2((t as any).transfer_to_wallet_id ?? "");
+    setQaCategory(t.category ?? "");
+    setQaParty((t as any).party ?? "");
+    setQaNote((t as any).note ?? "");
+    setQaScope(((t as any).scope ?? "personal") as any);
+    const d = new Date(t.occurred_at);
+    const pad = (n: number) => String(n).padStart(2, "0");
+    setQaDate(`${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`);
     setQaOpen(true);
   };
 
@@ -422,26 +441,40 @@ const Finance = () => {
     if (qaType === "transfer" && !qaWallet2) { toast.error(bn ? "গন্তব্য ওয়ালেট নির্বাচন করুন" : "Pick destination wallet"); return; }
     setBusy(true);
     const occurred_at = qaDate ? new Date(qaDate).toISOString() : new Date().toISOString();
-    const { error } = await supabase.from("finance_transactions").insert({
-      user_id: user.id, wallet_id: qaWallet,
+    const payload = {
+      wallet_id: qaWallet,
       transfer_to_wallet_id: qaType === "transfer" ? qaWallet2 : null,
       type: qaType, amount, category: qaCategory || null,
       scope: qaScope, party: qaParty || null, note: qaNote || null,
       occurred_at,
-    });
+    };
+    let error;
+    if (editTxId) {
+      // delete + re-insert so the finance_apply_tx trigger correctly reverses old effect and applies new
+      const del = await supabase.from("finance_transactions").delete().eq("id", editTxId);
+      if (del.error) { setBusy(false); toast.error(del.error.message); return; }
+      const ins = await supabase.from("finance_transactions").insert({ user_id: user.id, ...payload });
+      error = ins.error;
+    } else {
+      const ins = await supabase.from("finance_transactions").insert({ user_id: user.id, ...payload });
+      error = ins.error;
+    }
     setBusy(false);
     if (error) { toast.error(error.message); return; }
     toast.success(bn ? "সংরক্ষিত হয়েছে" : "Saved");
+    setEditTxId(null);
     setQaOpen(false);
     await loadAll();
   };
 
   const deleteTx = async (id: string) => {
+    if (!confirm(bn ? "এই লেনদেন মুছে ফেলবেন?" : "Delete this transaction?")) return;
     const { error } = await supabase.from("finance_transactions").delete().eq("id", id);
     if (error) { toast.error(error.message); return; }
     toast.success(bn ? "মুছে ফেলা হয়েছে" : "Deleted");
     await loadAll();
   };
+
 
   const saveWithdrawal = async () => {
     if (!user || !detailWallet) return;
@@ -1033,7 +1066,7 @@ const Finance = () => {
       </Sheet>
 
       {/* Quick action sheet */}
-      <Sheet open={qaOpen} onOpenChange={setQaOpen}>
+      <Sheet open={qaOpen} onOpenChange={(o) => { setQaOpen(o); if (!o) setEditTxId(null); }}>
         <SheetContent side="bottom" className="rounded-t-3xl max-h-[90vh] overflow-y-auto">
           <SheetHeader>
             <SheetTitle className="capitalize">{qaType ? bnLabel(TX_TYPE_BN, qaType, bn) : ""}</SheetTitle>
@@ -1307,14 +1340,22 @@ const Finance = () => {
                     const incoming = t.transfer_to_wallet_id === detailWallet.id;
                     const sign = t.type === "transfer" ? (incoming ? "+" : "-") : income ? "+" : "-";
                     return (
-                      <div key={t.id} className="flex items-center justify-between text-xs px-2 py-2 rounded-lg hover:bg-muted/50">
-                        <div className="min-w-0">
+                      <div key={t.id} className="flex items-center justify-between gap-2 text-xs px-2 py-2 rounded-lg hover:bg-muted/50 group">
+                        <div className="min-w-0 flex-1">
                           <p className="capitalize truncate">{t.category ? bnLabel(CATEGORY_BN, t.category, bn) : bnLabel(TX_TYPE_BN, t.type, bn)}</p>
-                          <p className="text-[10px] text-muted-foreground truncate">{new Date(t.occurred_at).toLocaleString(bn?"bn-BD":"en-BD")}</p>
+                          <p className="text-[10px] text-muted-foreground truncate">{new Date(t.occurred_at).toLocaleString(bn?"bn-BD":"en-BD")}{(t as any).note ? ` · ${(t as any).note}` : ""}</p>
                         </div>
-                        <span className={cn("tabular-nums font-medium", sign === "+" ? "text-emerald-500" : "text-rose-500")}>
+                        <span className={cn("tabular-nums font-medium shrink-0", sign === "+" ? "text-emerald-500" : "text-rose-500")}>
                           {sign}{fmtBDT(Number(t.amount), bn)}
                         </span>
+                        <div className="flex items-center gap-0.5 shrink-0 opacity-60 group-hover:opacity-100 transition-opacity">
+                          <button onClick={() => openEditTx(t)} className="p-1.5 rounded-md hover:bg-primary/10 text-primary" title={bn?"সম্পাদনা":"Edit"}>
+                            <Pencil className="h-3 w-3" />
+                          </button>
+                          <button onClick={() => deleteTx(t.id)} className="p-1.5 rounded-md hover:bg-rose-500/10 text-rose-500" title={bn?"মুছুন":"Delete"}>
+                            <Trash2 className="h-3 w-3" />
+                          </button>
+                        </div>
                       </div>
                     );
                   })}

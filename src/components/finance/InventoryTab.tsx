@@ -131,7 +131,12 @@ export function InventoryTab({ userId, bn }: { userId: string; bn: boolean }) {
     for (const m of movements) {
       const meta = MV_META[m.type];
       if (meta.sign === -1 && m.location && m.status !== "cancelled" && m.status !== "returned") {
-        perLoc[m.location] += Number(m.qty);
+        // For transit locations (courier / with_person) only count items still in motion.
+        // Once "completed" they've been delivered — remove from that bucket.
+        const inTransitLoc = m.location === "courier" || m.location === "with_person";
+        if (!inTransitLoc || m.status === "in_transit" || m.status === "pending") {
+          perLoc[m.location] += Number(m.qty);
+        }
       }
       if ((m.type === "sale" || m.type === "stock_out") && m.status !== "cancelled" && m.status !== "returned") {
         const due = Number(m.qty) * Number(m.unit_price) - Number(m.amount_paid || 0);

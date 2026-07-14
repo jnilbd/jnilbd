@@ -496,7 +496,7 @@ const Navbar = () => {
             className="lg:hidden overflow-hidden border-b border-border/60 bg-background/98 backdrop-blur-xl"
           >
             <nav className="container py-4 flex flex-col gap-0.5">
-              {primary.map((l) => (
+              {mobilePrimary.map((l) => (
                 <NavLink
                   key={l.to}
                   to={l.to}

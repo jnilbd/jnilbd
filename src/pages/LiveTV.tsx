@@ -807,10 +807,9 @@ const LiveTV = () => {
   }, [loading, mrgifyChannels, tvChannels, worldChannels, bdixChannels, sportsChannels, radioChannels]);
 
 
-  // Try a given URL index, auto-fallback on error
-  const playUrl = useCallback((ch: Channel, urlIdx: number) => {
   // Jump to the next non-dead channel in the currently visible list
   const playNextChannel = useCallback((failedId: string) => {
+
     const list = filteredRef.current;
     const dset = new Set(deadRef.current);
     dset.add(failedId);

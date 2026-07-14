@@ -809,11 +809,37 @@ const LiveTV = () => {
 
   // Try a given URL index, auto-fallback on error
   const playUrl = useCallback((ch: Channel, urlIdx: number) => {
+  // Jump to the next non-dead channel in the currently visible list
+  const playNextChannel = useCallback((failedId: string) => {
+    const list = filteredRef.current;
+    const dset = new Set(deadRef.current);
+    dset.add(failedId);
+    const idx = list.findIndex(c => c.id === failedId);
+    const start = idx === -1 ? 0 : idx + 1;
+    let next: Channel | undefined;
+    for (let i = start; i < list.length; i++) {
+      if (!dset.has(list[i].id)) { next = list[i]; break; }
+    }
+    if (!next) {
+      for (let i = 0; i < start; i++) {
+        if (!dset.has(list[i].id)) { next = list[i]; break; }
+      }
+    }
+    if (next) {
+      toast.message(t(`পরের চ্যানেলে যাচ্ছি: ${next.name}`, `Skipping to next: ${next.name}`));
+      setActive(next);
+      setRecent(prev => [next!.id, ...prev.filter(x => x !== next!.id)].slice(0, 20));
+    }
+  }, [t]);
+
+  // Try a given URL index, auto-fallback on error
+  const playUrl = useCallback((ch: Channel, urlIdx: number) => {
     const urls = ch.urls && ch.urls.length ? ch.urls : [ch.url];
     if (urlIdx >= urls.length) {
-      toast.error(t(`${ch.name} এর সব লিংক ডেড — নিচে সরিয়ে দিচ্ছি`, `All links for ${ch.name} are dead — moving down`));
+      toast.error(t(`${ch.name} এর সব লিংক ডেড — পরের চ্যানেল চালু হচ্ছে`, `All links for ${ch.name} are dead — trying next channel`));
       setDead(prev => new Set(prev).add(ch.id));
       setHealth(h => ({ ...h, [ch.id]: "dead" }));
+      playNextChannel(ch.id);
       return;
     }
     const url = urls[urlIdx];
@@ -834,9 +860,10 @@ const LiveTV = () => {
             toast.message(t(`লিংক ${urlIdx + 1} ফেল — অটো ব্যাকআপ চালু হচ্ছে...`, `Link ${urlIdx + 1} failed — trying backup...`));
             playUrl(ch, urlIdx + 1);
           } else {
-            toast.error(t("সব ব্যাকআপ ফেল — অন্য চ্যানেল চেষ্টা করুন", "All backups failed — try another channel"));
+            toast.error(t("সব ব্যাকআপ ফেল — পরের চ্যানেলে যাচ্ছি", "All backups failed — jumping to next channel"));
             setDead(prev => new Set(prev).add(ch.id));
             setHealth(h => ({ ...h, [ch.id]: "dead" }));
+            playNextChannel(ch.id);
           }
         }
       });
@@ -845,14 +872,19 @@ const LiveTV = () => {
       (mediaEl as HTMLMediaElement).src = url;
       (mediaEl as HTMLMediaElement).onerror = () => {
         if (urlIdx + 1 < urls.length) playUrl(ch, urlIdx + 1);
-        else setDead(prev => new Set(prev).add(ch.id));
+        else {
+          setDead(prev => new Set(prev).add(ch.id));
+          setHealth(h => ({ ...h, [ch.id]: "dead" }));
+          playNextChannel(ch.id);
+        }
       };
     }
     const el = mediaEl as HTMLMediaElement;
     const onPlaying = () => markWorking(ch.id);
     el.addEventListener("playing", onPlaying, { once: true });
     el.play().catch(() => {});
-  }, [t, markWorking]);
+  }, [t, markWorking, playNextChannel]);
+
 
   const openChannel = (ch: Channel) => {
     setActive(ch);

@@ -102,17 +102,40 @@ async function fetchLeague(l: typeof LEAGUES[number]): Promise<SportEvent[]> {
       const away = competitors.find((c: any) => c.homeAway === "away") || competitors[1];
       const homeName = home?.team?.displayName || home?.athlete?.displayName || home?.team?.name || "";
       const awayName = away?.team?.displayName || away?.athlete?.displayName || away?.team?.name || "";
-      const match = ev?.name || (homeName && awayName ? `${homeName} vs ${awayName}` : (ev?.shortName || "Match"));
+      let match = ev?.name || (homeName && awayName ? `${homeName} vs ${awayName}` : (ev?.shortName || "Match"));
+
+      // ESPN uses placeholder names before a round is decided, e.g.
+      //   "Semifinal 2 Winner at Semifinal 1 Winner"  -> this IS the Final
+      //   "Semifinal 2 Loser at Semifinal 1 Loser"    -> 3rd place play-off
+      //   "Quarterfinal N Winner at Quarterfinal M Winner" -> Semifinal, etc.
+      const pairWinner = /^(semifinal|quarterfinal|round of 16)\s*\d*\s*winner$/i;
+      const pairLoser  = /^(semifinal|quarterfinal|round of 16)\s*\d*\s*loser$/i;
+      const tourneyName = (ev?.league?.name || l.tournament || "").replace(/\s*\d{4}\s*$/, "").trim();
+      let phaseLabel = "";
+      if (pairWinner.test(homeName.trim()) && pairWinner.test(awayName.trim())) {
+        const src = homeName.match(pairWinner)?.[1]?.toLowerCase() || "";
+        if (src.startsWith("semi")) phaseLabel = "Final";
+        else if (src.startsWith("quarter")) phaseLabel = "Semifinal";
+        else phaseLabel = "Quarterfinal";
+        match = `${tourneyName} — ${phaseLabel}`;
+      } else if (pairLoser.test(homeName.trim()) && pairLoser.test(awayName.trim())) {
+        phaseLabel = "3rd-place Play-off";
+        match = `${tourneyName} — ${phaseLabel}`;
+      }
+
       const state: "pre" | "in" | "post" = ev?.status?.type?.state || "pre";
       const score = (home?.score && away?.score) ? `${homeName} ${home.score} — ${away.score} ${awayName}` : undefined;
       // Detect knockout / final / semifinal from notes or season type
       const notes: string = (comp?.notes || []).map((n: any) => n?.headline || n?.type || "").join(" ").toLowerCase();
       const seasonType: string = (ev?.season?.slug || ev?.seasonType?.name || "").toLowerCase();
-      const knockoutRe = /(final|semifinal|semi-final|semi final|quarterfinal|quarter-final|quarter final|round of 16|knockout|championship|title)/;
-      const isKnockout = knockoutRe.test(notes) || knockoutRe.test(seasonType) || knockoutRe.test(match.toLowerCase());
+      const knockoutRe = /(final|semifinal|semi-final|semi final|quarterfinal|quarter-final|quarter final|round of 16|knockout|championship|title|3rd-place|third place)/;
+      const isKnockout = !!phaseLabel || knockoutRe.test(notes) || knockoutRe.test(seasonType) || knockoutRe.test(match.toLowerCase());
+      const isFinal = phaseLabel === "Final" || /(^|\s)final(\s|$)/i.test(notes);
       let priority = l.tier;
-      if (isKnockout && l.tier >= 2) priority = 4; // pin knockouts of majors to very top
+      if (isFinal && l.tier >= 2) priority = 5; // Final of a mega tournament: absolute top
+      else if (isKnockout && l.tier >= 2) priority = 4; // pin knockouts of majors to very top
       else if (isKnockout) priority = Math.max(l.tier, 2);
+
       return {
         id: `${l.path}-${ev.id}`,
         sport: l.sport,

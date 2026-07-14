@@ -778,7 +778,7 @@ const LiveTV = () => {
           <div className="inline-flex md:flex md:justify-center rounded-full bg-muted p-1 mx-auto w-max md:w-auto">
 
             {([
-              { k: "mrgify", label: `Mrgify 🔥${mrgifyChannels.length ? ` (${mrgifyChannels.length})` : ""}`, icon: Flag },
+              { k: "mrgify", label: t("বাংলাদেশ","Bangladesh"), icon: Flag },
               { k: "tv", label: t("ইন্ডিয়া","India"), icon: Tv },
               { k: "bdix", label: "BDIX", icon: Wifi },
               { k: "world", label: `${t("ওয়ার্ল্ড","World")}${worldChannels.length ? ` (${worldChannels.length})` : ""}`, icon: Globe2 },

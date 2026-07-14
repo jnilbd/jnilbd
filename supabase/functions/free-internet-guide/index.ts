@@ -124,18 +124,20 @@ Deno.serve(async (req) => {
     const WHEN = "&when=60d";
 
     const feeds = [
-      `https://news.google.com/rss/search?q=${encodeURIComponent(qBn)}${WHEN}&hl=bn&gl=BD&ceid=BD:bn`,
-      `https://news.google.com/rss/search?q=${encodeURIComponent(qEn)}${WHEN}&hl=en&gl=BD&ceid=BD:en`,
-      `https://news.google.com/rss/search?q=${encodeURIComponent(qSite)}${WHEN}&hl=en&gl=BD&ceid=BD:en`,
-      `https://news.google.com/rss/search?q=${encodeURIComponent(qEn + " techtunes trickbd")}${WHEN}&hl=en&gl=BD&ceid=BD:en`,
-      // Fallback without date filter
-      `https://news.google.com/rss/search?q=${encodeURIComponent(qEn)}&hl=en&gl=BD&ceid=BD:en`,
-      `https://news.google.com/rss/search?q=${encodeURIComponent(qBn)}&hl=bn&gl=BD&ceid=BD:bn`,
-      // Bing News fallback (works from any region, no consent wall)
+      // Bing News (works globally, no consent wall) — primary source
       `https://www.bing.com/news/search?q=${encodeURIComponent(qEn + " bangladesh")}&format=rss&cc=bd`,
-      `https://www.bing.com/news/search?q=${encodeURIComponent(qSite + " bangladesh")}&format=rss&cc=bd`,
+      `https://www.bing.com/news/search?q=${encodeURIComponent(qBn)}&format=rss&cc=bd`,
+      `https://www.bing.com/news/search?q=${encodeURIComponent(op.en + " bangladesh 2026")}&format=rss&cc=bd`,
+      `https://www.bing.com/news/search?q=${encodeURIComponent(op.en + " " + tp.en)}&format=rss`,
+      // Bangladeshi tech blogs (RSS feeds, no geo issues)
+      `https://trickbd.com/feed`,
+      `https://trickbd.com/tag/${encodeURIComponent(op.aliases[0])}/feed`,
+      `https://www.techtunes.io/feed/`,
+      `https://www.techtunes.io/tag/${encodeURIComponent(op.aliases[0])}/feed`,
+      // Google News (may be blocked by EU consent from edge region — kept as bonus)
+      `https://news.google.com/rss/search?q=${encodeURIComponent(qEn)}&hl=en&gl=US&ceid=US:en`,
+      `https://news.google.com/rss/search?q=${encodeURIComponent(qBn)}&hl=bn&gl=BD&ceid=BD:bn`,
     ];
-
 
     const results = await Promise.all(feeds.map(fetchRss));
     const seen = new Set<string>();
@@ -149,13 +151,32 @@ Deno.serve(async (req) => {
       }
     }
 
+    // Score by operator alias hit + topic keyword hit; drop unrelated posts
+    const opAliases = op.aliases.map((a) => a.toLowerCase());
+    const topicMatch = tp.match.map((m) => m.toLowerCase());
+    const scored = merged
+      .map((it) => {
+        const hay = `${it.title} ${it.description}`.toLowerCase();
+        const opHit = opAliases.some((a) => hay.includes(a));
+        const tpHit = topicMatch.some((m) => hay.includes(m));
+        return { it, score: (opHit ? 10 : 0) + (tpHit ? 3 : 0) };
+      })
+      .filter((x) => x.score >= 10) // must mention the operator
+      .sort((a, b) => {
+        const t = (Date.parse(b.it.pubDate) || 0) - (Date.parse(a.it.pubDate) || 0);
+        return b.score - a.score || t;
+      })
+      .map((x) => x.it);
+
     // Prefer items within 180 days; if none, fall back to whatever we got
     const CUTOFF = Date.now() - 180 * 24 * 60 * 60 * 1000;
-    const recent = merged.filter((it) => {
+    const recent = scored.filter((it) => {
       const t = Date.parse(it.pubDate);
-      return t && t >= CUTOFF;
+      return !t || t >= CUTOFF;
     });
-    const fresh = recent.length > 0 ? recent : merged;
+    const fresh = recent.length > 0 ? recent : scored.length > 0 ? scored : merged;
+
+
 
 
     // Sort newest first

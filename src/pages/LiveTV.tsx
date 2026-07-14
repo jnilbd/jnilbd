@@ -999,6 +999,93 @@ const LiveTV = () => {
                 );
               }
 
+              // BDIX tab: group by category (and show country badges via card)
+              if (tab === "bdix" && countryFilter === "all") {
+                const CAT_LABELS: Record<string, { bn: string; en: string; icon: any }> = {
+                  news: { bn: "নিউজ", en: "News", icon: Activity },
+                  entertainment: { bn: "বিনোদন", en: "Entertainment", icon: Tv },
+                  sports: { bn: "স্পোর্টস", en: "Sports", icon: Trophy },
+                  music: { bn: "মিউজিক", en: "Music", icon: Radio },
+                  kids: { bn: "কিডস", en: "Kids", icon: Star },
+                  religious: { bn: "ধর্মীয়", en: "Religious", icon: Star },
+                  other: { bn: "অন্যান্য", en: "Other", icon: Layers },
+                };
+                const ORDER = ["news", "entertainment", "sports", "music", "kids", "religious", "other"];
+                const groups = new Map<string, typeof filtered>();
+                for (const c of filtered) {
+                  const key = (c.subCategory || "other").toLowerCase();
+                  const arr = groups.get(key) || [];
+                  arr.push(c);
+                  groups.set(key, arr);
+                }
+                const catEntries = ORDER
+                  .filter(k => groups.has(k))
+                  .map(k => [k, groups.get(k)!] as const);
+                // Country summary chips
+                const countryCounts = new Map<string, number>();
+                filtered.forEach(c => countryCounts.set(c.country, (countryCounts.get(c.country) || 0) + 1));
+                return (
+                  <div className="space-y-8">
+                    <div className="sticky top-0 z-20 -mx-2 px-2 py-2 bg-background/90 backdrop-blur border-b">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <div className="flex items-center gap-1.5 text-xs font-semibold text-muted-foreground shrink-0">
+                          <Layers className="w-3.5 h-3.5" />
+                          {t("ক্যাটাগরি:", "Category:")}
+                        </div>
+                        {catEntries.map(([key, list]) => {
+                          const meta = CAT_LABELS[key] || CAT_LABELS.other;
+                          return (
+                            <button
+                              key={key}
+                              onClick={() => document.getElementById(`bdix-cat-${key}`)?.scrollIntoView({ behavior: "smooth", block: "start" })}
+                              className="px-2.5 py-1 rounded-full text-[11px] font-semibold bg-muted hover:bg-primary hover:text-white transition-smooth"
+                            >
+                              {t(meta.bn, meta.en)} <span className="opacity-70">({list.length})</span>
+                            </button>
+                          );
+                        })}
+                        <div className="mx-2 h-4 w-px bg-border" />
+                        <div className="flex items-center gap-1.5 text-xs font-semibold text-muted-foreground shrink-0">
+                          <Globe2 className="w-3.5 h-3.5" />
+                          {t("দেশ:", "Country:")}
+                        </div>
+                        {[...countryCounts.entries()].sort((a,b) => countryPriority(a[0]) - countryPriority(b[0])).map(([code, n]) => (
+                          <button
+                            key={code}
+                            onClick={() => setCountryFilter(code)}
+                            className="px-2.5 py-1 rounded-full text-[11px] font-semibold bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 hover:bg-emerald-500 hover:text-white transition-smooth"
+                          >
+                            {COUNTRY_NAMES[code] || code} <span className="opacity-70">({n})</span>
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+
+                    {catEntries.map(([key, list]) => {
+                      const meta = CAT_LABELS[key] || CAT_LABELS.other;
+                      const Icon = meta.icon;
+                      return (
+                        <section key={key} id={`bdix-cat-${key}`} className="scroll-mt-24">
+                          <div className="flex items-center gap-2 mb-3">
+                            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center text-white">
+                              <Icon className="w-4 h-4" />
+                            </div>
+                            <h3 className="font-display font-bold text-lg">
+                              {t(meta.bn, meta.en)}
+                            </h3>
+                            <span className="text-xs text-muted-foreground">({list.length})</span>
+                            <div className="flex-1 h-px bg-border ml-2" />
+                          </div>
+                          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
+                            {list.map(renderCard)}
+                          </div>
+                        </section>
+                      );
+                    })}
+                  </div>
+                );
+              }
+
               return (
                 <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
                   {filtered.map(renderCard)}

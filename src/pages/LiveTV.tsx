@@ -14,10 +14,11 @@ import LiveScoreBoard from "@/components/LiveScoreBoard";
 import { BDIX_CHANNELS, IMPORTANT_BD_CHANNELS, IMPORTANT_IN_CHANNELS } from "@/data/bdixChannels";
 
 const DEAD_KEY = "livetv:dead:v2";
+const WORKING_KEY = "livetv:working:v1";
 const FAV_KEY = "livetv:favorites:v2";
 const RECENT_KEY = "livetv:recent:v1";
 
-type Tab = "mrgify" | "tv" | "bdix" | "direct" | "world" | "sports" | "radio" | "scores" | "offline";
+type Tab = "mrgify" | "tv" | "bdix" | "direct" | "world" | "sports" | "radio" | "scores" | "offline" | "working";
 type Health = "unknown" | "checking" | "live" | "dead";
 
 type Channel = {
@@ -230,14 +231,27 @@ const LiveTV = () => {
   const [dead, setDead] = useState<Set<string>>(() => {
     try { return new Set(JSON.parse(localStorage.getItem(DEAD_KEY) || "[]")); } catch { return new Set(); }
   });
+  const [working, setWorking] = useState<Set<string>>(() => {
+    try { return new Set(JSON.parse(localStorage.getItem(WORKING_KEY) || "[]")); } catch { return new Set(); }
+  });
   const [recent, setRecent] = useState<string[]>(() => {
     try { return JSON.parse(localStorage.getItem(RECENT_KEY) || "[]"); } catch { return []; }
   });
   const [health, setHealth] = useState<Record<string, Health>>({});
 
   useEffect(() => { localStorage.setItem(DEAD_KEY, JSON.stringify([...dead])); }, [dead]);
+  useEffect(() => { localStorage.setItem(WORKING_KEY, JSON.stringify([...working])); }, [working]);
   useEffect(() => { localStorage.setItem(FAV_KEY, JSON.stringify([...favs])); }, [favs]);
   useEffect(() => { localStorage.setItem(RECENT_KEY, JSON.stringify(recent.slice(0, 20))); }, [recent]);
+
+  const markWorking = useCallback((id: string) => {
+    setWorking(prev => (prev.has(id) ? prev : new Set(prev).add(id)));
+    setDead(prev => {
+      if (!prev.has(id)) return prev;
+      const next = new Set(prev); next.delete(id); return next;
+    });
+    setHealth(h => (h[id] === "live" ? h : { ...h, [id]: "live" }));
+  }, []);
 
   const reportDead = (id: string, name: string) => {
     setDead(prev => new Set(prev).add(id));
@@ -470,11 +484,12 @@ const LiveTV = () => {
       const txt = (await res.text()).slice(0, 200);
       const ok = txt.includes("#EXTM3U") || ch.category === "radio";
       setHealth(h => ({ ...h, [ch.id]: ok ? "live" : "dead" }));
-      if (!ok) setDead(prev => (prev.has(ch.id) ? prev : new Set(prev).add(ch.id)));
+      if (ok) markWorking(ch.id);
+      else setDead(prev => (prev.has(ch.id) ? prev : new Set(prev).add(ch.id)));
     } catch {
       setHealth(h => ({ ...h, [ch.id]: "unknown" }));
     }
-  }, []);
+  }, [markWorking]);
 
   const offlineChannels = useMemo(() => {
     const pool = [
@@ -485,6 +500,15 @@ const LiveTV = () => {
     return pool.filter(c => dead.has(c.id) && !seen.has(c.id) && seen.add(c.id));
   }, [mrgifyChannels, tvChannels, worldChannels, bdixChannels, sportsChannels, radioChannels, dead]);
 
+  const workingChannels = useMemo(() => {
+    const pool = [
+      ...mrgifyChannels, ...tvChannels, ...worldChannels,
+      ...bdixChannels, ...DIRECT_CHANNELS, ...sportsChannels, ...radioChannels,
+    ];
+    const seen = new Set<string>();
+    return pool.filter(c => working.has(c.id) && !dead.has(c.id) && !seen.has(c.id) && seen.add(c.id));
+  }, [mrgifyChannels, tvChannels, worldChannels, bdixChannels, sportsChannels, radioChannels, working, dead]);
+
   const allChannels =
     tab === "mrgify" ? mrgifyChannels :
     tab === "tv" ? tvChannels :
@@ -493,6 +517,7 @@ const LiveTV = () => {
     tab === "direct" ? DIRECT_CHANNELS :
     tab === "sports" ? sportsChannels :
     tab === "offline" ? offlineChannels :
+    tab === "working" ? workingChannels :
     tab === "radio" ? radioChannels : [];
 
   const availableCountries = useMemo(() => {
@@ -565,6 +590,7 @@ const LiveTV = () => {
       const hls = new Hls({ enableWorker: true });
       hls.loadSource(url);
       hls.attachMedia(mediaEl as HTMLMediaElement);
+      hls.on(Hls.Events.MANIFEST_PARSED, () => markWorking(ch.id));
       hls.on(Hls.Events.ERROR, (_e, data) => {
         if (data.fatal) {
           if (urlIdx + 1 < urls.length) {
@@ -585,8 +611,11 @@ const LiveTV = () => {
         else setDead(prev => new Set(prev).add(ch.id));
       };
     }
-    (mediaEl as HTMLMediaElement).play().catch(() => {});
-  }, [t]);
+    const el = mediaEl as HTMLMediaElement;
+    const onPlaying = () => markWorking(ch.id);
+    el.addEventListener("playing", onPlaying, { once: true });
+    el.play().catch(() => {});
+  }, [t, markWorking]);
 
   const openChannel = (ch: Channel) => {
     setActive(ch);
@@ -639,6 +668,7 @@ const LiveTV = () => {
               { k: "sports", label: t("স্পোর্টস","Sports"), icon: Trophy },
               { k: "scores", label: t("স্কোর","Scores"), icon: Activity },
               { k: "radio", label: t("রেডিও","Radio"), icon: Radio },
+              { k: "working", label: `${t("ওয়ার্কিং ✅","Working ✅")}${workingChannels.length ? ` (${workingChannels.length})` : ""}`, icon: CheckCircle2 },
               { k: "offline", label: `${t("অফলাইন","Offline")}${offlineChannels.length ? ` (${offlineChannels.length})` : ""}`, icon: XCircle },
             ] as { k: Tab; label: string; icon: any }[]).map(({ k, label, icon: Icon }) => (
               <button

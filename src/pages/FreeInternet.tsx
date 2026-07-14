@@ -54,14 +54,15 @@ const FreeInternet = () => {
   ];
 
 
-  const load = async (selectedTopic: string) => {
-    if (!op) return;
+  const load = async (selectedTopic: string, overrideOp?: string) => {
+    const useOp = overrideOp || op;
+    if (!useOp) return;
     setTopic(selectedTopic);
     setLoading(true);
     setItems([]);
     try {
       const { data, error } = await supabase.functions.invoke("free-internet-guide", {
-        body: { operator: op, topic: selectedTopic, language },
+        body: { operator: useOp, topic: selectedTopic, language },
       });
       if (error) throw error;
       if ((data as any)?.error) throw new Error((data as any).error);
@@ -72,6 +73,7 @@ const FreeInternet = () => {
       setLoading(false);
     }
   };
+
 
   const selectedOp = operators.find((o) => o.id === op);
 

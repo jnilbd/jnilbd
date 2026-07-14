@@ -28,6 +28,7 @@ type Channel = {
   countryName?: string;
   category: Exclude<Tab, "scores">;
   categories?: string[];
+  subCategory?: string;
   logo?: string;
   url: string;          // current/primary
   urls?: string[];      // all alternate URLs

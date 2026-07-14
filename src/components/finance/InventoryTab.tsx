@@ -323,7 +323,7 @@ export function InventoryTab({ userId, bn }: { userId: string; bn: boolean }) {
             </span>
           </div>
         </div>
-        <div className="grid grid-cols-3 sm:grid-cols-6 gap-2">
+        <div className="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-7 gap-2">
           {(Object.keys(LOC_META) as MvLocation[]).map(loc => {
             const L = LOC_META[loc];
             const qty = breakdown.perLoc[loc];

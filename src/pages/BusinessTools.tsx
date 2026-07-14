@@ -1,11 +1,12 @@
 import { Link, Navigate } from "react-router-dom";
-import { ArrowLeft, Briefcase, Loader2, ShoppingBag, Truck } from "lucide-react";
+import { ArrowLeft, Briefcase, Loader2, ShoppingBag, Truck, Boxes } from "lucide-react";
 import { useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { SalesTab } from "@/components/finance/SalesTab";
 import { CourierTrackerTab } from "@/components/finance/CourierTrackerTab";
+import { InventoryTab } from "@/components/finance/InventoryTab";
 
 const BusinessTools = () => {
   const { user, loading } = useAuth();

@@ -792,7 +792,7 @@ const Finance = () => {
               
               { v: "jobs", label: bn?"সার্ভিস":"Service", Icon: WrenchIcon },
               { v: "assets", label: bn?"সম্পদ":"Assets", Icon: ArchiveIcon },
-              { v: "inventory", label: bn?"ইনভেন্টরি":"Inventory", Icon: Boxes },
+              
               
               { v: "ai", label: "AI", Icon: Sparkles },
               { v: "calc", label: bn?"ক্যালকুলেটর":"Calculator", Icon: CalculatorIcon },
@@ -848,9 +848,9 @@ const Finance = () => {
               <MetricCard onClick={() => setMetricKey("cash")} label={bn?"মোট নগদ":"Total Cash"} value={fmtBDT(metrics.cashTotal, bn)} icon={Coins} />
               <MetricCard onClick={() => setMetricKey("bank")} label={bn?"মোট ব্যাংক":"Total Bank"} value={fmtBDT(metrics.bankTotal, bn)} icon={Landmark} />
               <MetricCard onClick={() => setMetricKey("mobile")} label={bn?"মোবাইল ব্যাংকিং":"Mobile Banking"} value={fmtBDT(metrics.mbTotal, bn)} icon={Smartphone} />
-              <MetricCard onClick={() => { setTab("inventory"); }} label={bn?"স্টকের মূল্য":"Stock Value"} value={fmtBDT(invStats.stockValue, bn)} icon={Boxes} />
+              <MetricCard label={bn?"স্টকের মূল্য":"Stock Value"} value={fmtBDT(invStats.stockValue, bn)} icon={Boxes} />
               <MetricCard
-                onClick={() => { setTab("inventory"); }}
+                label={bn?"লো-স্টক":"Low Stock"}
                 label={bn?"কম স্টক":"Low Stock"}
                 value={bn ? invStats.lowCount.toLocaleString("bn-BD") : String(invStats.lowCount)}
                 icon={AlertTriangle}
@@ -1090,10 +1090,6 @@ const Finance = () => {
             <DebtsTab userId={user.id} bn={bn} />
           </TabsContent>
 
-          {/* Inventory */}
-          <TabsContent value="inventory" className="mt-4">
-            <InventoryTab userId={user.id} bn={bn} />
-          </TabsContent>
 
 
 

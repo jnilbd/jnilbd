@@ -260,11 +260,10 @@ export function CourierTrackerTab({ userId, bn }: { userId: string; bn: boolean 
   };
 
   const updateStatus = async (row: Row, next: string) => {
-    const patch = row.sourceTable === "finance_sales"
-      ? { delivery_status: next }
-      : { status: next };
-    const { error } = await supabase.from(row.sourceTable).update(patch).eq("id", row.refId);
-    if (error) { toast.error(error.message); return; }
+    const res = row.sourceTable === "finance_sales"
+      ? await supabase.from("finance_sales").update({ delivery_status: next }).eq("id", row.refId)
+      : await supabase.from("inventory_movements").update({ status: next as any }).eq("id", row.refId);
+    if (res.error) { toast.error(res.error.message); return; }
     toast.success(bn ? "আপডেট হয়েছে" : "Updated");
     load();
   };

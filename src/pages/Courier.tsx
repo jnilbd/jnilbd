@@ -25,10 +25,6 @@ const Courier = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-background via-background to-muted/30 pb-24">
-      <Helmet>
-        <title>{`${title} — JOHN NIL`}</title>
-        <meta name="description" content={desc} />
-      </Helmet>
 
       <div className="sticky top-0 z-30 border-b border-border/60 bg-background/70 backdrop-blur-xl">
         <div className="container mx-auto px-3 sm:px-6 py-3 flex items-center gap-2">

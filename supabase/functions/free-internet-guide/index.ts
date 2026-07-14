@@ -87,19 +87,22 @@ Deno.serve(async (req) => {
     const tp = TOPIC_KEYWORDS[topic] || TOPIC_KEYWORDS["cheap-mb"];
     const bn = language === "bn";
 
-    const qBn = `${op.bn} ${tp.bn}`;
-    const qEn = `${op.en} ${tp.en}`;
-    const qSite = op.site ? `${tp.en} site:${op.site}` : qEn;
+    // Restrict Google News to last 45 days so old posts don't dominate
+    const RECENT = "when:45d";
+    const year = new Date().getFullYear();
+    const qBn = `${op.bn} ${tp.bn} ${year} ${RECENT}`;
+    const qEn = `${op.en} ${tp.en} ${year} ${RECENT}`;
+    const qSite = op.site ? `${tp.en} site:${op.site} ${RECENT}` : qEn;
 
     const feeds = [
-      // Bangla news coverage
+      // Bangla news coverage (recent)
       `https://news.google.com/rss/search?q=${encodeURIComponent(qBn)}&hl=bn&gl=BD&ceid=BD:bn`,
-      // English coverage
+      // English coverage (recent)
       `https://news.google.com/rss/search?q=${encodeURIComponent(qEn)}&hl=en&gl=BD&ceid=BD:en`,
-      // Operator's own site
+      // Operator's own site (recent)
       `https://news.google.com/rss/search?q=${encodeURIComponent(qSite)}&hl=en&gl=BD&ceid=BD:en`,
-      // Community blogs / techtunes / BDIX-style
-      `https://news.google.com/rss/search?q=${encodeURIComponent(qEn + " techtunes trickbd bdix")}&hl=en&gl=BD&ceid=BD:en`,
+      // Community blogs / techtunes / trickbd (recent)
+      `https://news.google.com/rss/search?q=${encodeURIComponent(qEn + " techtunes trickbd bdix " + RECENT)}&hl=en&gl=BD&ceid=BD:en`,
     ];
 
     const results = await Promise.all(feeds.map(fetchRss));
@@ -114,15 +117,23 @@ Deno.serve(async (req) => {
       }
     }
 
+    // Drop anything older than 120 days as a safety filter
+    const CUTOFF = Date.now() - 120 * 24 * 60 * 60 * 1000;
+    const fresh = merged.filter((it) => {
+      const t = Date.parse(it.pubDate);
+      return !t || t >= CUTOFF;
+    });
+
     // Sort newest first
-    merged.sort((a, b) => {
+    fresh.sort((a, b) => {
       const da = Date.parse(a.pubDate) || 0;
       const db = Date.parse(b.pubDate) || 0;
       return db - da;
     });
 
+
     return new Response(JSON.stringify({
-      items: merged.slice(0, 40),
+      items: fresh.slice(0, 40),
       operator,
       topic,
       language,

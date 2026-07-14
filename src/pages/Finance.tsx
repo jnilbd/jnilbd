@@ -36,7 +36,8 @@ import { ReportsTab } from "@/components/finance/ReportsTab";
 import FinanceCalculator from "@/components/finance/FinanceCalculator";
 import { ServiceJobsTab } from "@/components/finance/ServiceJobsTab";
 import { AssetsTab } from "@/components/finance/AssetsTab";
-import { Calculator as CalculatorIcon, Wrench as WrenchIcon, Archive as ArchiveIcon, LayoutDashboard, WalletCards, ArrowRightLeft, ClipboardList, PieChart, Target, HandCoins, ShoppingBag, FileBarChart2 } from "lucide-react";
+import { RecurringBillsTab } from "@/components/finance/RecurringBillsTab";
+import { Calculator as CalculatorIcon, Wrench as WrenchIcon, Archive as ArchiveIcon, LayoutDashboard, WalletCards, ArrowRightLeft, ClipboardList, PieChart, Target, HandCoins, ShoppingBag, FileBarChart2, Repeat as RepeatIcon } from "lucide-react";
 
 
 // ---------- Types ----------

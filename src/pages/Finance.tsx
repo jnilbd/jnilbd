@@ -64,16 +64,17 @@ interface TxRow {
 
 // ---------- Constants ----------
 const DEFAULT_WALLETS: Array<Omit<WalletRow, "id" | "balance" | "currency" | "sort_order">> = [
-  { name: "Cash",         type: "cash",   provider: null,      scope: "personal", icon: "coins",    color: "from-amber-400 to-orange-500",   is_default: true,  archived: false },
-  { name: "Office Cash",  type: "cash",   provider: null,      scope: "business", icon: "banknote", color: "from-emerald-400 to-teal-500",   is_default: false, archived: false },
-  { name: "Personal Cash",type: "cash",   provider: null,      scope: "personal", icon: "coins",    color: "from-sky-400 to-blue-500",       is_default: false, archived: false },
-  { name: "bKash",        type: "mobile", provider: "bkash",   scope: "personal", icon: "smartphone", color: "from-pink-500 to-rose-600",     is_default: false, archived: false },
-  { name: "Bank",         type: "bank",   provider: null,      scope: "personal", icon: "landmark", color: "from-slate-500 to-slate-700",    is_default: false, archived: false },
-  { name: "Nagad",        type: "mobile", provider: "nagad",   scope: "personal", icon: "smartphone", color: "from-orange-500 to-red-600",    is_default: false, archived: false },
-  { name: "Rocket",       type: "mobile", provider: "rocket",  scope: "personal", icon: "smartphone", color: "from-purple-500 to-fuchsia-600",is_default: false, archived: false },
-  { name: "Upay",         type: "mobile", provider: "upay",    scope: "personal", icon: "smartphone", color: "from-cyan-500 to-blue-600",     is_default: false, archived: false },
-  { name: "Card",         type: "card",   provider: null,      scope: "personal", icon: "credit-card", color: "from-indigo-500 to-violet-600", is_default: false, archived: false },
-  { name: "Digital Wallet",type:"digital", provider: null,     scope: "personal", icon: "wallet",   color: "from-fuchsia-500 to-pink-600",   is_default: false, archived: false },
+  { name: "Cash",           type: "cash",   provider: null,      scope: "personal", icon: "coins",    color: "from-amber-400 to-orange-500",   is_default: true,  archived: false },
+  { name: "Office Cash",    type: "cash",   provider: null,      scope: "business", icon: "banknote", color: "from-emerald-400 to-teal-500",   is_default: false, archived: false },
+  { name: "Personal Cash",  type: "cash",   provider: null,      scope: "personal", icon: "coins",    color: "from-sky-400 to-blue-500",       is_default: false, archived: false },
+  { name: "bKash",          type: "mobile", provider: "bkash",   scope: "personal", icon: "smartphone", color: "from-pink-500 to-rose-600",     is_default: false, archived: false },
+  { name: "Card",           type: "card",   provider: null,      scope: "personal", icon: "credit-card", color: "from-indigo-500 to-violet-600", is_default: false, archived: false },
+  { name: "Bank",           type: "bank",   provider: null,      scope: "personal", icon: "landmark", color: "from-slate-500 to-slate-700",    is_default: false, archived: false },
+  { name: "Nagad",          type: "mobile", provider: "nagad",   scope: "personal", icon: "smartphone", color: "from-orange-500 to-red-600",    is_default: false, archived: false },
+  { name: "Rocket",         type: "mobile", provider: "rocket",  scope: "personal", icon: "smartphone", color: "from-purple-500 to-fuchsia-600",is_default: false, archived: false },
+  { name: "Upay",           type: "mobile", provider: "upay",    scope: "personal", icon: "smartphone", color: "from-cyan-500 to-blue-600",     is_default: false, archived: false },
+  { name: "Digital Wallet", type: "digital",provider: null,      scope: "personal", icon: "wallet",   color: "from-fuchsia-500 to-pink-600",   is_default: false, archived: false },
+  { name: "Facebook Boosting", type: "digital", provider: "facebook", scope: "business", icon: "wallet", color: "from-blue-500 to-indigo-600", is_default: false, archived: false },
 ];
 
 // Income categories — where money comes from

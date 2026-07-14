@@ -722,9 +722,7 @@ const LiveTV = () => {
           </div>
         </div>
 
-        {tab === "scores" ? (
-          <LiveScoreBoard />
-        ) : (
+        {false ? null : (
           <>
             <div ref={playerRef}>
               {active && (

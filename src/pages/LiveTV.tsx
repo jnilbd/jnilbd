@@ -906,7 +906,9 @@ const LiveTV = () => {
                         </div>
                         <Select
                           onValueChange={(code) => {
-                            document.getElementById(`world-country-${code}`)?.scrollIntoView({ behavior: "smooth", block: "start" });
+                            const idx = countryEntries.findIndex(([c]) => c === code);
+                            if (idx >= worldCountriesShown) setWorldCountriesShown(idx + 1);
+                            setTimeout(() => document.getElementById(`world-country-${code}`)?.scrollIntoView({ behavior: "smooth", block: "start" }), 50);
                           }}
                         >
                           <SelectTrigger className="h-8 rounded-full text-xs min-w-[180px] w-auto">

@@ -220,12 +220,24 @@ const SportsSchedule = () => {
           <p className="text-center text-xs text-muted-foreground py-6">{t("এই মুহূর্তে কোনো ইভেন্ট নেই", "No scheduled events right now")}</p>
         )}
         {shown.map((e) => (
-          <div key={e.id} className="p-3 rounded-xl border bg-card hover:border-primary/40 transition-smooth">
+          <div key={e.id} className={`p-3 rounded-xl border transition-smooth ${
+            e.priority >= 4 ? "border-rose-500/60 bg-gradient-to-br from-rose-500/10 via-amber-500/5 to-background shadow-md ring-1 ring-rose-500/30" :
+            e.priority === 3 ? "border-amber-500/60 bg-gradient-to-br from-amber-500/10 to-background" :
+            "bg-card hover:border-primary/40"
+          }`}>
             <div className="flex items-start justify-between gap-2 mb-1.5">
               <div className="flex items-center gap-2 min-w-0">
                 <span className="text-lg shrink-0">{SPORT_LABEL[e.sport].emoji}</span>
                 <div className="min-w-0">
-                  <p className="font-semibold text-sm leading-tight truncate">{e.match}</p>
+                  <div className="flex items-center gap-1.5 flex-wrap">
+                    {e.priority >= 4 && (
+                      <Badge className="bg-rose-500 text-white text-[9px] px-1.5 py-0 h-4 shrink-0"><Flame className="w-2.5 h-2.5 mr-0.5" />{t("গুরুত্বপূর্ণ","KEY MATCH")}</Badge>
+                    )}
+                    {e.priority === 3 && (
+                      <Badge className="bg-amber-500 text-white text-[9px] px-1.5 py-0 h-4 shrink-0"><Star className="w-2.5 h-2.5 mr-0.5" />{t("মেগা","MEGA")}</Badge>
+                    )}
+                    <p className="font-semibold text-sm leading-tight truncate">{e.match}</p>
+                  </div>
                   <p className="text-[11px] text-muted-foreground truncate">{e.tournament}</p>
                 </div>
               </div>

@@ -6,7 +6,7 @@ import {
   Landmark, Smartphone, CreditCard, Coins, Banknote, PiggyBank, Package,
   ShoppingCart, ReceiptText, Trash2, RefreshCw, Loader2, X, ArrowUpRight, ArrowDownRight,
   Building2, User as UserIcon, Wand2, ChevronRight, Search, Boxes, AlertTriangle,
-  HandCoins as HandCoinsIcon
+  HandCoins as HandCoinsIcon, Pencil
 } from "lucide-react";
 
 import { toast } from "sonner";

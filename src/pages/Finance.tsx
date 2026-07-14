@@ -155,7 +155,7 @@ const CATEGORY_BN: Record<string, string> = {
   Education: "শিক্ষা", Family: "পরিবার", Kids: "সন্তান", Entertainment: "বিনোদন",
   Internet: "ইন্টারনেট", "Mobile Recharge": "মোবাইল রিচার্জ", Bills: "বিল",
   Travel: "ভ্রমণ", Rent: "ভাড়া", Investment: "বিনিয়োগ", Savings: "সঞ্চয়",
-  Salary: "বেতন", "Salary Paid": "বেতন প্রদান", Advertising: "বিজ্ঞাপন", Courier: "কুরিয়ার",
+  Salary: "বেতন", "Salary Paid": "বেতন প্রদান", Advertising: "বিজ্ঞাপন", "Facebook Boosting": "ফেসবুক বুস্টিং", Courier: "কুরিয়ার",
   "Office Rent": "অফিস ভাড়া", Utility: "ইউটিলিটি", Refund: "রিফান্ড",
   Loan: "ঋণ", "Loan Received": "ঋণ প্রাপ্তি", "Loan Repayment": "ঋণ পরিশোধ",
   Sale: "বিক্রি", Purchase: "ক্রয়", Other: "অন্যান্য",

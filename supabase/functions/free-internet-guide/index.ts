@@ -133,7 +133,7 @@ Deno.serve(async (req) => {
 
 
     return new Response(JSON.stringify({
-      items: merged.slice(0, 40),
+      items: fresh.slice(0, 40),
       operator,
       topic,
       language,

@@ -186,7 +186,7 @@ const CATEGORY_BN: Record<string, string> = {
 const bnLabel = (m: Record<string,string>, k: string | null | undefined, bn: boolean) =>
   !k ? "—" : (bn ? (m[k] ?? k) : k);
 
-const WalletCard = ({ w, today, month, onOpen, onIncome, onDeposit, onSpend, onTransfer, bn }: { w: WalletRow; today: number; month: number; onOpen: () => void; onIncome: () => void; onDeposit: () => void; onSpend: () => void; onTransfer: () => void; bn: boolean }) => {
+const WalletCard = ({ w, today, month, onOpen, onIncome, onDeposit, onAdvance, onSpend, onTransfer, bn }: { w: WalletRow; today: number; month: number; onOpen: () => void; onIncome: () => void; onDeposit: () => void; onAdvance: () => void; onSpend: () => void; onTransfer: () => void; bn: boolean }) => {
   const Icon = walletIcon(w.type);
   const stop = (fn: () => void) => (e: React.MouseEvent) => { e.stopPropagation(); fn(); };
   return (

@@ -459,12 +459,18 @@ const Finance = () => {
     if (!amount || amount <= 0) { toast.error(bn ? "সঠিক টাকা লিখুন" : "Enter amount"); return; }
     if (!qaWallet) { toast.error(bn ? "ওয়ালেট নির্বাচন করুন" : "Pick a wallet"); return; }
     if (qaType === "transfer" && !qaWallet2) { toast.error(bn ? "গন্তব্য ওয়ালেট নির্বাচন করুন" : "Pick destination wallet"); return; }
+    if (qaType === "income" && qaWallet2 && qaWallet2 === qaWallet) {
+      toast.error(bn ? "উৎস ও গন্তব্য ভিন্ন হতে হবে" : "Source and destination must differ"); return;
+    }
     setBusy(true);
     const occurred_at = qaDate ? new Date(qaDate).toISOString() : new Date().toISOString();
+    // If user picked a "from wallet" while adding income, treat it as an internal transfer
+    const asTransfer = qaType === "income" && !!qaWallet2;
+    const effectiveType: TxType = asTransfer ? "transfer" : qaType;
     const payload = {
-      wallet_id: qaWallet,
-      transfer_to_wallet_id: qaType === "transfer" ? qaWallet2 : null,
-      type: qaType, amount, category: qaCategory || null,
+      wallet_id: asTransfer ? qaWallet2 : qaWallet,
+      transfer_to_wallet_id: asTransfer ? qaWallet : (qaType === "transfer" ? qaWallet2 : null),
+      type: effectiveType, amount, category: qaCategory || null,
       scope: qaScope, party: qaParty || null, note: qaNote || null,
       occurred_at,
     };

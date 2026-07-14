@@ -55,7 +55,6 @@ export const ALL_CATEGORIES: CategoryItem[] = [
   
   { to: "/voice", icon: Mic, bn: "ভয়েস", en: "Voice" },
   { to: "/scheduler", icon: Clock, bn: "শিডিউল মেসেজ", en: "Scheduler" },
-  { to: "/livetv", icon: Tv, bn: "লাইভ টিভি", en: "Live TV" },
   { to: "/chat", icon: MessageCircle, bn: "লাইভ চ্যাট", en: "Live Chat" },
   // Community / about
   { to: "/portfolio", icon: FolderKanban, bn: "পোর্টফোলিও", en: "Portfolio" },

@@ -484,11 +484,12 @@ const LiveTV = () => {
       const txt = (await res.text()).slice(0, 200);
       const ok = txt.includes("#EXTM3U") || ch.category === "radio";
       setHealth(h => ({ ...h, [ch.id]: ok ? "live" : "dead" }));
-      if (!ok) setDead(prev => (prev.has(ch.id) ? prev : new Set(prev).add(ch.id)));
+      if (ok) markWorking(ch.id);
+      else setDead(prev => (prev.has(ch.id) ? prev : new Set(prev).add(ch.id)));
     } catch {
       setHealth(h => ({ ...h, [ch.id]: "unknown" }));
     }
-  }, []);
+  }, [markWorking]);
 
   const offlineChannels = useMemo(() => {
     const pool = [
@@ -499,6 +500,15 @@ const LiveTV = () => {
     return pool.filter(c => dead.has(c.id) && !seen.has(c.id) && seen.add(c.id));
   }, [mrgifyChannels, tvChannels, worldChannels, bdixChannels, sportsChannels, radioChannels, dead]);
 
+  const workingChannels = useMemo(() => {
+    const pool = [
+      ...mrgifyChannels, ...tvChannels, ...worldChannels,
+      ...bdixChannels, ...DIRECT_CHANNELS, ...sportsChannels, ...radioChannels,
+    ];
+    const seen = new Set<string>();
+    return pool.filter(c => working.has(c.id) && !dead.has(c.id) && !seen.has(c.id) && seen.add(c.id));
+  }, [mrgifyChannels, tvChannels, worldChannels, bdixChannels, sportsChannels, radioChannels, working, dead]);
+
   const allChannels =
     tab === "mrgify" ? mrgifyChannels :
     tab === "tv" ? tvChannels :
@@ -507,6 +517,7 @@ const LiveTV = () => {
     tab === "direct" ? DIRECT_CHANNELS :
     tab === "sports" ? sportsChannels :
     tab === "offline" ? offlineChannels :
+    tab === "working" ? workingChannels :
     tab === "radio" ? radioChannels : [];
 
   const availableCountries = useMemo(() => {

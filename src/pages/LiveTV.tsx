@@ -348,19 +348,19 @@ const LiveTV = () => {
             url: urls[0],
             urls,
           };
-          if (meta.country === "BD" || meta.country === "IN") tvList.push(ch);
+          if (meta.country === "IN") tvList.push(ch);
           worldList.push({ ...ch, category: "world" as any });
         }
 
         if (!cancelled) {
-          setTvChannels([...tvList, ...FALLBACK_TV]);
+          setTvChannels(tvList);
           setWorldChannels(worldList);
           setSportsChannels([...sportsList, ...FALLBACK_SPORTS]);
         }
       } catch (e) {
         console.error("iptv-org fetch failed", e);
         if (!cancelled) {
-          setTvChannels(FALLBACK_TV);
+          setTvChannels([]);
           setSportsChannels(FALLBACK_SPORTS);
         }
       } finally {
@@ -712,7 +712,7 @@ const LiveTV = () => {
 
             {([
               { k: "mrgify", label: `Mrgify 🔥${mrgifyChannels.length ? ` (${mrgifyChannels.length})` : ""}`, icon: Flag },
-              { k: "tv", label: t("টিভি","TV"), icon: Tv },
+              { k: "tv", label: t("ইন্ডিয়া","India"), icon: Tv },
               { k: "bdix", label: "BDIX", icon: Wifi },
               { k: "world", label: `${t("ওয়ার্ল্ড","World")}${worldChannels.length ? ` (${worldChannels.length})` : ""}`, icon: Globe2 },
               { k: "sports", label: t("স্পোর্টস","Sports"), icon: Trophy },

@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState, useCallback } from "react";
-import { Calendar, Clock, Tv as TvIcon, Trophy, MapPin, Filter, RefreshCw, ExternalLink } from "lucide-react";
+import { Calendar, Clock, Tv as TvIcon, Trophy, MapPin, Filter, RefreshCw, ExternalLink, Star, Flame } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -7,8 +7,8 @@ import { useLanguage } from "@/contexts/LanguageContext";
 
 /**
  * 100% live sports schedule powered by ESPN's public scoreboard API.
- * No hard-coded matches, no mock data — every event comes from the live feed
- * and status (pre / in / post) is read directly from the API.
+ * High-priority tournaments (World Cup, UCL, ICC finals) are fetched with a
+ * wider date window and pinned to the top with a highlighted badge.
  */
 
 type Sport = "football" | "cricket" | "basketball" | "tennis" | "f1" | "americanfootball" | "baseball" | "hockey";
@@ -27,36 +27,35 @@ type SportEvent = {
   channelsIN?: string[];
   channelsWorld?: string[];
   espnLink?: string;
+  priority: number; // 0 = normal, 1 = top league, 2 = tournament (WC/UCL), 3 = knockout/final
 };
 
-// ESPN scoreboard leagues to poll. Each returns JSON with .events[].
-const LEAGUES: { sport: Sport; path: string; tournament: string; bd: string[]; in?: string[]; world?: string[] }[] = [
-  // Football / Soccer
-  { sport: "football", path: "soccer/fifa.world", tournament: "FIFA World Cup", bd: ["T Sports", "Toffee"], in: ["Sony Sports", "JioCinema"], world: ["FOX", "BBC", "beIN"] },
-  { sport: "football", path: "soccer/fifa.worldq.uefa", tournament: "FIFA WC Qualifying — UEFA", bd: ["Sony Sports (via cable)"], in: ["Sony Sports", "SonyLIV"] },
-  { sport: "football", path: "soccer/uefa.champions", tournament: "UEFA Champions League", bd: ["Sony Sports (cable)"], in: ["Sony Sports", "SonyLIV"], world: ["CBS Paramount+", "TNT Sports"] },
-  { sport: "football", path: "soccer/uefa.europa", tournament: "UEFA Europa League", bd: ["Sony Sports (cable)"], in: ["Sony Sports", "SonyLIV"] },
-  { sport: "football", path: "soccer/eng.1", tournament: "English Premier League", bd: ["Star Sports Select (cable)"], in: ["Star Sports", "Disney+ Hotstar"], world: ["NBC / Peacock", "Sky Sports"] },
-  { sport: "football", path: "soccer/esp.1", tournament: "LaLiga", bd: ["Sports18 (cable)"], in: ["Sports18", "JioCinema"] },
-  { sport: "football", path: "soccer/ita.1", tournament: "Serie A", bd: ["Sports18 (cable)"], in: ["Sports18", "JioCinema"] },
-  { sport: "football", path: "soccer/ger.1", tournament: "Bundesliga", bd: ["Sony Sports (cable)"], in: ["Sony Sports", "SonyLIV"] },
-  { sport: "football", path: "soccer/fra.1", tournament: "Ligue 1", bd: ["Sports18 (cable)"], in: ["Sports18", "JioCinema"] },
-  // Cricket (ESPN cricket scoreboard)
-  { sport: "cricket", path: "cricket/8039", tournament: "ICC / International Cricket", bd: ["T Sports", "Gazi TV", "Toffee"], in: ["Star Sports", "Disney+ Hotstar"], world: ["Willow TV (US)", "Sky Sports (UK)"] },
-  { sport: "cricket", path: "cricket/23431", tournament: "IPL", bd: ["Star Sports (cable)"], in: ["Star Sports", "JioCinema"] },
-  // Tennis
-  { sport: "tennis", path: "tennis/atp", tournament: "ATP Tour", bd: ["Sony Sports (cable)"], in: ["Sony Sports", "SonyLIV"] },
-  { sport: "tennis", path: "tennis/wta", tournament: "WTA Tour", bd: ["Sony Sports (cable)"], in: ["Sony Sports", "SonyLIV"] },
-  // Formula 1
-  { sport: "f1", path: "racing/f1", tournament: "Formula 1", bd: ["Star Sports Select (cable)"], in: ["Star Sports", "F1 TV Pro"], world: ["Sky Sports F1", "ESPN"] },
-  // Basketball
-  { sport: "basketball", path: "basketball/nba", tournament: "NBA", bd: ["Sony Sports (cable)"], in: ["Sony Sports", "SonyLIV"], world: ["ESPN", "TNT", "NBA League Pass"] },
-  // NFL
-  { sport: "americanfootball", path: "football/nfl", tournament: "NFL", bd: ["DAZN (VPN)"], world: ["FOX / CBS / NBC", "NFL Game Pass"] },
-  // MLB
-  { sport: "baseball", path: "baseball/mlb", tournament: "MLB", bd: ["MLB.TV"], world: ["FOX", "ESPN", "MLB.TV"] },
-  // NHL
-  { sport: "hockey", path: "hockey/nhl", tournament: "NHL", bd: ["NHL.TV"], world: ["ESPN+", "TNT", "Sportsnet"] },
+// tier: 3 = mega (World Cup / continental finals), 2 = major league, 1 = normal
+const LEAGUES: { sport: Sport; path: string; tournament: string; tier: number; wideWindow?: boolean; bd: string[]; in?: string[]; world?: string[] }[] = [
+  // ⭐ MEGA — always fetch 30-day window so semifinals / finals appear
+  { sport: "football", path: "soccer/fifa.world", tournament: "FIFA World Cup 2026", tier: 3, wideWindow: true, bd: ["T Sports", "Toffee"], in: ["Sony Sports", "JioCinema"], world: ["FOX", "BBC", "beIN"] },
+  { sport: "football", path: "soccer/uefa.champions", tournament: "UEFA Champions League", tier: 3, wideWindow: true, bd: ["Sony Sports (cable)"], in: ["Sony Sports", "SonyLIV"], world: ["CBS Paramount+", "TNT Sports"] },
+  { sport: "football", path: "soccer/conmebol.america", tournament: "Copa América", tier: 3, wideWindow: true, bd: ["Sony Sports"], in: ["Sony Sports", "SonyLIV"], world: ["FOX", "TUDN"] },
+  { sport: "football", path: "soccer/uefa.euro", tournament: "UEFA Euro", tier: 3, wideWindow: true, bd: ["Sony Sports"], in: ["Sony Sports", "SonyLIV"], world: ["ESPN", "BBC/ITV"] },
+  { sport: "cricket", path: "cricket/8039", tournament: "ICC International", tier: 3, wideWindow: true, bd: ["T Sports", "Gazi TV", "Toffee"], in: ["Star Sports", "Disney+ Hotstar"], world: ["Willow TV (US)", "Sky Sports (UK)"] },
+  // 🔥 MAJOR leagues
+  { sport: "football", path: "soccer/fifa.worldq.uefa", tournament: "FIFA WC Qualifying — UEFA", tier: 2, bd: ["Sony Sports (cable)"], in: ["Sony Sports", "SonyLIV"] },
+  { sport: "football", path: "soccer/fifa.worldq.conmebol", tournament: "FIFA WC Qualifying — CONMEBOL", tier: 2, bd: ["Sony Sports"], in: ["Sony Sports", "SonyLIV"] },
+  { sport: "football", path: "soccer/uefa.europa", tournament: "UEFA Europa League", tier: 2, bd: ["Sony Sports (cable)"], in: ["Sony Sports", "SonyLIV"] },
+  { sport: "football", path: "soccer/eng.1", tournament: "English Premier League", tier: 2, bd: ["Star Sports Select (cable)"], in: ["Star Sports", "Disney+ Hotstar"], world: ["NBC / Peacock", "Sky Sports"] },
+  { sport: "football", path: "soccer/esp.1", tournament: "LaLiga", tier: 2, bd: ["Sports18 (cable)"], in: ["Sports18", "JioCinema"] },
+  { sport: "football", path: "soccer/ita.1", tournament: "Serie A", tier: 2, bd: ["Sports18 (cable)"], in: ["Sports18", "JioCinema"] },
+  { sport: "football", path: "soccer/ger.1", tournament: "Bundesliga", tier: 2, bd: ["Sony Sports (cable)"], in: ["Sony Sports", "SonyLIV"] },
+  { sport: "football", path: "soccer/fra.1", tournament: "Ligue 1", tier: 2, bd: ["Sports18 (cable)"], in: ["Sports18", "JioCinema"] },
+  { sport: "cricket", path: "cricket/23431", tournament: "IPL", tier: 2, bd: ["Star Sports (cable)"], in: ["Star Sports", "JioCinema"] },
+  // Tennis / F1 / US leagues
+  { sport: "tennis", path: "tennis/atp", tournament: "ATP Tour", tier: 1, bd: ["Sony Sports (cable)"], in: ["Sony Sports", "SonyLIV"] },
+  { sport: "tennis", path: "tennis/wta", tournament: "WTA Tour", tier: 1, bd: ["Sony Sports (cable)"], in: ["Sony Sports", "SonyLIV"] },
+  { sport: "f1", path: "racing/f1", tournament: "Formula 1", tier: 2, wideWindow: true, bd: ["Star Sports Select (cable)"], in: ["Star Sports", "F1 TV Pro"], world: ["Sky Sports F1", "ESPN"] },
+  { sport: "basketball", path: "basketball/nba", tournament: "NBA", tier: 1, bd: ["Sony Sports (cable)"], in: ["Sony Sports", "SonyLIV"], world: ["ESPN", "TNT", "NBA League Pass"] },
+  { sport: "americanfootball", path: "football/nfl", tournament: "NFL", tier: 1, bd: ["DAZN (VPN)"], world: ["FOX / CBS / NBC", "NFL Game Pass"] },
+  { sport: "baseball", path: "baseball/mlb", tournament: "MLB", tier: 1, bd: ["MLB.TV"], world: ["FOX", "ESPN", "MLB.TV"] },
+  { sport: "hockey", path: "hockey/nhl", tournament: "NHL", tier: 1, bd: ["NHL.TV"], world: ["ESPN+", "TNT", "Sportsnet"] },
 ];
 
 const SPORT_LABEL: Record<Sport, { bn: string; en: string; emoji: string }> = {
@@ -77,11 +76,22 @@ const toBDTime = (iso: string, bn: boolean) => {
   });
 };
 
+function ymd(d: Date) {
+  const y = d.getUTCFullYear();
+  const m = String(d.getUTCMonth() + 1).padStart(2, "0");
+  const day = String(d.getUTCDate()).padStart(2, "0");
+  return `${y}${m}${day}`;
+}
+
 async function fetchLeague(l: typeof LEAGUES[number]): Promise<SportEvent[]> {
   try {
-    const res = await fetch(`https://site.api.espn.com/apis/site/v2/sports/${l.path}/scoreboard`, {
-      headers: { Accept: "application/json" },
-    });
+    let url = `https://site.api.espn.com/apis/site/v2/sports/${l.path}/scoreboard`;
+    if (l.wideWindow) {
+      const start = new Date(Date.now() - 2 * 86400000);
+      const end = new Date(Date.now() + 30 * 86400000);
+      url += `?dates=${ymd(start)}-${ymd(end)}&limit=200`;
+    }
+    const res = await fetch(url, { headers: { Accept: "application/json" } });
     if (!res.ok) return [];
     const json: any = await res.json();
     const events: any[] = json?.events || [];
@@ -95,6 +105,14 @@ async function fetchLeague(l: typeof LEAGUES[number]): Promise<SportEvent[]> {
       const match = ev?.name || (homeName && awayName ? `${homeName} vs ${awayName}` : (ev?.shortName || "Match"));
       const state: "pre" | "in" | "post" = ev?.status?.type?.state || "pre";
       const score = (home?.score && away?.score) ? `${homeName} ${home.score} — ${away.score} ${awayName}` : undefined;
+      // Detect knockout / final / semifinal from notes or season type
+      const notes: string = (comp?.notes || []).map((n: any) => n?.headline || n?.type || "").join(" ").toLowerCase();
+      const seasonType: string = (ev?.season?.slug || ev?.seasonType?.name || "").toLowerCase();
+      const knockoutRe = /(final|semifinal|semi-final|semi final|quarterfinal|quarter-final|quarter final|round of 16|knockout|championship|title)/;
+      const isKnockout = knockoutRe.test(notes) || knockoutRe.test(seasonType) || knockoutRe.test(match.toLowerCase());
+      let priority = l.tier;
+      if (isKnockout && l.tier >= 2) priority = 4; // pin knockouts of majors to very top
+      else if (isKnockout) priority = Math.max(l.tier, 2);
       return {
         id: `${l.path}-${ev.id}`,
         sport: l.sport,
@@ -109,6 +127,7 @@ async function fetchLeague(l: typeof LEAGUES[number]): Promise<SportEvent[]> {
         channelsIN: l.in,
         channelsWorld: l.world,
         espnLink: ev?.links?.[0]?.href,
+        priority,
       };
     });
   } catch {
@@ -129,10 +148,13 @@ const SportsSchedule = () => {
     setLoading(true);
     const chunks = await Promise.all(LEAGUES.map(fetchLeague));
     const all = chunks.flat();
-    // sort: live first, then upcoming by time, drop finished > 6h ago
+    // sort: knockouts of majors first, then priority, then live, then time.
     const cutoff = Date.now() - 6 * 60 * 60 * 1000;
     const filtered = all.filter(e => new Date(e.startUtc).getTime() > cutoff);
     filtered.sort((a, b) => {
+      // Highest priority first (4 = knockout of mega, 3 = mega, 2 = major, 1 = normal)
+      if (b.priority !== a.priority) return b.priority - a.priority;
+      // Then live > upcoming > finished
       const rank = (s: SportEvent) => s.state === "in" ? 0 : s.state === "pre" ? 1 : 2;
       if (rank(a) !== rank(b)) return rank(a) - rank(b);
       return new Date(a.startUtc).getTime() - new Date(b.startUtc).getTime();
@@ -198,12 +220,24 @@ const SportsSchedule = () => {
           <p className="text-center text-xs text-muted-foreground py-6">{t("এই মুহূর্তে কোনো ইভেন্ট নেই", "No scheduled events right now")}</p>
         )}
         {shown.map((e) => (
-          <div key={e.id} className="p-3 rounded-xl border bg-card hover:border-primary/40 transition-smooth">
+          <div key={e.id} className={`p-3 rounded-xl border transition-smooth ${
+            e.priority >= 4 ? "border-rose-500/60 bg-gradient-to-br from-rose-500/10 via-amber-500/5 to-background shadow-md ring-1 ring-rose-500/30" :
+            e.priority === 3 ? "border-amber-500/60 bg-gradient-to-br from-amber-500/10 to-background" :
+            "bg-card hover:border-primary/40"
+          }`}>
             <div className="flex items-start justify-between gap-2 mb-1.5">
               <div className="flex items-center gap-2 min-w-0">
                 <span className="text-lg shrink-0">{SPORT_LABEL[e.sport].emoji}</span>
                 <div className="min-w-0">
-                  <p className="font-semibold text-sm leading-tight truncate">{e.match}</p>
+                  <div className="flex items-center gap-1.5 flex-wrap">
+                    {e.priority >= 4 && (
+                      <Badge className="bg-rose-500 text-white text-[9px] px-1.5 py-0 h-4 shrink-0"><Flame className="w-2.5 h-2.5 mr-0.5" />{t("গুরুত্বপূর্ণ","KEY MATCH")}</Badge>
+                    )}
+                    {e.priority === 3 && (
+                      <Badge className="bg-amber-500 text-white text-[9px] px-1.5 py-0 h-4 shrink-0"><Star className="w-2.5 h-2.5 mr-0.5" />{t("মেগা","MEGA")}</Badge>
+                    )}
+                    <p className="font-semibold text-sm leading-tight truncate">{e.match}</p>
+                  </div>
                   <p className="text-[11px] text-muted-foreground truncate">{e.tournament}</p>
                 </div>
               </div>

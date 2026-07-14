@@ -509,16 +509,54 @@ const LiveTV = () => {
     return pool.filter(c => working.has(c.id) && !dead.has(c.id) && !seen.has(c.id) && seen.add(c.id));
   }, [mrgifyChannels, tvChannels, worldChannels, bdixChannels, sportsChannels, radioChannels, working, dead]);
 
+  // Merge duplicate channels across all tabs: same channel (normalized name + country)
+  // appears only in its FIRST-seen tab, but collects backup URLs from every other pool.
+  const mergedByTab = useMemo(() => {
+    const normalize = (n: string) =>
+      n.toLowerCase()
+        .replace(/\b(hd|fhd|uhd|4k|sd|tv|channel|live|bd|bangla|bangladesh)\b/g, "")
+        .replace(/[^a-z0-9]/g, "")
+        .trim();
+    const pools: { key: Tab; list: Channel[] }[] = [
+      { key: "mrgify", list: mrgifyChannels },
+      { key: "tv", list: tvChannels },
+      { key: "bdix", list: bdixChannels },
+      { key: "direct", list: DIRECT_CHANNELS },
+      { key: "world", list: worldChannels },
+      { key: "sports", list: sportsChannels },
+      { key: "radio", list: radioChannels },
+    ];
+    const map = new Map<string, { primary: Tab; ch: Channel }>();
+    for (const { key, list } of pools) {
+      for (const c of list) {
+        const k = `${c.country}::${normalize(c.name)}` || c.id;
+        const existing = map.get(k);
+        if (!existing) {
+          map.set(k, { primary: key, ch: { ...c, urls: [...(c.urls || [c.url])] } });
+        } else {
+          const merged = new Set([...(existing.ch.urls || []), ...(c.urls || [c.url])]);
+          existing.ch.urls = [...merged];
+          if (!existing.ch.logo && c.logo) existing.ch.logo = c.logo;
+        }
+      }
+    }
+    const byTab: Record<string, Channel[]> = {};
+    for (const { primary, ch } of map.values()) {
+      (byTab[primary] ||= []).push(ch);
+    }
+    return byTab;
+  }, [mrgifyChannels, tvChannels, worldChannels, bdixChannels, sportsChannels, radioChannels]);
+
   const allChannels =
-    tab === "mrgify" ? mrgifyChannels :
-    tab === "tv" ? tvChannels :
-    tab === "world" ? worldChannels :
-    tab === "bdix" ? bdixChannels :
-    tab === "direct" ? DIRECT_CHANNELS :
-    tab === "sports" ? sportsChannels :
+    tab === "mrgify" ? (mergedByTab.mrgify || []) :
+    tab === "tv" ? (mergedByTab.tv || []) :
+    tab === "world" ? (mergedByTab.world || []) :
+    tab === "bdix" ? (mergedByTab.bdix || []) :
+    tab === "direct" ? (mergedByTab.direct || []) :
+    tab === "sports" ? (mergedByTab.sports || []) :
     tab === "offline" ? offlineChannels :
     tab === "working" ? workingChannels :
-    tab === "radio" ? radioChannels : [];
+    tab === "radio" ? (mergedByTab.radio || []) : [];
 
   const availableCountries = useMemo(() => {
     const set = new Set<string>();

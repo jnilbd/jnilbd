@@ -712,7 +712,7 @@ const LiveTV = () => {
 
             {([
               { k: "mrgify", label: `Mrgify 🔥${mrgifyChannels.length ? ` (${mrgifyChannels.length})` : ""}`, icon: Flag },
-              { k: "tv", label: t("টিভি","TV"), icon: Tv },
+              { k: "tv", label: t("ইন্ডিয়া","India"), icon: Tv },
               { k: "bdix", label: "BDIX", icon: Wifi },
               { k: "world", label: `${t("ওয়ার্ল্ড","World")}${worldChannels.length ? ` (${worldChannels.length})` : ""}`, icon: Globe2 },
               { k: "sports", label: t("স্পোর্টস","Sports"), icon: Trophy },

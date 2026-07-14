@@ -922,7 +922,6 @@ const LiveTV = () => {
               </Button>
             </div>
 
-            {tab === "sports" && <WorldCupChannels />}
             {tab === "sports" && <SportsSchedule />}
 
             {tab === "bdix" && (

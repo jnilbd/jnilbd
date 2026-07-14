@@ -207,14 +207,27 @@ export function InventoryTab({ userId, bn }: { userId: string; bn: boolean }) {
     });
   }
 
+  function openEditMv(product: Product, m: Movement) {
+    setMvSheet({ product, type: m.type, editingId: m.id });
+    setMvForm({
+      qty: String(m.qty),
+      unit_price: String(m.unit_price ?? 0),
+      amount_paid: String(m.amount_paid ?? 0),
+      note: m.note ?? "",
+      location: (m.location ?? MV_META[m.type].defaultLoc) as MvLocation,
+      party_name: m.party_name ?? "",
+      party_phone: m.party_phone ?? "",
+      courier_name: m.courier_name ?? "",
+      tracking_no: m.tracking_no ?? "",
+      status: m.status,
+    });
+  }
+
   async function submitMovement() {
     if (!mvSheet) return;
     const qty = Number(mvForm.qty);
     if (!qty || qty <= 0) { toast.error(bn ? "সঠিক পরিমাণ দিন" : "Enter valid qty"); return; }
-    const { error } = await supabase.from("inventory_movements").insert({
-      user_id: userId,
-      product_id: mvSheet.product.id,
-      type: mvSheet.type,
+    const payload = {
       qty,
       unit_price: Number(mvForm.unit_price) || 0,
       amount_paid: Number(mvForm.amount_paid) || 0,
@@ -225,8 +238,16 @@ export function InventoryTab({ userId, bn }: { userId: string; bn: boolean }) {
       courier_name: mvForm.courier_name.trim() || null,
       tracking_no: mvForm.tracking_no.trim() || null,
       status: mvForm.status,
-    });
-    if (error) { toast.error(error.message); return; }
+    };
+    const res = mvSheet.editingId
+      ? await supabase.from("inventory_movements").update(payload).eq("id", mvSheet.editingId)
+      : await supabase.from("inventory_movements").insert({
+          user_id: userId,
+          product_id: mvSheet.product.id,
+          type: mvSheet.type,
+          ...payload,
+        });
+    if (res.error) { toast.error(res.error.message); return; }
     toast.success(bn ? "সংরক্ষিত" : "Saved");
     setMvSheet(null);
     loadAll();

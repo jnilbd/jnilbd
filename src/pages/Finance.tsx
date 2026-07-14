@@ -36,7 +36,8 @@ import { ReportsTab } from "@/components/finance/ReportsTab";
 import FinanceCalculator from "@/components/finance/FinanceCalculator";
 import { ServiceJobsTab } from "@/components/finance/ServiceJobsTab";
 import { AssetsTab } from "@/components/finance/AssetsTab";
-import { Calculator as CalculatorIcon, Wrench as WrenchIcon, Archive as ArchiveIcon, LayoutDashboard, WalletCards, ArrowRightLeft, ClipboardList, PieChart, Target, HandCoins, ShoppingBag, FileBarChart2 } from "lucide-react";
+import { RecurringBillsTab } from "@/components/finance/RecurringBillsTab";
+import { Calculator as CalculatorIcon, Wrench as WrenchIcon, Archive as ArchiveIcon, LayoutDashboard, WalletCards, ArrowRightLeft, ClipboardList, PieChart, Target, HandCoins, ShoppingBag, FileBarChart2, Repeat as RepeatIcon } from "lucide-react";
 
 
 // ---------- Types ----------
@@ -667,6 +668,7 @@ const Finance = () => {
               { v: "wallets", label: bn?"ওয়ালেট":"Wallets", Icon: WalletCards },
               { v: "tx", label: bn?"লেনদেন":"Transactions", Icon: ArrowRightLeft },
               { v: "planner", label: bn?"পরিকল্পনা":"Planner", Icon: ClipboardList },
+              { v: "recurring", label: bn?"মাসিক বিল":"Recurring", Icon: RepeatIcon },
               { v: "calc", label: bn?"ক্যালকুলেটর":"Calculator", Icon: CalculatorIcon },
               { v: "analytics", label: bn?"বিশ্লেষণ":"Analytics", Icon: PieChart },
               { v: "budget", label: bn?"বাজেট":"Budget", Icon: Target },
@@ -679,7 +681,7 @@ const Finance = () => {
               { v: "ai", label: "AI", Icon: Sparkles },
             ];
             return (
-              <TabsList className="h-auto w-full bg-transparent p-0 grid grid-cols-5 sm:grid-cols-7 lg:grid-cols-14 gap-1.5">
+              <TabsList className="h-auto w-full bg-transparent p-0 grid grid-cols-5 sm:grid-cols-8 lg:grid-cols-8 gap-1.5">
                 {items.map(({ v, label, Icon }) => (
                   <TabsTrigger
                     key={v}
@@ -974,6 +976,18 @@ const Finance = () => {
               totalBalance={totalBalance}
             />
           </TabsContent>
+
+          {/* Recurring monthly bills */}
+          <TabsContent value="recurring" className="mt-4">
+            <RecurringBillsTab
+              userId={user.id}
+              bn={bn}
+              wallets={wallets as any}
+              onPaid={loadAll}
+            />
+          </TabsContent>
+
+
 
           {/* Calculator */}
           <TabsContent value="calc" className="mt-4">

@@ -187,6 +187,65 @@ export type Database = {
         }
         Relationships: []
       }
+      finance_recurring_bills: {
+        Row: {
+          amount: number
+          category: string | null
+          created_at: string
+          due_day: number
+          id: string
+          is_active: boolean
+          last_paid_at: string | null
+          name: string
+          note: string | null
+          scope: string
+          sort_order: number
+          updated_at: string
+          user_id: string
+          wallet_id: string | null
+        }
+        Insert: {
+          amount?: number
+          category?: string | null
+          created_at?: string
+          due_day?: number
+          id?: string
+          is_active?: boolean
+          last_paid_at?: string | null
+          name: string
+          note?: string | null
+          scope?: string
+          sort_order?: number
+          updated_at?: string
+          user_id: string
+          wallet_id?: string | null
+        }
+        Update: {
+          amount?: number
+          category?: string | null
+          created_at?: string
+          due_day?: number
+          id?: string
+          is_active?: boolean
+          last_paid_at?: string | null
+          name?: string
+          note?: string | null
+          scope?: string
+          sort_order?: number
+          updated_at?: string
+          user_id?: string
+          wallet_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "finance_recurring_bills_wallet_id_fkey"
+            columns: ["wallet_id"]
+            isOneToOne: false
+            referencedRelation: "finance_wallets"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       finance_sales: {
         Row: {
           cost_price: number

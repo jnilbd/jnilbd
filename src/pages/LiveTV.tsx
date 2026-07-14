@@ -514,8 +514,9 @@ const LiveTV = () => {
   const mergedByTab = useMemo(() => {
     const normalize = (n: string) =>
       n.toLowerCase()
-        .replace(/\b(hd|fhd|uhd|4k|sd|tv|channel|live|bd|bangla|bangladesh)\b/g, "")
-        .replace(/[^a-z0-9]/g, "")
+        .replace(/\[[^\]]*\]|\([^)]*\)/g, " ")
+        .replace(/\b(hd|fhd|uhd|4k|sd|tv|channel|live|bd|bangla|bangladesh|india|world|sports?|news|radio|fm|am|official|network)\b/g, " ")
+        .replace(/[^a-z0-9]+/g, "")
         .trim();
     const pools: { key: Tab; list: Channel[] }[] = [
       { key: "mrgify", list: mrgifyChannels },
@@ -529,7 +530,8 @@ const LiveTV = () => {
     const map = new Map<string, { primary: Tab; ch: Channel }>();
     for (const { key, list } of pools) {
       for (const c of list) {
-        const k = `${c.country}::${normalize(c.name)}` || c.id;
+        const norm = normalize(c.name);
+        const k = norm || c.id; // dedupe purely by normalized channel name, across tabs
         const existing = map.get(k);
         if (!existing) {
           map.set(k, { primary: key, ch: { ...c, urls: [...(c.urls || [c.url])] } });

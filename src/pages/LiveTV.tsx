@@ -522,7 +522,7 @@ const LiveTV = () => {
       { key: "mrgify", list: mrgifyChannels },
       { key: "tv", list: tvChannels },
       { key: "bdix", list: bdixChannels },
-      { key: "direct", list: DIRECT_CHANNELS },
+      
       { key: "world", list: worldChannels },
       { key: "sports", list: sportsChannels },
       { key: "radio", list: radioChannels },

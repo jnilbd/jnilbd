@@ -65,6 +65,7 @@ import Stocks from "./pages/Stocks";
 import Newspapers from "./pages/Newspapers";
 import AdMaker from "./pages/AdMaker";
 import PhoneRootUnlock from "./pages/PhoneRootUnlock";
+import Courier from "./pages/Courier";
 import Offers from "./pages/Offers";
 import CapCutPro from "./pages/CapCutPro";
 import MiniProjector from "./pages/MiniProjector";
@@ -136,6 +137,7 @@ const App = () => (
                 <Route path="/newspapers" element={<Newspapers />} />
                 <Route path="/ad-maker" element={<AdMaker />} />
                 <Route path="/phone-root-unlock" element={<PhoneRootUnlock />} />
+                <Route path="/courier" element={<Courier />} />
                 <Route path="/offers" element={<Offers />} />
                 <Route path="/capcut-pro" element={<CapCutPro />} />
                 <Route path="/mini-projector" element={<MiniProjector />} />

@@ -38,7 +38,7 @@ import FinanceCalculator from "@/components/finance/FinanceCalculator";
 import { ServiceJobsTab } from "@/components/finance/ServiceJobsTab";
 import { AssetsTab } from "@/components/finance/AssetsTab";
 import { RecurringBillsTab } from "@/components/finance/RecurringBillsTab";
-import { CourierTrackerTab } from "@/components/finance/CourierTrackerTab";
+
 import { Calculator as CalculatorIcon, Wrench as WrenchIcon, Archive as ArchiveIcon, LayoutDashboard, WalletCards, ArrowRightLeft, ClipboardList, PieChart, Target, HandCoins, ShoppingBag, FileBarChart2, Repeat as RepeatIcon, Truck as TruckIcon } from "lucide-react";
 
 
@@ -793,7 +793,7 @@ const Finance = () => {
               { v: "jobs", label: bn?"সার্ভিস":"Service", Icon: WrenchIcon },
               { v: "assets", label: bn?"সম্পদ":"Assets", Icon: ArchiveIcon },
               { v: "inventory", label: bn?"ইনভেন্টরি":"Inventory", Icon: Boxes },
-              { v: "courier", label: bn?"কুরিয়ার":"Courier", Icon: TruckIcon },
+              
               { v: "ai", label: "AI", Icon: Sparkles },
               { v: "calc", label: bn?"ক্যালকুলেটর":"Calculator", Icon: CalculatorIcon },
               { v: "planner", label: bn?"পরিকল্পনা":"Planner", Icon: ClipboardList },
@@ -1095,10 +1095,7 @@ const Finance = () => {
             <InventoryTab userId={user.id} bn={bn} />
           </TabsContent>
 
-          {/* Smart Courier Tracker */}
-          <TabsContent value="courier" className="mt-4">
-            <CourierTrackerTab userId={user.id} bn={bn} />
-          </TabsContent>
+
 
           {/* Planner: goals, income targets, EMI */}
           <TabsContent value="planner" className="mt-4">

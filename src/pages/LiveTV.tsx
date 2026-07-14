@@ -608,6 +608,14 @@ const LiveTV = () => {
         .replace(/\b(hd|fhd|uhd|4k|sd|tv|channel|live|bd|bangla|bangladesh|india|world|sports?|news|radio|fm|am|official|network)\b/g, " ")
         .replace(/[^a-z0-9]+/g, "")
         .trim();
+    // Build a global name→logo index from iptv-org pools (they carry most logos).
+    const logoIndex = new Map<string, string>();
+    for (const c of [...tvChannels, ...worldChannels, ...sportsChannels]) {
+      if (!c.logo) continue;
+      const k = normalize(c.name);
+      if (k && !logoIndex.has(k)) logoIndex.set(k, c.logo);
+    }
+
     // Consolidate ALL Bangladesh channels into Bangladesh (mrgify) tab.
     // Promote Mrgify's Indian → India (tv), non-BD/IN → World.
     const mrgifyIN = mrgifyChannels.filter(c => c.country === "IN");
@@ -629,17 +637,20 @@ const LiveTV = () => {
     for (const { key, list } of pools) {
       for (const c of list) {
         const norm = normalize(c.name);
-        const k = norm || c.id; // dedupe purely by normalized channel name, across tabs
+        const k = norm || c.id;
         const existing = map.get(k);
         if (!existing) {
-          map.set(k, { primary: key, ch: { ...c, urls: [...(c.urls || [c.url])] } });
+          const logo = c.logo || (norm ? logoIndex.get(norm) : undefined);
+          map.set(k, { primary: key, ch: { ...c, logo, urls: [...(c.urls || [c.url])] } });
         } else {
           const merged = new Set([...(existing.ch.urls || []), ...(c.urls || [c.url])]);
           existing.ch.urls = [...merged];
           if (!existing.ch.logo && c.logo) existing.ch.logo = c.logo;
+          if (!existing.ch.logo && norm) existing.ch.logo = logoIndex.get(norm);
         }
       }
     }
+
     const byTab: Record<string, Channel[]> = {};
     for (const { primary, ch } of map.values()) {
       (byTab[primary] ||= []).push(ch);

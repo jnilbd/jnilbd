@@ -14,10 +14,11 @@ import LiveScoreBoard from "@/components/LiveScoreBoard";
 import { BDIX_CHANNELS, IMPORTANT_BD_CHANNELS, IMPORTANT_IN_CHANNELS } from "@/data/bdixChannels";
 
 const DEAD_KEY = "livetv:dead:v2";
+const WORKING_KEY = "livetv:working:v1";
 const FAV_KEY = "livetv:favorites:v2";
 const RECENT_KEY = "livetv:recent:v1";
 
-type Tab = "mrgify" | "tv" | "bdix" | "direct" | "world" | "sports" | "radio" | "scores" | "offline";
+type Tab = "mrgify" | "tv" | "bdix" | "direct" | "world" | "sports" | "radio" | "scores" | "offline" | "working";
 type Health = "unknown" | "checking" | "live" | "dead";
 
 type Channel = {

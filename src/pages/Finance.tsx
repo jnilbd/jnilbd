@@ -5,7 +5,8 @@ import {
   Wallet, TrendingUp, TrendingDown, ArrowLeftRight, Plus, Sparkles, Send,
   Landmark, Smartphone, CreditCard, Coins, Banknote, PiggyBank, Package,
   ShoppingCart, ReceiptText, Trash2, RefreshCw, Loader2, X, ArrowUpRight, ArrowDownRight,
-  Building2, User as UserIcon, Wand2, ChevronRight, Search, Boxes, AlertTriangle
+  Building2, User as UserIcon, Wand2, ChevronRight, Search, Boxes, AlertTriangle,
+  HandCoins as HandCoinsIcon
 } from "lucide-react";
 
 import { toast } from "sonner";

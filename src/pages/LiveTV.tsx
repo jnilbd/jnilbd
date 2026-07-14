@@ -1033,18 +1033,40 @@ const LiveTV = () => {
                           <Layers className="w-3.5 h-3.5" />
                           {t("ক্যাটাগরি:", "Category:")}
                         </div>
-                        {catEntries.map(([key, list]) => {
-                          const meta = CAT_LABELS[key] || CAT_LABELS.other;
-                          return (
-                            <button
-                              key={key}
-                              onClick={() => document.getElementById(`bdix-cat-${key}`)?.scrollIntoView({ behavior: "smooth", block: "start" })}
-                              className="px-2.5 py-1 rounded-full text-[11px] font-semibold bg-muted hover:bg-primary hover:text-white transition-smooth"
-                            >
-                              {t(meta.bn, meta.en)} <span className="opacity-70">({list.length})</span>
-                            </button>
-                          );
-                        })}
+                        <Select
+                          onValueChange={(key) => {
+                            setTimeout(() => document.getElementById(`bdix-cat-${key}`)?.scrollIntoView({ behavior: "smooth", block: "start" }), 50);
+                          }}
+                        >
+                          <SelectTrigger className="h-8 rounded-full text-xs min-w-[180px] w-auto">
+                            <SelectValue placeholder={t("ক্যাটাগরি বেছে নিন...", "Select category...")} />
+                          </SelectTrigger>
+                          <SelectContent className="max-h-80 z-50 bg-popover">
+                            {catEntries.map(([key, list]) => {
+                              const meta = CAT_LABELS[key] || CAT_LABELS.other;
+                              return (
+                                <SelectItem key={key} value={key}>
+                                  {t(meta.bn, meta.en)} ({list.length})
+                                </SelectItem>
+                              );
+                            })}
+                          </SelectContent>
+                        </Select>
+                        <div className="hidden md:flex items-center gap-1.5 flex-wrap">
+                          {catEntries.map(([key, list]) => {
+                            const meta = CAT_LABELS[key] || CAT_LABELS.other;
+                            return (
+                              <button
+                                key={key}
+                                onClick={() => document.getElementById(`bdix-cat-${key}`)?.scrollIntoView({ behavior: "smooth", block: "start" })}
+                                className="px-2.5 py-1 rounded-full text-[11px] font-semibold bg-muted hover:bg-primary hover:text-white transition-smooth"
+                              >
+                                {t(meta.bn, meta.en)} <span className="opacity-70">({list.length})</span>
+                              </button>
+                            );
+                          })}
+                        </div>
+
                         <div className="mx-2 h-4 w-px bg-border" />
                         <div className="flex items-center gap-1.5 text-xs font-semibold text-muted-foreground shrink-0">
                           <Globe2 className="w-3.5 h-3.5" />

@@ -12,30 +12,30 @@ export type CategoryItem = {
 // tools, commerce. Appointment is intentionally last and highlighted.
 export const ALL_CATEGORIES: CategoryItem[] = [
   { to: "/", icon: Home, bn: "হোম", en: "Home" },
-  // Spiritual (highest priority)
+  // User-specified priority order
   { to: "/quran", icon: BookOpen, bn: "কুরআন", en: "Quran" },
   { to: "/hadith", icon: BookOpen, bn: "হাদিস", en: "Hadith" },
   { to: "/ruqyah", icon: ShieldCheck, bn: "রুকইয়া", en: "Ruqyah" },
   { to: "/namaz", icon: Compass, bn: "নামাজ", en: "Namaz" },
-  // Daily essentials
   { to: "/weather", icon: CloudRain, bn: "আবহাওয়া", en: "Weather" },
-  { to: "/free-internet", icon: Wifi, bn: "ফ্রি ইন্টারনেট", en: "Free Internet" },
+  { to: "/finance", icon: Wallet, bn: "ফিন্যান্স", en: "Finance" },
+  { to: "/offers", icon: Gift, bn: "অফার", en: "Offers" },
+  { to: "/livetv", icon: Tv, bn: "লাইভ টিভি", en: "Live TV" },
+  { to: "/business-guide", icon: Rocket, bn: "বিজনেস গাইড", en: "Business Guide" },
+  { to: "/health", icon: HeartPulse, bn: "স্বাস্থ্য", en: "Health" },
+  { to: "/travel", icon: Plane, bn: "ভ্রমণ গাইড", en: "Travel Guide" },
   { to: "/politics", icon: Newspaper, bn: "রাজনীতি আপডেট", en: "Politics Update" },
   { to: "/war", icon: Swords, bn: "যুদ্ধ আপডেট", en: "War Updates" },
   { to: "/stocks", icon: BarChart3, bn: "স্টক আপডেট", en: "Stock Update" },
   { to: "/newspapers", icon: NewspaperIcon, bn: "সংবাদপত্র", en: "Newspapers" },
+  { to: "/shop", icon: Store, bn: "শপ", en: "Shop" },
+  { to: "/services", icon: Briefcase, bn: "সার্ভিস", en: "Services" },
+  // Remaining (unchanged order)
+  { to: "/free-internet", icon: Wifi, bn: "ফ্রি ইন্টারনেট", en: "Free Internet" },
   { to: "/railway", icon: Train, bn: "রেলওয়ে টিকেট", en: "Railway" },
-  { to: "/travel", icon: Plane, bn: "ভ্রমণ গাইড", en: "Travel Guide" },
   { to: "/phone-lookup", icon: Phone, bn: "ফোন লুকআপ", en: "Phone Lookup" },
   { to: "/phone-root-unlock", icon: Unlock, bn: "ফোন রুট ও লক খোলা", en: "Root & Unlock" },
-  { to: "/health", icon: HeartPulse, bn: "স্বাস্থ্য", en: "Health" },
-  { to: "/finance", icon: Wallet, bn: "ফিন্যান্স", en: "Finance" },
   { to: "/vault", icon: Lock, bn: "ভল্ট", en: "Vault" },
-  // Commerce
-  { to: "/shop", icon: Store, bn: "শপ", en: "Shop" },
-  { to: "/offers", icon: Gift, bn: "অফার", en: "Offers" },
-  { to: "/services", icon: Briefcase, bn: "সার্ভিস", en: "Services" },
-  { to: "/business-guide", icon: Rocket, bn: "বিজনেস গাইড", en: "Business Guide" },
   { to: "/movies", icon: Film, bn: "মুভি ও সিরিজ", en: "Movies & Series" },
   { to: "/marketplace", icon: Tag, bn: "ইউজড মার্কেট", en: "Used Market" },
   { to: "/rentals", icon: HomeIcon, bn: "বাসা ভাড়া", en: "Rentals" },
@@ -55,7 +55,6 @@ export const ALL_CATEGORIES: CategoryItem[] = [
   
   { to: "/voice", icon: Mic, bn: "ভয়েস", en: "Voice" },
   { to: "/scheduler", icon: Clock, bn: "শিডিউল মেসেজ", en: "Scheduler" },
-  { to: "/livetv", icon: Tv, bn: "লাইভ টিভি", en: "Live TV" },
   { to: "/chat", icon: MessageCircle, bn: "লাইভ চ্যাট", en: "Live Chat" },
   // Community / about
   { to: "/portfolio", icon: FolderKanban, bn: "পোর্টফোলিও", en: "Portfolio" },

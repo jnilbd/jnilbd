@@ -100,7 +100,13 @@ export default function DailyWidgets() {
   const quoteIdx = now.getDate() % QUOTES.length;
 
   const engDate = now.toLocaleDateString("en-GB", { weekday: "long", day: "numeric", month: "long", year: "numeric" });
-  const hijri = new Intl.DateTimeFormat("ar-SA-u-ca-islamic-umalqura", { day: "numeric", month: "long", year: "numeric" }).format(now);
+  const HIJRI_MONTHS_BN = ["মহররম","সফর","রবিউল আউয়াল","রবিউস সানি","জমাদিউল আউয়াল","জমাদিউস সানি","রজব","শাবান","রমজান","শাওয়াল","জিলক্বদ","জিলহজ"];
+  const hijriParts = new Intl.DateTimeFormat("en-US-u-ca-islamic-umalqura", { day: "numeric", month: "numeric", year: "numeric" }).formatToParts(now);
+  const hDay = hijriParts.find(p => p.type === "day")?.value ?? "";
+  const hMonth = Number(hijriParts.find(p => p.type === "month")?.value ?? 1);
+  const hYear = hijriParts.find(p => p.type === "year")?.value ?? "";
+  const toBnDigits = (s: string) => s.replace(/\d/g, d => "০১২৩৪৫৬৭৮৯"[Number(d)]);
+  const hijri = `${toBnDigits(hDay)} ${HIJRI_MONTHS_BN[hMonth - 1]} ${toBnDigits(hYear)}`;
   const bnWeekday = BN_WEEKDAYS[now.getDay()];
 
   return (
@@ -166,7 +172,7 @@ export default function DailyWidgets() {
               </div>
               <div className="rounded-xl bg-white/10 backdrop-blur-md border border-white/15 p-3">
                 <div className="text-[9px] uppercase tracking-wider text-secondary font-bold mb-1">হিজরি</div>
-                <div className="font-semibold text-white text-sm leading-tight text-right" dir="rtl">{hijri}</div>
+                <div className="font-semibold text-white text-sm leading-tight text-right">{hijri}</div>
               </div>
             </div>
           </div>

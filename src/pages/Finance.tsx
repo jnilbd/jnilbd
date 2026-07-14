@@ -435,13 +435,19 @@ const Finance = () => {
   // ---------- Actions ----------
   const [editTxId, setEditTxId] = useState<string | null>(null);
 
-  const openQuick = (type: TxType, presetWalletId?: string) => {
+  const openQuick = (type: TxType, presetWalletId?: string, opts?: { asDestination?: boolean }) => {
     setEditTxId(null);
     setQaType(type);
     setQaAmount(""); setQaCategory(""); setQaParty(""); setQaNote(""); setQaWallet2(""); setQaFee("");
     const preset = presetWalletId ? wallets.find(w => w.id === presetWalletId) : undefined;
     if (preset) {
-      setQaWallet(preset.id);
+      if (opts?.asDestination && type === "transfer") {
+        // Deposit-in flow: preset wallet is the destination, user picks source
+        setQaWallet("");
+        setQaWallet2(preset.id);
+      } else {
+        setQaWallet(preset.id);
+      }
       setQaScope(preset.scope);
     } else {
       const def = filteredWallets.find(w => w.is_default) ?? filteredWallets[0];

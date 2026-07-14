@@ -787,19 +787,18 @@ const Finance = () => {
               { v: "dashboard", label: bn?"ড্যাশবোর্ড":"Dashboard", Icon: LayoutDashboard },
               { v: "wallets", label: bn?"ওয়ালেট":"Wallets", Icon: WalletCards },
               { v: "tx", label: bn?"লেনদেন":"Transactions", Icon: ArrowRightLeft },
-              { v: "planner", label: bn?"পরিকল্পনা":"Planner", Icon: ClipboardList },
               { v: "recurring", label: bn?"মাসিক বিল":"Recurring", Icon: RepeatIcon },
-              { v: "analytics", label: bn?"বিশ্লেষণ":"Analytics", Icon: PieChart },
-              
               { v: "debts", label: bn?"দেনা-পাওনা":"Debts", Icon: HandCoins },
               { v: "sales", label: bn?"বিক্রয়":"Sales", Icon: ShoppingBag },
               { v: "jobs", label: bn?"সার্ভিস":"Service", Icon: WrenchIcon },
               { v: "assets", label: bn?"সম্পদ":"Assets", Icon: ArchiveIcon },
               { v: "inventory", label: bn?"ইনভেন্টরি":"Inventory", Icon: Boxes },
               { v: "courier", label: bn?"কুরিয়ার":"Courier", Icon: TruckIcon },
-              { v: "reports", label: bn?"রিপোর্ট":"Reports", Icon: FileBarChart2 },
               { v: "ai", label: "AI", Icon: Sparkles },
               { v: "calc", label: bn?"ক্যালকুলেটর":"Calculator", Icon: CalculatorIcon },
+              { v: "planner", label: bn?"পরিকল্পনা":"Planner", Icon: ClipboardList },
+              { v: "analytics", label: bn?"বিশ্লেষণ":"Analytics", Icon: PieChart },
+              { v: "reports", label: bn?"রিপোর্ট":"Reports", Icon: FileBarChart2 },
             ];
             return (
               <TabsList className="h-auto w-full bg-transparent p-0 grid grid-cols-5 sm:grid-cols-8 lg:grid-cols-8 gap-1.5">

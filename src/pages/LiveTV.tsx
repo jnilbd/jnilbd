@@ -1110,9 +1110,10 @@ const LiveTV = () => {
                   documentary: { bn: "ডকুমেন্টারি", en: "Documentary", icon: Globe2 },
                   other: { bn: "অন্যান্য", en: "Other", icon: Layers },
                 };
-                const ORDER = tab === "mrgify"
+                const ORDER = (tab === "mrgify" || tab === "tv")
                   ? ["entertainment", "news", "movies", "sports", "music", "pop", "bollywood", "classical", "kids", "religious", "documentary", "other"]
                   : ["news", "music", "pop", "bollywood", "classical", "entertainment", "movies", "sports", "kids", "religious", "documentary", "other"];
+
 
 
 

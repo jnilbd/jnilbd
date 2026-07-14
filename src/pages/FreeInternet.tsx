@@ -47,23 +47,22 @@ const FreeInternet = () => {
   const [items, setItems] = useState<Item[]>([]);
 
   const topics = [
-    { id: "social-packs", icon: Wifi, label: bn ? "সোশ্যাল প্যাক (FB/WA/Imo)" : "Social Packs (FB/WA/Imo)" },
-    { id: "cheap-mb", icon: Gift, label: bn ? "সবচেয়ে সস্তা MB অফার" : "Cheapest MB Offers" },
-    { id: "night-packs", icon: Radio, label: bn ? "নাইট প্যাক ও বোনাস" : "Night Packs & Bonus" },
-    { id: "free-internet-vpn", icon: Settings, label: bn ? "ফ্রি নেট (VPN/Handler)" : "Free Net (VPN/Handler)" },
-    { id: "emergency-balance", icon: Phone, label: bn ? "ইমার্জেন্সি ব্যালেন্স/MB লোন" : "Emergency Balance/MB Loan" },
-    { id: "student-offers", icon: Gift, label: bn ? "স্টুডেন্ট ও বান্ডেল অফার" : "Student & Bundle Offers" },
-    { id: "apn-settings", icon: Settings, label: bn ? "APN ও সেটিংস" : "APN & Settings" },
+    { id: "cheap-mb", icon: Gift, label: bn ? "সস্তা MB" : "Cheap MB" },
+    { id: "social-packs", icon: Wifi, label: bn ? "সোশ্যাল" : "Social" },
+    { id: "night-packs", icon: Radio, label: bn ? "নাইট প্যাক" : "Night" },
+    { id: "emergency-balance", icon: Phone, label: bn ? "ইমার্জেন্সি" : "Emergency" },
   ];
 
-  const load = async (selectedTopic: string) => {
-    if (!op) return;
+
+  const load = async (selectedTopic: string, overrideOp?: string) => {
+    const useOp = overrideOp || op;
+    if (!useOp) return;
     setTopic(selectedTopic);
     setLoading(true);
     setItems([]);
     try {
       const { data, error } = await supabase.functions.invoke("free-internet-guide", {
-        body: { operator: op, topic: selectedTopic, language },
+        body: { operator: useOp, topic: selectedTopic, language },
       });
       if (error) throw error;
       if ((data as any)?.error) throw new Error((data as any).error);
@@ -74,6 +73,7 @@ const FreeInternet = () => {
       setLoading(false);
     }
   };
+
 
   const selectedOp = operators.find((o) => o.id === op);
 
@@ -114,7 +114,7 @@ const FreeInternet = () => {
           {operators.map((o) => (
             <button
               key={o.id}
-              onClick={() => { setOp(o.id); setItems([]); setTopic(""); }}
+              onClick={() => { setOp(o.id); load("cheap-mb", o.id); }}
               className={`p-3 rounded-2xl text-white text-left bg-gradient-to-br ${o.color} transition-bounce ${op === o.id ? "ring-4 ring-primary/60 scale-[1.02]" : "opacity-80 hover:opacity-100"}`}
             >
               <div className="text-sm font-bold leading-tight">{o.name}</div>
@@ -126,26 +126,22 @@ const FreeInternet = () => {
 
       {op && (
         <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
-          <h2 className="text-sm font-semibold mb-2 text-muted-foreground uppercase tracking-wider">
-            {bn ? "২. কী দেখতে চান?" : "2. What do you want to see?"}
-          </h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+          <div className="flex gap-2 overflow-x-auto pb-1 -mx-1 px-1 scrollbar-thin">
             {topics.map((tp) => (
               <button
                 key={tp.id}
                 onClick={() => load(tp.id)}
                 disabled={loading}
-                className={`flex items-center gap-3 p-3 rounded-xl border text-left transition-smooth ${topic === tp.id ? "border-primary bg-primary/10" : "border-border hover:border-primary/50 bg-card"} disabled:opacity-50`}
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full border text-xs font-medium whitespace-nowrap transition-smooth ${topic === tp.id ? "border-primary bg-primary text-primary-foreground" : "border-border bg-card hover:border-primary/50"} disabled:opacity-50`}
               >
-                <div className="w-9 h-9 rounded-lg gradient-bg-primary text-white flex items-center justify-center shrink-0">
-                  <tp.icon className="w-4 h-4" />
-                </div>
-                <span className="text-sm font-medium">{tp.label}</span>
+                <tp.icon className="w-3.5 h-3.5" />
+                {tp.label}
               </button>
             ))}
           </div>
         </motion.div>
       )}
+
 
       {(loading || items.length > 0) && (
         <Card className="overflow-hidden">

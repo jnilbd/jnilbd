@@ -1193,21 +1193,114 @@ const Finance = () => {
                   <span>{bn?"মাস":"Month"} {fmtBDT(walletDelta(detailWallet.id, startOfMonth().getTime()), bn)}</span>
                 </div>
               </div>
-              <div className="grid grid-cols-3 gap-1.5 mt-2">
-                <Button size="sm" variant="outline" className="h-9 rounded-xl text-xs"
+              <div className="grid grid-cols-4 gap-1.5 mt-2">
+                <Button size="sm" variant="outline" className="h-9 rounded-xl text-[11px] px-1"
                   onClick={() => { const w = detailWallet; setDetailWallet(null); openQuick("income"); setTimeout(() => setQaWallet(w.id), 0); }}>
                   <TrendingUp className="h-3.5 w-3.5 mr-1 text-emerald-500" />{bn?"আয়":"Income"}
                 </Button>
-                <Button size="sm" variant="outline" className="h-9 rounded-xl text-xs"
+                <Button size="sm" variant="outline" className="h-9 rounded-xl text-[11px] px-1"
                   onClick={() => { const w = detailWallet; setDetailWallet(null); openQuick("expense"); setTimeout(() => setQaWallet(w.id), 0); }}>
                   <TrendingDown className="h-3.5 w-3.5 mr-1 text-rose-500" />{bn?"খরচ":"Expense"}
                 </Button>
-                <Button size="sm" variant="outline" className="h-9 rounded-xl text-xs"
+                <Button size="sm" variant="outline" className="h-9 rounded-xl text-[11px] px-1"
                   onClick={() => { const w = detailWallet; setDetailWallet(null); openQuick("transfer"); setTimeout(() => setQaWallet(w.id), 0); }}>
                   <ArrowLeftRight className="h-3.5 w-3.5 mr-1 text-sky-500" />{bn?"ট্রান্সফার":"Transfer"}
                 </Button>
+                <Button size="sm" variant="outline" className="h-9 rounded-xl text-[11px] px-1"
+                  onClick={() => setWdOpen(v => !v)}>
+                  <HandCoinsIcon className="h-3.5 w-3.5 mr-1 text-amber-500" />{bn?"টাকা তোলা":"Cash-out"}
+                </Button>
               </div>
-              <ScrollArea className="max-h-72 mt-2">
+
+              {/* Withdrawal quick form + summary */}
+              {(() => {
+                const wdList = withdrawals.filter((x:any) => x.wallet_id === detailWallet.id);
+                const now = new Date();
+                const monthStart = new Date(now.getFullYear(), now.getMonth(), 1).getTime();
+                const monthTotal = wdList
+                  .filter((x:any) => new Date(x.occurred_at).getTime() >= monthStart)
+                  .reduce((s:number, x:any) => s + Number(x.amount||0) + Number(x.fee||0), 0);
+                return (
+                  <>
+                    {wdList.length > 0 && (
+                      <div className="mt-2 flex items-center justify-between rounded-xl border border-amber-500/30 bg-amber-500/5 px-3 py-2 text-xs">
+                        <span className="flex items-center gap-1.5">
+                          <HandCoinsIcon className="h-3.5 w-3.5 text-amber-500" />
+                          {bn ? "এই মাসে তোলা" : "Cash-out this month"}
+                        </span>
+                        <b className="tabular-nums text-amber-600 dark:text-amber-400">{fmtBDT(monthTotal, bn)}</b>
+                      </div>
+                    )}
+                    {wdOpen && (
+                      <div className="mt-2 rounded-xl border border-border/60 bg-muted/30 p-3 space-y-2">
+                        <p className="text-[11px] text-muted-foreground">{bn ? "শুধু হিসাবের জন্য — ওয়ালেট ব্যালেন্স/লেনদেন পরিবর্তন হবে না" : "Log only — does not affect balance or transactions"}</p>
+                        <div className="grid grid-cols-2 gap-2">
+                          <div>
+                            <Label className="text-[10px]">{bn?"টাকা":"Amount"}</Label>
+                            <Input inputMode="decimal" placeholder="0" value={wdAmount} onChange={e=>setWdAmount(e.target.value)} className="h-9" />
+                          </div>
+                          <div>
+                            <Label className="text-[10px]">{bn?"চার্জ":"Fee"}</Label>
+                            <Input inputMode="decimal" placeholder="0" value={wdFee} onChange={e=>setWdFee(e.target.value)} className="h-9" />
+                          </div>
+                          <div>
+                            <Label className="text-[10px]">{bn?"মাধ্যম":"Method"}</Label>
+                            <Select value={wdMethod} onValueChange={setWdMethod}>
+                              <SelectTrigger className="h-9"><SelectValue /></SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="agent">{bn?"এজেন্ট":"Agent"}</SelectItem>
+                                <SelectItem value="atm">ATM</SelectItem>
+                                <SelectItem value="branch">{bn?"ব্রাঞ্চ":"Branch"}</SelectItem>
+                                <SelectItem value="cashout">{bn?"ক্যাশ-আউট":"Cash-out"}</SelectItem>
+                                <SelectItem value="other">{bn?"অন্যান্য":"Other"}</SelectItem>
+                              </SelectContent>
+                            </Select>
+                          </div>
+                          <div>
+                            <Label className="text-[10px]">{bn?"তারিখ":"Date"}</Label>
+                            <Input type="datetime-local" value={wdDate} onChange={e=>setWdDate(e.target.value)} className="h-9" />
+                          </div>
+                        </div>
+                        <Input placeholder={bn?"নোট (ঐচ্ছিক)":"Note (optional)"} value={wdNote} onChange={e=>setWdNote(e.target.value)} className="h-9" />
+                        <Button size="sm" className="w-full h-9 rounded-lg" onClick={saveWithdrawal} disabled={wdBusy}>
+                          {wdBusy ? <Loader2 className="h-4 w-4 animate-spin" /> : (bn?"সংরক্ষণ":"Save")}
+                        </Button>
+                      </div>
+                    )}
+                    {wdList.length > 0 && (
+                      <div className="mt-2">
+                        <p className="text-[11px] text-muted-foreground mb-1 px-1">{bn?"টাকা তোলার ইতিহাস":"Withdrawal history"}</p>
+                        <ScrollArea className="max-h-32">
+                          <div className="space-y-1">
+                            {wdList.slice(0, 30).map((x:any) => (
+                              <div key={x.id} className="flex items-center justify-between text-xs px-2 py-1.5 rounded-lg hover:bg-muted/50 group">
+                                <div className="min-w-0">
+                                  <p className="truncate">
+                                    <HandCoinsIcon className="h-3 w-3 inline text-amber-500 mr-1" />
+                                    <b className="tabular-nums">{fmtBDT(Number(x.amount), bn)}</b>
+                                    {Number(x.fee) > 0 && <span className="text-muted-foreground"> + {fmtBDT(Number(x.fee), bn)} {bn?"চার্জ":"fee"}</span>}
+                                    {x.method && <span className="text-muted-foreground"> · {x.method}</span>}
+                                  </p>
+                                  <p className="text-[10px] text-muted-foreground truncate">
+                                    {new Date(x.occurred_at).toLocaleString(bn?"bn-BD":"en-BD")}
+                                    {x.note ? ` · ${x.note}` : ""}
+                                  </p>
+                                </div>
+                                <button onClick={() => deleteWithdrawal(x.id)} className="opacity-0 group-hover:opacity-100 p-1 text-rose-500">
+                                  <Trash2 className="h-3 w-3" />
+                                </button>
+                              </div>
+                            ))}
+                          </div>
+                        </ScrollArea>
+                      </div>
+                    )}
+                  </>
+                );
+              })()}
+
+              <p className="text-[11px] text-muted-foreground mt-3 mb-1 px-1">{bn?"লেনদেন":"Transactions"}</p>
+              <ScrollArea className="max-h-60">
                 <div className="space-y-1.5">
                   {txs.filter(t => t.wallet_id === detailWallet.id || t.transfer_to_wallet_id === detailWallet.id).slice(0, 60).map(t => {
                     const income = INCOME_TYPES.includes(t.type);

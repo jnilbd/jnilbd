@@ -334,11 +334,21 @@ export function InventoryTab({ userId, bn }: { userId: string; bn: boolean }) {
             const L = LOC_META[loc];
             const qty = breakdown.perLoc[loc];
             return (
-              <div key={loc} className={cn("rounded-xl border p-2 flex flex-col items-center text-center", L.tone)}>
+              <button
+                type="button"
+                key={loc}
+                onClick={() => setLocSheet(loc)}
+                className={cn(
+                  "rounded-xl border p-2 flex flex-col items-center text-center transition hover:scale-[1.03] hover:shadow-md active:scale-95 focus:outline-none focus:ring-2 focus:ring-primary/40",
+                  L.tone
+                )}
+                title={bn ? "বিস্তারিত ও এডিট" : "View & edit"}
+              >
                 <L.icon className="h-4 w-4 mb-1" />
                 <p className="text-[10px] leading-tight">{bn ? L.bn : L.en}</p>
                 <p className="text-lg font-bold tabular-nums leading-tight">{bn ? qty.toLocaleString("bn-BD") : qty}</p>
-              </div>
+                <p className="text-[9px] opacity-70 mt-0.5">{bn ? "ট্যাপ করুন" : "Tap to edit"}</p>
+              </button>
             );
           })}
         </div>

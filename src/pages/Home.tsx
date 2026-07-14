@@ -281,11 +281,13 @@ const Home = () => {
 
       {/* Sections grid */}
       <section id="explore" className="py-12 md:py-20 container scroll-mt-20">
-        <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="text-center mb-8 md:mb-12 max-w-2xl mx-auto">
+        <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="text-center mb-8 md:mb-12 max-w-3xl mx-auto">
           <h2 className="text-3xl md:text-5xl font-display font-bold mb-3">
             <span className="gradient-text">{t("section.explore")}</span>
           </h2>
-          <p className="text-muted-foreground text-base md:text-lg">{t("section.exploreDesc")}</p>
+          <p className="text-3xl md:text-5xl font-display font-bold">
+            <span className="gradient-text">{t("section.exploreDesc")}</span>
+          </p>
         </motion.div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">

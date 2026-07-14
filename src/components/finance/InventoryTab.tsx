@@ -756,6 +756,80 @@ export function InventoryTab({ userId, bn }: { userId: string; bn: boolean }) {
           )}
         </SheetContent>
       </Sheet>
+
+      {/* Per-location editor: shows all movements sitting at this location and lets you
+          change their status (in transit / delivered / returned / pending / cancelled).
+          The location counter above updates automatically from these statuses. */}
+      <Dialog open={!!locSheet} onOpenChange={(o) => !o && setLocSheet(null)}>
+        <DialogContent className="max-w-2xl max-h-[85vh] overflow-y-auto">
+          {locSheet && (() => {
+            const L = LOC_META[locSheet];
+            const items = movements
+              .filter(m => MV_META[m.type].sign === -1 && m.location === locSheet && m.status !== "cancelled" && m.status !== "returned")
+              .map(m => ({ ...m, product: products.find(p => p.id === m.product_id) }));
+            const isTransit = locSheet === "courier" || locSheet === "with_person";
+            return (
+              <>
+                <DialogHeader>
+                  <DialogTitle className="flex items-center gap-2">
+                    <L.icon className="h-5 w-5" />
+                    {bn ? L.bn : L.en}
+                    <Badge variant="outline" className="ml-1">{items.length}</Badge>
+                  </DialogTitle>
+                </DialogHeader>
+                {items.length === 0 ? (
+                  <div className="py-10 text-center text-sm text-muted-foreground">
+                    {bn ? "এই লোকেশনে কিছু নেই।" : "Nothing at this location."}
+                  </div>
+                ) : (
+                  <div className="space-y-2">
+                    <p className="text-[11px] text-muted-foreground">
+                      {isTransit
+                        ? (bn ? "স্ট্যাটাস পরিবর্তন করলেই কাউন্টার অটো আপডেট হবে। 'সম্পন্ন' করলে এখান থেকে সরে যাবে।" : "Change status to auto-update the counter. Marking 'Completed' removes it from this bucket.")
+                        : (bn ? "রিটার্ন/বাতিল করলে কাউন্টার থেকে সরে যাবে।" : "Returned / cancelled removes it from the counter.")}
+                    </p>
+                    {items.map(m => (
+                      <div key={m.id} className="rounded-lg border p-2.5 flex items-start gap-2 flex-wrap">
+                        <div className="flex-1 min-w-[180px]">
+                          <p className="text-sm font-medium">{m.product?.name ?? "—"}</p>
+                          <p className="text-[11px] text-muted-foreground">
+                            {new Date(m.occurred_at).toLocaleDateString(bn ? "bn-BD" : "en-BD")}
+                            {" · "}{bn ? m.qty.toLocaleString("bn-BD") : m.qty} {m.product?.unit ?? ""}
+                            {m.party_name ? ` · ${m.party_name}` : ""}
+                          </p>
+                          {(m.courier_name || m.tracking_no) && (
+                            <p className="text-[11px] text-muted-foreground flex items-center gap-1 mt-0.5">
+                              <Truck className="h-3 w-3" />
+                              {m.courier_name}{m.tracking_no ? ` · ${m.tracking_no}` : ""}
+                            </p>
+                          )}
+                        </div>
+                        <Select value={m.status} onValueChange={(v) => updateMvStatus(m, v as MvStatus)}>
+                          <SelectTrigger className="h-8 w-[140px] text-xs"><SelectValue /></SelectTrigger>
+                          <SelectContent>
+                            {(Object.keys(STATUS_META) as MvStatus[]).map(s => (
+                              <SelectItem key={s} value={s}>{bn ? STATUS_META[s].bn : STATUS_META[s].en}</SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                        <Button size="sm" variant="ghost" className="h-8 w-8 p-0 text-destructive"
+                          onClick={() => deleteMovement(m)}>
+                          <Trash2 className="h-3.5 w-3.5" />
+                        </Button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+                <DialogFooter>
+                  <Button variant="outline" onClick={() => setLocSheet(null)}>
+                    {bn ? "বন্ধ করুন" : "Close"}
+                  </Button>
+                </DialogFooter>
+              </>
+            );
+          })()}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

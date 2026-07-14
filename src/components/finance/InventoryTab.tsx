@@ -102,6 +102,7 @@ export function InventoryTab({ userId, bn }: { userId: string; bn: boolean }) {
   });
 
   const [historyOf, setHistoryOf] = useState<Product | null>(null);
+  const [locSheet, setLocSheet] = useState<MvLocation | null>(null);
 
   async function loadAll() {
     setLoading(true);

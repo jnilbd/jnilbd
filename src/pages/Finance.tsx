@@ -810,23 +810,32 @@ const Finance = () => {
 
             </div>
 
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
               {[
-                { t: "income", label: bn?"আয় যোগ":"Add Income", icon: TrendingUp },
-                { t: "expense", label: bn?"খরচ যোগ":"Add Expense", icon: TrendingDown },
-                { t: "transfer", label: bn?"ট্রান্সফার":"Transfer", icon: ArrowLeftRight },
-                { t: "sale", label: bn?"বিক্রি":"Sale", icon: ShoppingCart },
-                { t: "purchase", label: bn?"ক্রয়":"Purchase", icon: Package },
-                { t: "loan_given", label: bn?"ধার দেয়া":"Loan Given", icon: Send },
-              ].map(a => (
-                <button key={a.t} onClick={() => openQuick(a.t as TxType)}
-                  className="rounded-2xl border border-border/60 bg-card/70 backdrop-blur p-3 flex items-center gap-2 hover:shadow-md hover:-translate-y-0.5 transition-all text-left">
-                  <div className="h-9 w-9 rounded-xl bg-primary/10 text-primary grid place-items-center">
-                    <a.icon className="h-4 w-4" />
-                  </div>
-                  <span className="text-sm font-medium">{a.label}</span>
-                </button>
-              ))}
+                { t: "income", label: bn?"আয় যোগ":"Add Income", icon: TrendingUp, tone: "emerald" },
+                { t: "expense", label: bn?"খরচ যোগ":"Add Expense", icon: TrendingDown, tone: "rose" },
+                { t: "transfer", label: bn?"ট্রান্সফার":"Transfer", icon: ArrowLeftRight, tone: "sky" },
+                { t: "sale", label: bn?"বিক্রি":"Sale", icon: ShoppingCart, tone: "emerald" },
+                { t: "purchase", label: bn?"ক্রয়":"Purchase", icon: Package, tone: "rose" },
+                { t: "loan_given", label: bn?"ধার দেয়া":"Loan Given", icon: Send, tone: "amber" },
+                { t: "loan_taken", label: bn?"ধার নেয়া":"Loan Taken", icon: HandCoins, tone: "amber" },
+              ].map(a => {
+                const toneCls: Record<string,string> = {
+                  emerald: "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400",
+                  rose: "bg-rose-500/10 text-rose-600 dark:text-rose-400",
+                  sky: "bg-sky-500/10 text-sky-600 dark:text-sky-400",
+                  amber: "bg-amber-500/10 text-amber-600 dark:text-amber-400",
+                };
+                return (
+                  <button key={a.t} onClick={() => openQuick(a.t as TxType)}
+                    className="rounded-2xl border border-border/60 bg-card/70 backdrop-blur p-3 flex items-center gap-2 hover:shadow-md hover:-translate-y-0.5 transition-all text-left">
+                    <div className={`h-9 w-9 rounded-xl grid place-items-center ${toneCls[a.tone]}`}>
+                      <a.icon className="h-4 w-4" />
+                    </div>
+                    <span className="text-sm font-medium">{a.label}</span>
+                  </button>
+                );
+              })}
             </div>
           </TabsContent>
 

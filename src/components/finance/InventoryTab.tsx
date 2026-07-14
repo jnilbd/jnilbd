@@ -380,8 +380,9 @@ export function InventoryTab({ userId, bn }: { userId: string; bn: boolean }) {
           {filteredProducts.map(p => {
             const low = Number(p.current_stock) <= Number(p.low_stock_threshold);
             const pmoves = movements.filter(m => m.product_id === p.id);
-            const outCourier = pmoves.filter(m => m.location === "courier" && (m.status === "in_transit" || m.status === "pending")).reduce((s, m) => s + Number(m.qty), 0);
-            const outPerson = pmoves.filter(m => m.location === "with_person" && (m.status === "in_transit" || m.status === "pending")).reduce((s, m) => s + Number(m.qty), 0);
+            const locSum = (loc: MvLocation) =>
+              pmoves.filter(m => m.location === loc && MV_META[m.type].sign === -1 && m.status !== "cancelled" && m.status !== "returned")
+                    .reduce((s, m) => s + Number(m.qty), 0);
             const due = pmoves.filter(m => (m.type === "sale" || m.type === "stock_out") && m.status !== "cancelled" && m.status !== "returned")
               .reduce((s, m) => s + Math.max(0, Number(m.qty) * Number(m.unit_price) - Number(m.amount_paid || 0)), 0);
 
@@ -412,18 +413,18 @@ export function InventoryTab({ userId, bn }: { userId: string; bn: boolean }) {
                   )}
                 </div>
 
-                {/* per-product breakdown chips */}
+                {/* per-product breakdown chips — all non-office destinations */}
                 <div className="flex flex-wrap gap-1 text-[10px]">
-                  {outCourier > 0 && (
-                    <span className="rounded-full px-1.5 py-0.5 bg-amber-500/10 text-amber-700 flex items-center gap-1">
-                      <Truck className="h-3 w-3" /> {bn ? "কুরিয়ারে" : "Courier"}: <b>{outCourier}</b>
-                    </span>
-                  )}
-                  {outPerson > 0 && (
-                    <span className="rounded-full px-1.5 py-0.5 bg-violet-500/10 text-violet-700 flex items-center gap-1">
-                      <UserRound className="h-3 w-3" /> {bn ? "ব্যক্তি" : "Person"}: <b>{outPerson}</b>
-                    </span>
-                  )}
+                  {(["with_me","with_person","courier","customer","supplier","damaged"] as MvLocation[]).map(loc => {
+                    const n = locSum(loc);
+                    if (n <= 0) return null;
+                    const L = LOC_META[loc];
+                    return (
+                      <span key={loc} className={cn("rounded-full px-1.5 py-0.5 border flex items-center gap-1", L.tone)}>
+                        <L.icon className="h-3 w-3" /> {bn ? L.bn : L.en}: <b>{n}</b>
+                      </span>
+                    );
+                  })}
                   {due > 0 && (
                     <span className="rounded-full px-1.5 py-0.5 bg-orange-500/10 text-orange-700 flex items-center gap-1">
                       <Wallet className="h-3 w-3" /> {bn ? "বাকি" : "Due"}: <b>{fmtBDT(due, bn)}</b>

@@ -271,6 +271,9 @@ const LiveTV = () => {
   const hlsRef = useRef<Hls | null>(null);
   const playerRef = useRef<HTMLDivElement | null>(null);
   const fallbackIdxRef = useRef(0);
+  const filteredRef = useRef<Channel[]>([]);
+  const deadRef = useRef<Set<string>>(new Set());
+
 
   const toggleFav = (id: string) => {
     setFavs(prev => {

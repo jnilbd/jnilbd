@@ -801,7 +801,7 @@ const LiveTV = () => {
             {([
               { k: "mrgify", label: t("বাংলাদেশ","Bangladesh"), icon: Flag, count: (mergedByTab.mrgify || []).length },
               { k: "tv", label: t("ইন্ডিয়া","India"), icon: Tv, count: (mergedByTab.tv || []).length },
-              { k: "bdix", label: "BDIX", icon: Wifi, count: (mergedByTab.bdix || []).length },
+              
               { k: "world", label: t("ওয়ার্ল্ড","World"), icon: Globe2, count: (mergedByTab.world || []).length },
               { k: "sports", label: t("স্পোর্টস","Sports"), icon: Trophy, count: (mergedByTab.sports || []).length },
               { k: "radio", label: t("রেডিও","Radio"), icon: Radio, count: (mergedByTab.radio || []).length },

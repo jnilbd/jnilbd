@@ -110,6 +110,24 @@ export const translations: Translations = {
   "card.warish": { bn: "ইসলামি উত্তরাধিকার বণ্টন (ফারাইজ)", en: "Islamic inheritance distribution" },
   "card.profitLoss": { bn: "লাভ, ক্ষতি, মার্জিন, ডিসকাউন্ট, % পরিবর্তন", en: "Profit, loss, margin, discount, % change" },
 
+  // Additional nav + card entries for new sections
+  "nav.ruqyah": { bn: "রুকইয়া", en: "Ruqyah" },
+  "card.ruqyah": { bn: "কুরআন-সুন্নাহভিত্তিক রুকইয়া গাইড ও দোয়া", en: "Ruqyah guide & duas based on Quran & Sunnah" },
+  "card.hadith": { bn: "সহীহ হাদিস — খুঁজুন, পড়ুন ও শেয়ার করুন", en: "Authentic Hadith — search, read & share" },
+  "card.offers": { bn: "সব সিমের সেরা অফার, ডিসকাউন্ট ও ডিল", en: "Best SIM offers, discounts & deals" },
+  "nav.businessGuide": { bn: "বিজনেস গাইড", en: "Business Guide" },
+  "card.businessGuide": { bn: "ই-কমার্স, স্টার্টআপ, মার্কেটিং — সম্পূর্ণ গাইড", en: "E-commerce, startup, marketing — full guide" },
+  "nav.travel": { bn: "ভ্রমণ গাইড", en: "Travel Guide" },
+  "card.travel": { bn: "ভ্রমণ টিপস, সতর্কতা ও লাইভ দুর্যোগ আপডেট", en: "Travel tips, alerts & live disaster updates" },
+  "nav.politics": { bn: "রাজনীতি আপডেট", en: "Politics Update" },
+  "card.politics": { bn: "দেশ-বিদেশের রাজনৈতিক লাইভ খবর", en: "Live political news — home & abroad" },
+  "nav.war": { bn: "যুদ্ধ আপডেট", en: "War Updates" },
+  "card.war": { bn: "বৈশ্বিক যুদ্ধ ও সংঘাতের লাইভ আপডেট", en: "Live updates on global wars & conflicts" },
+  "nav.stocks": { bn: "স্টক আপডেট", en: "Stock Update" },
+  "card.stocks": { bn: "DSE/CSE ও গ্লোবাল স্টক মার্কেট আপডেট", en: "DSE/CSE & global stock market updates" },
+  "nav.newspapers": { bn: "সংবাদপত্র", en: "Newspapers" },
+  "card.newspapers": { bn: "বাংলাদেশ ও বিশ্বের সব বড় সংবাদপত্র এক জায়গায়", en: "All major BD & world newspapers in one place" },
+
   // Buttons
   "btn.viewAll": { bn: "সব দেখুন", en: "View All" },
   "btn.viewDetails": { bn: "ডিটেইলস দেখুন", en: "View Details" },

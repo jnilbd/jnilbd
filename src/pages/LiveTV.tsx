@@ -360,7 +360,7 @@ const LiveTV = () => {
       } catch (e) {
         console.error("iptv-org fetch failed", e);
         if (!cancelled) {
-          setTvChannels(FALLBACK_TV);
+          setTvChannels([]);
           setSportsChannels(FALLBACK_SPORTS);
         }
       } finally {

@@ -1043,18 +1043,21 @@ const LiveTV = () => {
                 );
               }
 
-              // BDIX tab: group by category (and show country badges via card)
-              if (tab === "bdix" && countryFilter === "all") {
+              // BDIX & Mrgify tabs: group by category with country jump
+              if ((tab === "bdix" || tab === "mrgify") && countryFilter === "all") {
                 const CAT_LABELS: Record<string, { bn: string; en: string; icon: any }> = {
                   news: { bn: "নিউজ", en: "News", icon: Activity },
                   entertainment: { bn: "বিনোদন", en: "Entertainment", icon: Tv },
+                  movies: { bn: "মুভি", en: "Movies", icon: Play },
                   sports: { bn: "স্পোর্টস", en: "Sports", icon: Trophy },
                   music: { bn: "মিউজিক", en: "Music", icon: Radio },
                   kids: { bn: "কিডস", en: "Kids", icon: Star },
                   religious: { bn: "ধর্মীয়", en: "Religious", icon: Star },
+                  documentary: { bn: "ডকুমেন্টারি", en: "Documentary", icon: Globe2 },
                   other: { bn: "অন্যান্য", en: "Other", icon: Layers },
                 };
-                const ORDER = ["news", "entertainment", "sports", "music", "kids", "religious", "other"];
+                const ORDER = ["news", "entertainment", "movies", "sports", "music", "kids", "religious", "documentary", "other"];
+
                 const groups = new Map<string, typeof filtered>();
                 for (const c of filtered) {
                   const key = (c.subCategory || "other").toLowerCase();

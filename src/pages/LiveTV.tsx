@@ -17,7 +17,7 @@ const DEAD_KEY = "livetv:dead:v2";
 const FAV_KEY = "livetv:favorites:v2";
 const RECENT_KEY = "livetv:recent:v1";
 
-type Tab = "tv" | "bdix" | "direct" | "world" | "sports" | "radio" | "scores";
+type Tab = "mrgify" | "tv" | "bdix" | "direct" | "world" | "sports" | "radio" | "scores";
 type Health = "unknown" | "checking" | "live" | "dead";
 
 type Channel = {
@@ -210,7 +210,7 @@ const LiveTV = () => {
   const { language } = useLanguage();
   const t = (bn: string, en: string) => (language === "bn" ? bn : en);
 
-  const [tab, setTab] = useState<Tab>("tv");
+  const [tab, setTab] = useState<Tab>("mrgify");
   const [search, setSearch] = useState("");
   const [countryFilter, setCountryFilter] = useState<string>("all");
   const [onlyFavs, setOnlyFavs] = useState(false);
@@ -221,6 +221,7 @@ const LiveTV = () => {
   const [worldChannels, setWorldChannels] = useState<Channel[]>([]);
   const [sportsChannels, setSportsChannels] = useState<Channel[]>([]);
   const [radioChannels, setRadioChannels] = useState<Channel[]>([]);
+  const [mrgifyChannels, setMrgifyChannels] = useState<Channel[]>([]);
   const [loading, setLoading] = useState(true);
 
   const [favs, setFavs] = useState<Set<string>>(() => {
@@ -438,12 +439,9 @@ const LiveTV = () => {
         });
       }
       if (parsed.length && !cancelled) {
-        setTvChannels(prev => {
-          const existing = new Set(prev.map(c => `${c.name.toLowerCase()}|${c.url}`));
-          const merged = parsed.filter(p => !existing.has(`${p.name.toLowerCase()}|${p.url}`));
-          return [...merged, ...prev];
-        });
+        setMrgifyChannels(parsed);
       }
+
     })();
     return () => { cancelled = true; };
   }, []);
@@ -478,6 +476,7 @@ const LiveTV = () => {
   }, []);
 
   const allChannels =
+    tab === "mrgify" ? mrgifyChannels :
     tab === "tv" ? tvChannels :
     tab === "world" ? worldChannels :
     tab === "bdix" ? bdixChannels :
@@ -619,6 +618,7 @@ const LiveTV = () => {
         <div className="flex justify-center mb-5 overflow-x-auto">
           <div className="inline-flex rounded-full bg-muted p-1">
             {([
+              { k: "mrgify", label: `Mrgify 🔥${mrgifyChannels.length ? ` (${mrgifyChannels.length})` : ""}`, icon: Flag },
               { k: "tv", label: t("টিভি","TV"), icon: Tv },
               { k: "bdix", label: "BDIX", icon: Wifi },
               { k: "direct", label: t("ডিরেক্ট","Direct"), icon: Zap },
@@ -725,7 +725,7 @@ const LiveTV = () => {
               </div>
             )}
 
-            {loading && tab !== "radio" && tab !== "bdix" && (
+            {loading && tab !== "radio" && tab !== "bdix" && tab !== "mrgify" && (
               <div className="flex flex-col items-center py-12 text-muted-foreground">
                 <Loader2 className="w-8 h-8 animate-spin mb-2" />
                 <p className="text-sm">{t("সর্বশেষ চ্যানেল লোড হচ্ছে...", "Loading latest channels...")}</p>

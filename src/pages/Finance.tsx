@@ -1095,10 +1095,7 @@ const Finance = () => {
             <InventoryTab userId={user.id} bn={bn} />
           </TabsContent>
 
-          {/* Smart Courier Tracker */}
-          <TabsContent value="courier" className="mt-4">
-            <CourierTrackerTab userId={user.id} bn={bn} />
-          </TabsContent>
+
 
           {/* Planner: goals, income targets, EMI */}
           <TabsContent value="planner" className="mt-4">

@@ -590,15 +590,17 @@ const LiveTV = () => {
         .replace(/\b(hd|fhd|uhd|4k|sd|tv|channel|live|bd|bangla|bangladesh|india|world|sports?|news|radio|fm|am|official|network)\b/g, " ")
         .replace(/[^a-z0-9]+/g, "")
         .trim();
-    // Promote Mrgify's Indian channels into the India (tv) tab; keep the rest in Mrgify.
+    // Promote Mrgify's Indian channels into India tab, non-BD/IN into World; keep BD in Mrgify.
     const mrgifyIN = mrgifyChannels.filter(c => c.country === "IN");
-    const mrgifyRest = mrgifyChannels.filter(c => c.country !== "IN");
+    const mrgifyWorld = mrgifyChannels.filter(c => c.country !== "IN" && c.country !== "BD")
+      .map(c => ({ ...c, category: "world" as any }));
+    const mrgifyRest = mrgifyChannels.filter(c => c.country === "BD");
     const pools: { key: Tab; list: Channel[] }[] = [
       { key: "tv", list: [...tvChannels, ...mrgifyIN] },
+      { key: "world", list: [...worldChannels, ...mrgifyWorld] },
       { key: "mrgify", list: mrgifyRest },
       { key: "bdix", list: bdixChannels },
       
-      { key: "world", list: worldChannels },
       { key: "sports", list: sportsChannels },
       { key: "radio", list: radioChannels },
     ];

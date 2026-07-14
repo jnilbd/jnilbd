@@ -96,9 +96,10 @@ const Home = () => {
     { to: "/movies", icon: Film, titleKey: "nav.movies", descKey: "card.movies" },
     { to: "/marketplace", icon: Tag, titleKey: "nav.marketplace", descKey: "card.marketplace" },
     { to: "/rentals", icon: HomeIcon, titleKey: "nav.rentals", descKey: "card.rentals" },
-    { to: "/appointment", icon: CalendarClock, titleKey: "nav.appointment", descKey: "card.appointment" },
     { to: "/portfolio", icon: FolderKanban, titleKey: "nav.portfolio", descKey: "card.portfolio" },
     { to: "/blog", icon: BookOpen, titleKey: "nav.blog", descKey: "card.blog" },
+    { to: "/about", icon: User, titleKey: "nav.about", descKey: "card.about" },
+    { to: "/appointment", icon: CalendarClock, titleKey: "nav.appointment", descKey: "card.appointment" },
   ].map((c, i) => ({ ...c, color: gradients[i % gradients.length] }));
 
   return (

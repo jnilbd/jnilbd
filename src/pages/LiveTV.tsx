@@ -820,8 +820,8 @@ const LiveTV = () => {
               <p className="text-center text-muted-foreground py-8">{t("কোনো চ্যানেল পাওয়া যায়নি।", "No channels found.")}</p>
             )}
 
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
-              {filtered.map((c) => {
+            {(() => {
+              const renderCard = (c: typeof filtered[number]) => {
                 const isFav = favs.has(c.id);
                 const isDead = dead.has(c.id);
                 const isExpanded = expandedWorld === c.id;
@@ -882,8 +882,48 @@ const LiveTV = () => {
                     )}
                   </div>
                 );
-              })}
-            </div>
+              };
+
+              // World tab: group channels by country
+              if (tab === "world" && countryFilter === "all") {
+                const groups = new Map<string, typeof filtered>();
+                for (const c of filtered) {
+                  const arr = groups.get(c.country) || [];
+                  arr.push(c);
+                  groups.set(c.country, arr);
+                }
+                const countryEntries = [...groups.entries()].sort((a, b) =>
+                  countryPriority(a[0]) - countryPriority(b[0]) || (COUNTRY_NAMES[a[0]] || a[0]).localeCompare(COUNTRY_NAMES[b[0]] || b[0])
+                );
+                return (
+                  <div className="space-y-8">
+                    {countryEntries.map(([code, list]) => (
+                      <section key={code}>
+                        <div className="flex items-center gap-2 mb-3 sticky top-0 bg-background/80 backdrop-blur py-2 z-10">
+                          <div className="w-8 h-8 rounded-lg gradient-bg-primary flex items-center justify-center text-white">
+                            <Globe2 className="w-4 h-4" />
+                          </div>
+                          <h3 className="font-display font-bold text-lg">
+                            {COUNTRY_NAMES[code] || code}
+                          </h3>
+                          <span className="text-xs text-muted-foreground">({list.length})</span>
+                          <div className="flex-1 h-px bg-border ml-2" />
+                        </div>
+                        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
+                          {list.map(renderCard)}
+                        </div>
+                      </section>
+                    ))}
+                  </div>
+                );
+              }
+
+              return (
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
+                  {filtered.map(renderCard)}
+                </div>
+              );
+            })()}
 
             <p className="text-xs text-center text-muted-foreground mt-8">
               {t("সোর্স: iptv-org + radio-browser.info + BDIX কমিউনিটি — অটো ব্যাকআপ ও ডেড রিকভারি সহ।",

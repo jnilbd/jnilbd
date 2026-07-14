@@ -1110,7 +1110,10 @@ const LiveTV = () => {
                   documentary: { bn: "ডকুমেন্টারি", en: "Documentary", icon: Globe2 },
                   other: { bn: "অন্যান্য", en: "Other", icon: Layers },
                 };
-                const ORDER = ["news", "music", "pop", "bollywood", "classical", "entertainment", "movies", "sports", "kids", "religious", "documentary", "other"];
+                const ORDER = tab === "mrgify"
+                  ? ["entertainment", "news", "movies", "sports", "music", "pop", "bollywood", "classical", "kids", "religious", "documentary", "other"]
+                  : ["news", "music", "pop", "bollywood", "classical", "entertainment", "movies", "sports", "kids", "religious", "documentary", "other"];
+
 
 
                 const groups = new Map<string, typeof filtered>();

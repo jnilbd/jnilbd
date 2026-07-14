@@ -443,6 +443,36 @@ const Finance = () => {
     await loadAll();
   };
 
+  const saveWithdrawal = async () => {
+    if (!user || !detailWallet) return;
+    const amount = Number(wdAmount);
+    if (!amount || amount <= 0) { toast.error(bn ? "সঠিক টাকা লিখুন" : "Enter amount"); return; }
+    setWdBusy(true);
+    const occurred_at = wdDate ? new Date(wdDate).toISOString() : new Date().toISOString();
+    const { error } = await (supabase as any).from("finance_withdrawals").insert({
+      user_id: user.id,
+      wallet_id: detailWallet.id,
+      amount,
+      fee: Number(wdFee) || 0,
+      method: wdMethod || null,
+      note: wdNote || null,
+      occurred_at,
+    });
+    setWdBusy(false);
+    if (error) { toast.error(error.message); return; }
+    toast.success(bn ? "টাকা তোলার হিসাব সংরক্ষিত" : "Withdrawal logged");
+    setWdAmount(""); setWdFee(""); setWdNote(""); setWdDate("");
+    setWdOpen(false);
+    await loadAll();
+  };
+
+  const deleteWithdrawal = async (id: string) => {
+    const { error } = await (supabase as any).from("finance_withdrawals").delete().eq("id", id);
+    if (error) { toast.error(error.message); return; }
+    toast.success(bn ? "মুছে ফেলা হয়েছে" : "Deleted");
+    await loadAll();
+  };
+
   const runAI = async () => {
     if (!aiText.trim()) return;
     setAiBusy(true); setAiPreview(null);

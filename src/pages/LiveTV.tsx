@@ -18,7 +18,7 @@ const WORKING_KEY = "livetv:working:v1";
 const FAV_KEY = "livetv:favorites:v2";
 const RECENT_KEY = "livetv:recent:v1";
 
-type Tab = "mrgify" | "tv" | "bdix" | "world" | "sports" | "radio" | "scores" | "offline" | "working";
+type Tab = "mrgify" | "tv" | "bdix" | "world" | "sports" | "radio" | "offline" | "working";
 type Health = "unknown" | "checking" | "live" | "dead";
 
 type Channel = {
@@ -706,7 +706,7 @@ const LiveTV = () => {
               
               { k: "world", label: t("ওয়ার্ল্ড","World"), icon: Globe2 },
               { k: "sports", label: t("স্পোর্টস","Sports"), icon: Trophy },
-              { k: "scores", label: t("স্কোর","Scores"), icon: Activity },
+              
               { k: "radio", label: t("রেডিও","Radio"), icon: Radio },
               { k: "working", label: `${t("ওয়ার্কিং ✅","Working ✅")}${workingChannels.length ? ` (${workingChannels.length})` : ""}`, icon: CheckCircle2 },
               { k: "offline", label: `${t("অফলাইন","Offline")}${offlineChannels.length ? ` (${offlineChannels.length})` : ""}`, icon: XCircle },
@@ -722,9 +722,7 @@ const LiveTV = () => {
           </div>
         </div>
 
-        {tab === "scores" ? (
-          <LiveScoreBoard />
-        ) : (
+        {false ? null : (
           <>
             <div ref={playerRef}>
               {active && (

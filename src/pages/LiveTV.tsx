@@ -386,7 +386,69 @@ const LiveTV = () => {
     return () => { cancelled = true; };
   }, []);
 
-  // BDIX list as Channels
+  // ----- Merge external M3U playlist (Mrgify BDIX IPTV — 715+ channels) into TV tab -----
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      const M3U_URLS = [
+        "https://raw.githubusercontent.com/abusaeeidx/Mrgify-BDIX-IPTV/main/playlist.m3u",
+        "https://github.com/abusaeeidx/Mrgify-BDIX-IPTV/raw/main/playlist.m3u",
+      ];
+      let text = "";
+      for (const u of M3U_URLS) {
+        try {
+          const r = await fetch(u, { cache: "no-store" });
+          if (r.ok) { text = await r.text(); if (text.includes("#EXTINF")) break; }
+        } catch {}
+      }
+      if (!text || cancelled) return;
+
+      const lines = text.split(/\r?\n/);
+      const parsed: Channel[] = [];
+      const seen = new Set<string>();
+      for (let i = 0; i < lines.length; i++) {
+        const line = lines[i];
+        if (!line.startsWith("#EXTINF")) continue;
+        const commaIdx = line.lastIndexOf(",");
+        const name = commaIdx >= 0 ? line.slice(commaIdx + 1).trim() : "Unknown";
+        const logo = /tvg-logo="([^"]+)"/.exec(line)?.[1];
+        const group = /group-title="([^"]+)"/.exec(line)?.[1];
+        // find next non-comment, non-empty line as URL
+        let url = "";
+        for (let j = i + 1; j < lines.length; j++) {
+          const l = lines[j].trim();
+          if (!l || l.startsWith("#")) continue;
+          url = l; break;
+        }
+        if (!url || !name) continue;
+        const key = `${name.toLowerCase()}|${url}`;
+        if (seen.has(key)) continue;
+        seen.add(key);
+        parsed.push({
+          id: `mrg-${parsed.length}-${name.replace(/[^a-z0-9]/gi, "").slice(0, 20).toLowerCase()}`,
+          name,
+          country: "BD",
+          countryName: "Bangladesh",
+          category: "tv",
+          categories: group ? [group] : undefined,
+          logo,
+          provider: group || "Mrgify BDIX",
+          url,
+          urls: [url],
+        });
+      }
+      if (parsed.length && !cancelled) {
+        setTvChannels(prev => {
+          const existing = new Set(prev.map(c => `${c.name.toLowerCase()}|${c.url}`));
+          const merged = parsed.filter(p => !existing.has(`${p.name.toLowerCase()}|${p.url}`));
+          return [...merged, ...prev];
+        });
+      }
+    })();
+    return () => { cancelled = true; };
+  }, []);
+
+
   const bdixChannels: Channel[] = useMemo(() =>
     BDIX_CHANNELS.map(b => ({
       id: b.id,

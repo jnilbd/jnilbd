@@ -463,10 +463,10 @@ const Finance = () => {
   // ---------- Actions ----------
   const [editTxId, setEditTxId] = useState<string | null>(null);
 
-  const openQuick = (type: TxType, presetWalletId?: string, opts?: { asDestination?: boolean }) => {
+  const openQuick = (type: TxType, presetWalletId?: string, opts?: { asDestination?: boolean; presetCategory?: string }) => {
     setEditTxId(null);
     setQaType(type);
-    setQaAmount(""); setQaCategory(""); setQaParty(""); setQaNote(""); setQaWallet2(""); setQaFee("");
+    setQaAmount(""); setQaCategory(opts?.presetCategory ?? ""); setQaParty(""); setQaNote(""); setQaWallet2(""); setQaFee("");
     const preset = presetWalletId ? wallets.find(w => w.id === presetWalletId) : undefined;
     if (preset) {
       if (opts?.asDestination && type === "transfer") {

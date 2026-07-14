@@ -165,6 +165,8 @@ const CATEGORY_BN: Record<string, string> = {
   "Family Support": "পারিবারিক সহায়তা", "Other Income": "অন্যান্য আয়",
   "Service Income": "সেবা আয়", "Advance Received": "অগ্রিম প্রাপ্তি", Commission: "কমিশন",
   Charity: "দান/সদকা", Maintenance: "মেরামত", Tax: "কর",
+  "Mobile Sale": "মোবাইল বিক্রি", "Laptop Sale": "ল্যাপটপ বিক্রি",
+  "Mobile Repair": "মোবাইল সারাই", "Laptop Repair": "ল্যাপটপ সারাই",
 };
 const bnLabel = (m: Record<string,string>, k: string | null | undefined, bn: boolean) =>
   !k ? "—" : (bn ? (m[k] ?? k) : k);

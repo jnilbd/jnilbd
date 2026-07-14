@@ -241,6 +241,16 @@ const Finance = () => {
   // wallet detail
   const [detailWallet, setDetailWallet] = useState<WalletRow | null>(null);
 
+  // withdrawals (cash-out log, independent from transactions)
+  const [withdrawals, setWithdrawals] = useState<any[]>([]);
+  const [wdOpen, setWdOpen] = useState(false);
+  const [wdAmount, setWdAmount] = useState("");
+  const [wdFee, setWdFee] = useState("");
+  const [wdMethod, setWdMethod] = useState<string>("agent");
+  const [wdNote, setWdNote] = useState("");
+  const [wdDate, setWdDate] = useState("");
+  const [wdBusy, setWdBusy] = useState(false);
+
   // AI assistant
   const [aiText, setAiText] = useState("");
   const [aiBusy, setAiBusy] = useState(false);

@@ -148,10 +148,13 @@ const SportsSchedule = () => {
     setLoading(true);
     const chunks = await Promise.all(LEAGUES.map(fetchLeague));
     const all = chunks.flat();
-    // sort: live first, then upcoming by time, drop finished > 6h ago
+    // sort: knockouts of majors first, then priority, then live, then time.
     const cutoff = Date.now() - 6 * 60 * 60 * 1000;
     const filtered = all.filter(e => new Date(e.startUtc).getTime() > cutoff);
     filtered.sort((a, b) => {
+      // Highest priority first (4 = knockout of mega, 3 = mega, 2 = major, 1 = normal)
+      if (b.priority !== a.priority) return b.priority - a.priority;
+      // Then live > upcoming > finished
       const rank = (s: SportEvent) => s.state === "in" ? 0 : s.state === "pre" ? 1 : 2;
       if (rank(a) !== rank(b)) return rank(a) - rank(b);
       return new Date(a.startUtc).getTime() - new Date(b.startUtc).getTime();

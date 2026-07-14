@@ -26,7 +26,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { cn } from "@/lib/utils";
 import { AnalyticsTab } from "@/components/finance/AnalyticsTab";
-import { BudgetTab } from "@/components/finance/BudgetTab";
+
 import { DebtsTab } from "@/components/finance/DebtsTab";
 import { SmartReminders, type Reminder } from "@/components/finance/SmartReminders";
 import { InventoryTab } from "@/components/finance/InventoryTab";

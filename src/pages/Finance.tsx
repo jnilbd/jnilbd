@@ -1181,7 +1181,9 @@ const Finance = () => {
                   ? (bn?"যেখান থেকে":"From wallet")
                   : qaType === "income"
                     ? (bn?"যে ওয়ালেটে জমা":"Deposit to wallet")
-                    : (bn?"ওয়ালেট":"Wallet")}
+                    : qaType === "expense"
+                      ? (bn?"যে ওয়ালেট থেকে খরচ":"Paid from wallet")
+                      : (bn?"ওয়ালেট":"Wallet")}
               </Label>
               <Select value={qaWallet} onValueChange={setQaWallet}>
                 <SelectTrigger className="mt-1 rounded-xl">

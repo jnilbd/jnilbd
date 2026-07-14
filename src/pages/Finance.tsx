@@ -109,12 +109,15 @@ const INCOME_TYPES: TxType[] = ["income","sale","loan_taken","repayment_in","ret
 const EXPENSE_TYPES: TxType[] = ["expense","purchase","loan_given","repayment_out","return_out","stock_out"];
 
 // ---------- Small components ----------
-const MetricCard = ({ label, value, icon: Icon, tone = "default", sub }: any) => (
-  <motion.div
+const MetricCard = ({ label, value, icon: Icon, tone = "default", sub, onClick }: any) => (
+  <motion.button
+    type="button"
+    onClick={onClick}
     initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}
     className={cn(
-      "relative overflow-hidden rounded-2xl border border-border/60 bg-card/70 backdrop-blur-xl p-4 shadow-sm hover:shadow-md transition-all",
-      "hover:-translate-y-0.5"
+      "relative overflow-hidden rounded-2xl border border-border/60 bg-card/70 backdrop-blur-xl p-4 shadow-sm hover:shadow-md transition-all text-left w-full",
+      "hover:-translate-y-0.5",
+      onClick && "cursor-pointer focus:outline-none focus:ring-2 focus:ring-primary/40"
     )}
   >
     <div className="flex items-start justify-between gap-2">
@@ -136,7 +139,12 @@ const MetricCard = ({ label, value, icon: Icon, tone = "default", sub }: any) =>
         <Icon className="h-4 w-4" />
       </div>
     </div>
-  </motion.div>
+    {onClick && (
+      <span className="absolute bottom-1.5 right-2 text-[9px] text-muted-foreground/70">
+        →
+      </span>
+    )}
+  </motion.button>
 );
 
 const SCOPE_BN: Record<string, string> = { personal: "ব্যক্তিগত", business: "ব্যবসা" };

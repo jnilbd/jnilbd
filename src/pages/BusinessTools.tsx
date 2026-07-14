@@ -30,7 +30,8 @@ const BusinessTools = () => {
 
   const items = [
     { v: "sales", label: bn ? "বিক্রয়" : "Sales", Icon: ShoppingBag },
-    { v: "courier", label: bn ? "কুরিয়ার ট্র্যাকার" : "Courier Tracker", Icon: Truck },
+    { v: "inventory", label: bn ? "ইনভেন্টরি" : "Inventory", Icon: Boxes },
+    { v: "courier", label: bn ? "কুরিয়ার" : "Courier", Icon: Truck },
   ];
 
   return (
@@ -71,6 +72,9 @@ const BusinessTools = () => {
 
           <TabsContent value="sales" className="mt-4">
             <SalesTab userId={user.id} bn={bn} />
+          </TabsContent>
+          <TabsContent value="inventory" className="mt-4">
+            <InventoryTab userId={user.id} bn={bn} />
           </TabsContent>
           <TabsContent value="courier" className="mt-4">
             <CourierTrackerTab userId={user.id} bn={bn} />

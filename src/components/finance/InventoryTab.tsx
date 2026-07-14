@@ -709,7 +709,11 @@ export function InventoryTab({ userId, bn }: { userId: string; bn: boolean }) {
                       {m.note && <p className="text-[11px] text-muted-foreground pl-10">📝 {m.note}</p>}
 
                       {/* quick actions */}
-                      <div className="flex gap-1 pl-10">
+                      <div className="flex gap-1 pl-10 flex-wrap">
+                        <Button size="sm" variant="outline" className="h-6 text-[10px] px-2"
+                          onClick={() => { openEditMv(historyOf!, m); }}>
+                          {bn ? "এডিট" : "Edit"}
+                        </Button>
                         {m.status !== "completed" && (
                           <Button size="sm" variant="outline" className="h-6 text-[10px] px-2"
                             onClick={() => updateMvStatus(m, "completed", due > 0 ? due : 0)}>

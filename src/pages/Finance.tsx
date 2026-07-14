@@ -671,7 +671,7 @@ const Finance = () => {
               { v: "planner", label: bn?"পরিকল্পনা":"Planner", Icon: ClipboardList },
               { v: "recurring", label: bn?"মাসিক বিল":"Recurring", Icon: RepeatIcon },
               { v: "analytics", label: bn?"বিশ্লেষণ":"Analytics", Icon: PieChart },
-              { v: "budget", label: bn?"বাজেট":"Budget", Icon: Target },
+              
               { v: "debts", label: bn?"দেনা-পাওনা":"Debts", Icon: HandCoins },
               { v: "sales", label: bn?"বিক্রয়":"Sales", Icon: ShoppingBag },
               { v: "jobs", label: bn?"সার্ভিস":"Service", Icon: WrenchIcon },

@@ -614,19 +614,17 @@ const LiveTV = () => {
     const mrgifyWorld = mrgifyChannels.filter(c => c.country !== "IN" && c.country !== "BD")
       .map(c => ({ ...c, category: "world" as any }));
     const mrgifyBD = mrgifyChannels.filter(c => c.country === "BD");
-    const bdixBD = bdixChannels.filter(c => c.country === "BD");
-    const bdixRest = bdixChannels.filter(c => c.country !== "BD");
     const worldBD = worldChannels.filter(c => c.country === "BD");
     const worldRest = worldChannels.filter(c => c.country !== "BD");
     const pools: { key: Tab; list: Channel[] }[] = [
       // mrgify (Bangladesh) FIRST so BD channels from every source dedupe here.
-      { key: "mrgify", list: [...mrgifyBD, ...bdixBD, ...worldBD] },
-      { key: "tv", list: [...tvChannels, ...mrgifyIN] },
+      { key: "mrgify", list: [...mrgifyBD, ...worldBD] },
+      { key: "tv", list: [...tvChannels, ...mrgifyIN, ...bdixChannels] },
       { key: "world", list: [...worldRest, ...mrgifyWorld] },
-      { key: "bdix", list: bdixRest },
       { key: "sports", list: sportsChannels },
       { key: "radio", list: radioChannels },
     ];
+
     const map = new Map<string, { primary: Tab; ch: Channel }>();
     for (const { key, list } of pools) {
       for (const c of list) {

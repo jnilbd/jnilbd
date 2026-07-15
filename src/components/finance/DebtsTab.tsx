@@ -316,14 +316,16 @@ export const DebtsTab = ({ userId, bn }: { userId: string; bn: boolean }) => {
                   dir === "owed_to_me" ? "border-emerald-500 bg-emerald-500/10" : "border-border/60"
                 )}>
                 <ArrowDownRight className="h-4 w-4 mx-auto mb-1 text-emerald-500" />
-                {bn?"আমি পাব":"Owed to me"}
+                <div className="font-semibold">{bn?"ধার দিলাম":"I lent"}</div>
+                <div className="text-[10px] text-muted-foreground">{bn?"আমি পাব":"Owed to me"}</div>
               </button>
               <button type="button" onClick={() => setDir("i_owe")}
                 className={cn("p-3 rounded-xl border text-sm transition-all",
                   dir === "i_owe" ? "border-rose-500 bg-rose-500/10" : "border-border/60"
                 )}>
                 <ArrowUpRight className="h-4 w-4 mx-auto mb-1 text-rose-500" />
-                {bn?"আমি দেব":"I owe"}
+                <div className="font-semibold">{bn?"ধার নিলাম":"I borrowed"}</div>
+                <div className="text-[10px] text-muted-foreground">{bn?"আমি দেব":"I owe"}</div>
               </button>
             </div>
             <div>

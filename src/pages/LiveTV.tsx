@@ -1079,6 +1079,21 @@ const LiveTV = () => {
               />
             )}
 
+            {([
+              { k: "vlue1", u: "2288055111", p: "7031610919" },
+              { k: "vlue2", u: "7084023852", p: "3839327131" },
+              { k: "vlue3", u: "8008378276", p: "1110338004" },
+              { k: "vlue4", u: "2272218813", p: "1669525233" },
+              { k: "vlue5", u: "7150889976", p: "2266001138" },
+            ] as const).map(({ k, u, p }, i) => tab === k && (
+              <XtreamChannels
+                key={k}
+                m3uUrl={`http://vlue.vip:80/get.php?username=${u}&password=${p}&type=m3u_plus&output=ts`}
+                label={`Vlue.vip #${i + 1}`}
+                username={u}
+              />
+            ))}
+
 
             {tab === "bdix" && (
               <Card className="p-3 mb-4 bg-amber-500/5 border-amber-500/30">

@@ -430,6 +430,26 @@ export const DebtsTab = ({ userId, bn }: { userId: string; bn: boolean }) => {
                           className="mt-1 rounded-xl h-10" />
                       </div>
                     </div>
+                    <div>
+                      <Label className="text-[10px]">
+                        {historyFor.direction === "i_owe"
+                          ? (bn ? "কোথা থেকে পরিশোধ? (ওয়ালেট)" : "Paid from (wallet)")
+                          : (bn ? "কোথায় জমা হলো? (ওয়ালেট)" : "Received into (wallet)")}
+                      </Label>
+                      <Select value={payWalletId} onValueChange={setPayWalletId}>
+                        <SelectTrigger className="mt-1 rounded-xl h-10">
+                          <SelectValue placeholder={bn ? "ওয়ালেট বাছুন (ঐচ্ছিক)" : "Choose wallet (optional)"} />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {wallets.length === 0 && <SelectItem value="__none" disabled>{bn ? "কোনো ওয়ালেট নেই" : "No wallet"}</SelectItem>}
+                          {wallets.map(w => (
+                            <SelectItem key={w.id} value={w.id}>
+                              {w.name} · {fmt(w.balance, bn)}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
                     <Input value={payNote} onChange={e => setPayNote(e.target.value)}
                       className="rounded-xl h-9 text-sm" placeholder={bn?"নোট (ঐচ্ছিক)":"Note (optional)"} />
                     <div className="grid grid-cols-2 gap-2">

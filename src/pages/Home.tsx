@@ -10,6 +10,7 @@ import { PAGE_BANNERS } from "@/lib/siteImages";
 import DailyWidgets from "@/components/DailyWidgets";
 import { supabase } from "@/integrations/supabase/client";
 import { ALL_CATEGORIES } from "@/lib/categories";
+import SEO from "@/components/SEO";
 
 
 type DbProduct = { id: string; name: string; name_bn?: string | null; price: number; discount_price?: number | null; image?: string | null; category?: string | null; badge?: string | null; badge_color?: string | null };
@@ -100,6 +101,16 @@ const Home = () => {
 
   return (
     <div>
+      <SEO
+        path="/"
+        title={isBn
+          ? "JohnNil.com — কুরআন, নামাজ, আবহাওয়া, ফাইনান্স, লাইভ টিভি | বাংলাদেশের অল-ইন-ওয়ান প্ল্যাটফর্ম"
+          : "JohnNil.com — Quran, Prayer, Weather, Finance, Live TV | Bangladesh's All-in-One Platform"}
+        description={isBn
+          ? "বাংলাদেশের #১ অল-ইন-ওয়ান প্ল্যাটফর্ম — সম্পূর্ণ আল-কুরআন, নামাজের সময়, হাদিস, লাইভ আবহাওয়া, ফাইনান্স ম্যানেজার, ফ্রি ইন্টারনেট, লাইভ টিভি, স্বাস্থ্য, নিউজপেপার ও ৩০+ স্মার্ট টুল।"
+          : "Bangladesh's #1 all-in-one platform — full Quran, prayer times, hadith, live weather, finance manager, free internet, live TV, health, newspapers & 30+ smart tools. Bengali & English."}
+        keywords="johnnil, জন নীল, কুরআন বাংলা, নামাজের সময়, আবহাওয়া, ফাইনান্স, ফ্রি ইন্টারনেট, লাইভ টিভি, বিশ্বকাপ ২০২৬, all in one platform bangladesh"
+      />
       {/* Hero — premium informative */}
       <section className="relative overflow-hidden min-h-[88vh] flex items-center">
         <img src={PAGE_BANNERS.hero} alt="Bangladesh — Dhaka skyline at golden hour" className="absolute inset-0 w-full h-full object-cover scale-105" width={1920} height={1080} />

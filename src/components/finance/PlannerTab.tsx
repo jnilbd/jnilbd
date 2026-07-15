@@ -10,7 +10,7 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/co
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { Plus, Target, TrendingUp, CalendarClock, Sparkles, Trash2, CheckCircle2, AlertTriangle, Calculator, Wallet, PiggyBank, Loader2, Banknote } from "lucide-react";
+import { Plus, Target, TrendingUp, CalendarClock, Sparkles, Trash2, CheckCircle2, AlertTriangle, Calculator, Wallet, PiggyBank, Loader2, Banknote, HandCoins } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import FinanceCalculator from "./FinanceCalculator";

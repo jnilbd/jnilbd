@@ -1327,7 +1327,7 @@ const Finance = () => {
       </div>
 
       {/* Floating quick-add FAB — always visible */}
-      <div className="fixed right-5 z-40 flex flex-col items-end gap-2 bottom-[calc(5rem+env(safe-area-inset-bottom))] md:bottom-5">
+      <div className="fixed bottom-5 left-5 right-auto md:left-auto md:right-5 z-40 flex flex-col items-start md:items-end gap-2">
         <div className="flex items-center gap-2 bg-background/90 backdrop-blur-xl border border-border/60 shadow-lg rounded-full p-1">
           <Button size="sm" variant="ghost" className="rounded-full h-9 px-3" onClick={() => openQuick("income")}>
             <TrendingUp className="h-4 w-4 mr-1 text-emerald-500" />{bn?"আয়":"Income"}

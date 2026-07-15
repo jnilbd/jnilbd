@@ -942,6 +942,11 @@ const LiveTV = () => {
               { k: "business8k", label: "Business 8K", icon: Zap, count: 0 },
               { k: "mhiptv", label: "MH IPTV", icon: Zap, count: 0 },
               { k: "serveurprotv", label: "ServeurProTV", icon: Zap, count: 0 },
+              { k: "vlue1", label: "Vlue #1", icon: Zap, count: 0 },
+              { k: "vlue2", label: "Vlue #2", icon: Zap, count: 0 },
+              { k: "vlue3", label: "Vlue #3", icon: Zap, count: 0 },
+              { k: "vlue4", label: "Vlue #4", icon: Zap, count: 0 },
+              { k: "vlue5", label: "Vlue #5", icon: Zap, count: 0 },
               { k: "working", label: t("ওয়ার্কিং ✅","Working ✅"), icon: CheckCircle2, count: workingChannels.length },
               { k: "offline", label: t("অফলাইন","Offline"), icon: XCircle, count: offlineChannels.length },
             ] as { k: Tab; label: string; icon: any; count: number }[]).map(({ k, label, icon: Icon, count }) => (

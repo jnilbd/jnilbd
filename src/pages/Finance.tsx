@@ -423,6 +423,8 @@ const Finance = () => {
   const [chainDate, setChainDate] = useState<string>("");
   const [chainScope, setChainScope] = useState<"personal"|"business">("personal");
   const [chainMode, setChainMode] = useState<"pass_through"|"withdraw_spend">("pass_through");
+  // Optional origin wallet — if set (withdraw_spend), money first moves from origin → source wallet
+  const [chainOriginWallet, setChainOriginWallet] = useState<string>("");
 
   // wallet detail
   const [detailWallet, setDetailWallet] = useState<WalletRow | null>(null);

@@ -157,50 +157,8 @@ export function ReportsTab({
         </div>
       </Card>
 
-      {/* Sales summary */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-        <MetricBox label={bn ? "বিক্রয়" : "Sales"} value={fmt(stats.salesTotal, bn)} icon={TrendingUp} tone="emerald" />
-        <MetricBox label={bn ? "লাভ" : "Profit"} value={fmt(stats.salesProfit, bn)} icon={PiggyBank} tone={stats.salesProfit >= 0 ? "emerald" : "rose"} />
-        <MetricBox label={bn ? "পণ্য বিক্রি" : "Items Sold"} value={bn ? stats.salesQty.toLocaleString("bn-BD") : stats.salesQty} icon={Package} />
-        <MetricBox label={bn ? "ডেলিভার্ড" : "Delivered"} value={bn ? stats.delivered.toLocaleString("bn-BD") : stats.delivered} icon={Trophy} />
-      </div>
+      {/* Sales/Product metrics moved to Business Tools */}
 
-      {/* Top selling products */}
-      <Card className="p-4 border-border/60">
-        <div className="flex items-center gap-2 mb-3">
-          <Trophy className="h-4 w-4 text-amber-500" />
-          <h3 className="font-semibold text-sm">{bn ? "সবচেয়ে বেশি বিক্রি হওয়া পণ্য" : "Top Selling Products"}</h3>
-        </div>
-        {loading ? (
-          <div className="py-4 text-center"><Loader2 className="h-4 w-4 animate-spin mx-auto text-muted-foreground" /></div>
-        ) : stats.topProducts.length === 0 ? (
-          <p className="text-xs text-muted-foreground text-center py-4">{bn ? "কোনো বিক্রয় নেই" : "No sales in this period"}</p>
-        ) : (
-          <div className="space-y-2">
-            {stats.topProducts.map(([name, d], i) => {
-              const max = stats.topProducts[0][1].revenue || 1;
-              const pct = (d.revenue / max) * 100;
-              return (
-                <div key={name}>
-                  <div className="flex items-center justify-between text-xs mb-0.5">
-                    <span className="flex items-center gap-1.5 min-w-0">
-                      <Badge variant="outline" className="text-[9px] h-4 px-1.5">#{bn ? (i + 1).toLocaleString("bn-BD") : i + 1}</Badge>
-                      <span className="truncate">{name}</span>
-                    </span>
-                    <span className="tabular-nums shrink-0 ml-2">
-                      <b>{fmt(d.revenue, bn)}</b>
-                      <span className="text-muted-foreground"> · {bn ? d.qty.toLocaleString("bn-BD") : d.qty}{bn ? " টি" : ""}</span>
-                    </span>
-                  </div>
-                  <div className="h-1.5 rounded-full bg-muted overflow-hidden">
-                    <div className="h-full rounded-full bg-gradient-to-r from-amber-400 to-orange-500" style={{ width: `${pct}%` }} />
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        )}
-      </Card>
 
       {/* Top expense categories */}
       <Card className="p-4 border-border/60">

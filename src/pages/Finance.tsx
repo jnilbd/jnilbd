@@ -959,7 +959,7 @@ const Finance = () => {
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
               <MetricCard onClick={() => setMetricKey("todayIn")} label={bn?"আজকের আয়":"Today's Income"} value={fmtBDT(metrics.todayIn, bn)} icon={TrendingUp} tone="positive" />
               <MetricCard onClick={() => setMetricKey("todayOut")} label={bn?"আজকের খরচ":"Today's Expense"} value={fmtBDT(metrics.todayOut, bn)} icon={TrendingDown} tone="negative" />
-              <MetricCard onClick={() => setMetricKey("todayProfit")} label={bn?"আজকের লাভ":"Today's Profit"} value={fmtBDT(metrics.todayProfit, bn)} icon={PiggyBank} tone={metrics.todayProfit>=0?"positive":"negative"} />
+              
               <MetricCard onClick={() => setMetricKey("monthIn")} label={bn?"মাসিক আয়":"Monthly Income"} value={fmtBDT(metrics.monthIn, bn)} icon={TrendingUp} tone="positive" />
               <MetricCard onClick={() => setMetricKey("monthOut")} label={bn?"মাসিক খরচ":"Monthly Expense"} value={fmtBDT(metrics.monthOut, bn)} icon={TrendingDown} tone="negative" />
               <MetricCard onClick={() => setMetricKey("monthProfit")} label={bn?"মাসিক লাভ":"Monthly Profit"} value={fmtBDT(metrics.monthProfit, bn)} icon={PiggyBank} tone={metrics.monthProfit>=0?"positive":"negative"} />

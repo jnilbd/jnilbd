@@ -90,7 +90,7 @@ const INCOME_CATEGORIES_PERSONAL = [
 // Business (Official): only channels the office actually receives money through
 const INCOME_CATEGORIES_BUSINESS = [
   "Product Sale","Service Sale",
-  "Courier Remittance","Cash on Delivery Remit",
+  "Courier Remittance","Cash on Delivery Remit","Courier Return",
   "Investor Investment","Partner Contribution",
   "Advance from Customer","Refund from Supplier",
   "Commission","Investment Return","Loan Received","Other Income",

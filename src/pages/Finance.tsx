@@ -1734,45 +1734,23 @@ const Finance = () => {
                     <SelectValue placeholder={bn?"ক্যাটাগরি নির্বাচন করুন":"Select category"} />
                   </SelectTrigger>
                   <SelectContent className="max-h-[60vh]">
-                    {LOAN_GROUP.length > 0 && (
-                      <>
+                    {CATEGORY_GROUPS.map((g, gi) => (
+                      <div key={g.label}>
+                        {gi > 0 && <SelectSeparator />}
                         <SelectGroup>
-                          <SelectLabel className="flex items-center gap-1.5 text-[10px] uppercase tracking-wider text-amber-700 dark:text-amber-400 bg-amber-500/10 px-2 py-1.5 rounded-md mx-1 my-1">
-                            <HandCoins className="h-3 w-3" />
-                            {bn ? "ধার-দেনা (দ্রুত)" : "Loans & Debts (Quick)"}
+                          <SelectLabel className="text-[10px] uppercase tracking-wider text-muted-foreground/90 px-2 py-1 sticky top-0 bg-popover">
+                            {bn ? g.labelBn : g.label}
                           </SelectLabel>
-                          {LOAN_GROUP.map(c => {
-                            const isIn = LOAN_INCOME_CATEGORIES.includes(c);
-                            return (
-                              <SelectItem key={c} value={c} className="pl-6">
-                                <span className="flex items-center gap-2">
-                                  <span className={cn(
-                                    "inline-block h-1.5 w-1.5 rounded-full",
-                                    isIn ? "bg-emerald-500" : "bg-rose-500"
-                                  )} />
-                                  <span className="font-medium">{bn ? (CATEGORY_BN[c] ?? c) : c}</span>
-                                  <span className={cn(
-                                    "ml-auto text-[9px] px-1.5 py-0 rounded",
-                                    isIn ? "bg-emerald-500/15 text-emerald-600 dark:text-emerald-400"
-                                         : "bg-rose-500/15 text-rose-600 dark:text-rose-400"
-                                  )}>{isIn ? (bn?"আয়":"IN") : (bn?"ব্যয়":"OUT")}</span>
-                                </span>
-                              </SelectItem>
-                            );
-                          })}
+                          {g.items.map(c => (
+                            <SelectItem key={c} value={c} className="pl-6">
+                              {bn ? (CATEGORY_BN[c] ?? c) : c}
+                            </SelectItem>
+                          ))}
                         </SelectGroup>
-                        <SelectSeparator />
-                      </>
-                    )}
-                    <SelectGroup>
-                      <SelectLabel className="text-[10px] uppercase tracking-wider text-muted-foreground px-2 py-1">
-                        {bn ? "সাধারণ ক্যাটাগরি" : "General"}
-                      </SelectLabel>
-                      {CATEGORIES.map(c => (
-                        <SelectItem key={c} value={c}>{bn ? (CATEGORY_BN[c] ?? c) : c}</SelectItem>
-                      ))}
-                    </SelectGroup>
+                      </div>
+                    ))}
                   </SelectContent>
+
                 </Select>
               </div>
             )}

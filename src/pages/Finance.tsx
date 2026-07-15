@@ -222,14 +222,8 @@ const WalletCard = ({ w, today, month, onOpen, onIncome, onDeposit, onAdvance, o
     </motion.div>
   );
 };
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-const _unusedWalletHandlers = (_: any) => _;
-const __wc_end = true;
 
-      </div>
-    </motion.div>
-  );
-};
+
 
 // ---------- Page ----------
 const Finance = () => {

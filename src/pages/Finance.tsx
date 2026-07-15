@@ -402,6 +402,7 @@ const Finance = () => {
   const [qaAmount, setQaAmount] = useState("");
   const [qaWallet, setQaWallet] = useState<string>("");
   const [qaWallet2, setQaWallet2] = useState<string>("");
+  const [qaOriginWallet, setQaOriginWallet] = useState<string>("");
   const [qaCategory, setQaCategory] = useState<string>("");
   const [qaParty, setQaParty] = useState("");
   const [qaNote, setQaNote] = useState("");

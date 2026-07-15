@@ -2041,8 +2041,8 @@ const Finance = () => {
                     ? `সংক্ষেপ: ${walletById(chainInWallet)?.name ?? "?"}-এ +৳${chainAmount||0} (আয়) এবং ${walletById(chainOutWallet)?.name ?? "?"}-থেকে -৳${chainAmount||0} (খরচ) — দুইটি এন্ট্রি একসাথে লিঙ্কড।`
                     : `Summary: +৳${chainAmount||0} income into ${walletById(chainInWallet)?.name ?? "?"} and -৳${chainAmount||0} expense from ${walletById(chainOutWallet)?.name ?? "?"} — linked as one chain.`)
                 : (bn
-                    ? `সংক্ষেপ: ${walletById(chainInWallet)?.name ?? "?"} → ${walletById(chainOutWallet)?.name ?? "?"} ট্রান্সফার ৳${chainAmount||0}, তারপর ${walletById(chainOutWallet)?.name ?? "?"}-থেকে ৳${chainAmount||0} খরচ।`
-                    : `Summary: Transfer ৳${chainAmount||0} from ${walletById(chainInWallet)?.name ?? "?"} → ${walletById(chainOutWallet)?.name ?? "?"}, then spend ৳${chainAmount||0} from ${walletById(chainOutWallet)?.name ?? "?"}.`)}
+                    ? `সংক্ষেপ: ${chainOriginWallet ? `${walletById(chainOriginWallet)?.name ?? "?"} → ` : ""}${walletById(chainInWallet)?.name ?? "?"} → ${walletById(chainOutWallet)?.name ?? "?"} → খরচ ৳${chainAmount||0} (${chainOriginWallet ? "৩" : "২"} ধাপ একসাথে লিঙ্কড)।`
+                    : `Summary: ${chainOriginWallet ? `${walletById(chainOriginWallet)?.name ?? "?"} → ` : ""}${walletById(chainInWallet)?.name ?? "?"} → ${walletById(chainOutWallet)?.name ?? "?"} → spend ৳${chainAmount||0} (${chainOriginWallet ? "3" : "2"} hops linked).`)}
             </div>
 
             <Button className="w-full h-12 rounded-xl" onClick={saveChain} disabled={chainBusy}>

@@ -469,7 +469,7 @@ export const PlannerTab = ({ userId, bn, monthlyIncome, monthlyExpense, totalBal
         </TabsContent>
 
 
-        {(["savings", "income_target", "installment", "debt_payoff"] as Kind[]).map(k => (
+        {(["savings", "debt_payoff", "income_target", "installment"] as Kind[]).map(k => (
           <TabsContent key={k} value={k} className="mt-4 space-y-3">
             <div className="flex items-center justify-between">
               <p className="text-sm font-semibold">{kindLabel(k)}</p>

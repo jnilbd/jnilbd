@@ -1120,16 +1120,22 @@ const Finance = () => {
             {/* Range totals */}
             <div className="grid grid-cols-3 gap-2">
               <div className="rounded-xl border border-emerald-500/20 bg-emerald-500/5 p-2 text-center">
-                <p className="text-[10px] text-muted-foreground">{bn?"আয়":"Income"}</p>
+                <p className="text-[10px] text-muted-foreground flex items-center justify-center gap-1">
+                  <span className="inline-flex items-center justify-center h-3.5 min-w-[18px] px-1 rounded bg-emerald-500/15 text-emerald-500 text-[8px] font-bold">CR</span>
+                  {bn?"জমা (আয়)":"Credit (In)"}
+                </p>
                 <p className="text-sm font-semibold text-emerald-500 tabular-nums">{fmtBDT(rangeTotals.inc, bn)}</p>
               </div>
               <div className="rounded-xl border border-rose-500/20 bg-rose-500/5 p-2 text-center">
-                <p className="text-[10px] text-muted-foreground">{bn?"খরচ":"Expense"}</p>
+                <p className="text-[10px] text-muted-foreground flex items-center justify-center gap-1">
+                  <span className="inline-flex items-center justify-center h-3.5 min-w-[18px] px-1 rounded bg-rose-500/15 text-rose-500 text-[8px] font-bold">DR</span>
+                  {bn?"খরচ (ডেবিট)":"Debit (Out)"}
+                </p>
                 <p className="text-sm font-semibold text-rose-500 tabular-nums">{fmtBDT(rangeTotals.exp, bn)}</p>
               </div>
               <div className={cn("rounded-xl border p-2 text-center",
                 rangeTotals.net >= 0 ? "border-emerald-500/20 bg-emerald-500/5" : "border-rose-500/20 bg-rose-500/5")}>
-                <p className="text-[10px] text-muted-foreground">{bn?"নেট":"Net"}</p>
+                <p className="text-[10px] text-muted-foreground">{bn?"নেট ব্যালেন্স":"Net Balance"}</p>
                 <p className={cn("text-sm font-semibold tabular-nums",
                   rangeTotals.net >= 0 ? "text-emerald-500" : "text-rose-500")}>{fmtBDT(rangeTotals.net, bn)}</p>
               </div>
@@ -1172,9 +1178,15 @@ const Finance = () => {
                         {t.note ? ` · ${t.note}` : ""}
                       </p>
                     </div>
-                    <div className={cn("text-sm font-semibold tabular-nums shrink-0",
-                      isTransfer ? "text-sky-500" : income ? "text-emerald-500" : "text-rose-500")}>
-                      {isTransfer ? "↔" : income ? "+" : "-"}{fmtBDT(Number(t.amount), bn)}
+                    <div className="flex flex-col items-end shrink-0">
+                      <span className={cn("text-[9px] font-bold px-1.5 py-0.5 rounded mb-0.5",
+                        isTransfer ? "bg-sky-500/15 text-sky-500" : income ? "bg-emerald-500/15 text-emerald-500" : "bg-rose-500/15 text-rose-500")}>
+                        {isTransfer ? "DR/CR" : income ? "CR" : "DR"}
+                      </span>
+                      <div className={cn("text-sm font-semibold tabular-nums",
+                        isTransfer ? "text-sky-500" : income ? "text-emerald-500" : "text-rose-500")}>
+                        {isTransfer ? "↔" : income ? "+" : "-"}{fmtBDT(Number(t.amount), bn)}
+                      </div>
                     </div>
                     <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-primary" onClick={() => openEditTx(t)} title={bn?"সম্পাদনা":"Edit"}>
                       <Pencil className="h-3.5 w-3.5" />

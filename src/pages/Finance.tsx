@@ -1902,32 +1902,22 @@ const Finance = () => {
                       <SelectValue placeholder={bn?"আয়ের ক্যাটাগরি (ঐচ্ছিক)":"Income category (optional)"} />
                     </SelectTrigger>
                     <SelectContent className="max-h-[60vh]">
-                      <SelectGroup>
-                        <SelectLabel className="flex items-center gap-1.5 text-[10px] uppercase tracking-wider text-amber-700 dark:text-amber-400 bg-amber-500/10 px-2 py-1.5 rounded-md mx-1 my-1">
-                          <HandCoins className="h-3 w-3" />
-                          {bn ? "ধার-দেনা (দ্রুত)" : "Loans & Debts (Quick)"}
-                        </SelectLabel>
-                        {LOAN_INCOME_CATEGORIES.map(c => (
-                          <SelectItem key={c} value={c} className="pl-6">
-                            <span className="flex items-center gap-2">
-                              <span className="inline-block h-1.5 w-1.5 rounded-full bg-emerald-500" />
-                              <span className="font-medium">{bn ? (CATEGORY_BN[c] ?? c) : c}</span>
-                              <span className="ml-auto text-[9px] px-1.5 py-0 rounded bg-emerald-500/15 text-emerald-600 dark:text-emerald-400">{bn?"আয়":"IN"}</span>
-                            </span>
-                          </SelectItem>
-                        ))}
-                      </SelectGroup>
-                      <SelectSeparator />
-                      <SelectGroup>
-                        <SelectLabel className="text-[10px] uppercase tracking-wider text-muted-foreground px-2 py-1">
-                          {bn ? "সাধারণ ক্যাটাগরি" : "General"}
-                        </SelectLabel>
-                        {(chainScope === "business" ? INCOME_CATEGORIES_BUSINESS : Array.from(new Set([...INCOME_CATEGORIES_PERSONAL, ...INCOME_CATEGORIES_BUSINESS]))).filter(c => !LOAN_CATEGORIES_ALL.includes(c)).map(c => (
-                          <SelectItem key={c} value={c}>{bn ? (CATEGORY_BN[c] ?? c) : c}</SelectItem>
-                        ))}
-                      </SelectGroup>
+                      {(chainScope === "business" ? INCOME_GROUPS_BUSINESS : mergeGroups(INCOME_GROUPS_PERSONAL, INCOME_GROUPS_BUSINESS)).map((g, gi) => (
+                        <div key={g.label}>
+                          {gi > 0 && <SelectSeparator />}
+                          <SelectGroup>
+                            <SelectLabel className="text-[10px] uppercase tracking-wider text-muted-foreground/90 px-2 py-1">
+                              {bn ? g.labelBn : g.label}
+                            </SelectLabel>
+                            {g.items.map(c => (
+                              <SelectItem key={c} value={c} className="pl-6">{bn ? (CATEGORY_BN[c] ?? c) : c}</SelectItem>
+                            ))}
+                          </SelectGroup>
+                        </div>
+                      ))}
                     </SelectContent>
                   </Select>
+
 
                 </>
               )}

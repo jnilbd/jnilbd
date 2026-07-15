@@ -243,7 +243,13 @@ export const PlannerTab = ({ userId, bn, monthlyIncome, monthlyExpense, totalBal
               {r.is_completed && <Badge className="text-[10px] bg-emerald-500/20 text-emerald-600 border-0"><CheckCircle2 className="h-3 w-3 mr-1" />{bn ? "সম্পন্ন" : "Done"}</Badge>}
             </div>
             {r.note && <p className="text-xs text-muted-foreground mt-0.5 line-clamp-2">{r.note}</p>}
+            {r.target_date && (
+              <div className="mt-1.5">
+                <PlanCountdown targetDate={r.target_date} bn={bn} label={bn ? "বাকি:" : "In:"} />
+              </div>
+            )}
           </div>
+
           <div className="flex items-center gap-1 shrink-0">
             <Button size="icon" variant="ghost" className="h-7 w-7" onClick={() => startEdit(r)} aria-label="edit"><CalendarClock className="h-3.5 w-3.5" /></Button>
             <Button size="icon" variant="ghost" className="h-7 w-7 text-rose-500" onClick={() => remove(r.id)} aria-label="delete"><Trash2 className="h-3.5 w-3.5" /></Button>

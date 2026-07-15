@@ -1093,7 +1093,7 @@ const LiveTV = () => {
               </div>
             )}
 
-            {loading && tab !== "radio" && tab !== "bdix" && tab !== "mrgify" && tab !== "alpha6" && (
+            {loading && !["radio","bdix","mrgify","alpha6","neosfpoo","business8k","mhiptv","serveurprotv"].includes(tab) && (
               <div className="flex flex-col items-center py-12 text-muted-foreground">
                 <Loader2 className="w-8 h-8 animate-spin mb-2" />
                 <p className="text-sm">{t("সর্বশেষ চ্যানেল লোড হচ্ছে...", "Loading latest channels...")}</p>

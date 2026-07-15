@@ -920,11 +920,14 @@ const Finance = () => {
 
   const isIncomeType = INCOME_TYPES.includes(qaType);
   const isExpenseType = EXPENSE_TYPES.includes(qaType);
+  // Personal scope (e.g. Personal Cash wallet) accepts money from any source and any kind of expense.
+  const ALL_INCOME = Array.from(new Set([...INCOME_CATEGORIES_PERSONAL, ...INCOME_CATEGORIES_BUSINESS]));
+  const ALL_EXPENSE = Array.from(new Set([...EXPENSE_CATEGORIES_PERSONAL, ...EXPENSE_CATEGORIES_BUSINESS]));
   const CATEGORIES = isIncomeType
-    ? (qaScope === "business" ? INCOME_CATEGORIES_BUSINESS : INCOME_CATEGORIES_PERSONAL)
+    ? (qaScope === "business" ? INCOME_CATEGORIES_BUSINESS : ALL_INCOME)
     : isExpenseType
-      ? (qaScope === "business" ? EXPENSE_CATEGORIES_BUSINESS : EXPENSE_CATEGORIES_PERSONAL)
-      : (qaScope === "business" ? CATEGORIES_BUSINESS : CATEGORIES_PERSONAL);
+      ? (qaScope === "business" ? EXPENSE_CATEGORIES_BUSINESS : ALL_EXPENSE)
+      : (qaScope === "business" ? CATEGORIES_BUSINESS : Array.from(new Set([...CATEGORIES_PERSONAL, ...CATEGORIES_BUSINESS])));
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-background via-background to-muted/30 pb-32">

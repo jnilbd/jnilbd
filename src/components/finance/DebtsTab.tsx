@@ -214,8 +214,13 @@ export const DebtsTab = ({ userId, bn }: { userId: string; bn: boolean }) => {
             <p className="text-[11px] text-muted-foreground truncate">
               {d.created_at ? fmtDate(d.created_at, bn) : ""}
               {d.due_date ? ` → ${fmtDate(d.due_date, bn)}` : ""}
-              {d.note ? ` · ${d.note}` : ""}
             </p>
+            {(d.wallet_id || d.note) && (
+              <p className="text-[10px] text-muted-foreground truncate mt-0.5">
+                {d.wallet_id && <span className="inline-flex items-center gap-1 mr-2"><Wallet className="h-2.5 w-2.5" />{wallets.find(w => w.id === d.wallet_id)?.name || "—"}</span>}
+                {d.note && <span className="italic">"{d.note}"</span>}
+              </p>
+            )}
           </div>
           <div className="text-right shrink-0">
             <div className={cn("text-sm font-semibold tabular-nums",

@@ -254,14 +254,8 @@ const CATEGORY_BN: Record<string, string> = {
   "Refund from Supplier": "সাপ্লায়ার রিফান্ড",
   "Courier Charge": "কুরিয়ার চার্জ",
   "Processing Fee": "প্রসেসিং ফি", "Payment Gateway Fee": "পেমেন্ট গেটওয়ে ফি",
-  "Salary Paid": "বেতন দেওয়া", "Office Rent": "অফিস ভাড়া",
   "Utility Bills": "ইউটিলিটি বিল",
   "Investor Payout": "ইনভেস্টর পে-আউট",
-  "Product Purchase": "পণ্য ক্রয়",
-  Shopping: "শপিং", Kids: "সন্তান", Family: "পরিবার",
-  Education: "শিক্ষা", Entertainment: "বিনোদন", Savings: "সঞ্চয়",
-  Bills: "বিলসমূহ", Travel: "ভ্রমণ", Investment: "বিনিয়োগ",
-  "Mobile Recharge": "মোবাইল রিচার্জ", Medicine: "ঔষধ", Food: "খাবার",
 };
 const bnLabel = (m: Record<string,string>, k: string | null | undefined, bn: boolean) =>
   !k ? "—" : (bn ? (m[k] ?? k) : k);

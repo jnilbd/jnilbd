@@ -1120,16 +1120,22 @@ const Finance = () => {
             {/* Range totals */}
             <div className="grid grid-cols-3 gap-2">
               <div className="rounded-xl border border-emerald-500/20 bg-emerald-500/5 p-2 text-center">
-                <p className="text-[10px] text-muted-foreground">{bn?"আয়":"Income"}</p>
+                <p className="text-[10px] text-muted-foreground flex items-center justify-center gap-1">
+                  <span className="inline-flex items-center justify-center h-3.5 min-w-[18px] px-1 rounded bg-emerald-500/15 text-emerald-500 text-[8px] font-bold">CR</span>
+                  {bn?"জমা (আয়)":"Credit (In)"}
+                </p>
                 <p className="text-sm font-semibold text-emerald-500 tabular-nums">{fmtBDT(rangeTotals.inc, bn)}</p>
               </div>
               <div className="rounded-xl border border-rose-500/20 bg-rose-500/5 p-2 text-center">
-                <p className="text-[10px] text-muted-foreground">{bn?"খরচ":"Expense"}</p>
+                <p className="text-[10px] text-muted-foreground flex items-center justify-center gap-1">
+                  <span className="inline-flex items-center justify-center h-3.5 min-w-[18px] px-1 rounded bg-rose-500/15 text-rose-500 text-[8px] font-bold">DR</span>
+                  {bn?"খরচ (ডেবিট)":"Debit (Out)"}
+                </p>
                 <p className="text-sm font-semibold text-rose-500 tabular-nums">{fmtBDT(rangeTotals.exp, bn)}</p>
               </div>
               <div className={cn("rounded-xl border p-2 text-center",
                 rangeTotals.net >= 0 ? "border-emerald-500/20 bg-emerald-500/5" : "border-rose-500/20 bg-rose-500/5")}>
-                <p className="text-[10px] text-muted-foreground">{bn?"নেট":"Net"}</p>
+                <p className="text-[10px] text-muted-foreground">{bn?"নেট ব্যালেন্স":"Net Balance"}</p>
                 <p className={cn("text-sm font-semibold tabular-nums",
                   rangeTotals.net >= 0 ? "text-emerald-500" : "text-rose-500")}>{fmtBDT(rangeTotals.net, bn)}</p>
               </div>

@@ -154,15 +154,23 @@ export const AnalyticsTab = ({
               {spendingByCategory.map((c, i) => {
                 const pct = totalExpense > 0 ? (c.value / totalExpense) * 100 : 0;
                 return (
-                  <div key={c.name} className="flex items-center gap-2 text-xs">
+                  <button
+                    key={c.name}
+                    onClick={() => {
+                      const items = monthTxs.filter(t => EXPENSE_TYPES.has(t.type) && (t.category || (bn?"অন্যান্য":"Other")) === c.name);
+                      setDrill({ title: `${categoryLabel(c.name)} · ${monthLabel}`, items });
+                    }}
+                    className="w-full flex items-center gap-2 text-xs rounded-lg px-2 py-1 hover:bg-muted/60 transition-colors"
+                  >
                     <span className="h-3 w-3 rounded shrink-0" style={{ background: PALETTE[i % PALETTE.length] }} />
-                    <span className="flex-1 truncate">{categoryLabel(c.name)}</span>
+                    <span className="flex-1 truncate text-left">{categoryLabel(c.name)}</span>
                     <span className="tabular-nums text-muted-foreground">{pct.toFixed(0)}%</span>
                     <span className="tabular-nums font-medium w-16 text-right">{fmt(c.value, bn)}</span>
-                  </div>
+                  </button>
                 );
               })}
             </div>
+
           </div>
         )}
       </Card>

@@ -588,6 +588,7 @@ export const PlannerTab = ({ userId, bn, monthlyIncome, monthlyExpense, totalBal
                 <Label className="text-xs">
                   {draft.kind === "income_target" ? (bn ? "টার্গেট আয় (৳)" : "Target income (৳)") :
                    draft.kind === "installment" ? (bn ? "মোট বকেয়া (৳)" : "Total due (৳)") :
+                   draft.kind === "debt_payoff" ? (bn ? "মোট ধার (৳)" : "Total debt (৳)") :
                    (bn ? "টার্গেট (৳)" : "Target (৳)")}
                 </Label>
                 <Input type="number" className="mt-1" value={draft.target_amount ?? 0}
@@ -595,11 +596,14 @@ export const PlannerTab = ({ userId, bn, monthlyIncome, monthlyExpense, totalBal
               </div>
               <div>
                 <Label className="text-xs">
-                  {draft.kind === "installment" ? (bn ? "পরিশোধিত (৳)" : "Paid (৳)") : (bn ? "জমা (৳)" : "Saved (৳)")}
+                  {draft.kind === "installment" ? (bn ? "পরিশোধিত (৳)" : "Paid (৳)") :
+                   draft.kind === "debt_payoff" ? (bn ? "শোধ করা (৳)" : "Repaid (৳)") :
+                   (bn ? "জমা (৳)" : "Saved (৳)")}
                 </Label>
                 <Input type="number" className="mt-1" value={draft.saved_amount ?? 0}
                   onChange={(e) => setDraft({ ...draft, saved_amount: +e.target.value || 0 })} />
               </div>
+
             </div>
 
             <div className="grid grid-cols-2 gap-2">

@@ -384,7 +384,7 @@ export const PlannerTab = ({ userId, bn, monthlyIncome, monthlyExpense, totalBal
                 <p className="font-semibold tabular-nums">{fmtBDT(summary.emiThisMonth, bn)}</p>
               </div>
               <div className="rounded-lg bg-background/60 p-2.5">
-                <p className="text-muted-foreground text-[10px]">{bn ? "লক্ষ্যের জন্য জমা" : "Save for goals"}</p>
+                <p className="text-muted-foreground text-[10px]">{bn ? "লক্ষ্যের জন্য বরাদ্দ" : "Allocate for goals"}</p>
                 <p className="font-semibold tabular-nums">{fmtBDT(summary.savingsThisMonth, bn)}</p>
               </div>
             </div>
@@ -594,7 +594,7 @@ export const PlannerTab = ({ userId, bn, monthlyIncome, monthlyExpense, totalBal
               <Select value={draft.kind} onValueChange={(v) => setDraft({ ...draft, kind: v as Kind })}>
                 <SelectTrigger className="mt-1"><SelectValue /></SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="savings">{bn ? "🎯 লক্ষ্য (Savings goal)" : "🎯 Savings goal"}</SelectItem>
+                  <SelectItem value="savings">{bn ? "🎯 লক্ষ্য (যেকোনো উদ্দেশ্য)" : "🎯 Goal (any purpose)"}</SelectItem>
                   <SelectItem value="income_target">{bn ? "📈 আয়ের টার্গেট" : "📈 Income target"}</SelectItem>
                   <SelectItem value="installment">{bn ? "📆 কিস্তি / EMI" : "📆 Installment / EMI"}</SelectItem>
                   <SelectItem value="debt_payoff">{bn ? "🤝 ধার শোধ" : "🤝 Debt Payoff"}</SelectItem>
@@ -634,7 +634,7 @@ export const PlannerTab = ({ userId, bn, monthlyIncome, monthlyExpense, totalBal
                 <Label className="text-xs">
                   {draft.kind === "installment" ? (bn ? "পরিশোধিত (৳)" : "Paid (৳)") :
                    draft.kind === "debt_payoff" ? (bn ? "শোধ করা (৳)" : "Repaid (৳)") :
-                   (bn ? "জমা (৳)" : "Saved (৳)")}
+                   (bn ? "অগ্রগতি (৳)" : "Progress (৳)")}
                 </Label>
                 <Input type="number" className="mt-1" value={draft.saved_amount ?? 0}
                   onChange={(e) => setDraft({ ...draft, saved_amount: +e.target.value || 0 })} />
@@ -645,7 +645,7 @@ export const PlannerTab = ({ userId, bn, monthlyIncome, monthlyExpense, totalBal
             <div className="grid grid-cols-2 gap-2">
               <div>
                 <Label className="text-xs">
-                  {draft.kind === "installment" ? (bn ? "মাসিক কিস্তি (৳)" : "Monthly EMI (৳)") : (bn ? "মাসিক জমা (৳)" : "Monthly (৳)")}
+                  {draft.kind === "installment" ? (bn ? "মাসিক কিস্তি (৳)" : "Monthly EMI (৳)") : (bn ? "মাসিক বরাদ্দ (৳)" : "Monthly (৳)")}
                 </Label>
                 <Input type="number" className="mt-1" value={draft.monthly_contribution ?? 0}
                   onChange={(e) => setDraft({ ...draft, monthly_contribution: +e.target.value || 0 })} />

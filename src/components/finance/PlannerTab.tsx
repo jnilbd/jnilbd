@@ -574,8 +574,10 @@ export const PlannerTab = ({ userId, bn, monthlyIncome, monthlyExpense, totalBal
                 placeholder={
                   draft.kind === "savings" ? (bn ? "যেমন: ফ্রিজ কিনতে হবে" : "e.g. Buy fridge") :
                   draft.kind === "income_target" ? (bn ? "যেমন: এই মাসে আয়ের টার্গেট" : "e.g. This month target") :
+                  draft.kind === "debt_payoff" ? (bn ? "যেমন: রফিক ভাইয়ের ধার শোধ" : "e.g. Repay loan to Rafik") :
                   (bn ? "যেমন: বাইকের কিস্তি" : "e.g. Bike EMI")
                 }
+
                 value={draft.title ?? ""}
                 onChange={(e) => setDraft({ ...draft, title: e.target.value })}
               />

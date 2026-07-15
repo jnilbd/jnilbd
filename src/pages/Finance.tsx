@@ -2022,27 +2022,73 @@ const Finance = () => {
                 return (
                   <>
                     <div className="grid grid-cols-3 gap-1.5 mt-3">
-                      <div className="rounded-xl border border-emerald-500/30 bg-emerald-500/5 px-2 py-1.5">
+                      <button
+                        type="button"
+                        onClick={() => setDetailFlow(f => f === "in" ? "all" : "in")}
+                        className={cn(
+                          "rounded-xl border px-2 py-1.5 text-left transition-all",
+                          detailFlow === "in"
+                            ? "border-emerald-500 bg-emerald-500/15 ring-2 ring-emerald-500/40 shadow-sm"
+                            : "border-emerald-500/30 bg-emerald-500/5 hover:bg-emerald-500/10"
+                        )}
+                      >
                         <p className="text-[9px] uppercase tracking-wide text-emerald-600 dark:text-emerald-400">{bn?"এসেছে":"In"}</p>
                         <p className="text-xs font-semibold tabular-nums text-emerald-600 dark:text-emerald-400">{fmtBDT(inSum, bn)}</p>
                         {trIn > 0 && <p className="text-[9px] text-muted-foreground">from transfer {fmtBDT(trIn, bn)}</p>}
-                      </div>
-                      <div className="rounded-xl border border-rose-500/30 bg-rose-500/5 px-2 py-1.5">
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setDetailFlow(f => f === "out" ? "all" : "out")}
+                        className={cn(
+                          "rounded-xl border px-2 py-1.5 text-left transition-all",
+                          detailFlow === "out"
+                            ? "border-rose-500 bg-rose-500/15 ring-2 ring-rose-500/40 shadow-sm"
+                            : "border-rose-500/30 bg-rose-500/5 hover:bg-rose-500/10"
+                        )}
+                      >
                         <p className="text-[9px] uppercase tracking-wide text-rose-600 dark:text-rose-400">{bn?"গিয়েছে":"Out"}</p>
                         <p className="text-xs font-semibold tabular-nums text-rose-600 dark:text-rose-400">{fmtBDT(outSum, bn)}</p>
                         {trOut > 0 && <p className="text-[9px] text-muted-foreground">to transfer {fmtBDT(trOut, bn)}</p>}
-                      </div>
-                      <div className="rounded-xl border border-border/60 bg-muted/30 px-2 py-1.5">
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setDetailFlow(f => f === "net" ? "all" : "net")}
+                        className={cn(
+                          "rounded-xl border px-2 py-1.5 text-left transition-all",
+                          detailFlow === "net"
+                            ? "border-primary bg-primary/10 ring-2 ring-primary/40 shadow-sm"
+                            : "border-border/60 bg-muted/30 hover:bg-muted/50"
+                        )}
+                      >
                         <p className="text-[9px] uppercase tracking-wide text-muted-foreground">{bn?"নেট":"Net"}</p>
                         <p className={cn("text-xs font-semibold tabular-nums", (inSum-outSum) >= 0 ? "text-emerald-500" : "text-rose-500")}>{fmtBDT(inSum-outSum, bn)}</p>
                         <p className="text-[9px] text-muted-foreground">{walletTxs.length} {bn?"এন্ট্রি":"entries"}</p>
-                      </div>
+                      </button>
                     </div>
 
-                    <p className="text-[11px] text-muted-foreground mt-3 mb-1 px-1">{bn?"সম্পূর্ণ লেনদেনের বিস্তারিত":"Full transaction details"}</p>
+                    <div className="flex items-center justify-between mt-3 mb-1 px-1">
+                      <p className="text-[11px] text-muted-foreground">
+                        {bn?"সম্পূর্ণ লেনদেনের বিস্তারিত":"Full transaction details"}
+                        {detailFlow !== "all" && (
+                          <span className="ml-1">
+                            · {detailFlow === "in" ? (bn?"শুধু এসেছে":"In only") : detailFlow === "out" ? (bn?"শুধু গিয়েছে":"Out only") : (bn?"নেট":"Net")}
+                          </span>
+                        )}
+                      </p>
+                      {detailFlow !== "all" && (
+                        <button type="button" onClick={() => setDetailFlow("all")} className="text-[10px] text-primary hover:underline">
+                          {bn?"সব দেখাও":"Show all"}
+                        </button>
+                      )}
+                    </div>
                     <ScrollArea className="max-h-72">
                       <div className="space-y-1.5">
-                        {walletTxs.slice(0, 100).map(t => {
+                        {walletTxs.filter(t => {
+                          if (detailFlow === "all" || detailFlow === "net") return true;
+                          const isTransfer = t.type === "transfer";
+                          const incoming = isTransfer ? t.transfer_to_wallet_id === detailWallet.id : INCOME_TYPES.includes(t.type);
+                          return detailFlow === "in" ? incoming : !incoming;
+                        }).slice(0, 100).map(t => {
                           const income = INCOME_TYPES.includes(t.type);
                           const isTransfer = t.type === "transfer";
                           const incoming = isTransfer && t.transfer_to_wallet_id === detailWallet.id;

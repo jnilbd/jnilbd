@@ -441,6 +441,9 @@ export const DebtsTab = ({ userId, bn }: { userId: string; bn: boolean }) => {
                         : <span className="text-muted-foreground italic">{bn ? "ওয়ালেট সেট করা নেই" : "no wallet set"}</span>}
                     </div>
                   </div>
+                </Card>
+
+
 
                 {/* Add payment */}
                 {!historyFor.is_settled && (

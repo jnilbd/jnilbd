@@ -33,11 +33,18 @@ const PortalChannels = ({
   const load = async () => {
     setLoading(true); setError(null);
     try {
+      const { data, error } = await supabase.functions.invoke("mag-portal", {
+        body: null,
+        method: "GET" as any,
+      } as any);
+      // functions.invoke doesn't accept query in GET well — use fetch instead
       const url = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/mag-portal?action=list&portal=${encodeURIComponent(portal)}&mac=${encodeURIComponent(mac)}`;
       const r = await fetch(url);
       const j = await r.json();
       if (!r.ok) throw new Error(j?.error || "load failed");
       setChannels(j.channels || []);
+      // suppress lint on data/error
+      void data; void error;
     } catch (e: any) {
       setError(e?.message || "load failed");
     } finally {

@@ -84,7 +84,7 @@ const emptyDraft = (): Partial<GoalRow> => ({
 export const PlannerTab = ({ userId, bn, monthlyIncome, monthlyExpense, totalBalance, wallets = [], onPaid }: Props) => {
   const [rows, setRows] = useState<GoalRow[]>([]);
   const [loading, setLoading] = useState(true);
-  const [tab, setTab] = useState<"summary" | "savings" | "income_target" | "installment" | "pay" | "calc">("summary");
+  const [tab, setTab] = useState<"summary" | "savings" | "income_target" | "installment" | "debt_payoff" | "pay" | "calc">("summary");
   const [open, setOpen] = useState(false);
   const [draft, setDraft] = useState<Partial<GoalRow>>(emptyDraft());
   const [editingId, setEditingId] = useState<string | null>(null);

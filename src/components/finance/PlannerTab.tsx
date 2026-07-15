@@ -589,18 +589,9 @@ export const PlannerTab = ({ userId, bn, monthlyIncome, monthlyExpense, totalBal
             </SheetTitle>
           </SheetHeader>
           <div className="mt-4 space-y-3">
-            <div>
-              <Label className="text-xs">{bn ? "ধরন" : "Type"}</Label>
-              <Select value={draft.kind} onValueChange={(v) => setDraft({ ...draft, kind: v as Kind })}>
-                <SelectTrigger className="mt-1"><SelectValue /></SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="savings">{bn ? "🎯 লক্ষ্য (যেকোনো উদ্দেশ্য)" : "🎯 Goal (any purpose)"}</SelectItem>
-                  <SelectItem value="debt_payoff">{bn ? "🤝 ধার শোধ" : "🤝 Debt Payoff"}</SelectItem>
-                  <SelectItem value="income_target">{bn ? "📈 আয়ের টার্গেট" : "📈 Income target"}</SelectItem>
-                  <SelectItem value="installment">{bn ? "📆 কিস্তি / EMI" : "📆 Installment / EMI"}</SelectItem>
-
-                </SelectContent>
-              </Select>
+            <div className="rounded-lg bg-muted/50 px-3 py-2 text-xs flex items-center justify-between">
+              <span className="text-muted-foreground">{bn ? "ধরন" : "Type"}</span>
+              <span className="font-semibold">{kindLabel(draft.kind as Kind)}</span>
             </div>
 
             <div>

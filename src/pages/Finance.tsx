@@ -152,9 +152,11 @@ const MetricCard = ({ label, value, icon: Icon, tone = "default", sub, onClick }
         <span className="absolute bottom-1.5 right-2.5 text-[10px] text-muted-foreground/60 group-hover:text-primary group-hover:translate-x-0.5 transition">
           →
         </span>
-    )}
-  </motion.button>
-);
+      )}
+    </motion.button>
+  );
+};
+
 
 const SCOPE_BN: Record<string, string> = { personal: "ব্যক্তিগত", business: "ব্যবসা" };
 const TYPE_BN: Record<string, string> = {

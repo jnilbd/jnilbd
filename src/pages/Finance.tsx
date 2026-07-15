@@ -1749,11 +1749,11 @@ const Finance = () => {
               <div className="grid grid-cols-4 gap-1.5 mt-2">
                 <Button size="sm" variant="outline" className="h-9 rounded-xl text-[11px] px-1"
                   onClick={() => { const w = detailWallet; setDetailWallet(null); openQuick("income", w.id); }}>
-                  <TrendingUp className="h-3.5 w-3.5 mr-1 text-emerald-500" />{bn?"আয়":"Income"}
+                  <TrendingUp className="h-3.5 w-3.5 mr-1 text-emerald-500" />{bn?"ডেবিট":"Debit"}
                 </Button>
                 <Button size="sm" variant="outline" className="h-9 rounded-xl text-[11px] px-1"
                   onClick={() => { const w = detailWallet; setDetailWallet(null); openQuick("expense", w.id); }}>
-                  <TrendingDown className="h-3.5 w-3.5 mr-1 text-rose-500" />{bn?"খরচ":"Expense"}
+                  <TrendingDown className="h-3.5 w-3.5 mr-1 text-rose-500" />{bn?"ক্রেডিট":"Credit"}
                 </Button>
                 <Button size="sm" variant="outline" className="h-9 rounded-xl text-[11px] px-1"
                   onClick={() => { const w = detailWallet; setDetailWallet(null); openQuick("transfer", w.id); }}>
@@ -1761,7 +1761,7 @@ const Finance = () => {
                 </Button>
                 <Button size="sm" variant="outline" className="h-9 rounded-xl text-[11px] px-1"
                   onClick={() => setWdOpen(v => !v)}>
-                  <HandCoinsIcon className="h-3.5 w-3.5 mr-1 text-amber-500" />{bn?"টাকা তোলা":"Cash-out"}
+                  <HandCoinsIcon className="h-3.5 w-3.5 mr-1 text-amber-500" />{bn?"উইথড্র":"Withdraw"}
                 </Button>
               </div>
 

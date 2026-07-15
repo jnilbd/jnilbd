@@ -1163,7 +1163,10 @@ const Finance = () => {
                       isTransfer ? "text-sky-500" : income ? "text-emerald-500" : "text-rose-500")}>
                       {isTransfer ? "↔" : income ? "+" : "-"}{fmtBDT(Number(t.amount), bn)}
                     </div>
-                    <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-rose-500" onClick={() => deleteTx(t.id)}>
+                    <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-primary" onClick={() => openEditTx(t)} title={bn?"সম্পাদনা":"Edit"}>
+                      <Pencil className="h-3.5 w-3.5" />
+                    </Button>
+                    <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-rose-500" onClick={() => deleteTx(t.id)} title={bn?"মুছুন":"Delete"}>
                       <Trash2 className="h-3.5 w-3.5" />
                     </Button>
                   </div>

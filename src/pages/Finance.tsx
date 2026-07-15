@@ -650,12 +650,102 @@ const Finance = () => {
 
 
   const deleteTx = async (id: string) => {
-    if (!confirm(bn ? "এই লেনদেন মুছে ফেলবেন?" : "Delete this transaction?")) return;
-    const { error } = await supabase.from("finance_transactions").delete().eq("id", id);
+    const t = txs.find(x => x.id === id);
+    const chainId = t?.meta?.chain_id as string | undefined;
+    const linked = chainId ? txs.filter(x => x.meta?.chain_id === chainId && x.id !== id) : [];
+    const msg = chainId && linked.length
+      ? (bn ? `এটি একটি চেইন লেনদেন (${linked.length + 1} টি এন্ট্রি একসাথে যুক্ত)। সবগুলো একসাথে মুছে ফেলবেন?` : `This is a chained transaction (${linked.length + 1} linked entries). Delete all together?`)
+      : (bn ? "এই লেনদেন মুছে ফেলবেন?" : "Delete this transaction?");
+    if (!confirm(msg)) return;
+    const ids = chainId ? [id, ...linked.map(x => x.id)] : [id];
+    const { error } = await supabase.from("finance_transactions").delete().in("id", ids);
     if (error) { toast.error(error.message); return; }
     toast.success(bn ? "মুছে ফেলা হয়েছে" : "Deleted");
     await loadAll();
   };
+
+  const openChain = (mode: "pass_through" | "withdraw_spend" = "pass_through") => {
+    setChainMode(mode);
+    setChainAmount(""); setChainInParty(""); setChainInCategory("");
+    setChainOutParty(""); setChainOutCategory(""); setChainNote("");
+    const def = filteredWallets.find(w => w.is_default) ?? filteredWallets[0];
+    setChainInWallet(def?.id ?? "");
+    setChainOutWallet(filteredWallets.find(w => w.id !== (def?.id ?? ""))?.id ?? def?.id ?? "");
+    setChainScope(def?.scope ?? "personal");
+    const now = new Date();
+    const pad = (n: number) => String(n).padStart(2, "0");
+    setChainDate(`${now.getFullYear()}-${pad(now.getMonth()+1)}-${pad(now.getDate())}T${pad(now.getHours())}:${pad(now.getMinutes())}`);
+    setChainOpen(true);
+  };
+
+  const saveChain = async () => {
+    if (!user) return;
+    const amount = Number(chainAmount);
+    if (!amount || amount <= 0) { toast.error(bn ? "সঠিক টাকা লিখুন" : "Enter amount"); return; }
+    if (!chainInWallet || !chainOutWallet) { toast.error(bn ? "উভয় ওয়ালেট নির্বাচন করুন" : "Pick both wallets"); return; }
+    setChainBusy(true);
+    const occurred_at = chainDate ? new Date(chainDate).toISOString() : new Date().toISOString();
+    // Generate a client-side chain id (uuid v4-ish)
+    const chain_id = (crypto as any)?.randomUUID?.() ?? `${Date.now()}-${Math.random().toString(36).slice(2)}`;
+    const linkMeta = { chain_id, chain_mode: chainMode };
+    const rows: any[] = [];
+    if (chainMode === "pass_through") {
+      // Money IN → wallet A, then money OUT ← wallet B, linked as one flow.
+      // If A === B, both entries hit the same wallet (net 0 but tracked).
+      rows.push({
+        user_id: user.id,
+        wallet_id: chainInWallet, transfer_to_wallet_id: null,
+        type: "income", amount,
+        category: chainInCategory || null,
+        scope: chainScope,
+        party: chainInParty || null,
+        note: (chainNote ? `${chainNote} — ` : "") + (bn ? "চেইন: ঢুকল" : "chain: in"),
+        occurred_at, meta: linkMeta,
+      });
+      rows.push({
+        user_id: user.id,
+        wallet_id: chainOutWallet, transfer_to_wallet_id: null,
+        type: "expense", amount,
+        category: chainOutCategory || null,
+        scope: chainScope,
+        party: chainOutParty || null,
+        note: (chainNote ? `${chainNote} — ` : "") + (bn ? "চেইন: ফেরত" : "chain: out"),
+        occurred_at, meta: linkMeta,
+      });
+    } else {
+      // withdraw_spend: withdraw from A → cash B, then spend from B
+      if (chainInWallet === chainOutWallet) {
+        toast.error(bn ? "উৎস ও গন্তব্য আলাদা হতে হবে" : "Source and destination must differ");
+        setChainBusy(false); return;
+      }
+      rows.push({
+        user_id: user.id,
+        wallet_id: chainInWallet, transfer_to_wallet_id: chainOutWallet,
+        type: "transfer", amount,
+        category: null, scope: chainScope, party: null,
+        note: (chainNote ? `${chainNote} — ` : "") + (bn ? "চেইন: উত্তোলন" : "chain: withdraw"),
+        occurred_at, meta: linkMeta,
+      });
+      rows.push({
+        user_id: user.id,
+        wallet_id: chainOutWallet, transfer_to_wallet_id: null,
+        type: "expense", amount,
+        category: chainOutCategory || null,
+        scope: chainScope,
+        party: chainOutParty || null,
+        note: (chainNote ? `${chainNote} — ` : "") + (bn ? "চেইন: খরচ" : "chain: spend"),
+        occurred_at, meta: linkMeta,
+      });
+    }
+    const { error } = await supabase.from("finance_transactions").insert(rows);
+    setChainBusy(false);
+    if (error) { toast.error(error.message); return; }
+    toast.success(bn ? "চেইন লেনদেন সংরক্ষিত" : "Chain transaction saved");
+    setChainOpen(false);
+    await loadAll();
+  };
+
+
 
 
   const saveWithdrawal = async () => {

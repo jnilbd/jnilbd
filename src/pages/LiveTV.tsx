@@ -20,7 +20,7 @@ const WORKING_KEY = "livetv:working:v1";
 const FAV_KEY = "livetv:favorites:v2";
 const RECENT_KEY = "livetv:recent:v1";
 
-type Tab = "mrgify" | "tv" | "bdix" | "world" | "sports" | "radio" | "offline" | "working" | "alpha6" | "neosfpoo" | "business8k" | "mhiptv" | "serveurprotv";
+type Tab = "mrgify" | "tv" | "bdix" | "world" | "sports" | "radio" | "offline" | "working" | "alpha6" | "neosfpoo" | "business8k" | "mhiptv" | "serveurprotv" | "vlue1" | "vlue2" | "vlue3" | "vlue4" | "vlue5";
 type Health = "unknown" | "checking" | "live" | "dead";
 
 type Channel = {
@@ -942,6 +942,11 @@ const LiveTV = () => {
               { k: "business8k", label: "Business 8K", icon: Zap, count: 0 },
               { k: "mhiptv", label: "MH IPTV", icon: Zap, count: 0 },
               { k: "serveurprotv", label: "ServeurProTV", icon: Zap, count: 0 },
+              { k: "vlue1", label: "Vlue #1", icon: Zap, count: 0 },
+              { k: "vlue2", label: "Vlue #2", icon: Zap, count: 0 },
+              { k: "vlue3", label: "Vlue #3", icon: Zap, count: 0 },
+              { k: "vlue4", label: "Vlue #4", icon: Zap, count: 0 },
+              { k: "vlue5", label: "Vlue #5", icon: Zap, count: 0 },
               { k: "working", label: t("ওয়ার্কিং ✅","Working ✅"), icon: CheckCircle2, count: workingChannels.length },
               { k: "offline", label: t("অফলাইন","Offline"), icon: XCircle, count: offlineChannels.length },
             ] as { k: Tab; label: string; icon: any; count: number }[]).map(({ k, label, icon: Icon, count }) => (
@@ -1074,6 +1079,21 @@ const LiveTV = () => {
               />
             )}
 
+            {([
+              { k: "vlue1", u: "2288055111", p: "7031610919" },
+              { k: "vlue2", u: "7084023852", p: "3839327131" },
+              { k: "vlue3", u: "8008378276", p: "1110338004" },
+              { k: "vlue4", u: "2272218813", p: "1669525233" },
+              { k: "vlue5", u: "7150889976", p: "2266001138" },
+            ] as const).map(({ k, u, p }, i) => tab === k && (
+              <XtreamChannels
+                key={k}
+                m3uUrl={`http://vlue.vip:80/get.php?username=${u}&password=${p}&type=m3u_plus&output=ts`}
+                label={`Vlue.vip #${i + 1}`}
+                username={u}
+              />
+            ))}
+
 
             {tab === "bdix" && (
               <Card className="p-3 mb-4 bg-amber-500/5 border-amber-500/30">
@@ -1093,7 +1113,7 @@ const LiveTV = () => {
               </div>
             )}
 
-            {loading && !["radio","bdix","mrgify","alpha6","neosfpoo","business8k","mhiptv","serveurprotv"].includes(tab) && (
+            {loading && !["radio","bdix","mrgify","alpha6","neosfpoo","business8k","mhiptv","serveurprotv","vlue1","vlue2","vlue3","vlue4","vlue5"].includes(tab) && (
               <div className="flex flex-col items-center py-12 text-muted-foreground">
                 <Loader2 className="w-8 h-8 animate-spin mb-2" />
                 <p className="text-sm">{t("সর্বশেষ চ্যানেল লোড হচ্ছে...", "Loading latest channels...")}</p>

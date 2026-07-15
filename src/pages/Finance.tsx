@@ -1025,6 +1025,20 @@ const Finance = () => {
                   </button>
                 );
               })}
+              <button onClick={() => openChain("pass_through")}
+                className="rounded-2xl border border-dashed border-primary/50 bg-primary/5 backdrop-blur p-3 flex items-center gap-2 hover:shadow-md hover:-translate-y-0.5 transition-all text-left">
+                <div className="h-9 w-9 rounded-xl grid place-items-center bg-primary/10 text-primary">
+                  <LinkIcon className="h-4 w-4" />
+                </div>
+                <span className="text-sm font-medium">{bn?"চেইন (ঢুকল → ফেরত)":"Chain (In → Out)"}</span>
+              </button>
+              <button onClick={() => openChain("withdraw_spend")}
+                className="rounded-2xl border border-dashed border-primary/50 bg-primary/5 backdrop-blur p-3 flex items-center gap-2 hover:shadow-md hover:-translate-y-0.5 transition-all text-left">
+                <div className="h-9 w-9 rounded-xl grid place-items-center bg-primary/10 text-primary">
+                  <LinkIcon className="h-4 w-4" />
+                </div>
+                <span className="text-sm font-medium">{bn?"চেইন (উত্তোলন → খরচ)":"Chain (Withdraw → Spend)"}</span>
+              </button>
             </div>
           </TabsContent>
 

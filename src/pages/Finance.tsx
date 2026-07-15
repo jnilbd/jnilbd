@@ -136,6 +136,56 @@ const EXPENSE_CATEGORIES_BUSINESS = [
 const CATEGORIES_PERSONAL = Array.from(new Set([...INCOME_CATEGORIES_PERSONAL, ...EXPENSE_CATEGORIES_PERSONAL, ...LOAN_CATEGORIES_ALL]));
 const CATEGORIES_BUSINESS = Array.from(new Set([...INCOME_CATEGORIES_BUSINESS, ...EXPENSE_CATEGORIES_BUSINESS, ...LOAN_CATEGORIES_ALL]));
 
+// ---------- Grouped categories for the picker (easier scanning) ----------
+type CatGroup = { label: string; labelBn: string; items: string[] };
+
+const INCOME_GROUPS_PERSONAL: CatGroup[] = [
+  { label: "Salary & Work", labelBn: "চাকরি ও কাজ", items: ["Salary","Bonus","Freelance","Office Withdrawal","Advance Received"] },
+  { label: "Sales & Service", labelBn: "বিক্রি ও সার্ভিস", items: ["Gadget Sale","Repair Service"] },
+  { label: "Family & Gifts", labelBn: "পরিবার ও উপহার", items: ["Gift","Family Support"] },
+  { label: "Passive & Returns", labelBn: "প্যাসিভ ও রিফান্ড", items: ["Rental Income","Investment Return","Refund"] },
+  { label: "Other", labelBn: "অন্যান্য", items: ["Other Income"] },
+];
+const INCOME_GROUPS_BUSINESS: CatGroup[] = [
+  { label: "Sales", labelBn: "বিক্রি", items: ["Product Sale","Service Sale","Advance from Customer","Commission"] },
+  { label: "Courier", labelBn: "কুরিয়ার", items: ["Courier Remittance","Courier Return"] },
+  { label: "Investment", labelBn: "বিনিয়োগ", items: ["Investor Investment","Partner Contribution","Investment Return"] },
+  { label: "Other", labelBn: "অন্যান্য", items: ["Refund from Supplier","Other Income"] },
+];
+const EXPENSE_GROUPS_PERSONAL: CatGroup[] = [
+  { label: "Food & Groceries", labelBn: "খাবার ও বাজার", items: ["Groceries","Vegetables","Fruits","Fish & Meat","Dates","Banana","Food","Eating Out"] },
+  { label: "Family & Kids", labelBn: "পরিবার ও বাচ্চা", items: ["Baby Diaper","Wife Paan-Supari","Wife Shopping","Kids","Family","Guest Gift"] },
+  { label: "Health & Education", labelBn: "স্বাস্থ্য ও শিক্ষা", items: ["Medicine","Education"] },
+  { label: "Home & Bills", labelBn: "বাসা ও বিল", items: ["House Rent","WiFi Bill (City)","WiFi Bill (Village)","Electricity Bill","Gas Bill","Water Bill","Mobile Recharge","Dish Bill"] },
+  { label: "Transport", labelBn: "যাতায়াত", items: ["Bus Fare","Train Fare","Uber/Ride","Travel"] },
+  { label: "Tech & Subscriptions", labelBn: "টেক ও সাবস্ক্রিপশন", items: ["Subscription","Domain & Hosting","Software","Hardware"] },
+  { label: "Savings & Charity", labelBn: "সঞ্চয় ও দান", items: ["Charity","Savings","Investment"] },
+  { label: "Entertainment & Other", labelBn: "বিনোদন ও অন্যান্য", items: ["Entertainment","Other"] },
+];
+const EXPENSE_GROUPS_BUSINESS: CatGroup[] = [
+  { label: "Inventory & Supplies", labelBn: "পণ্য ও সরঞ্জাম", items: ["Product Purchase","Packaging","Office Supplies"] },
+  { label: "Marketing", labelBn: "মার্কেটিং", items: ["Facebook Boosting","Advertising"] },
+  { label: "Courier & Fees", labelBn: "কুরিয়ার ও ফি", items: ["Courier Charge","Courier Return Loss","Processing Fee"] },
+  { label: "Tech", labelBn: "টেক", items: ["Subscription","Domain & Hosting","Software","Hardware"] },
+  { label: "Operations", labelBn: "অপারেশন", items: ["Salary Paid","Office Rent","Utility Bills","Maintenance","Tax"] },
+  { label: "Investment", labelBn: "বিনিয়োগ", items: ["Business Investment","Business Development","Investor Payout"] },
+  { label: "Other", labelBn: "অন্যান্য", items: ["Other"] },
+];
+// Merge helper: combine two grouped lists into one, deduping items across all groups
+const mergeGroups = (a: CatGroup[], b: CatGroup[]): CatGroup[] => {
+  const seen = new Set<string>();
+  const map = new Map<string, CatGroup>();
+  for (const g of [...a, ...b]) {
+    const existing = map.get(g.label);
+    const items = g.items.filter(i => !seen.has(i));
+    items.forEach(i => seen.add(i));
+    if (existing) existing.items.push(...items);
+    else map.set(g.label, { ...g, items: [...items] });
+  }
+  return Array.from(map.values()).filter(g => g.items.length > 0);
+};
+
+
 const walletIcon = (t: WalletType) => {
   switch (t) {
     case "cash": return Coins;

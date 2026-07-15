@@ -113,7 +113,7 @@ const EXPENSE_CATEGORIES_PERSONAL = [
 const EXPENSE_CATEGORIES_BUSINESS = [
   "Product Purchase","Packaging","Packaging Tools","Office Supplies",
   "Sales Campaign","Facebook Boosting","Advertising",
-  "Courier Charge","Processing Fee","Payment Gateway Fee",
+  "Courier Charge","Courier Return Loss","Processing Fee","Payment Gateway Fee",
   "Subscription","Domain & Hosting","Software","Hardware",
   "Salary Paid","Office Rent","Utility Bills",
   "Tax","Maintenance","Business Investment","Business Development",

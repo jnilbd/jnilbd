@@ -316,6 +316,7 @@ const Finance = () => {
 
   // date filter for transactions
   const [dateRange, setDateRange] = useState<"all"|"today"|"yesterday"|"week"|"month"|"custom">("all");
+  const [flowFilter, setFlowFilter] = useState<"all"|"in"|"out">("all");
   const [customFrom, setCustomFrom] = useState<string>("");
   const [customTo, setCustomTo] = useState<string>("");
 

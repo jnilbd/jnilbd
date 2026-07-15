@@ -136,6 +136,56 @@ const EXPENSE_CATEGORIES_BUSINESS = [
 const CATEGORIES_PERSONAL = Array.from(new Set([...INCOME_CATEGORIES_PERSONAL, ...EXPENSE_CATEGORIES_PERSONAL, ...LOAN_CATEGORIES_ALL]));
 const CATEGORIES_BUSINESS = Array.from(new Set([...INCOME_CATEGORIES_BUSINESS, ...EXPENSE_CATEGORIES_BUSINESS, ...LOAN_CATEGORIES_ALL]));
 
+// ---------- Grouped categories for the picker (easier scanning) ----------
+type CatGroup = { label: string; labelBn: string; items: string[] };
+
+const INCOME_GROUPS_PERSONAL: CatGroup[] = [
+  { label: "Salary & Work", labelBn: "চাকরি ও কাজ", items: ["Salary","Bonus","Freelance","Office Withdrawal","Advance Received"] },
+  { label: "Sales & Service", labelBn: "বিক্রি ও সার্ভিস", items: ["Gadget Sale","Repair Service"] },
+  { label: "Family & Gifts", labelBn: "পরিবার ও উপহার", items: ["Gift","Family Support"] },
+  { label: "Passive & Returns", labelBn: "প্যাসিভ ও রিফান্ড", items: ["Rental Income","Investment Return","Refund"] },
+  { label: "Other", labelBn: "অন্যান্য", items: ["Other Income"] },
+];
+const INCOME_GROUPS_BUSINESS: CatGroup[] = [
+  { label: "Sales", labelBn: "বিক্রি", items: ["Product Sale","Service Sale","Advance from Customer","Commission"] },
+  { label: "Courier", labelBn: "কুরিয়ার", items: ["Courier Remittance","Courier Return"] },
+  { label: "Investment", labelBn: "বিনিয়োগ", items: ["Investor Investment","Partner Contribution","Investment Return"] },
+  { label: "Other", labelBn: "অন্যান্য", items: ["Refund from Supplier","Other Income"] },
+];
+const EXPENSE_GROUPS_PERSONAL: CatGroup[] = [
+  { label: "Food & Groceries", labelBn: "খাবার ও বাজার", items: ["Groceries","Vegetables","Fruits","Fish & Meat","Dates","Banana","Food","Eating Out"] },
+  { label: "Family & Kids", labelBn: "পরিবার ও বাচ্চা", items: ["Baby Diaper","Wife Paan-Supari","Wife Shopping","Kids","Family","Guest Gift"] },
+  { label: "Health & Education", labelBn: "স্বাস্থ্য ও শিক্ষা", items: ["Medicine","Education"] },
+  { label: "Home & Bills", labelBn: "বাসা ও বিল", items: ["House Rent","WiFi Bill (City)","WiFi Bill (Village)","Electricity Bill","Gas Bill","Water Bill","Mobile Recharge","Dish Bill"] },
+  { label: "Transport", labelBn: "যাতায়াত", items: ["Bus Fare","Train Fare","Uber/Ride","Travel"] },
+  { label: "Tech & Subscriptions", labelBn: "টেক ও সাবস্ক্রিপশন", items: ["Subscription","Domain & Hosting","Software","Hardware"] },
+  { label: "Savings & Charity", labelBn: "সঞ্চয় ও দান", items: ["Charity","Savings","Investment"] },
+  { label: "Entertainment & Other", labelBn: "বিনোদন ও অন্যান্য", items: ["Entertainment","Other"] },
+];
+const EXPENSE_GROUPS_BUSINESS: CatGroup[] = [
+  { label: "Inventory & Supplies", labelBn: "পণ্য ও সরঞ্জাম", items: ["Product Purchase","Packaging","Office Supplies"] },
+  { label: "Marketing", labelBn: "মার্কেটিং", items: ["Facebook Boosting","Advertising"] },
+  { label: "Courier & Fees", labelBn: "কুরিয়ার ও ফি", items: ["Courier Charge","Courier Return Loss","Processing Fee"] },
+  { label: "Tech", labelBn: "টেক", items: ["Subscription","Domain & Hosting","Software","Hardware"] },
+  { label: "Operations", labelBn: "অপারেশন", items: ["Salary Paid","Office Rent","Utility Bills","Maintenance","Tax"] },
+  { label: "Investment", labelBn: "বিনিয়োগ", items: ["Business Investment","Business Development","Investor Payout"] },
+  { label: "Other", labelBn: "অন্যান্য", items: ["Other"] },
+];
+// Merge helper: combine two grouped lists into one, deduping items across all groups
+const mergeGroups = (a: CatGroup[], b: CatGroup[]): CatGroup[] => {
+  const seen = new Set<string>();
+  const map = new Map<string, CatGroup>();
+  for (const g of [...a, ...b]) {
+    const existing = map.get(g.label);
+    const items = g.items.filter(i => !seen.has(i));
+    items.forEach(i => seen.add(i));
+    if (existing) existing.items.push(...items);
+    else map.set(g.label, { ...g, items: [...items] });
+  }
+  return Array.from(map.values()).filter(g => g.items.length > 0);
+};
+
+
 const walletIcon = (t: WalletType) => {
   switch (t) {
     case "cash": return Coins;
@@ -951,17 +1001,15 @@ const Finance = () => {
   // Personal scope (e.g. Personal Cash wallet) accepts money from any source and any kind of expense.
   const ALL_INCOME = Array.from(new Set([...INCOME_CATEGORIES_PERSONAL, ...INCOME_CATEGORIES_BUSINESS]));
   const ALL_EXPENSE = Array.from(new Set([...EXPENSE_CATEGORIES_PERSONAL, ...EXPENSE_CATEGORIES_BUSINESS]));
-  // Loan/debt categories shown as a pinned group in the dropdown
-  const LOAN_GROUP = isIncomeType ? LOAN_INCOME_CATEGORIES
-    : isExpenseType ? LOAN_EXPENSE_CATEGORIES
-    : LOAN_CATEGORIES_ALL;
-  const CATEGORIES_BASE = isIncomeType
-    ? (qaScope === "business" ? INCOME_CATEGORIES_BUSINESS : ALL_INCOME)
+  // Grouped categories for the picker (no loan/debt entries — those live in Debts tab)
+  const CATEGORY_GROUPS: CatGroup[] = isIncomeType
+    ? (qaScope === "business" ? INCOME_GROUPS_BUSINESS : mergeGroups(INCOME_GROUPS_PERSONAL, INCOME_GROUPS_BUSINESS))
     : isExpenseType
-      ? (qaScope === "business" ? EXPENSE_CATEGORIES_BUSINESS : ALL_EXPENSE)
-      : (qaScope === "business" ? CATEGORIES_BUSINESS : Array.from(new Set([...CATEGORIES_PERSONAL, ...CATEGORIES_BUSINESS])));
-  // Remove loan items from the base list — they render in their own pinned group
-  const CATEGORIES = CATEGORIES_BASE.filter(c => !LOAN_CATEGORIES_ALL.includes(c));
+      ? (qaScope === "business" ? EXPENSE_GROUPS_BUSINESS : mergeGroups(EXPENSE_GROUPS_PERSONAL, EXPENSE_GROUPS_BUSINESS))
+      : (qaScope === "business"
+          ? mergeGroups(INCOME_GROUPS_BUSINESS, EXPENSE_GROUPS_BUSINESS)
+          : mergeGroups(mergeGroups(INCOME_GROUPS_PERSONAL, INCOME_GROUPS_BUSINESS), mergeGroups(EXPENSE_GROUPS_PERSONAL, EXPENSE_GROUPS_BUSINESS)));
+
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-background via-background to-muted/30 pb-32">
@@ -1686,45 +1734,23 @@ const Finance = () => {
                     <SelectValue placeholder={bn?"ক্যাটাগরি নির্বাচন করুন":"Select category"} />
                   </SelectTrigger>
                   <SelectContent className="max-h-[60vh]">
-                    {LOAN_GROUP.length > 0 && (
-                      <>
+                    {CATEGORY_GROUPS.map((g, gi) => (
+                      <div key={g.label}>
+                        {gi > 0 && <SelectSeparator />}
                         <SelectGroup>
-                          <SelectLabel className="flex items-center gap-1.5 text-[10px] uppercase tracking-wider text-amber-700 dark:text-amber-400 bg-amber-500/10 px-2 py-1.5 rounded-md mx-1 my-1">
-                            <HandCoins className="h-3 w-3" />
-                            {bn ? "ধার-দেনা (দ্রুত)" : "Loans & Debts (Quick)"}
+                          <SelectLabel className="text-[10px] uppercase tracking-wider text-muted-foreground/90 px-2 py-1 sticky top-0 bg-popover">
+                            {bn ? g.labelBn : g.label}
                           </SelectLabel>
-                          {LOAN_GROUP.map(c => {
-                            const isIn = LOAN_INCOME_CATEGORIES.includes(c);
-                            return (
-                              <SelectItem key={c} value={c} className="pl-6">
-                                <span className="flex items-center gap-2">
-                                  <span className={cn(
-                                    "inline-block h-1.5 w-1.5 rounded-full",
-                                    isIn ? "bg-emerald-500" : "bg-rose-500"
-                                  )} />
-                                  <span className="font-medium">{bn ? (CATEGORY_BN[c] ?? c) : c}</span>
-                                  <span className={cn(
-                                    "ml-auto text-[9px] px-1.5 py-0 rounded",
-                                    isIn ? "bg-emerald-500/15 text-emerald-600 dark:text-emerald-400"
-                                         : "bg-rose-500/15 text-rose-600 dark:text-rose-400"
-                                  )}>{isIn ? (bn?"আয়":"IN") : (bn?"ব্যয়":"OUT")}</span>
-                                </span>
-                              </SelectItem>
-                            );
-                          })}
+                          {g.items.map(c => (
+                            <SelectItem key={c} value={c} className="pl-6">
+                              {bn ? (CATEGORY_BN[c] ?? c) : c}
+                            </SelectItem>
+                          ))}
                         </SelectGroup>
-                        <SelectSeparator />
-                      </>
-                    )}
-                    <SelectGroup>
-                      <SelectLabel className="text-[10px] uppercase tracking-wider text-muted-foreground px-2 py-1">
-                        {bn ? "সাধারণ ক্যাটাগরি" : "General"}
-                      </SelectLabel>
-                      {CATEGORIES.map(c => (
-                        <SelectItem key={c} value={c}>{bn ? (CATEGORY_BN[c] ?? c) : c}</SelectItem>
-                      ))}
-                    </SelectGroup>
+                      </div>
+                    ))}
                   </SelectContent>
+
                 </Select>
               </div>
             )}
@@ -1876,32 +1902,22 @@ const Finance = () => {
                       <SelectValue placeholder={bn?"আয়ের ক্যাটাগরি (ঐচ্ছিক)":"Income category (optional)"} />
                     </SelectTrigger>
                     <SelectContent className="max-h-[60vh]">
-                      <SelectGroup>
-                        <SelectLabel className="flex items-center gap-1.5 text-[10px] uppercase tracking-wider text-amber-700 dark:text-amber-400 bg-amber-500/10 px-2 py-1.5 rounded-md mx-1 my-1">
-                          <HandCoins className="h-3 w-3" />
-                          {bn ? "ধার-দেনা (দ্রুত)" : "Loans & Debts (Quick)"}
-                        </SelectLabel>
-                        {LOAN_INCOME_CATEGORIES.map(c => (
-                          <SelectItem key={c} value={c} className="pl-6">
-                            <span className="flex items-center gap-2">
-                              <span className="inline-block h-1.5 w-1.5 rounded-full bg-emerald-500" />
-                              <span className="font-medium">{bn ? (CATEGORY_BN[c] ?? c) : c}</span>
-                              <span className="ml-auto text-[9px] px-1.5 py-0 rounded bg-emerald-500/15 text-emerald-600 dark:text-emerald-400">{bn?"আয়":"IN"}</span>
-                            </span>
-                          </SelectItem>
-                        ))}
-                      </SelectGroup>
-                      <SelectSeparator />
-                      <SelectGroup>
-                        <SelectLabel className="text-[10px] uppercase tracking-wider text-muted-foreground px-2 py-1">
-                          {bn ? "সাধারণ ক্যাটাগরি" : "General"}
-                        </SelectLabel>
-                        {(chainScope === "business" ? INCOME_CATEGORIES_BUSINESS : Array.from(new Set([...INCOME_CATEGORIES_PERSONAL, ...INCOME_CATEGORIES_BUSINESS]))).filter(c => !LOAN_CATEGORIES_ALL.includes(c)).map(c => (
-                          <SelectItem key={c} value={c}>{bn ? (CATEGORY_BN[c] ?? c) : c}</SelectItem>
-                        ))}
-                      </SelectGroup>
+                      {(chainScope === "business" ? INCOME_GROUPS_BUSINESS : mergeGroups(INCOME_GROUPS_PERSONAL, INCOME_GROUPS_BUSINESS)).map((g, gi) => (
+                        <div key={g.label}>
+                          {gi > 0 && <SelectSeparator />}
+                          <SelectGroup>
+                            <SelectLabel className="text-[10px] uppercase tracking-wider text-muted-foreground/90 px-2 py-1">
+                              {bn ? g.labelBn : g.label}
+                            </SelectLabel>
+                            {g.items.map(c => (
+                              <SelectItem key={c} value={c} className="pl-6">{bn ? (CATEGORY_BN[c] ?? c) : c}</SelectItem>
+                            ))}
+                          </SelectGroup>
+                        </div>
+                      ))}
                     </SelectContent>
                   </Select>
+
 
                 </>
               )}
@@ -1938,32 +1954,22 @@ const Finance = () => {
                   <SelectValue placeholder={bn?"খরচের ক্যাটাগরি (ঐচ্ছিক)":"Expense category (optional)"} />
                 </SelectTrigger>
                 <SelectContent className="max-h-[60vh]">
-                  <SelectGroup>
-                    <SelectLabel className="flex items-center gap-1.5 text-[10px] uppercase tracking-wider text-amber-700 dark:text-amber-400 bg-amber-500/10 px-2 py-1.5 rounded-md mx-1 my-1">
-                      <HandCoins className="h-3 w-3" />
-                      {bn ? "ধার-দেনা (দ্রুত)" : "Loans & Debts (Quick)"}
-                    </SelectLabel>
-                    {LOAN_EXPENSE_CATEGORIES.map(c => (
-                      <SelectItem key={c} value={c} className="pl-6">
-                        <span className="flex items-center gap-2">
-                          <span className="inline-block h-1.5 w-1.5 rounded-full bg-rose-500" />
-                          <span className="font-medium">{bn ? (CATEGORY_BN[c] ?? c) : c}</span>
-                          <span className="ml-auto text-[9px] px-1.5 py-0 rounded bg-rose-500/15 text-rose-600 dark:text-rose-400">{bn?"ব্যয়":"OUT"}</span>
-                        </span>
-                      </SelectItem>
-                    ))}
-                  </SelectGroup>
-                  <SelectSeparator />
-                  <SelectGroup>
-                    <SelectLabel className="text-[10px] uppercase tracking-wider text-muted-foreground px-2 py-1">
-                      {bn ? "সাধারণ ক্যাটাগরি" : "General"}
-                    </SelectLabel>
-                    {(chainScope === "business" ? EXPENSE_CATEGORIES_BUSINESS : Array.from(new Set([...EXPENSE_CATEGORIES_PERSONAL, ...EXPENSE_CATEGORIES_BUSINESS]))).filter(c => !LOAN_CATEGORIES_ALL.includes(c)).map(c => (
-                      <SelectItem key={c} value={c}>{bn ? (CATEGORY_BN[c] ?? c) : c}</SelectItem>
-                    ))}
-                  </SelectGroup>
+                  {(chainScope === "business" ? EXPENSE_GROUPS_BUSINESS : mergeGroups(EXPENSE_GROUPS_PERSONAL, EXPENSE_GROUPS_BUSINESS)).map((g, gi) => (
+                    <div key={g.label}>
+                      {gi > 0 && <SelectSeparator />}
+                      <SelectGroup>
+                        <SelectLabel className="text-[10px] uppercase tracking-wider text-muted-foreground/90 px-2 py-1">
+                          {bn ? g.labelBn : g.label}
+                        </SelectLabel>
+                        {g.items.map(c => (
+                          <SelectItem key={c} value={c} className="pl-6">{bn ? (CATEGORY_BN[c] ?? c) : c}</SelectItem>
+                        ))}
+                      </SelectGroup>
+                    </div>
+                  ))}
                 </SelectContent>
               </Select>
+
 
             </div>
 

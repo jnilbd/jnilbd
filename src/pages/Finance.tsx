@@ -296,6 +296,21 @@ const Finance = () => {
   const [qaDate, setQaDate] = useState<string>(""); // datetime-local; empty = now
   const [qaFee, setQaFee] = useState<string>(""); // cash-out / transfer fee
 
+  // Chain (linked income → expense) modal
+  const [chainOpen, setChainOpen] = useState(false);
+  const [chainBusy, setChainBusy] = useState(false);
+  const [chainAmount, setChainAmount] = useState("");
+  const [chainInWallet, setChainInWallet] = useState<string>("");
+  const [chainInParty, setChainInParty] = useState<string>("");
+  const [chainInCategory, setChainInCategory] = useState<string>("");
+  const [chainOutWallet, setChainOutWallet] = useState<string>("");
+  const [chainOutParty, setChainOutParty] = useState<string>("");
+  const [chainOutCategory, setChainOutCategory] = useState<string>("");
+  const [chainNote, setChainNote] = useState<string>("");
+  const [chainDate, setChainDate] = useState<string>("");
+  const [chainScope, setChainScope] = useState<"personal"|"business">("personal");
+  const [chainMode, setChainMode] = useState<"pass_through"|"withdraw_spend">("pass_through");
+
   // wallet detail
   const [detailWallet, setDetailWallet] = useState<WalletRow | null>(null);
 

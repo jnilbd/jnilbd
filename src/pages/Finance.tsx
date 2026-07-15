@@ -218,44 +218,14 @@ const WalletCard = ({ w, today, month, onOpen, onIncome, onDeposit, onAdvance, o
           <span className="flex items-center gap-1"><ArrowUpRight className="h-3 w-3" /> {bn?"আজ":"Today"} {fmtBDT(today, bn)}</span>
           <span className="flex items-center gap-1"><ArrowDownRight className="h-3 w-3" /> {bn?"মাস":"Month"} {fmtBDT(month, bn)}</span>
         </div>
-        <div className="mt-3 grid grid-cols-3 gap-1.5">
-          <Popover>
-            <PopoverTrigger asChild>
-              <button onClick={(e) => e.stopPropagation()} className="flex items-center justify-center gap-1 rounded-lg bg-white/20 hover:bg-white/30 backdrop-blur px-2 py-1.5 text-[11px] font-medium transition-colors">
-                <Plus className="h-3 w-3" /> {bn?"যোগ":"Add"}
-              </button>
-            </PopoverTrigger>
-            <PopoverContent align="start" className="w-44 p-1.5" onClick={(e) => e.stopPropagation()}>
-              <button onClick={stop(onIncome)} className="w-full flex items-center gap-2 rounded-md px-2 py-2 text-left text-sm hover:bg-muted transition-colors">
-                <TrendingUp className="h-4 w-4 text-emerald-500" />
-                <div className="min-w-0">
-                  <p className="font-medium leading-tight">{bn?"আয়":"Income"}</p>
-                  <p className="text-[10px] text-muted-foreground leading-tight">{bn?"বাইরে থেকে আয়":"External income"}</p>
-                </div>
-              </button>
-              <button onClick={stop(onAdvance)} className="w-full flex items-center gap-2 rounded-md px-2 py-2 text-left text-sm hover:bg-muted transition-colors">
-                <Wallet className="h-4 w-4 text-amber-500" />
-                <div className="min-w-0">
-                  <p className="font-medium leading-tight">{bn?"অগ্রিম নেওয়া":"Advance Received"}</p>
-                  <p className="text-[10px] text-muted-foreground leading-tight">{bn?"ক্লায়েন্ট/পার্টি থেকে অগ্রিম":"Upfront from client/party"}</p>
-                </div>
-              </button>
-              <button onClick={stop(onDeposit)} className="w-full flex items-center gap-2 rounded-md px-2 py-2 text-left text-sm hover:bg-muted transition-colors">
-                <ArrowLeftRight className="h-4 w-4 text-sky-500" />
-                <div className="min-w-0">
-                  <p className="font-medium leading-tight">{bn?"জমা":"Deposit"}</p>
-                  <p className="text-[10px] text-muted-foreground leading-tight">{bn?"অন্য ওয়ালেট থেকে":"From another wallet"}</p>
-                </div>
-              </button>
-            </PopoverContent>
-          </Popover>
-          <button onClick={stop(onSpend)} className="flex items-center justify-center gap-1 rounded-lg bg-white/20 hover:bg-white/30 backdrop-blur px-2 py-1.5 text-[11px] font-medium transition-colors">
-            <TrendingDown className="h-3 w-3" /> {bn?"খরচ":"Spend"}
-          </button>
-          <button onClick={stop(onTransfer)} className="flex items-center justify-center gap-1 rounded-lg bg-white/20 hover:bg-white/30 backdrop-blur px-2 py-1.5 text-[11px] font-medium transition-colors">
-            <ArrowLeftRight className="h-3 w-3" /> {bn?"ট্রান্সফার":"Move"}
-          </button>
-        </div>
+      </div>
+    </motion.div>
+  );
+};
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const _unusedWalletHandlers = (_: any) => _;
+const __wc_end = true;
+
       </div>
     </motion.div>
   );

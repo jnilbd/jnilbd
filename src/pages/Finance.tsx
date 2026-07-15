@@ -1178,9 +1178,15 @@ const Finance = () => {
                         {t.note ? ` · ${t.note}` : ""}
                       </p>
                     </div>
-                    <div className={cn("text-sm font-semibold tabular-nums shrink-0",
-                      isTransfer ? "text-sky-500" : income ? "text-emerald-500" : "text-rose-500")}>
-                      {isTransfer ? "↔" : income ? "+" : "-"}{fmtBDT(Number(t.amount), bn)}
+                    <div className="flex flex-col items-end shrink-0">
+                      <span className={cn("text-[9px] font-bold px-1.5 py-0.5 rounded mb-0.5",
+                        isTransfer ? "bg-sky-500/15 text-sky-500" : income ? "bg-emerald-500/15 text-emerald-500" : "bg-rose-500/15 text-rose-500")}>
+                        {isTransfer ? "DR/CR" : income ? "CR" : "DR"}
+                      </span>
+                      <div className={cn("text-sm font-semibold tabular-nums",
+                        isTransfer ? "text-sky-500" : income ? "text-emerald-500" : "text-rose-500")}>
+                        {isTransfer ? "↔" : income ? "+" : "-"}{fmtBDT(Number(t.amount), bn)}
+                      </div>
                     </div>
                     <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-primary" onClick={() => openEditTx(t)} title={bn?"সম্পাদনা":"Edit"}>
                       <Pencil className="h-3.5 w-3.5" />

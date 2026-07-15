@@ -429,6 +429,92 @@ export const PlannerTab = ({ userId, bn, monthlyIncome, monthlyExpense, totalBal
           </TabsContent>
         ))}
 
+        {/* ---- Pay EMI: deducts from a chosen wallet ---- */}
+        <TabsContent value="pay" className="mt-4 space-y-3">
+          <Card className="p-3 bg-gradient-to-br from-amber-500/10 to-transparent border-amber-500/20">
+            <div className="flex items-center gap-2">
+              <Banknote className="h-4 w-4 text-amber-500" />
+              <p className="text-sm font-semibold">{bn ? "কিস্তি পরিশোধ" : "Pay installment"}</p>
+            </div>
+            <p className="text-[11px] text-muted-foreground mt-1">
+              {bn
+                ? "যে ওয়ালেট থেকে টাকা কাটবে সেটা বাছাই করে পরিশোধ চাপুন — খরচ হিসেবে বাদ যাবে ও কিস্তি এগিয়ে যাবে।"
+                : "Pick the wallet to deduct from, then Pay — an expense is logged and the installment advances."}
+            </p>
+          </Card>
+
+          {installments.filter(i => !i.is_completed).length === 0 ? (
+            <Card className="p-8 text-center">
+              <CalendarClock className="h-8 w-8 text-muted-foreground mx-auto mb-2" />
+              <p className="text-xs text-muted-foreground">
+                {bn ? "সক্রিয় কোনো কিস্তি নেই" : "No active installments"}
+              </p>
+              <Button size="sm" className="mt-3" onClick={() => startNew("installment")}>
+                <Plus className="h-3.5 w-3.5 mr-1" />{bn ? "কিস্তি যোগ" : "Add EMI"}
+              </Button>
+            </Card>
+          ) : (
+            installments.filter(i => !i.is_completed).map(r => {
+              const amt = r.monthly_contribution || (r.months_total ? Math.ceil(Math.max(0, r.target_amount - r.saved_amount) / Math.max(1, (r.months_total - r.months_paid))) : 0);
+              const scopedWallets = wallets.filter(w => w.scope === r.scope);
+              const wid = payWallet[r.id] || "";
+              return (
+                <Card key={r.id} className="p-3 space-y-2">
+                  <div className="flex items-start justify-between gap-2">
+                    <div className="min-w-0">
+                      <p className="font-semibold text-sm truncate">{r.title}</p>
+                      <p className="text-[11px] text-muted-foreground">
+                        {r.months_total ? `${r.months_paid}/${r.months_total} ${bn ? "মাস" : "mo"}` : ""}
+                        {r.interest_rate ? ` · ${r.interest_rate}%` : ""}
+                      </p>
+                    </div>
+                    <Badge variant="outline" className="text-[10px] shrink-0">
+                      {bn ? (r.scope === "business" ? "ব্যবসা" : "ব্যক্তিগত") : r.scope}
+                    </Badge>
+                  </div>
+
+                  <div className="grid grid-cols-[1fr_auto] gap-2 items-end">
+                    <div>
+                      <Label className="text-[11px]">{bn ? "ওয়ালেট" : "Wallet"}</Label>
+                      <Select value={wid} onValueChange={(v) => setPayWallet(p => ({ ...p, [r.id]: v }))}>
+                        <SelectTrigger className="h-9 mt-1"><SelectValue placeholder={bn ? "ওয়ালেট বাছুন" : "Choose wallet"} /></SelectTrigger>
+                        <SelectContent>
+                          {scopedWallets.length === 0 && <SelectItem value="__none" disabled>{bn ? "কোনো ওয়ালেট নেই" : "No wallet"}</SelectItem>}
+                          {scopedWallets.map(w => (
+                            <SelectItem key={w.id} value={w.id}>
+                              {w.name} · {fmtBDT(w.balance, bn)}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div>
+                      <Label className="text-[11px]">{bn ? "টাকা" : "Amount"}</Label>
+                      <Input
+                        type="number"
+                        className="h-9 mt-1 w-28 tabular-nums"
+                        defaultValue={amt || ""}
+                        onChange={(e) => (r as any)._payAmt = +e.target.value || 0}
+                      />
+                    </div>
+                  </div>
+
+                  <Button
+                    size="sm"
+                    className="w-full"
+                    disabled={payingId === r.id || !wid}
+                    onClick={() => payInstallment(r, wid, (r as any)._payAmt || amt)}
+                  >
+                    {payingId === r.id
+                      ? <><Loader2 className="h-3.5 w-3.5 mr-1 animate-spin" />{bn ? "প্রসেসিং" : "Processing"}</>
+                      : <><Banknote className="h-3.5 w-3.5 mr-1" />{bn ? `পরিশোধ ${fmtBDT((r as any)._payAmt || amt, bn)}` : `Pay ${fmtBDT((r as any)._payAmt || amt, bn)}`}</>}
+                  </Button>
+                </Card>
+              );
+            })
+          )}
+        </TabsContent>
+
       </Tabs>
 
       {/* Add/edit sheet */}

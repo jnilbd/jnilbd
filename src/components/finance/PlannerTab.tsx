@@ -10,14 +10,14 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/co
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { Plus, Target, TrendingUp, CalendarClock, Sparkles, Trash2, CheckCircle2, AlertTriangle, Calculator, Wallet, PiggyBank, Loader2, Banknote } from "lucide-react";
+import { Plus, Target, TrendingUp, CalendarClock, Sparkles, Trash2, CheckCircle2, AlertTriangle, Calculator, Wallet, PiggyBank, Loader2, Banknote, HandCoins } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import FinanceCalculator from "./FinanceCalculator";
 import { PlanCountdown } from "./PlanCountdown";
 
 
-type Kind = "savings" | "income_target" | "installment";
+type Kind = "savings" | "income_target" | "installment" | "debt_payoff";
 type Scope = "personal" | "business";
 
 interface GoalRow {
@@ -84,7 +84,7 @@ const emptyDraft = (): Partial<GoalRow> => ({
 export const PlannerTab = ({ userId, bn, monthlyIncome, monthlyExpense, totalBalance, wallets = [], onPaid }: Props) => {
   const [rows, setRows] = useState<GoalRow[]>([]);
   const [loading, setLoading] = useState(true);
-  const [tab, setTab] = useState<"summary" | "savings" | "income_target" | "installment" | "pay" | "calc">("summary");
+  const [tab, setTab] = useState<"summary" | "savings" | "income_target" | "installment" | "debt_payoff" | "pay" | "calc">("summary");
   const [open, setOpen] = useState(false);
   const [draft, setDraft] = useState<Partial<GoalRow>>(emptyDraft());
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -222,8 +222,9 @@ export const PlannerTab = ({ userId, bn, monthlyIncome, monthlyExpense, totalBal
 
   const kindLabel = (k: Kind) =>
     bn
-      ? (k === "savings" ? "লক্ষ্য" : k === "income_target" ? "আয়ের টার্গেট" : "কিস্তি")
-      : (k === "savings" ? "Goal" : k === "income_target" ? "Income Target" : "Installment");
+      ? (k === "savings" ? "লক্ষ্য" : k === "income_target" ? "আয়ের টার্গেট" : k === "debt_payoff" ? "ধার শোধ" : "কিস্তি")
+      : (k === "savings" ? "Goal" : k === "income_target" ? "Income Target" : k === "debt_payoff" ? "Debt Payoff" : "Installment");
+
 
   const GoalCard = ({ r }: { r: GoalRow }) => {
     const remaining = Math.max(0, r.target_amount - r.saved_amount);
@@ -319,7 +320,9 @@ export const PlannerTab = ({ userId, bn, monthlyIncome, monthlyExpense, totalBal
           <TabsTrigger value="savings" className="text-xs px-3 shrink-0"><Target className="h-3.5 w-3.5 mr-1" />{bn ? "লক্ষ্য" : "Goals"}</TabsTrigger>
           <TabsTrigger value="income_target" className="text-xs px-3 shrink-0"><TrendingUp className="h-3.5 w-3.5 mr-1" />{bn ? "আয় টার্গেট" : "Income"}</TabsTrigger>
           <TabsTrigger value="installment" className="text-xs px-3 shrink-0"><CalendarClock className="h-3.5 w-3.5 mr-1" />{bn ? "কিস্তি" : "EMI"}</TabsTrigger>
+          <TabsTrigger value="debt_payoff" className="text-xs px-3 shrink-0"><HandCoins className="h-3.5 w-3.5 mr-1" />{bn ? "ধার শোধ" : "Debt Payoff"}</TabsTrigger>
           <TabsTrigger value="pay" className="text-xs px-3 shrink-0"><Banknote className="h-3.5 w-3.5 mr-1" />{bn ? "কিস্তি পরিশোধ" : "Pay EMI"}</TabsTrigger>
+
         </TabsList>
 
         {/* ---- Summary ---- */}
@@ -430,7 +433,7 @@ export const PlannerTab = ({ userId, bn, monthlyIncome, monthlyExpense, totalBal
         </TabsContent>
 
 
-        {(["savings", "income_target", "installment"] as Kind[]).map(k => (
+        {(["savings", "income_target", "installment", "debt_payoff"] as Kind[]).map(k => (
           <TabsContent key={k} value={k} className="mt-4 space-y-3">
             <div className="flex items-center justify-between">
               <p className="text-sm font-semibold">{kindLabel(k)}</p>
@@ -558,6 +561,8 @@ export const PlannerTab = ({ userId, bn, monthlyIncome, monthlyExpense, totalBal
                   <SelectItem value="savings">{bn ? "🎯 লক্ষ্য (Savings goal)" : "🎯 Savings goal"}</SelectItem>
                   <SelectItem value="income_target">{bn ? "📈 আয়ের টার্গেট" : "📈 Income target"}</SelectItem>
                   <SelectItem value="installment">{bn ? "📆 কিস্তি / EMI" : "📆 Installment / EMI"}</SelectItem>
+                  <SelectItem value="debt_payoff">{bn ? "🤝 ধার শোধ" : "🤝 Debt Payoff"}</SelectItem>
+
                 </SelectContent>
               </Select>
             </div>
@@ -569,8 +574,10 @@ export const PlannerTab = ({ userId, bn, monthlyIncome, monthlyExpense, totalBal
                 placeholder={
                   draft.kind === "savings" ? (bn ? "যেমন: ফ্রিজ কিনতে হবে" : "e.g. Buy fridge") :
                   draft.kind === "income_target" ? (bn ? "যেমন: এই মাসে আয়ের টার্গেট" : "e.g. This month target") :
+                  draft.kind === "debt_payoff" ? (bn ? "যেমন: রফিক ভাইয়ের ধার শোধ" : "e.g. Repay loan to Rafik") :
                   (bn ? "যেমন: বাইকের কিস্তি" : "e.g. Bike EMI")
                 }
+
                 value={draft.title ?? ""}
                 onChange={(e) => setDraft({ ...draft, title: e.target.value })}
               />
@@ -581,6 +588,7 @@ export const PlannerTab = ({ userId, bn, monthlyIncome, monthlyExpense, totalBal
                 <Label className="text-xs">
                   {draft.kind === "income_target" ? (bn ? "টার্গেট আয় (৳)" : "Target income (৳)") :
                    draft.kind === "installment" ? (bn ? "মোট বকেয়া (৳)" : "Total due (৳)") :
+                   draft.kind === "debt_payoff" ? (bn ? "মোট ধার (৳)" : "Total debt (৳)") :
                    (bn ? "টার্গেট (৳)" : "Target (৳)")}
                 </Label>
                 <Input type="number" className="mt-1" value={draft.target_amount ?? 0}
@@ -588,11 +596,14 @@ export const PlannerTab = ({ userId, bn, monthlyIncome, monthlyExpense, totalBal
               </div>
               <div>
                 <Label className="text-xs">
-                  {draft.kind === "installment" ? (bn ? "পরিশোধিত (৳)" : "Paid (৳)") : (bn ? "জমা (৳)" : "Saved (৳)")}
+                  {draft.kind === "installment" ? (bn ? "পরিশোধিত (৳)" : "Paid (৳)") :
+                   draft.kind === "debt_payoff" ? (bn ? "শোধ করা (৳)" : "Repaid (৳)") :
+                   (bn ? "জমা (৳)" : "Saved (৳)")}
                 </Label>
                 <Input type="number" className="mt-1" value={draft.saved_amount ?? 0}
                   onChange={(e) => setDraft({ ...draft, saved_amount: +e.target.value || 0 })} />
               </div>
+
             </div>
 
             <div className="grid grid-cols-2 gap-2">

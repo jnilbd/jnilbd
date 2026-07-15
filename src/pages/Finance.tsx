@@ -951,11 +951,17 @@ const Finance = () => {
   // Personal scope (e.g. Personal Cash wallet) accepts money from any source and any kind of expense.
   const ALL_INCOME = Array.from(new Set([...INCOME_CATEGORIES_PERSONAL, ...INCOME_CATEGORIES_BUSINESS]));
   const ALL_EXPENSE = Array.from(new Set([...EXPENSE_CATEGORIES_PERSONAL, ...EXPENSE_CATEGORIES_BUSINESS]));
-  const CATEGORIES = isIncomeType
+  // Loan/debt categories shown as a pinned group in the dropdown
+  const LOAN_GROUP = isIncomeType ? LOAN_INCOME_CATEGORIES
+    : isExpenseType ? LOAN_EXPENSE_CATEGORIES
+    : LOAN_CATEGORIES_ALL;
+  const CATEGORIES_BASE = isIncomeType
     ? (qaScope === "business" ? INCOME_CATEGORIES_BUSINESS : ALL_INCOME)
     : isExpenseType
       ? (qaScope === "business" ? EXPENSE_CATEGORIES_BUSINESS : ALL_EXPENSE)
       : (qaScope === "business" ? CATEGORIES_BUSINESS : Array.from(new Set([...CATEGORIES_PERSONAL, ...CATEGORIES_BUSINESS])));
+  // Remove loan items from the base list — they render in their own pinned group
+  const CATEGORIES = CATEGORIES_BASE.filter(c => !LOAN_CATEGORIES_ALL.includes(c));
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-background via-background to-muted/30 pb-32">

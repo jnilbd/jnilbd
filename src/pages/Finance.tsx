@@ -707,8 +707,23 @@ const Finance = () => {
       const ins = await supabase.from("finance_transactions").insert({ user_id: user.id, ...payload });
       error = ins.error;
     } else if (expenseWithSource) {
-      // 1) transfer amount+fee from source (qaWallet2) → destination (qaWallet)
+      // Optional 3-hop: origin → source (qaWallet2) → destination (qaWallet) → expense
+      const chainId = (globalThis.crypto?.randomUUID?.() ?? `${Date.now()}-${Math.random()}`);
+      const linkMeta = { chain_id: chainId } as any;
       const transferAmt = amount + fee;
+      const useOrigin = !!qaOriginWallet && qaOriginWallet !== qaWallet2 && qaOriginWallet !== qaWallet;
+      if (useOrigin) {
+        const t0 = await supabase.from("finance_transactions").insert({
+          user_id: user.id,
+          wallet_id: qaOriginWallet, transfer_to_wallet_id: qaWallet2,
+          type: "transfer", amount: transferAmt,
+          category: null, scope: qaScope, party: null,
+          note: bn ? `${qaNote || "খরচের জন্য"} — মূল উৎস` : `${qaNote || "for expense"} — origin`,
+          occurred_at, meta: linkMeta,
+        });
+        if (t0.error) { setBusy(false); toast.error(t0.error.message); return; }
+      }
+      // 1) transfer amount+fee from source (qaWallet2) → destination (qaWallet)
       const t1 = await supabase.from("finance_transactions").insert({
         user_id: user.id,
         wallet_id: qaWallet2,
@@ -716,7 +731,7 @@ const Finance = () => {
         type: "transfer", amount: transferAmt,
         category: null, scope: qaScope, party: null,
         note: bn ? `${qaNote || "খরচের জন্য"} — রুট` : `${qaNote || "for expense"} — routed`,
-        occurred_at,
+        occurred_at, meta: linkMeta,
       });
       if (t1.error) { setBusy(false); toast.error(t1.error.message); return; }
       // 2) fee as expense on destination (cash-out charge)
@@ -727,11 +742,11 @@ const Finance = () => {
           type: "expense", amount: fee, category: "fees",
           scope: qaScope, party: null,
           note: bn ? "ক্যাশ-আউট ফি" : "Cash-out fee",
-          occurred_at,
+          occurred_at, meta: linkMeta,
         });
       }
       // 3) actual expense on destination
-      const t3 = await supabase.from("finance_transactions").insert({ user_id: user.id, ...payload });
+      const t3 = await supabase.from("finance_transactions").insert({ user_id: user.id, ...payload, meta: linkMeta });
       error = t3.error;
     } else {
       const ins = await supabase.from("finance_transactions").insert({ user_id: user.id, ...payload });

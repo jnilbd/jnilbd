@@ -384,7 +384,7 @@ export const PlannerTab = ({ userId, bn, monthlyIncome, monthlyExpense, totalBal
                 <p className="font-semibold tabular-nums">{fmtBDT(summary.emiThisMonth, bn)}</p>
               </div>
               <div className="rounded-lg bg-background/60 p-2.5">
-                <p className="text-muted-foreground text-[10px]">{bn ? "লক্ষ্যের জন্য জমা" : "Save for goals"}</p>
+                <p className="text-muted-foreground text-[10px]">{bn ? "লক্ষ্যের জন্য বরাদ্দ" : "Allocate for goals"}</p>
                 <p className="font-semibold tabular-nums">{fmtBDT(summary.savingsThisMonth, bn)}</p>
               </div>
             </div>

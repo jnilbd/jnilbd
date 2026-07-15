@@ -19,7 +19,7 @@ const WORKING_KEY = "livetv:working:v1";
 const FAV_KEY = "livetv:favorites:v2";
 const RECENT_KEY = "livetv:recent:v1";
 
-type Tab = "mrgify" | "tv" | "bdix" | "world" | "sports" | "radio" | "offline" | "working" | "alpha6";
+type Tab = "mrgify" | "tv" | "bdix" | "world" | "sports" | "radio" | "offline" | "working" | "alpha6" | "neosfpoo" | "business8k" | "mhiptv" | "serveurprotv";
 type Health = "unknown" | "checking" | "live" | "dead";
 
 type Channel = {

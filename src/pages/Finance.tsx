@@ -438,6 +438,30 @@ const Finance = () => {
         title: bn ? `${lowWallets.length} টি ওয়ালেটে টাকা কম` : `${lowWallets.length} wallet(s) running low`,
         desc: lowWallets.map(w => w.name).slice(0, 3).join(", ") });
     }
+    // Duplicate detection: same type + wallet + amount within 10 minutes
+    const dupGroups = new Map<string, number>();
+    const dupSamples: string[] = [];
+    for (const t of filteredTxs) {
+      const bucket = Math.floor(new Date(t.occurred_at).getTime() / (10 * 60 * 1000));
+      const key = `${t.type}|${t.wallet_id ?? ""}|${Number(t.amount)}|${bucket}`;
+      dupGroups.set(key, (dupGroups.get(key) || 0) + 1);
+    }
+    let dupCount = 0;
+    for (const [k, c] of dupGroups) {
+      if (c >= 2) {
+        dupCount += (c - 1);
+        if (dupSamples.length < 3) {
+          const amt = k.split("|")[2];
+          dupSamples.push(`৳${amt}`);
+        }
+      }
+    }
+    if (dupCount > 0) {
+      r.push({ id: "dup", icon: "warn", tone: "amber",
+        title: bn ? `${dupCount} টি সম্ভাব্য ডবল এন্ট্রি` : `${dupCount} possible duplicate entries`,
+        desc: bn ? `একই ওয়ালেট ও পরিমাণ: ${dupSamples.join(", ")} — লেনদেন ট্যাবে যাচাই করুন`
+                 : `Same wallet & amount: ${dupSamples.join(", ")} — verify in Transactions` });
+    }
     return r;
   }, [filteredTxs, metrics, bn, invStats, filteredWallets]);
 

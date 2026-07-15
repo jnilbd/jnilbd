@@ -222,8 +222,9 @@ export const PlannerTab = ({ userId, bn, monthlyIncome, monthlyExpense, totalBal
 
   const kindLabel = (k: Kind) =>
     bn
-      ? (k === "savings" ? "লক্ষ্য" : k === "income_target" ? "আয়ের টার্গেট" : "কিস্তি")
-      : (k === "savings" ? "Goal" : k === "income_target" ? "Income Target" : "Installment");
+      ? (k === "savings" ? "লক্ষ্য" : k === "income_target" ? "আয়ের টার্গেট" : k === "debt_payoff" ? "ধার শোধ" : "কিস্তি")
+      : (k === "savings" ? "Goal" : k === "income_target" ? "Income Target" : k === "debt_payoff" ? "Debt Payoff" : "Installment");
+
 
   const GoalCard = ({ r }: { r: GoalRow }) => {
     const remaining = Math.max(0, r.target_amount - r.saved_amount);

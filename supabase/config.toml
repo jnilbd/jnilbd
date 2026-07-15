@@ -8,6 +8,3 @@ verify_jwt = false
 
 [functions.stream-proxy]
 verify_jwt = false
-
-[functions.mag-portal]
-verify_jwt = false

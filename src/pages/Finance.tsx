@@ -438,6 +438,30 @@ const Finance = () => {
         title: bn ? `${lowWallets.length} টি ওয়ালেটে টাকা কম` : `${lowWallets.length} wallet(s) running low`,
         desc: lowWallets.map(w => w.name).slice(0, 3).join(", ") });
     }
+    // Duplicate detection: same type + wallet + amount within 10 minutes
+    const dupGroups = new Map<string, number>();
+    const dupSamples: string[] = [];
+    for (const t of filteredTxs) {
+      const bucket = Math.floor(new Date(t.occurred_at).getTime() / (10 * 60 * 1000));
+      const key = `${t.type}|${t.wallet_id ?? ""}|${Number(t.amount)}|${bucket}`;
+      dupGroups.set(key, (dupGroups.get(key) || 0) + 1);
+    }
+    let dupCount = 0;
+    for (const [k, c] of dupGroups) {
+      if (c >= 2) {
+        dupCount += (c - 1);
+        if (dupSamples.length < 3) {
+          const amt = k.split("|")[2];
+          dupSamples.push(`৳${amt}`);
+        }
+      }
+    }
+    if (dupCount > 0) {
+      r.push({ id: "dup", icon: "warn", tone: "amber",
+        title: bn ? `${dupCount} টি সম্ভাব্য ডবল এন্ট্রি` : `${dupCount} possible duplicate entries`,
+        desc: bn ? `একই ওয়ালেট ও পরিমাণ: ${dupSamples.join(", ")} — লেনদেন ট্যাবে যাচাই করুন`
+                 : `Same wallet & amount: ${dupSamples.join(", ")} — verify in Transactions` });
+    }
     return r;
   }, [filteredTxs, metrics, bn, invStats, filteredWallets]);
 
@@ -513,6 +537,22 @@ const Finance = () => {
     if (qaType === "transfer" && !qaWallet2) { toast.error(bn ? "গন্তব্য ওয়ালেট নির্বাচন করুন" : "Pick destination wallet"); return; }
     if ((qaType === "income" || qaType === "expense") && qaWallet2 && qaWallet2 === qaWallet) {
       toast.error(bn ? "উৎস ও গন্তব্য ভিন্ন হতে হবে" : "Source and destination must differ"); return;
+    }
+    // Duplicate warning: same type + wallet + amount within 10 minutes (skip when editing)
+    if (!editTxId) {
+      const newAt = qaDate ? new Date(qaDate).getTime() : Date.now();
+      const dup = txs.find(t =>
+        t.type === qaType &&
+        (t.wallet_id ?? "") === qaWallet &&
+        Number(t.amount) === amount &&
+        Math.abs(new Date(t.occurred_at).getTime() - newAt) <= 10 * 60 * 1000
+      );
+      if (dup) {
+        const ok = confirm(bn
+          ? `একই ধরনের একটি লেনদেন ১০ মিনিটের মধ্যে পাওয়া গেছে (৳${amount})। এটি কি ডবল এন্ট্রি হতে পারে? তবুও সংরক্ষণ করবেন?`
+          : `A similar transaction (৳${amount}) exists within 10 minutes. This may be a duplicate. Save anyway?`);
+        if (!ok) return;
+      }
     }
     setBusy(true);
     const occurred_at = qaDate ? new Date(qaDate).toISOString() : new Date().toISOString();

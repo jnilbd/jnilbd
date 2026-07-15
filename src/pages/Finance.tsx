@@ -1359,6 +1359,15 @@ const Finance = () => {
                 <span className="text-[11px] font-medium text-center leading-tight">{a.label}</span>
               </button>
             ))}
+            <button
+              onClick={() => { setTypePickerOpen(false); openChain("pass_through"); }}
+              className="flex flex-col items-center gap-1.5 rounded-2xl border border-dashed border-primary/50 bg-primary/5 backdrop-blur p-3 hover:shadow-md hover:-translate-y-0.5 transition-all"
+            >
+              <div className="h-10 w-10 rounded-xl grid place-items-center bg-primary/10 text-primary">
+                <LinkIcon className="h-5 w-5" />
+              </div>
+              <span className="text-[11px] font-medium text-center leading-tight">{bn?"চেইন":"Chain"}</span>
+            </button>
           </div>
         </SheetContent>
       </Sheet>

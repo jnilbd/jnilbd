@@ -33,6 +33,7 @@ const fmtDate = (iso: string, bn: boolean) =>
 
 export const DebtsTab = ({ userId, bn }: { userId: string; bn: boolean }) => {
   const [debts, setDebts] = useState<DebtRow[]>([]);
+  const [wallets, setWallets] = useState<WalletRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [open, setOpen] = useState(false);
   const [busy, setBusy] = useState(false);
@@ -42,6 +43,7 @@ export const DebtsTab = ({ userId, bn }: { userId: string; bn: boolean }) => {
   const [amount, setAmount] = useState("");
   const [dueDate, setDueDate] = useState("");
   const [note, setNote] = useState("");
+  const [walletId, setWalletId] = useState<string>("");
 
   // history / payment sheet
   const [historyFor, setHistoryFor] = useState<DebtRow | null>(null);
@@ -49,12 +51,17 @@ export const DebtsTab = ({ userId, bn }: { userId: string; bn: boolean }) => {
   const [payAmount, setPayAmount] = useState("");
   const [payDate, setPayDate] = useState<string>(() => new Date().toISOString().slice(0, 10));
   const [payNote, setPayNote] = useState("");
+  const [payWalletId, setPayWalletId] = useState<string>("");
   const [payBusy, setPayBusy] = useState(false);
 
   const load = async () => {
     setLoading(true);
-    const { data } = await supabase.from("debts").select("*").eq("user_id", userId).order("is_settled").order("created_at", { ascending: false });
-    setDebts((data as any) ?? []);
+    const [{ data: dRows }, { data: wRows }] = await Promise.all([
+      supabase.from("debts").select("*").eq("user_id", userId).order("is_settled").order("created_at", { ascending: false }),
+      supabase.from("finance_wallets").select("id,name,scope,balance").eq("user_id", userId).order("name"),
+    ]);
+    setDebts((dRows as any) ?? []);
+    setWallets((wRows as any) ?? []);
     setLoading(false);
   };
   useEffect(() => { load(); /* eslint-disable-next-line */ }, [userId]);

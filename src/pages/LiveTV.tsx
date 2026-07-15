@@ -20,7 +20,7 @@ const WORKING_KEY = "livetv:working:v1";
 const FAV_KEY = "livetv:favorites:v2";
 const RECENT_KEY = "livetv:recent:v1";
 
-type Tab = "mrgify" | "tv" | "bdix" | "world" | "sports" | "radio" | "offline" | "working" | "alpha6" | "neosfpoo" | "business8k" | "mhiptv" | "serveurprotv" | "vlue1" | "vlue2" | "vlue3" | "vlue4" | "vlue5";
+type Tab = "mrgify" | "tv" | "bdix" | "world" | "sports" | "radio" | "offline" | "working" | "alpha6" | "neosfpoo" | "business8k" | "mhiptv" | "serveurprotv" | "vlue1" | "vlue2" | "vlue3" | "vlue4" | "vlue5" | "x81637" | "kilas7" | "vipapy" | "berati" | "ogietv" | "mag204" | "mag4kgood" | "maglinehunt" | "magwatchtivo";
 type Health = "unknown" | "checking" | "live" | "dead";
 
 type Channel = {

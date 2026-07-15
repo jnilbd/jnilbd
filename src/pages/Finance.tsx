@@ -351,6 +351,7 @@ const Finance = () => {
 
   // wallet detail
   const [detailWallet, setDetailWallet] = useState<WalletRow | null>(null);
+  const [detailFlow, setDetailFlow] = useState<"all"|"in"|"out"|"net">("all");
 
   // metric detail (dashboard analytics drill-down)
   const [metricKey, setMetricKey] = useState<string | null>(null);

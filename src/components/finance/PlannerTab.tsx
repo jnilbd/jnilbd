@@ -14,6 +14,8 @@ import { Plus, Target, TrendingUp, CalendarClock, Sparkles, Trash2, CheckCircle2
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import FinanceCalculator from "./FinanceCalculator";
+import { PlanCountdown } from "./PlanCountdown";
+
 
 type Kind = "savings" | "income_target" | "installment";
 type Scope = "personal" | "business";

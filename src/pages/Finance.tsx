@@ -423,11 +423,6 @@ const Finance = () => {
         title: bn ? "মাসিক খরচ আয়ের চেয়ে বেশি" : "Monthly expenses exceed income",
         desc: bn ? "সাবধান হোন" : "Consider cutting back" });
     }
-    if (invStats.lowCount > 0) {
-      r.push({ id: "low-stock", icon: "warn", tone: "rose",
-        title: bn ? `${invStats.lowCount} টি পণ্যের স্টক কম` : `${invStats.lowCount} products low in stock`,
-        desc: bn ? "ইনভেন্টরি ট্যাবে দেখুন" : "Check the Inventory tab" });
-    }
     const lowWallets = filteredWallets.filter(w => Number(w.balance) > 0 && Number(w.balance) < 500);
     if (lowWallets.length > 0) {
       r.push({ id: "low-wallet", icon: "warn", tone: "amber",

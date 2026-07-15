@@ -191,6 +191,33 @@ export const PlannerTab = ({ userId, bn, monthlyIncome, monthlyExpense, totalBal
     load();
   };
 
+  const payInstallment = async (r: GoalRow, walletId: string, amount: number) => {
+    if (!walletId) return toast.error(bn ? "ওয়ালেট নির্বাচন করুন" : "Select a wallet");
+    if (!amount || amount <= 0) return toast.error(bn ? "সঠিক টাকা লিখুন" : "Enter amount");
+    setPayingId(r.id);
+    const now = new Date().toISOString();
+    const { error: txErr } = await supabase.from("finance_transactions").insert({
+      user_id: userId,
+      wallet_id: walletId,
+      type: "expense",
+      amount,
+      category: "installment",
+      scope: (r.scope === "business" ? "business" : "personal") as any,
+      note: `${bn ? "কিস্তি" : "EMI"}: ${r.title}`,
+      occurred_at: now,
+    } as any);
+    if (txErr) { setPayingId(null); return toast.error(txErr.message); }
+    const nextPaid = (r.months_paid || 0) + 1;
+    const nextSaved = (r.saved_amount || 0) + amount;
+    const update: any = { months_paid: nextPaid, saved_amount: nextSaved };
+    if ((r.months_total && nextPaid >= r.months_total) || nextSaved >= r.target_amount) update.is_completed = true;
+    await supabase.from("savings_goals").update(update).eq("id", r.id);
+    setPayingId(null);
+    toast.success(bn ? "কিস্তি পরিশোধ ও ওয়ালেট থেকে বাদ" : "EMI paid & deducted");
+    load();
+    onPaid?.();
+  };
+
   const kindLabel = (k: Kind) =>
     bn
       ? (k === "savings" ? "লক্ষ্য" : k === "income_target" ? "আয়ের টার্গেট" : "কিস্তি")

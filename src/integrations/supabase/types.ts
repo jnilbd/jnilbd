@@ -952,37 +952,79 @@ export type Database = {
       }
       profiles: {
         Row: {
+          address: string | null
           avatar_url: string | null
+          bio: string | null
+          city: string | null
+          country: string | null
+          cover_url: string | null
           created_at: string
           currency: string
+          date_of_birth: string | null
+          facebook: string | null
           full_name: string | null
+          gender: string | null
           id: string
+          language_pref: string | null
           monthly_income: number
+          notifications_enabled: boolean | null
+          occupation: string | null
           phone: string | null
+          theme_pref: string | null
           updated_at: string
           user_id: string
+          website: string | null
+          whatsapp: string | null
         }
         Insert: {
+          address?: string | null
           avatar_url?: string | null
+          bio?: string | null
+          city?: string | null
+          country?: string | null
+          cover_url?: string | null
           created_at?: string
           currency?: string
+          date_of_birth?: string | null
+          facebook?: string | null
           full_name?: string | null
+          gender?: string | null
           id?: string
+          language_pref?: string | null
           monthly_income?: number
+          notifications_enabled?: boolean | null
+          occupation?: string | null
           phone?: string | null
+          theme_pref?: string | null
           updated_at?: string
           user_id: string
+          website?: string | null
+          whatsapp?: string | null
         }
         Update: {
+          address?: string | null
           avatar_url?: string | null
+          bio?: string | null
+          city?: string | null
+          country?: string | null
+          cover_url?: string | null
           created_at?: string
           currency?: string
+          date_of_birth?: string | null
+          facebook?: string | null
           full_name?: string | null
+          gender?: string | null
           id?: string
+          language_pref?: string | null
           monthly_income?: number
+          notifications_enabled?: boolean | null
+          occupation?: string | null
           phone?: string | null
+          theme_pref?: string | null
           updated_at?: string
           user_id?: string
+          website?: string | null
+          whatsapp?: string | null
         }
         Relationships: []
       }

@@ -1038,6 +1038,43 @@ const LiveTV = () => {
               />
             )}
 
+            {tab === "neosfpoo" && (
+              <XtreamChannels
+                m3uUrl="http://neosfpoo.top:8080/get.php?username=2071771277838&password=6ec486cbcb6b&type=m3u_plus&output=ts"
+                label="Neosfpoo IPTV"
+                username="2071771277838"
+                expiry="2027-02-16"
+              />
+            )}
+
+            {tab === "business8k" && (
+              <XtreamChannels
+                m3uUrl="http://tv.business-cdn-8k.com:80/get.php?username=ercanx&password=khu98v9ku2&type=m3u_plus"
+                label="Business CDN 8K"
+                username="ercanx"
+                expiry="2027-04-12"
+              />
+            )}
+
+            {tab === "mhiptv" && (
+              <XtreamChannels
+                m3uUrl="http://mhiptv.com:8080/get.php?username=8965387453&password=89742563188&type=m3u_plus"
+                label="MH IPTV"
+                username="8965387453"
+                expiry="2027-01-26"
+              />
+            )}
+
+            {tab === "serveurprotv" && (
+              <XtreamChannels
+                m3uUrl="http://line.serveurprotv.fr:80/get.php?username=28049cdd68&password=498136007c2e&type=m3u_plus"
+                label="Serveur Pro TV"
+                username="28049cdd68"
+                expiry="2026-10-17"
+              />
+            )}
+
+
             {tab === "bdix" && (
               <Card className="p-3 mb-4 bg-amber-500/5 border-amber-500/30">
                 <p className="text-xs text-muted-foreground">

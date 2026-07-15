@@ -82,15 +82,14 @@ const DEFAULT_WALLETS: Array<Omit<WalletRow, "id" | "balance" | "currency" | "so
 // Personal: money I personally earn — office withdrawals, salary, gadget sales, repair services, gifts, etc.
 const INCOME_CATEGORIES_PERSONAL = [
   "Office Withdrawal","Salary","Freelance",
-  "Mobile Sale","Laptop Sale","Gadget Sale","Accessories Sale",
-  "Mobile Repair","Laptop Repair","Repair Service","Service Income",
+  "Gadget Sale","Repair Service",
   "Gift","Bonus","Interest","Rental Income","Investment Return","Refund",
   "Family Support","Advance Received","Loan Received","Other Income",
 ];
 // Business (Official): only channels the office actually receives money through
 const INCOME_CATEGORIES_BUSINESS = [
   "Product Sale","Service Sale",
-  "Courier Remittance","Cash on Delivery Remit","Courier Return",
+  "Courier Remittance","Courier Return",
   "Investor Investment","Partner Contribution",
   "Advance from Customer","Refund from Supplier",
   "Commission","Investment Return","Loan Received","Other Income",
@@ -98,22 +97,22 @@ const INCOME_CATEGORIES_BUSINESS = [
 // Expense categories — where money goes
 // Personal: household, family, daily life, personal bills
 const EXPENSE_CATEGORIES_PERSONAL = [
-  "Vegetables","Groceries","Fruits","Fish & Meat","Dates","Banana",
+  "Groceries","Vegetables","Fruits","Fish & Meat","Dates","Banana",
   "Baby Diaper","Wife Paan-Supari","Medicine",
   "Food","Eating Out","Guest Gift",
   "House Rent",
   "WiFi Bill (City)","WiFi Bill (Village)","Electricity Bill","Gas Bill","Water Bill",
-  "Mobile Bill","Mobile Recharge","Dish Bill",
+  "Mobile Recharge","Dish Bill",
   "Subscription","Domain & Hosting","Software","Hardware",
-  "Bus Fare","Train Fare","Uber/Ride","Village Trip","Travel",
-  "Kids","Family","Wife Shopping","Education","Entertainment","Shopping",
-  "Charity","Savings","Investment","Installment","bKash Loan","Bills","Other",
+  "Bus Fare","Train Fare","Uber/Ride","Travel",
+  "Kids","Family","Wife Shopping","Education","Entertainment",
+  "Charity","Savings","Investment","Installment","bKash Loan","Other",
 ];
 // Business (Official): only what the office genuinely spends on
 const EXPENSE_CATEGORIES_BUSINESS = [
-  "Product Purchase","Packaging","Packaging Tools","Office Supplies",
-  "Sales Campaign","Facebook Boosting","Advertising",
-  "Courier Charge","Courier Return Loss","Processing Fee","Payment Gateway Fee",
+  "Product Purchase","Packaging","Office Supplies",
+  "Facebook Boosting","Advertising",
+  "Courier Charge","Courier Return Loss","Processing Fee",
   "Subscription","Domain & Hosting","Software","Hardware",
   "Salary Paid","Office Rent","Utility Bills",
   "Tax","Maintenance","Business Investment","Business Development",

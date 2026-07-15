@@ -1882,6 +1882,43 @@ const Finance = () => {
               </div>
             </div>
 
+            {/* Step 0: Optional Origin (withdraw_spend only) */}
+            {chainMode === "withdraw_spend" && (
+              <div className="rounded-xl border border-amber-500/30 bg-amber-500/5 p-3 space-y-2">
+                <div className="flex items-center justify-between gap-2">
+                  <div className="flex items-center gap-2">
+                    <div className="h-6 w-6 rounded-full bg-amber-500/20 text-amber-600 grid place-items-center text-[10px] font-bold">০</div>
+                    <p className="text-xs font-semibold text-amber-700 dark:text-amber-400">
+                      {bn ? "মূল উৎস (ঐচ্ছিক)" : "Original source (optional)"}
+                    </p>
+                  </div>
+                  {chainOriginWallet && (
+                    <button type="button" onClick={() => setChainOriginWallet("")}
+                      className="text-[10px] text-rose-500 hover:underline">{bn?"বাদ দিন":"Clear"}</button>
+                  )}
+                </div>
+                <p className="text-[10px] text-muted-foreground -mt-1">
+                  {bn ? "যেমন: অফিস ক্যাশ → bKash → ব্যক্তিগত → বাজার (৩ ধাপ একসাথে)" : "e.g. Office Cash → bKash → Personal → Bazar (3 hops in one entry)"}
+                </p>
+                <Select value={chainOriginWallet || "none"} onValueChange={(v) => setChainOriginWallet(v === "none" ? "" : v)}>
+                  <SelectTrigger className="rounded-xl">
+                    <SelectValue placeholder={bn?"মূল উৎস ওয়ালেট":"Origin wallet"} />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="none">{bn?"— নেই —":"— None —"}</SelectItem>
+                    {wallets.filter(w => w.id !== chainInWallet).map(w => (
+                      <SelectItem key={w.id} value={w.id}>
+                        <span className="flex items-center justify-between gap-3 w-full">
+                          <span className="truncate">{w.name}</span>
+                          <span className="text-[10px] text-muted-foreground tabular-nums">৳{Number(w.balance||0).toFixed(0)}</span>
+                        </span>
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
+
             {/* Step 1: IN */}
             <div className="rounded-xl border border-emerald-500/30 bg-emerald-500/5 p-3 space-y-2">
               <div className="flex items-center gap-2">

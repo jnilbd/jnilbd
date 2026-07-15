@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card } from "@/components/ui/card";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Plus, ArrowDownRight, ArrowUpRight, Trash2, Check, Loader2, HandCoins, History, Wallet } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
@@ -13,9 +14,14 @@ interface DebtRow {
   id: string; direction: string; counterparty: string;
   amount: number; paid_amount: number | null; due_date: string | null;
   note: string | null; is_settled: boolean; created_at?: string;
+  wallet_id?: string | null;
 }
 interface PaymentRow {
   id: string; debt_id: string; amount: number; paid_at: string; note: string | null;
+  wallet_id?: string | null;
+}
+interface WalletRow {
+  id: string; name: string; scope: string; balance: number;
 }
 
 const fmt = (n: number, bn = false) => {
@@ -27,6 +33,7 @@ const fmtDate = (iso: string, bn: boolean) =>
 
 export const DebtsTab = ({ userId, bn }: { userId: string; bn: boolean }) => {
   const [debts, setDebts] = useState<DebtRow[]>([]);
+  const [wallets, setWallets] = useState<WalletRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [open, setOpen] = useState(false);
   const [busy, setBusy] = useState(false);
@@ -36,6 +43,7 @@ export const DebtsTab = ({ userId, bn }: { userId: string; bn: boolean }) => {
   const [amount, setAmount] = useState("");
   const [dueDate, setDueDate] = useState("");
   const [note, setNote] = useState("");
+  const [walletId, setWalletId] = useState<string>("");
 
   // history / payment sheet
   const [historyFor, setHistoryFor] = useState<DebtRow | null>(null);
@@ -43,12 +51,17 @@ export const DebtsTab = ({ userId, bn }: { userId: string; bn: boolean }) => {
   const [payAmount, setPayAmount] = useState("");
   const [payDate, setPayDate] = useState<string>(() => new Date().toISOString().slice(0, 10));
   const [payNote, setPayNote] = useState("");
+  const [payWalletId, setPayWalletId] = useState<string>("");
   const [payBusy, setPayBusy] = useState(false);
 
   const load = async () => {
     setLoading(true);
-    const { data } = await supabase.from("debts").select("*").eq("user_id", userId).order("is_settled").order("created_at", { ascending: false });
-    setDebts((data as any) ?? []);
+    const [{ data: dRows }, { data: wRows }] = await Promise.all([
+      supabase.from("debts").select("*").eq("user_id", userId).order("is_settled").order("created_at", { ascending: false }),
+      supabase.from("finance_wallets").select("id,name,scope,balance").eq("user_id", userId).order("name"),
+    ]);
+    setDebts((dRows as any) ?? []);
+    setWallets((wRows as any) ?? []);
     setLoading(false);
   };
   useEffect(() => { load(); /* eslint-disable-next-line */ }, [userId]);
@@ -63,7 +76,33 @@ export const DebtsTab = ({ userId, bn }: { userId: string; bn: boolean }) => {
     setPayAmount("");
     setPayNote("");
     setPayDate(new Date().toISOString().slice(0, 10));
+    setPayWalletId(d.wallet_id || "");
     await loadPayments(d.id);
+  };
+
+  // Auto-log a matching finance_transactions row for wallet balance sync
+  const logFinanceTx = async (opts: {
+    walletId: string; amount: number; kind: "loan_received" | "loan_given" | "loan_repay" | "loan_collect";
+    counterparty: string; occurredAt: string; noteExtra?: string | null;
+  }) => {
+    const isIncome = opts.kind === "loan_received" || opts.kind === "loan_collect";
+    const wallet = wallets.find(w => w.id === opts.walletId);
+    const label =
+      opts.kind === "loan_received" ? (bn ? "ধার নেওয়া" : "Loan received")
+      : opts.kind === "loan_given" ? (bn ? "ধার দেওয়া" : "Loan given")
+      : opts.kind === "loan_repay" ? (bn ? "ধার পরিশোধ" : "Loan repay")
+      : (bn ? "ধার আদায়" : "Loan collected");
+    await supabase.from("finance_transactions").insert({
+      user_id: userId,
+      wallet_id: opts.walletId,
+      type: isIncome ? "income" : "expense",
+      amount: opts.amount,
+      category: opts.kind,
+      scope: (wallet?.scope === "business" ? "business" : "personal") as any,
+      party: opts.counterparty,
+      note: `${label}: ${opts.counterparty}${opts.noteExtra ? ` · ${opts.noteExtra}` : ""}`,
+      occurred_at: opts.occurredAt,
+    } as any);
   };
 
   const save = async () => {
@@ -71,15 +110,28 @@ export const DebtsTab = ({ userId, bn }: { userId: string; bn: boolean }) => {
       toast.error(bn ? "নাম ও টাকা দিন" : "Enter name & amount"); return;
     }
     setBusy(true);
-    const { error } = await supabase.from("debts").insert({
+    const amt = Math.round(Number(amount));
+    const { data: inserted, error } = await supabase.from("debts").insert({
       user_id: userId, direction: dir, counterparty: party.trim(),
-      amount: Math.round(Number(amount)),
+      amount: amt,
       due_date: dueDate || null, note: note || null, paid_amount: 0, is_settled: false,
-    });
+      wallet_id: walletId || null,
+    } as any).select().single();
+    if (error) { setBusy(false); toast.error(error.message); return; }
+
+    if (walletId) {
+      await logFinanceTx({
+        walletId,
+        amount: amt,
+        kind: dir === "i_owe" ? "loan_received" : "loan_given",
+        counterparty: party.trim(),
+        occurredAt: new Date().toISOString(),
+        noteExtra: note || null,
+      });
+    }
     setBusy(false);
-    if (error) { toast.error(error.message); return; }
     toast.success(bn ? "যোগ হয়েছে" : "Added");
-    setOpen(false); setParty(""); setAmount(""); setDueDate(""); setNote("");
+    setOpen(false); setParty(""); setAmount(""); setDueDate(""); setNote(""); setWalletId("");
     await load();
   };
 
@@ -101,9 +153,22 @@ export const DebtsTab = ({ userId, bn }: { userId: string; bn: boolean }) => {
     const { error } = await supabase.from("debt_payments").insert({
       user_id: userId, debt_id: historyFor.id, amount: amt,
       paid_at: paidAtIso, note: payNote || null,
-    });
+      wallet_id: payWalletId || null,
+    } as any);
+    if (error) { setPayBusy(false); toast.error(error.message); return; }
+
+    if (payWalletId) {
+      await logFinanceTx({
+        walletId: payWalletId,
+        amount: amt,
+        kind: historyFor.direction === "i_owe" ? "loan_repay" : "loan_collect",
+        counterparty: historyFor.counterparty,
+        occurredAt: paidAtIso,
+        noteExtra: payNote || null,
+      });
+    }
+
     setPayBusy(false);
-    if (error) { toast.error(error.message); return; }
     toast.success(bn ? "পরিশোধ যোগ হয়েছে" : "Payment recorded");
     setPayAmount(""); setPayNote("");
     await Promise.all([loadPayments(historyFor.id), load()]);
@@ -275,10 +340,32 @@ export const DebtsTab = ({ userId, bn }: { userId: string; bn: boolean }) => {
               <Input type="date" value={dueDate} onChange={e => setDueDate(e.target.value)} className="mt-1 rounded-xl" />
             </div>
             <div>
+              <Label className="text-xs">
+                {dir === "i_owe"
+                  ? (bn ? "কোথায় জমা করলাম? (ওয়ালেট)" : "Deposited into (wallet)")
+                  : (bn ? "কোথা থেকে দিলাম? (ওয়ালেট)" : "Given from (wallet)")}
+              </Label>
+              <Select value={walletId} onValueChange={setWalletId}>
+                <SelectTrigger className="mt-1 rounded-xl h-11">
+                  <SelectValue placeholder={bn ? "ওয়ালেট বাছুন (ঐচ্ছিক)" : "Choose wallet (optional)"} />
+                </SelectTrigger>
+                <SelectContent>
+                  {wallets.length === 0 && <SelectItem value="__none" disabled>{bn ? "কোনো ওয়ালেট নেই" : "No wallet"}</SelectItem>}
+                  {wallets.map(w => (
+                    <SelectItem key={w.id} value={w.id}>
+                      {w.name} · {fmt(w.balance, bn)} · {w.scope === "business" ? (bn ? "ব্যবসা" : "Business") : (bn ? "ব্যক্তিগত" : "Personal")}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <p className="text-[10px] text-muted-foreground mt-1">
+                {bn ? "ওয়ালেট দিলে ব্যালান্স ও লেনদেনে অটো আপডেট হবে।" : "If set, wallet balance and transactions update automatically."}
+              </p>
+            </div>
+            <div>
               <Label className="text-xs">{bn?"কারণ / উদ্দেশ্য":"Purpose / Reason"}</Label>
               <Input value={note} onChange={e => setNote(e.target.value)} className="mt-1 rounded-xl"
                 placeholder={bn?"কেন ধার? কী কাজে? (যেমন: চিকিৎসা, ব্যবসা)":"Why? What for? (e.g. medical, business)"} />
-
             </div>
             <Button className="w-full h-12 rounded-xl" onClick={save} disabled={busy}>
               {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : (bn?"সংরক্ষণ":"Save")}
@@ -342,6 +429,26 @@ export const DebtsTab = ({ userId, bn }: { userId: string; bn: boolean }) => {
                         <Input type="date" value={payDate} onChange={e => setPayDate(e.target.value)}
                           className="mt-1 rounded-xl h-10" />
                       </div>
+                    </div>
+                    <div>
+                      <Label className="text-[10px]">
+                        {historyFor.direction === "i_owe"
+                          ? (bn ? "কোথা থেকে পরিশোধ? (ওয়ালেট)" : "Paid from (wallet)")
+                          : (bn ? "কোথায় জমা হলো? (ওয়ালেট)" : "Received into (wallet)")}
+                      </Label>
+                      <Select value={payWalletId} onValueChange={setPayWalletId}>
+                        <SelectTrigger className="mt-1 rounded-xl h-10">
+                          <SelectValue placeholder={bn ? "ওয়ালেট বাছুন (ঐচ্ছিক)" : "Choose wallet (optional)"} />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {wallets.length === 0 && <SelectItem value="__none" disabled>{bn ? "কোনো ওয়ালেট নেই" : "No wallet"}</SelectItem>}
+                          {wallets.map(w => (
+                            <SelectItem key={w.id} value={w.id}>
+                              {w.name} · {fmt(w.balance, bn)}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
                     </div>
                     <Input value={payNote} onChange={e => setPayNote(e.target.value)}
                       className="rounded-xl h-9 text-sm" placeholder={bn?"নোট (ঐচ্ছিক)":"Note (optional)"} />

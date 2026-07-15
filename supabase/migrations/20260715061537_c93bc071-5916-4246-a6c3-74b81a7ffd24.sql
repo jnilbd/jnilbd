@@ -1,0 +1,2 @@
+ALTER TABLE public.debts ADD COLUMN IF NOT EXISTS wallet_id uuid REFERENCES public.finance_wallets(id) ON DELETE SET NULL;
+ALTER TABLE public.debt_payments ADD COLUMN IF NOT EXISTS wallet_id uuid REFERENCES public.finance_wallets(id) ON DELETE SET NULL;

@@ -901,8 +901,6 @@ const Finance = () => {
                 { t: "expense", label: bn?"খরচ যোগ":"Add Expense", icon: TrendingDown, tone: "rose" },
                 { t: "sale", label: bn?"বিক্রি":"Sale", icon: ShoppingCart, tone: "emerald" },
                 { t: "purchase", label: bn?"ক্রয়":"Purchase", icon: Package, tone: "rose" },
-                { t: "loan_given", label: bn?"ধার দেয়া":"Loan Given", icon: Send, tone: "amber" },
-                { t: "loan_taken", label: bn?"ধার নেয়া":"Loan Taken", icon: HandCoins, tone: "amber" },
                 { t: "transfer", label: bn?"ট্রান্সফার":"Transfer", icon: ArrowLeftRight, tone: "sky" },
               ].map(a => {
                 const toneCls: Record<string,string> = {

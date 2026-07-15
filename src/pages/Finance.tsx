@@ -779,6 +779,7 @@ const Finance = () => {
     setChainMode(mode);
     setChainAmount(""); setChainInParty(""); setChainInCategory("");
     setChainOutParty(""); setChainOutCategory(""); setChainNote("");
+    setChainOriginWallet("");
     const def = filteredWallets.find(w => w.is_default) ?? filteredWallets[0];
     setChainInWallet(def?.id ?? "");
     setChainOutWallet(filteredWallets.find(w => w.id !== (def?.id ?? ""))?.id ?? def?.id ?? "");

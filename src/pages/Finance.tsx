@@ -1275,7 +1275,10 @@ const Finance = () => {
               bn={bn}
               txs={txs as any}
               categoryLabel={(c) => bn ? (CATEGORY_BN[c] ?? TX_TYPE_BN[c] ?? c) : c}
+              onEdit={(t) => openEditTx(t as any)}
+              onDelete={(id) => deleteTx(id)}
             />
+
           </TabsContent>
         </Tabs>
       </div>

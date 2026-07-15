@@ -561,6 +561,8 @@ export const PlannerTab = ({ userId, bn, monthlyIncome, monthlyExpense, totalBal
                   <SelectItem value="savings">{bn ? "🎯 লক্ষ্য (Savings goal)" : "🎯 Savings goal"}</SelectItem>
                   <SelectItem value="income_target">{bn ? "📈 আয়ের টার্গেট" : "📈 Income target"}</SelectItem>
                   <SelectItem value="installment">{bn ? "📆 কিস্তি / EMI" : "📆 Installment / EMI"}</SelectItem>
+                  <SelectItem value="debt_payoff">{bn ? "🤝 ধার শোধ" : "🤝 Debt Payoff"}</SelectItem>
+
                 </SelectContent>
               </Select>
             </div>

@@ -1820,7 +1820,7 @@ const Finance = () => {
                   <SelectValue placeholder={bn?"খরচের ক্যাটাগরি (ঐচ্ছিক)":"Expense category (optional)"} />
                 </SelectTrigger>
                 <SelectContent>
-                  {(chainScope === "business" ? EXPENSE_CATEGORIES_BUSINESS : EXPENSE_CATEGORIES_PERSONAL).map(c => (
+                  {(chainScope === "business" ? EXPENSE_CATEGORIES_BUSINESS : Array.from(new Set([...EXPENSE_CATEGORIES_PERSONAL, ...EXPENSE_CATEGORIES_BUSINESS]))).map(c => (
                     <SelectItem key={c} value={c}>{bn ? (CATEGORY_BN[c] ?? c) : c}</SelectItem>
                   ))}
                 </SelectContent>

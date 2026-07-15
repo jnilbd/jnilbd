@@ -11,6 +11,7 @@ import { toast } from "sonner";
 import SportsSchedule from "@/components/SportsSchedule";
 import WorldCupChannels from "@/components/WorldCupChannels";
 import LiveScoreBoard from "@/components/LiveScoreBoard";
+import PortalChannels from "@/components/PortalChannels";
 import { BDIX_CHANNELS, IMPORTANT_BD_CHANNELS, IMPORTANT_IN_CHANNELS } from "@/data/bdixChannels";
 
 const DEAD_KEY = "livetv:dead:v2";

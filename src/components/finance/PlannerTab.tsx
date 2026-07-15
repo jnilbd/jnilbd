@@ -59,6 +59,8 @@ interface Props {
   monthlyIncome: number;   // this-month actual income
   monthlyExpense: number;  // this-month actual expense
   totalBalance: number;    // sum of wallet balances
+  wallets?: Array<{ id: string; name: string; scope: string; balance: number }>;
+  onPaid?: () => void;
 }
 
 const emptyDraft = (): Partial<GoalRow> => ({

@@ -938,6 +938,10 @@ const LiveTV = () => {
               { k: "sports", label: t("স্পোর্টস","Sports"), icon: Trophy, count: (mergedByTab.sports || []).length },
               { k: "radio", label: t("রেডিও","Radio"), icon: Radio, count: (mergedByTab.radio || []).length },
               { k: "alpha6", label: t("Alpha6 পোর্টাল","Alpha6 Portal"), icon: Zap, count: 0 },
+              { k: "neosfpoo", label: "Neosfpoo", icon: Zap, count: 0 },
+              { k: "business8k", label: "Business 8K", icon: Zap, count: 0 },
+              { k: "mhiptv", label: "MH IPTV", icon: Zap, count: 0 },
+              { k: "serveurprotv", label: "ServeurProTV", icon: Zap, count: 0 },
               { k: "working", label: t("ওয়ার্কিং ✅","Working ✅"), icon: CheckCircle2, count: workingChannels.length },
               { k: "offline", label: t("অফলাইন","Offline"), icon: XCircle, count: offlineChannels.length },
             ] as { k: Tab; label: string; icon: any; count: number }[]).map(({ k, label, icon: Icon, count }) => (

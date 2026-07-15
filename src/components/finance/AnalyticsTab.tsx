@@ -25,10 +25,12 @@ const fmt = (n: number, bn = false) => {
 };
 
 export const AnalyticsTab = ({
-  txs, bn, categoryLabel,
-}: { txs: Tx[]; bn: boolean; categoryLabel: (c: string) => string }) => {
+  txs, bn, categoryLabel, onEdit, onDelete,
+}: { txs: Tx[]; bn: boolean; categoryLabel: (c: string) => string; onEdit?: (t: Tx) => void; onDelete?: (id: string) => void }) => {
   const [monthOffset, setMonthOffset] = useState(0); // 0 = this month
   const [selectedDay, setSelectedDay] = useState<string | null>(null);
+  const [drill, setDrill] = useState<{ title: string; items: Tx[] } | null>(null);
+
 
   const monthDate = useMemo(() => {
     const d = new Date(); d.setDate(1); d.setMonth(d.getMonth() + monthOffset);

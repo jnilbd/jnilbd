@@ -461,11 +461,15 @@ export const PlannerTab = ({ userId, bn, monthlyIncome, monthlyExpense, totalBal
                         {r.months_total ? `${r.months_paid}/${r.months_total} ${bn ? "মাস" : "mo"}` : ""}
                         {r.interest_rate ? ` · ${r.interest_rate}%` : ""}
                       </p>
+                      {r.target_date && (
+                        <div className="mt-1"><PlanCountdown targetDate={r.target_date} bn={bn} label={bn ? "শেষ:" : "Ends:"} /></div>
+                      )}
                     </div>
                     <Badge variant="outline" className="text-[10px] shrink-0">
                       {bn ? (r.scope === "business" ? "ব্যবসা" : "ব্যক্তিগত") : r.scope}
                     </Badge>
                   </div>
+
 
                   <div className="grid grid-cols-[1fr_auto] gap-2 items-end">
                     <div>

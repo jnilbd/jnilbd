@@ -1598,6 +1598,178 @@ const Finance = () => {
         </SheetContent>
       </Sheet>
 
+      {/* Chain (linked) transaction sheet */}
+      <Sheet open={chainOpen} onOpenChange={setChainOpen}>
+        <SheetContent side="bottom" className="rounded-t-3xl max-h-[92vh] overflow-y-auto">
+          <SheetHeader>
+            <SheetTitle className="flex items-center gap-2">
+              <LinkIcon className="h-4 w-4 text-primary" />
+              {bn?"চেইন লেনদেন":"Chain Transaction"}
+            </SheetTitle>
+          </SheetHeader>
+
+          <div className="mt-4 space-y-4">
+            {/* Mode switch */}
+            <div className="grid grid-cols-2 gap-2">
+              <button onClick={() => setChainMode("pass_through")} className={cn(
+                "rounded-xl border p-3 text-left transition-all",
+                chainMode === "pass_through" ? "border-primary bg-primary/5 shadow-sm" : "border-border/60 bg-card/70"
+              )}>
+                <p className="text-xs font-semibold">{bn?"ঢুকল → ফেরত":"In → Out"}</p>
+                <p className="text-[10px] text-muted-foreground mt-0.5">
+                  {bn?"এক ওয়ালেটে আয়, অন্য ওয়ালেট থেকে খরচ — একই টাকা":"Income into one wallet, expense from another — same money"}
+                </p>
+              </button>
+              <button onClick={() => setChainMode("withdraw_spend")} className={cn(
+                "rounded-xl border p-3 text-left transition-all",
+                chainMode === "withdraw_spend" ? "border-primary bg-primary/5 shadow-sm" : "border-border/60 bg-card/70"
+              )}>
+                <p className="text-xs font-semibold">{bn?"উত্তোলন → খরচ":"Withdraw → Spend"}</p>
+                <p className="text-[10px] text-muted-foreground mt-0.5">
+                  {bn?"এক ওয়ালেট থেকে তুলে অন্য ওয়ালেটে, তারপর খরচ":"Move from one wallet to another, then spend"}
+                </p>
+              </button>
+            </div>
+
+            {/* Scope */}
+            <div className="flex items-center gap-1 rounded-full bg-muted p-1 w-fit">
+              {(["personal","business"] as const).map(s => (
+                <button key={s} onClick={() => setChainScope(s)} className={cn(
+                  "text-[11px] px-3 py-1 rounded-full capitalize",
+                  chainScope === s ? "bg-background shadow-sm" : "text-muted-foreground"
+                )}>{bn ? SCOPE_BN[s] : s}</button>
+              ))}
+            </div>
+
+            {/* Amount */}
+            <div>
+              <Label className="text-xs">{bn?"টাকা":"Amount (৳)"}</Label>
+              <Input type="number" inputMode="decimal" value={chainAmount} onChange={e => setChainAmount(e.target.value)}
+                className="text-2xl font-semibold h-14 rounded-xl mt-1" placeholder="0" autoFocus />
+              <div className="flex flex-wrap gap-1.5 mt-2">
+                {[100, 500, 1000, 2000, 5000, 10000].map(v => (
+                  <button key={v} type="button"
+                    onClick={() => setChainAmount(String((Number(chainAmount) || 0) + v))}
+                    className="text-[11px] px-2.5 py-1 rounded-full bg-muted hover:bg-muted/70 border border-border/60 tabular-nums">+{v}</button>
+                ))}
+                {chainAmount && (
+                  <button type="button" onClick={() => setChainAmount("")}
+                    className="text-[11px] px-2.5 py-1 rounded-full bg-rose-500/10 text-rose-500 border border-rose-500/20">
+                    {bn?"মুছুন":"Clear"}
+                  </button>
+                )}
+              </div>
+            </div>
+
+            {/* Step 1: IN */}
+            <div className="rounded-xl border border-emerald-500/30 bg-emerald-500/5 p-3 space-y-2">
+              <div className="flex items-center gap-2">
+                <div className="h-6 w-6 rounded-full bg-emerald-500/20 text-emerald-600 grid place-items-center text-[10px] font-bold">1</div>
+                <p className="text-xs font-semibold text-emerald-700 dark:text-emerald-400">
+                  {chainMode === "pass_through"
+                    ? (bn?"যে ওয়ালেটে ঢুকল":"Received into wallet")
+                    : (bn?"যে ওয়ালেট থেকে উত্তোলন":"Withdraw from wallet")}
+                </p>
+              </div>
+              <Select value={chainInWallet} onValueChange={setChainInWallet}>
+                <SelectTrigger className="rounded-xl"><SelectValue placeholder={bn?"ওয়ালেট":"Wallet"} /></SelectTrigger>
+                <SelectContent>
+                  {wallets.map(w => (
+                    <SelectItem key={w.id} value={w.id}>
+                      <span className="flex items-center justify-between gap-3 w-full">
+                        <span className="truncate">{w.name}</span>
+                        <span className="text-[10px] text-muted-foreground tabular-nums">৳{Number(w.balance||0).toFixed(0)}</span>
+                      </span>
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              {chainMode === "pass_through" && (
+                <>
+                  <Input value={chainInParty} onChange={e => setChainInParty(e.target.value)}
+                    placeholder={bn?"কার কাছ থেকে? (যেমন: কুরিয়ার, গ্রাহক)":"From whom? (e.g. courier, customer)"}
+                    className="rounded-xl" />
+                  <Select value={chainInCategory} onValueChange={setChainInCategory}>
+                    <SelectTrigger className="rounded-xl">
+                      <SelectValue placeholder={bn?"আয়ের ক্যাটাগরি (ঐচ্ছিক)":"Income category (optional)"} />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {(chainScope === "business" ? INCOME_CATEGORIES_BUSINESS : INCOME_CATEGORIES_PERSONAL).map(c => (
+                        <SelectItem key={c} value={c}>{bn ? (CATEGORY_BN[c] ?? c) : c}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </>
+              )}
+            </div>
+
+            {/* Step 2: OUT */}
+            <div className="rounded-xl border border-rose-500/30 bg-rose-500/5 p-3 space-y-2">
+              <div className="flex items-center gap-2">
+                <div className="h-6 w-6 rounded-full bg-rose-500/20 text-rose-600 grid place-items-center text-[10px] font-bold">2</div>
+                <p className="text-xs font-semibold text-rose-700 dark:text-rose-400">
+                  {chainMode === "pass_through"
+                    ? (bn?"যে ওয়ালেট থেকে ফেরত দিলেন":"Paid back from wallet")
+                    : (bn?"যেখানে টাকা এল ও খরচ হলো":"Landing wallet & spend from it")}
+                </p>
+              </div>
+              <Select value={chainOutWallet} onValueChange={setChainOutWallet}>
+                <SelectTrigger className="rounded-xl"><SelectValue placeholder={bn?"ওয়ালেট":"Wallet"} /></SelectTrigger>
+                <SelectContent>
+                  {wallets.map(w => (
+                    <SelectItem key={w.id} value={w.id}>
+                      <span className="flex items-center justify-between gap-3 w-full">
+                        <span className="truncate">{w.name}</span>
+                        <span className="text-[10px] text-muted-foreground tabular-nums">৳{Number(w.balance||0).toFixed(0)}</span>
+                      </span>
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <Input value={chainOutParty} onChange={e => setChainOutParty(e.target.value)}
+                placeholder={bn?"কাকে দিলেন / কী কিনলেন? (যেমন: বাজার, গ্রাহক ফেরত)":"To whom / for what? (e.g. groceries, customer refund)"}
+                className="rounded-xl" />
+              <Select value={chainOutCategory} onValueChange={setChainOutCategory}>
+                <SelectTrigger className="rounded-xl">
+                  <SelectValue placeholder={bn?"খরচের ক্যাটাগরি (ঐচ্ছিক)":"Expense category (optional)"} />
+                </SelectTrigger>
+                <SelectContent>
+                  {(chainScope === "business" ? EXPENSE_CATEGORIES_BUSINESS : EXPENSE_CATEGORIES_PERSONAL).map(c => (
+                    <SelectItem key={c} value={c}>{bn ? (CATEGORY_BN[c] ?? c) : c}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div>
+              <Label className="text-xs">{bn?"সাধারণ নোট":"Overall note"}</Label>
+              <Textarea value={chainNote} onChange={e => setChainNote(e.target.value)}
+                placeholder={bn?"এই চেইনের কারণ / রেফারেন্স":"Reason / reference for this chain"}
+                className="mt-1 rounded-xl" rows={2} />
+            </div>
+
+            <div>
+              <Label className="text-xs">{bn?"তারিখ ও সময়":"Date & Time"}</Label>
+              <Input type="datetime-local" value={chainDate} onChange={e => setChainDate(e.target.value)} className="mt-1 rounded-xl" />
+            </div>
+
+            <div className="rounded-xl bg-muted/50 border border-border/60 p-3 text-[11px] text-muted-foreground">
+              {chainMode === "pass_through"
+                ? (bn
+                    ? `সংক্ষেপ: ${walletById(chainInWallet)?.name ?? "?"}-এ +৳${chainAmount||0} (আয়) এবং ${walletById(chainOutWallet)?.name ?? "?"}-থেকে -৳${chainAmount||0} (খরচ) — দুইটি এন্ট্রি একসাথে লিঙ্কড।`
+                    : `Summary: +৳${chainAmount||0} income into ${walletById(chainInWallet)?.name ?? "?"} and -৳${chainAmount||0} expense from ${walletById(chainOutWallet)?.name ?? "?"} — linked as one chain.`)
+                : (bn
+                    ? `সংক্ষেপ: ${walletById(chainInWallet)?.name ?? "?"} → ${walletById(chainOutWallet)?.name ?? "?"} ট্রান্সফার ৳${chainAmount||0}, তারপর ${walletById(chainOutWallet)?.name ?? "?"}-থেকে ৳${chainAmount||0} খরচ।`
+                    : `Summary: Transfer ৳${chainAmount||0} from ${walletById(chainInWallet)?.name ?? "?"} → ${walletById(chainOutWallet)?.name ?? "?"}, then spend ৳${chainAmount||0} from ${walletById(chainOutWallet)?.name ?? "?"}.`)}
+            </div>
+
+            <Button className="w-full h-12 rounded-xl" onClick={saveChain} disabled={chainBusy}>
+              {chainBusy ? <Loader2 className="h-4 w-4 animate-spin" /> : <>{bn?"চেইন সংরক্ষণ":"Save Chain"} <ChevronRight className="h-4 w-4 ml-1" /></>}
+            </Button>
+          </div>
+        </SheetContent>
+      </Sheet>
+
       {/* Wallet detail */}
       <Dialog open={!!detailWallet} onOpenChange={(o) => !o && setDetailWallet(null)}>
         <DialogContent className="max-w-lg">

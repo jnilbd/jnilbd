@@ -80,7 +80,7 @@ export default function ProfilePage() {
       const [orders, wallets, portfolio, vault, services] = await Promise.all([
         supabase.from("shop_orders").select("id", { count: "exact", head: true }).eq("user_id", user.id),
         supabase.from("finance_wallets").select("balance").eq("user_id", user.id),
-        supabase.from("portfolio_projects").select("id", { count: "exact", head: true }).eq("user_id", user.id),
+        supabase.from("portfolio_projects").select("id", { count: "exact", head: true }),
         supabase.from("vault_items").select("id", { count: "exact", head: true }).eq("user_id", user.id),
         supabase.from("service_orders").select("id", { count: "exact", head: true }).eq("user_id", user.id),
       ]);

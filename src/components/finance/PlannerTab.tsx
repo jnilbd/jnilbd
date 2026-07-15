@@ -354,9 +354,9 @@ export const PlannerTab = ({ userId, bn, monthlyIncome, monthlyExpense, totalBal
         <TabsList className="flex w-full justify-start overflow-x-auto no-scrollbar gap-1 bg-muted/60 h-10 px-1">
           <TabsTrigger value="summary" className="text-xs px-3 shrink-0"><Sparkles className="h-3.5 w-3.5 mr-1" />{bn ? "সারসংক্ষেপ" : "Overview"}</TabsTrigger>
           <TabsTrigger value="savings" className="text-xs px-3 shrink-0"><Target className="h-3.5 w-3.5 mr-1" />{bn ? "লক্ষ্য" : "Goals"}</TabsTrigger>
-          <TabsTrigger value="debt_payoff" className="text-xs px-3 shrink-0"><HandCoins className="h-3.5 w-3.5 mr-1" />{bn ? "ধার শোধ" : "Debt Payoff"}</TabsTrigger>
           <TabsTrigger value="income_target" className="text-xs px-3 shrink-0"><TrendingUp className="h-3.5 w-3.5 mr-1" />{bn ? "আয় টার্গেট" : "Income"}</TabsTrigger>
           <TabsTrigger value="installment" className="text-xs px-3 shrink-0"><CalendarClock className="h-3.5 w-3.5 mr-1" />{bn ? "কিস্তি" : "EMI"}</TabsTrigger>
+          <TabsTrigger value="debt_payoff" className="text-xs px-3 shrink-0"><HandCoins className="h-3.5 w-3.5 mr-1" />{bn ? "ধার শোধ" : "Debt Payoff"}</TabsTrigger>
           <TabsTrigger value="pay" className="text-xs px-3 shrink-0"><Banknote className="h-3.5 w-3.5 mr-1" />{bn ? "কিস্তি পরিশোধ" : "Pay EMI"}</TabsTrigger>
 
         </TabsList>
@@ -469,7 +469,7 @@ export const PlannerTab = ({ userId, bn, monthlyIncome, monthlyExpense, totalBal
         </TabsContent>
 
 
-        {(["savings", "debt_payoff", "income_target", "installment"] as Kind[]).map(k => (
+        {(["savings", "income_target", "installment", "debt_payoff"] as Kind[]).map(k => (
           <TabsContent key={k} value={k} className="mt-4 space-y-3">
             <div className="flex items-center justify-between">
               <p className="text-sm font-semibold">{kindLabel(k)}</p>
@@ -595,9 +595,9 @@ export const PlannerTab = ({ userId, bn, monthlyIncome, monthlyExpense, totalBal
                 <SelectTrigger className="mt-1"><SelectValue /></SelectTrigger>
                 <SelectContent>
                   <SelectItem value="savings">{bn ? "🎯 লক্ষ্য (যেকোনো উদ্দেশ্য)" : "🎯 Goal (any purpose)"}</SelectItem>
+                  <SelectItem value="debt_payoff">{bn ? "🤝 ধার শোধ" : "🤝 Debt Payoff"}</SelectItem>
                   <SelectItem value="income_target">{bn ? "📈 আয়ের টার্গেট" : "📈 Income target"}</SelectItem>
                   <SelectItem value="installment">{bn ? "📆 কিস্তি / EMI" : "📆 Installment / EMI"}</SelectItem>
-                  <SelectItem value="debt_payoff">{bn ? "🤝 ধার শোধ" : "🤝 Debt Payoff"}</SelectItem>
 
                 </SelectContent>
               </Select>

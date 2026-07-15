@@ -80,11 +80,26 @@ const DEFAULT_WALLETS: Array<Omit<WalletRow, "id" | "balance" | "currency" | "so
 
 // Income categories — where money comes from
 // Personal: money I personally earn — office withdrawals, salary, gadget sales, repair services, gifts, etc.
+// ধার-দেনা (Loan/Debt) — pinned group, always available for both scopes
+const LOAN_INCOME_CATEGORIES = [
+  "Loan Received",        // ধার নিয়েছি (I borrowed — money came in)
+  "Loan Collected",       // ধার আদায় (someone returned money they owed me)
+  "Interest Received",    // সুদ/লাভ প্রাপ্তি
+];
+const LOAN_EXPENSE_CATEGORIES = [
+  "Loan Given",           // ধার দিয়েছি (I lent — money went out)
+  "Loan Repayment",       // ধার পরিশোধ (I paid back what I owed)
+  "Interest Paid",        // সুদ প্রদান
+  "bKash Loan",           // বিকাশ লোন
+  "Installment",          // কিস্তি
+];
+const LOAN_CATEGORIES_ALL = Array.from(new Set([...LOAN_INCOME_CATEGORIES, ...LOAN_EXPENSE_CATEGORIES]));
+
 const INCOME_CATEGORIES_PERSONAL = [
   "Office Withdrawal","Salary","Freelance",
   "Gadget Sale","Repair Service",
-  "Gift","Bonus","Interest","Rental Income","Investment Return","Refund",
-  "Family Support","Advance Received","Loan Received","Other Income",
+  "Gift","Bonus","Rental Income","Investment Return","Refund",
+  "Family Support","Advance Received","Other Income",
 ];
 // Business (Official): only channels the office actually receives money through
 const INCOME_CATEGORIES_BUSINESS = [
@@ -92,7 +107,7 @@ const INCOME_CATEGORIES_BUSINESS = [
   "Courier Remittance","Courier Return",
   "Investor Investment","Partner Contribution",
   "Advance from Customer","Refund from Supplier",
-  "Commission","Investment Return","Loan Received","Other Income",
+  "Commission","Investment Return","Other Income",
 ];
 // Expense categories — where money goes
 // Personal: household, family, daily life, personal bills
@@ -106,7 +121,7 @@ const EXPENSE_CATEGORIES_PERSONAL = [
   "Subscription","Domain & Hosting","Software","Hardware",
   "Bus Fare","Train Fare","Uber/Ride","Travel",
   "Kids","Family","Wife Shopping","Education","Entertainment",
-  "Charity","Savings","Investment","Installment","bKash Loan","Other",
+  "Charity","Savings","Investment","Other",
 ];
 // Business (Official): only what the office genuinely spends on
 const EXPENSE_CATEGORIES_BUSINESS = [
@@ -116,10 +131,10 @@ const EXPENSE_CATEGORIES_BUSINESS = [
   "Subscription","Domain & Hosting","Software","Hardware",
   "Salary Paid","Office Rent","Utility Bills",
   "Tax","Maintenance","Business Investment","Business Development",
-  "Loan Repayment","Investor Payout","Other",
+  "Investor Payout","Other",
 ];
-const CATEGORIES_PERSONAL = Array.from(new Set([...INCOME_CATEGORIES_PERSONAL, ...EXPENSE_CATEGORIES_PERSONAL]));
-const CATEGORIES_BUSINESS = Array.from(new Set([...INCOME_CATEGORIES_BUSINESS, ...EXPENSE_CATEGORIES_BUSINESS]));
+const CATEGORIES_PERSONAL = Array.from(new Set([...INCOME_CATEGORIES_PERSONAL, ...EXPENSE_CATEGORIES_PERSONAL, ...LOAN_CATEGORIES_ALL]));
+const CATEGORIES_BUSINESS = Array.from(new Set([...INCOME_CATEGORIES_BUSINESS, ...EXPENSE_CATEGORIES_BUSINESS, ...LOAN_CATEGORIES_ALL]));
 
 const walletIcon = (t: WalletType) => {
   switch (t) {

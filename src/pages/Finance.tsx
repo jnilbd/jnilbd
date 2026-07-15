@@ -1144,9 +1144,14 @@ const Finance = () => {
                        income ? <TrendingUp className="h-4 w-4" /> : <TrendingDown className="h-4 w-4" />}
                     </div>
                     <div className="min-w-0 flex-1">
-                      <p className="text-sm font-medium truncate capitalize">
-                        {t.category ? bnLabel(CATEGORY_BN, t.category, bn) : bnLabel(TX_TYPE_BN, t.type, bn)}
-                        {t.party ? <span className="text-muted-foreground font-normal"> · {t.party}</span> : null}
+                      <p className="text-sm font-medium truncate capitalize flex items-center gap-1.5">
+                        <span className="truncate">{t.category ? bnLabel(CATEGORY_BN, t.category, bn) : bnLabel(TX_TYPE_BN, t.type, bn)}</span>
+                        {t.party ? <span className="text-muted-foreground font-normal truncate"> · {t.party}</span> : null}
+                        {t.meta?.chain_id && (
+                          <span className="inline-flex items-center gap-1 text-[9px] font-medium px-1.5 py-0.5 rounded-full bg-primary/10 text-primary shrink-0">
+                            <LinkIcon className="h-2.5 w-2.5" />{bn?"চেইন":"chain"}
+                          </span>
+                        )}
                       </p>
                       <p className="text-[11px] text-muted-foreground truncate">
                         {new Date(t.occurred_at).toLocaleString(bn?"bn-BD":"en-BD", { dateStyle: "medium", timeStyle: "short" })}

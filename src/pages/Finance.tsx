@@ -78,11 +78,46 @@ const DEFAULT_WALLETS: Array<Omit<WalletRow, "id" | "balance" | "currency" | "so
 ];
 
 // Income categories — where money comes from
-const INCOME_CATEGORIES_PERSONAL = ["Office Withdrawal","Salary","Freelance","Mobile Sale","Laptop Sale","Mobile Repair","Laptop Repair","Service Income","Gift","Bonus","Interest","Rental Income","Investment Return","Refund","Family Support","Advance Received","Loan Received","Other Income"];
-const INCOME_CATEGORIES_BUSINESS = ["Sale","Product Sale","Service Income","Investor Investment","Advance Received","Loan Received","Commission","Investment Return","Refund","Other Income"];
+// Personal: money I personally earn — office withdrawals, salary, gadget sales, repair services, gifts, etc.
+const INCOME_CATEGORIES_PERSONAL = [
+  "Office Withdrawal","Salary","Freelance",
+  "Mobile Sale","Laptop Sale","Gadget Sale","Accessories Sale",
+  "Mobile Repair","Laptop Repair","Repair Service","Service Income",
+  "Gift","Bonus","Interest","Rental Income","Investment Return","Refund",
+  "Family Support","Advance Received","Loan Received","Other Income",
+];
+// Business (Official): only channels the office actually receives money through
+const INCOME_CATEGORIES_BUSINESS = [
+  "Product Sale","Service Sale",
+  "Courier Remittance","Cash on Delivery Remit",
+  "Investor Investment","Partner Contribution",
+  "Advance from Customer","Refund from Supplier",
+  "Commission","Investment Return","Loan Received","Other Income",
+];
 // Expense categories — where money goes
-const EXPENSE_CATEGORIES_PERSONAL = ["Groceries","Vegetables","Fruits","Fish & Meat","Dates","Banana","Baby Diaper","Wife Paan-Supari","Medicine","Food","Eating Out","Guest Gift","Kids","Family","Wife Shopping","Mobile Recharge","Mobile Bill","WiFi Bill (City)","WiFi Bill (Village)","Electricity Bill","Gas Bill","Water Bill","Dish Bill","House Rent","Subscription","Domain & Hosting","Software","Hardware","Bus Fare","Train Fare","Uber/Ride","Travel","Transport","Village Trip","Education","Entertainment","Shopping","bKash Loan","Installment","Investment","Business Investment","Savings","Charity","Bills","Other"];
-const EXPENSE_CATEGORIES_BUSINESS = ["Purchase","Product Purchase","Packaging","Packaging Tools","Office Supplies","Sales Campaign","Facebook Boosting","Advertising","Subscription","Domain & Hosting","Software","Hardware","Courier","Salary Paid","Office Rent","Utility","WiFi Bill (Village)","WiFi Bill (City)","Electricity Bill","Gas Bill","Dish Bill","Mobile Bill","Transport","Maintenance","Tax","Installment","bKash Loan","Business Investment","Investment","Loan Repayment","Business Development","Other"];
+// Personal: household, family, daily life, personal bills
+const EXPENSE_CATEGORIES_PERSONAL = [
+  "Vegetables","Groceries","Fruits","Fish & Meat","Dates","Banana",
+  "Baby Diaper","Wife Paan-Supari","Medicine",
+  "Food","Eating Out","Guest Gift",
+  "House Rent",
+  "WiFi Bill (City)","WiFi Bill (Village)","Electricity Bill","Gas Bill","Water Bill",
+  "Mobile Bill","Mobile Recharge","Dish Bill",
+  "Subscription","Domain & Hosting","Software","Hardware",
+  "Bus Fare","Train Fare","Uber/Ride","Village Trip","Travel",
+  "Kids","Family","Wife Shopping","Education","Entertainment","Shopping",
+  "Charity","Savings","Investment","Installment","bKash Loan","Bills","Other",
+];
+// Business (Official): only what the office genuinely spends on
+const EXPENSE_CATEGORIES_BUSINESS = [
+  "Product Purchase","Packaging","Packaging Tools","Office Supplies",
+  "Sales Campaign","Facebook Boosting","Advertising",
+  "Courier Charge","Processing Fee","Payment Gateway Fee",
+  "Subscription","Domain & Hosting","Software","Hardware",
+  "Salary Paid","Office Rent","Utility Bills",
+  "Tax","Maintenance","Business Investment","Business Development",
+  "Loan Repayment","Investor Payout","Other",
+];
 const CATEGORIES_PERSONAL = Array.from(new Set([...INCOME_CATEGORIES_PERSONAL, ...EXPENSE_CATEGORIES_PERSONAL]));
 const CATEGORIES_BUSINESS = Array.from(new Set([...INCOME_CATEGORIES_BUSINESS, ...EXPENSE_CATEGORIES_BUSINESS]));
 

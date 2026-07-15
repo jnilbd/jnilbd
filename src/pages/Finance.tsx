@@ -1719,6 +1719,27 @@ const Finance = () => {
                 {qaWallet2 && (
                   <>
                     <div>
+                      <Label className="text-xs">
+                        {bn?"মূল উৎস (ঐচ্ছিক — Step ০)":"Original source (optional — Step 0)"}
+                      </Label>
+                      <Select value={qaOriginWallet || "__none__"} onValueChange={(v) => setQaOriginWallet(v === "__none__" ? "" : v)}>
+                        <SelectTrigger className="mt-1 rounded-xl">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="__none__">{bn?"নেই — উৎস থেকেই শুরু":"None — start from source"}</SelectItem>
+                          {wallets.filter(w => w.id !== qaWallet && w.id !== qaWallet2).map(w => (
+                            <SelectItem key={w.id} value={w.id}>
+                              <span className="flex items-center justify-between gap-3 w-full">
+                                <span className="truncate">{w.name}</span>
+                                <span className="text-[10px] text-muted-foreground tabular-nums">৳{Number(w.balance||0).toFixed(0)}</span>
+                              </span>
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div>
                       <Label className="text-xs">{bn?"ক্যাশ-আউট / চার্জ (ঐচ্ছিক)":"Cash-out fee / charge (optional)"}</Label>
                       <Input type="number" inputMode="decimal" value={qaFee}
                         onChange={e => setQaFee(e.target.value)}
@@ -1726,8 +1747,8 @@ const Finance = () => {
                     </div>
                     <p className="text-[10px] text-muted-foreground">
                       {bn
-                        ? `প্রথমে ${walletById(qaWallet2)?.name ?? "উৎস"} → ${walletById(qaWallet)?.name ?? "গন্তব্য"} ট্রান্সফার, তারপর খরচ${Number(qaFee)>0?" + ফি":""}`
-                        : `Transfers ${walletById(qaWallet2)?.name ?? "source"} → ${walletById(qaWallet)?.name ?? "dest"} first, then records expense${Number(qaFee)>0?" + fee":""}`}
+                        ? `${qaOriginWallet ? `${walletById(qaOriginWallet)?.name ?? "মূল উৎস"} → ` : ""}${walletById(qaWallet2)?.name ?? "উৎস"} → ${walletById(qaWallet)?.name ?? "গন্তব্য"} → খরচ${Number(qaFee)>0?" + ফি":""} (${qaOriginWallet ? "৩" : "২"} ধাপ লিঙ্কড)`
+                        : `${qaOriginWallet ? `${walletById(qaOriginWallet)?.name ?? "origin"} → ` : ""}${walletById(qaWallet2)?.name ?? "source"} → ${walletById(qaWallet)?.name ?? "dest"} → expense${Number(qaFee)>0?" + fee":""} (${qaOriginWallet ? "3" : "2"} hops linked)`}
                     </p>
                   </>
                 )}

@@ -1887,7 +1887,7 @@ const Finance = () => {
       </Sheet>
 
       {/* Wallet detail */}
-      <Dialog open={!!detailWallet} onOpenChange={(o) => !o && setDetailWallet(null)}>
+      <Dialog open={!!detailWallet} onOpenChange={(o) => { if (!o) { setDetailWallet(null); setDetailFlow("all"); } }}>
         <DialogContent className="max-w-lg">
           {detailWallet && (
             <>

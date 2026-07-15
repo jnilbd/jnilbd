@@ -306,7 +306,7 @@ export const PlannerTab = ({ userId, bn, monthlyIncome, monthlyExpense, totalBal
   return (
     <div className="space-y-4">
       <Tabs value={tab} onValueChange={(v) => setTab(v as any)}>
-        <TabsList className="flex w-full overflow-x-auto no-scrollbar gap-1 bg-muted/60 h-10">
+        <TabsList className="flex w-full justify-start overflow-x-auto no-scrollbar gap-1 bg-muted/60 h-10 px-1">
           <TabsTrigger value="summary" className="text-xs px-3 shrink-0"><Sparkles className="h-3.5 w-3.5 mr-1" />{bn ? "সারসংক্ষেপ" : "Overview"}</TabsTrigger>
           <TabsTrigger value="savings" className="text-xs px-3 shrink-0"><Target className="h-3.5 w-3.5 mr-1" />{bn ? "লক্ষ্য" : "Goals"}</TabsTrigger>
           <TabsTrigger value="income_target" className="text-xs px-3 shrink-0"><TrendingUp className="h-3.5 w-3.5 mr-1" />{bn ? "আয় টার্গেট" : "Income"}</TabsTrigger>

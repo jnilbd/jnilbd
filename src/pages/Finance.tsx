@@ -109,43 +109,54 @@ const INCOME_TYPES: TxType[] = ["income","sale","loan_taken","repayment_in","ret
 const EXPENSE_TYPES: TxType[] = ["expense","purchase","loan_given","repayment_out","return_out","stock_out"];
 
 // ---------- Small components ----------
-const MetricCard = ({ label, value, icon: Icon, tone = "default", sub, onClick }: any) => (
-  <motion.button
-    type="button"
-    onClick={onClick}
-    initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}
-    className={cn(
-      "relative overflow-hidden rounded-2xl border border-border/60 bg-card/70 backdrop-blur-xl p-4 shadow-sm hover:shadow-md transition-all text-left w-full",
-      "hover:-translate-y-0.5",
-      onClick && "cursor-pointer focus:outline-none focus:ring-2 focus:ring-primary/40"
-    )}
-  >
-    <div className="flex items-start justify-between gap-2">
-      <div className="min-w-0">
-        <p className="text-xs text-muted-foreground truncate">{label}</p>
-        <p className={cn(
-          "text-lg sm:text-xl font-semibold mt-1 tabular-nums truncate",
-          tone === "positive" && "text-emerald-500",
-          tone === "negative" && "text-rose-500",
-        )}>{value}</p>
-        {sub && <p className="text-[10px] text-muted-foreground mt-0.5 truncate">{sub}</p>}
+const MetricCard = ({ label, value, icon: Icon, tone = "default", sub, onClick }: any) => {
+  const toneRing =
+    tone === "positive" ? "from-emerald-400/15 via-emerald-400/5" :
+    tone === "negative" ? "from-rose-400/15 via-rose-400/5" :
+    "from-primary/15 via-primary/5";
+  const toneIcon =
+    tone === "positive" ? "bg-gradient-to-br from-emerald-400 to-emerald-600 text-white shadow-emerald-500/30" :
+    tone === "negative" ? "bg-gradient-to-br from-rose-400 to-rose-600 text-white shadow-rose-500/30" :
+    "bg-gradient-to-br from-primary to-primary/70 text-primary-foreground shadow-primary/30";
+  return (
+    <motion.button
+      type="button"
+      onClick={onClick}
+      initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}
+      whileTap={{ scale: 0.98 }}
+      className={cn(
+        "group relative overflow-hidden rounded-2xl border border-border/60 bg-card p-3.5 shadow-sm hover:shadow-lg transition-all text-left w-full",
+        "hover:-translate-y-0.5 hover:border-primary/30",
+        onClick && "cursor-pointer focus:outline-none focus:ring-2 focus:ring-primary/40"
+      )}
+    >
+      <div className={cn("pointer-events-none absolute -top-10 -right-10 h-28 w-28 rounded-full bg-gradient-to-br to-transparent blur-2xl opacity-70 group-hover:opacity-100 transition", toneRing)} />
+      <div className="relative flex items-start justify-between gap-2">
+        <div className="min-w-0 flex-1">
+          <p className="text-[11px] font-medium text-muted-foreground/90 truncate uppercase tracking-wide">{label}</p>
+          <p className={cn(
+            "text-lg sm:text-xl font-bold mt-1.5 tabular-nums truncate",
+            tone === "positive" && "text-emerald-600 dark:text-emerald-400",
+            tone === "negative" && "text-rose-600 dark:text-rose-400",
+          )}>{value}</p>
+          {sub && <p className="text-[10px] text-muted-foreground mt-0.5 truncate">{sub}</p>}
+        </div>
+        <div className={cn(
+          "shrink-0 h-9 w-9 rounded-xl grid place-items-center shadow-md",
+          toneIcon
+        )}>
+          <Icon className="h-4 w-4" />
+        </div>
       </div>
-      <div className={cn(
-        "shrink-0 h-9 w-9 rounded-xl grid place-items-center",
-        tone === "positive" ? "bg-emerald-500/10 text-emerald-500" :
-        tone === "negative" ? "bg-rose-500/10 text-rose-500" :
-        "bg-primary/10 text-primary"
-      )}>
-        <Icon className="h-4 w-4" />
-      </div>
-    </div>
-    {onClick && (
-      <span className="absolute bottom-1.5 right-2 text-[9px] text-muted-foreground/70">
-        →
-      </span>
-    )}
-  </motion.button>
-);
+      {onClick && (
+        <span className="absolute bottom-1.5 right-2.5 text-[10px] text-muted-foreground/60 group-hover:text-primary group-hover:translate-x-0.5 transition">
+          →
+        </span>
+      )}
+    </motion.button>
+  );
+};
+
 
 const SCOPE_BN: Record<string, string> = { personal: "ব্যক্তিগত", business: "ব্যবসা" };
 const TYPE_BN: Record<string, string> = {
@@ -969,51 +980,79 @@ const Finance = () => {
 
             </div>
 
-            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
-              {[
-                { t: "income", label: bn?"আয় যোগ":"Add Income", icon: TrendingUp, tone: "emerald" },
-                { t: "expense", label: bn?"খরচ যোগ":"Add Expense", icon: TrendingDown, tone: "rose" },
-                { t: "sale", label: bn?"বিক্রি":"Sale", icon: ShoppingCart, tone: "emerald" },
-                { t: "purchase", label: bn?"ক্রয়":"Purchase", icon: Package, tone: "rose" },
-              ].map(a => {
-                const toneCls: Record<string,string> = {
-                  emerald: "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400",
-                  rose: "bg-rose-500/10 text-rose-600 dark:text-rose-400",
-                  sky: "bg-sky-500/10 text-sky-600 dark:text-sky-400",
-                  amber: "bg-amber-500/10 text-amber-600 dark:text-amber-400",
-                };
-                return (
-                  <button key={a.t} onClick={() => openQuick(a.t as TxType)}
-                    className="rounded-2xl border border-border/60 bg-card/70 backdrop-blur p-3 flex items-center gap-2 hover:shadow-md hover:-translate-y-0.5 transition-all text-left">
-                    <div className={`h-9 w-9 rounded-xl grid place-items-center ${toneCls[a.tone]}`}>
-                      <a.icon className="h-4 w-4" />
-                    </div>
-                    <span className="text-sm font-medium">{a.label}</span>
-                  </button>
-                );
-              })}
-              <button onClick={() => openChain("pass_through")}
-                className="rounded-2xl border border-dashed border-primary/50 bg-primary/5 backdrop-blur p-3 flex items-center gap-2 hover:shadow-md hover:-translate-y-0.5 transition-all text-left">
-                <div className="h-9 w-9 rounded-xl grid place-items-center bg-primary/10 text-primary">
-                  <LinkIcon className="h-4 w-4" />
-                </div>
-                <span className="text-sm font-medium">{bn?"চেইন (ঢুকল → ফেরত)":"Chain (In → Out)"}</span>
-              </button>
-              <button onClick={() => openChain("withdraw_spend")}
-                className="rounded-2xl border border-dashed border-primary/50 bg-primary/5 backdrop-blur p-3 flex items-center gap-2 hover:shadow-md hover:-translate-y-0.5 transition-all text-left">
-                <div className="h-9 w-9 rounded-xl grid place-items-center bg-primary/10 text-primary">
-                  <LinkIcon className="h-4 w-4" />
-                </div>
-                <span className="text-sm font-medium">{bn?"চেইন (উত্তোলন → খরচ)":"Chain (Withdraw → Spend)"}</span>
-              </button>
-              <button onClick={() => openQuick("transfer")}
-                className="rounded-2xl border border-border/60 bg-card/70 backdrop-blur p-3 flex items-center gap-2 hover:shadow-md hover:-translate-y-0.5 transition-all text-left">
-                <div className="h-9 w-9 rounded-xl grid place-items-center bg-sky-500/10 text-sky-600 dark:text-sky-400">
-                  <ArrowLeftRight className="h-4 w-4" />
-                </div>
-                <span className="text-sm font-medium">{bn?"ট্রান্সফার":"Transfer"}</span>
-              </button>
+            <div>
+              <div className="flex items-center gap-2 mb-2.5 px-0.5">
+                <div className="h-1 w-6 rounded-full bg-gradient-to-r from-primary to-primary/40" />
+                <p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">{bn?"দ্রুত এন্ট্রি":"Quick Entry"}</p>
+              </div>
+              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2.5">
+                {[
+                  { t: "income", label: bn?"আয় যোগ":"Add Income", icon: TrendingUp, tone: "emerald" },
+                  { t: "expense", label: bn?"খরচ যোগ":"Add Expense", icon: TrendingDown, tone: "rose" },
+                  { t: "sale", label: bn?"বিক্রি":"Sale", icon: ShoppingCart, tone: "emerald" },
+                  { t: "purchase", label: bn?"ক্রয়":"Purchase", icon: Package, tone: "rose" },
+                ].map(a => {
+                  const toneCls: Record<string,string> = {
+                    emerald: "from-emerald-400 to-emerald-600 shadow-emerald-500/30",
+                    rose: "from-rose-400 to-rose-600 shadow-rose-500/30",
+                    sky: "from-sky-400 to-sky-600 shadow-sky-500/30",
+                    amber: "from-amber-400 to-amber-600 shadow-amber-500/30",
+                  };
+                  const glowCls: Record<string,string> = {
+                    emerald: "from-emerald-400/20",
+                    rose: "from-rose-400/20",
+                    sky: "from-sky-400/20",
+                    amber: "from-amber-400/20",
+                  };
+                  return (
+                    <button key={a.t} onClick={() => openQuick(a.t as TxType)}
+                      className="group relative overflow-hidden rounded-2xl border border-border/60 bg-card p-3 flex items-center gap-2.5 hover:shadow-lg hover:-translate-y-0.5 hover:border-primary/30 transition-all text-left">
+                      <div className={cn("pointer-events-none absolute -top-8 -right-8 h-20 w-20 rounded-full bg-gradient-to-br to-transparent blur-2xl opacity-60 group-hover:opacity-100 transition", glowCls[a.tone])} />
+                      <div className={cn("relative shrink-0 h-10 w-10 rounded-xl grid place-items-center text-white shadow-md bg-gradient-to-br", toneCls[a.tone])}>
+                        <a.icon className="h-5 w-5" />
+                      </div>
+                      <span className="relative text-sm font-semibold">{a.label}</span>
+                    </button>
+                  );
+                })}
+              </div>
+
+              <div className="flex items-center gap-2 mt-4 mb-2.5 px-0.5">
+                <div className="h-1 w-6 rounded-full bg-gradient-to-r from-primary to-primary/40" />
+                <p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">{bn?"চেইন ও ট্রান্সফার":"Chain & Transfer"}</p>
+              </div>
+              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2.5">
+                <button onClick={() => openChain("pass_through")}
+                  className="group relative overflow-hidden rounded-2xl border border-primary/30 bg-gradient-to-br from-primary/8 via-card to-card p-3 flex items-center gap-2.5 hover:shadow-lg hover:-translate-y-0.5 hover:border-primary/60 transition-all text-left">
+                  <div className="shrink-0 h-10 w-10 rounded-xl grid place-items-center bg-gradient-to-br from-primary to-primary/60 text-primary-foreground shadow-md shadow-primary/30">
+                    <LinkIcon className="h-5 w-5" />
+                  </div>
+                  <div className="min-w-0">
+                    <span className="block text-sm font-semibold leading-tight">{bn?"চেইন":"Chain"}</span>
+                    <span className="block text-[10px] text-muted-foreground leading-tight">{bn?"ঢুকল → ফেরত":"In → Out"}</span>
+                  </div>
+                </button>
+                <button onClick={() => openChain("withdraw_spend")}
+                  className="group relative overflow-hidden rounded-2xl border border-primary/30 bg-gradient-to-br from-primary/8 via-card to-card p-3 flex items-center gap-2.5 hover:shadow-lg hover:-translate-y-0.5 hover:border-primary/60 transition-all text-left">
+                  <div className="shrink-0 h-10 w-10 rounded-xl grid place-items-center bg-gradient-to-br from-primary to-primary/60 text-primary-foreground shadow-md shadow-primary/30">
+                    <LinkIcon className="h-5 w-5" />
+                  </div>
+                  <div className="min-w-0">
+                    <span className="block text-sm font-semibold leading-tight">{bn?"চেইন":"Chain"}</span>
+                    <span className="block text-[10px] text-muted-foreground leading-tight">{bn?"উত্তোলন → খরচ":"Withdraw → Spend"}</span>
+                  </div>
+                </button>
+                <button onClick={() => openQuick("transfer")}
+                  className="group relative overflow-hidden rounded-2xl border border-border/60 bg-card p-3 flex items-center gap-2.5 hover:shadow-lg hover:-translate-y-0.5 hover:border-sky-400/50 transition-all text-left">
+                  <div className="pointer-events-none absolute -top-8 -right-8 h-20 w-20 rounded-full bg-gradient-to-br from-sky-400/20 to-transparent blur-2xl opacity-60 group-hover:opacity-100 transition" />
+                  <div className="relative shrink-0 h-10 w-10 rounded-xl grid place-items-center bg-gradient-to-br from-sky-400 to-sky-600 text-white shadow-md shadow-sky-500/30">
+                    <ArrowLeftRight className="h-5 w-5" />
+                  </div>
+                  <span className="relative text-sm font-semibold">{bn?"ট্রান্সফার":"Transfer"}</span>
+                </button>
+              </div>
             </div>
+
           </TabsContent>
 
           {/* Wallets */}

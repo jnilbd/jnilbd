@@ -12,6 +12,7 @@ import SportsSchedule from "@/components/SportsSchedule";
 import WorldCupChannels from "@/components/WorldCupChannels";
 import LiveScoreBoard from "@/components/LiveScoreBoard";
 import PortalChannels from "@/components/PortalChannels";
+import XtreamChannels from "@/components/XtreamChannels";
 import { BDIX_CHANNELS, IMPORTANT_BD_CHANNELS, IMPORTANT_IN_CHANNELS } from "@/data/bdixChannels";
 
 const DEAD_KEY = "livetv:dead:v2";
@@ -19,7 +20,7 @@ const WORKING_KEY = "livetv:working:v1";
 const FAV_KEY = "livetv:favorites:v2";
 const RECENT_KEY = "livetv:recent:v1";
 
-type Tab = "mrgify" | "tv" | "bdix" | "world" | "sports" | "radio" | "offline" | "working" | "alpha6";
+type Tab = "mrgify" | "tv" | "bdix" | "world" | "sports" | "radio" | "offline" | "working" | "alpha6" | "neosfpoo" | "business8k" | "mhiptv" | "serveurprotv";
 type Health = "unknown" | "checking" | "live" | "dead";
 
 type Channel = {
@@ -937,6 +938,10 @@ const LiveTV = () => {
               { k: "sports", label: t("স্পোর্টস","Sports"), icon: Trophy, count: (mergedByTab.sports || []).length },
               { k: "radio", label: t("রেডিও","Radio"), icon: Radio, count: (mergedByTab.radio || []).length },
               { k: "alpha6", label: t("Alpha6 পোর্টাল","Alpha6 Portal"), icon: Zap, count: 0 },
+              { k: "neosfpoo", label: "Neosfpoo", icon: Zap, count: 0 },
+              { k: "business8k", label: "Business 8K", icon: Zap, count: 0 },
+              { k: "mhiptv", label: "MH IPTV", icon: Zap, count: 0 },
+              { k: "serveurprotv", label: "ServeurProTV", icon: Zap, count: 0 },
               { k: "working", label: t("ওয়ার্কিং ✅","Working ✅"), icon: CheckCircle2, count: workingChannels.length },
               { k: "offline", label: t("অফলাইন","Offline"), icon: XCircle, count: offlineChannels.length },
             ] as { k: Tab; label: string; icon: any; count: number }[]).map(({ k, label, icon: Icon, count }) => (
@@ -1033,6 +1038,43 @@ const LiveTV = () => {
               />
             )}
 
+            {tab === "neosfpoo" && (
+              <XtreamChannels
+                m3uUrl="http://neosfpoo.top:8080/get.php?username=2071771277838&password=6ec486cbcb6b&type=m3u_plus&output=ts"
+                label="Neosfpoo IPTV"
+                username="2071771277838"
+                expiry="2027-02-16"
+              />
+            )}
+
+            {tab === "business8k" && (
+              <XtreamChannels
+                m3uUrl="http://tv.business-cdn-8k.com:80/get.php?username=ercanx&password=khu98v9ku2&type=m3u_plus"
+                label="Business CDN 8K"
+                username="ercanx"
+                expiry="2027-04-12"
+              />
+            )}
+
+            {tab === "mhiptv" && (
+              <XtreamChannels
+                m3uUrl="http://mhiptv.com:8080/get.php?username=8965387453&password=89742563188&type=m3u_plus"
+                label="MH IPTV"
+                username="8965387453"
+                expiry="2027-01-26"
+              />
+            )}
+
+            {tab === "serveurprotv" && (
+              <XtreamChannels
+                m3uUrl="http://line.serveurprotv.fr:80/get.php?username=28049cdd68&password=498136007c2e&type=m3u_plus"
+                label="Serveur Pro TV"
+                username="28049cdd68"
+                expiry="2026-10-17"
+              />
+            )}
+
+
             {tab === "bdix" && (
               <Card className="p-3 mb-4 bg-amber-500/5 border-amber-500/30">
                 <p className="text-xs text-muted-foreground">
@@ -1051,7 +1093,7 @@ const LiveTV = () => {
               </div>
             )}
 
-            {loading && tab !== "radio" && tab !== "bdix" && tab !== "mrgify" && tab !== "alpha6" && (
+            {loading && !["radio","bdix","mrgify","alpha6","neosfpoo","business8k","mhiptv","serveurprotv"].includes(tab) && (
               <div className="flex flex-col items-center py-12 text-muted-foreground">
                 <Loader2 className="w-8 h-8 animate-spin mb-2" />
                 <p className="text-sm">{t("সর্বশেষ চ্যানেল লোড হচ্ছে...", "Loading latest channels...")}</p>

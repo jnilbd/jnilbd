@@ -66,7 +66,8 @@ interface TxRow {
 
 // ---------- Constants ----------
 const DEFAULT_WALLETS: Array<Omit<WalletRow, "id" | "balance" | "currency" | "sort_order">> = [
-  { name: "Bank Savings Cash",  type: "bank",   provider: null,      scope: "personal", icon: "coins",    color: "from-amber-400 to-orange-500",   is_default: true,  archived: false },
+  { name: "Personal Cash",  type: "cash",   provider: null,      scope: "personal", icon: "banknote", color: "from-lime-400 to-emerald-500",   is_default: true,  archived: false },
+  { name: "Bank Savings Cash",  type: "bank",   provider: null,      scope: "personal", icon: "coins",    color: "from-amber-400 to-orange-500",   is_default: false, archived: false },
   { name: "Office Cash",    type: "cash",   provider: null,      scope: "business", icon: "banknote", color: "from-emerald-400 to-teal-500",   is_default: false, archived: false },
   { name: "bKash",          type: "mobile", provider: "bkash",   scope: "personal", icon: "smartphone", color: "from-pink-500 to-rose-600",     is_default: false, archived: false },
   { name: "Card",           type: "card",   provider: null,      scope: "personal", icon: "credit-card", color: "from-indigo-500 to-violet-600", is_default: false, archived: false },

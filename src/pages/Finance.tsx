@@ -253,7 +253,7 @@ const CATEGORY_BN: Record<string, string> = {
   "Partner Contribution": "পার্টনার কন্ট্রিবিউশন",
   "Advance from Customer": "কাস্টমার অগ্রিম",
   "Refund from Supplier": "সাপ্লায়ার রিফান্ড",
-  "Courier Charge": "কুরিয়ার চার্জ",
+  "Courier Charge": "কুরিয়ার চার্জ", "Courier Return": "কুরিয়ার রিটার্ন", "Courier Return Loss": "কুরিয়ার রিটার্ন ক্ষতি",
   "Processing Fee": "প্রসেসিং ফি", "Payment Gateway Fee": "পেমেন্ট গেটওয়ে ফি",
   "Utility Bills": "ইউটিলিটি বিল",
   "Investor Payout": "ইনভেস্টর পে-আউট",

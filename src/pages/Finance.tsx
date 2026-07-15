@@ -825,10 +825,20 @@ const Finance = () => {
         occurred_at, meta: linkMeta,
       });
     } else {
-      // withdraw_spend: withdraw from A → cash B, then spend from B
+      // withdraw_spend: [optional origin → source] → transfer source → destination → spend from destination
       if (chainInWallet === chainOutWallet) {
         toast.error(bn ? "উৎস ও গন্তব্য আলাদা হতে হবে" : "Source and destination must differ");
         setChainBusy(false); return;
+      }
+      if (chainOriginWallet && chainOriginWallet !== chainInWallet) {
+        rows.push({
+          user_id: user.id,
+          wallet_id: chainOriginWallet, transfer_to_wallet_id: chainInWallet,
+          type: "transfer", amount,
+          category: null, scope: chainScope, party: null,
+          note: (chainNote ? `${chainNote} — ` : "") + (bn ? "চেইন: উৎস থেকে" : "chain: from origin"),
+          occurred_at, meta: linkMeta,
+        });
       }
       rows.push({
         user_id: user.id,

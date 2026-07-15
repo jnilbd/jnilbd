@@ -292,6 +292,14 @@ const Navbar = () => {
                   <DropdownMenuItem onClick={() => navigate("/cart")}>
                     <ShoppingCart className="w-4 h-4 mr-2" /> {isBn ? "কার্ট" : "Cart"}
                   </DropdownMenuItem>
+                  {isAdmin && (
+                    <>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem onClick={() => navigate("/dashboard")} className="text-primary focus:text-primary">
+                        <ShieldAlert className="w-4 h-4 mr-2" /> {isBn ? "অ্যাডমিন প্যানেল" : "Admin Panel"}
+                      </DropdownMenuItem>
+                    </>
+                  )}
                   <DropdownMenuSeparator />
                   <DropdownMenuItem onClick={async () => { await signOut(); navigate("/"); }} className="text-destructive focus:text-destructive">
                     <LogOut className="w-4 h-4 mr-2" /> {isBn ? "লগআউট" : "Sign out"}

@@ -975,7 +975,6 @@ const Finance = () => {
                 { t: "expense", label: bn?"খরচ যোগ":"Add Expense", icon: TrendingDown, tone: "rose" },
                 { t: "sale", label: bn?"বিক্রি":"Sale", icon: ShoppingCart, tone: "emerald" },
                 { t: "purchase", label: bn?"ক্রয়":"Purchase", icon: Package, tone: "rose" },
-                { t: "transfer", label: bn?"ট্রান্সফার":"Transfer", icon: ArrowLeftRight, tone: "sky" },
               ].map(a => {
                 const toneCls: Record<string,string> = {
                   emerald: "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400",
@@ -1006,6 +1005,13 @@ const Finance = () => {
                   <LinkIcon className="h-4 w-4" />
                 </div>
                 <span className="text-sm font-medium">{bn?"চেইন (উত্তোলন → খরচ)":"Chain (Withdraw → Spend)"}</span>
+              </button>
+              <button onClick={() => openQuick("transfer")}
+                className="rounded-2xl border border-border/60 bg-card/70 backdrop-blur p-3 flex items-center gap-2 hover:shadow-md hover:-translate-y-0.5 transition-all text-left">
+                <div className="h-9 w-9 rounded-xl grid place-items-center bg-sky-500/10 text-sky-600 dark:text-sky-400">
+                  <ArrowLeftRight className="h-4 w-4" />
+                </div>
+                <span className="text-sm font-medium">{bn?"ট্রান্সফার":"Transfer"}</span>
               </button>
             </div>
           </TabsContent>

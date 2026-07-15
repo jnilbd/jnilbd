@@ -66,7 +66,8 @@ interface TxRow {
 
 // ---------- Constants ----------
 const DEFAULT_WALLETS: Array<Omit<WalletRow, "id" | "balance" | "currency" | "sort_order">> = [
-  { name: "Bank Savings Cash",  type: "bank",   provider: null,      scope: "personal", icon: "coins",    color: "from-amber-400 to-orange-500",   is_default: true,  archived: false },
+  { name: "Personal Cash",  type: "cash",   provider: null,      scope: "personal", icon: "banknote", color: "from-lime-400 to-emerald-500",   is_default: true,  archived: false },
+  { name: "Bank Savings Cash",  type: "bank",   provider: null,      scope: "personal", icon: "coins",    color: "from-amber-400 to-orange-500",   is_default: false, archived: false },
   { name: "Office Cash",    type: "cash",   provider: null,      scope: "business", icon: "banknote", color: "from-emerald-400 to-teal-500",   is_default: false, archived: false },
   { name: "bKash",          type: "mobile", provider: "bkash",   scope: "personal", icon: "smartphone", color: "from-pink-500 to-rose-600",     is_default: false, archived: false },
   { name: "Card",           type: "card",   provider: null,      scope: "personal", icon: "credit-card", color: "from-indigo-500 to-violet-600", is_default: false, archived: false },
@@ -919,11 +920,14 @@ const Finance = () => {
 
   const isIncomeType = INCOME_TYPES.includes(qaType);
   const isExpenseType = EXPENSE_TYPES.includes(qaType);
+  // Personal scope (e.g. Personal Cash wallet) accepts money from any source and any kind of expense.
+  const ALL_INCOME = Array.from(new Set([...INCOME_CATEGORIES_PERSONAL, ...INCOME_CATEGORIES_BUSINESS]));
+  const ALL_EXPENSE = Array.from(new Set([...EXPENSE_CATEGORIES_PERSONAL, ...EXPENSE_CATEGORIES_BUSINESS]));
   const CATEGORIES = isIncomeType
-    ? (qaScope === "business" ? INCOME_CATEGORIES_BUSINESS : INCOME_CATEGORIES_PERSONAL)
+    ? (qaScope === "business" ? INCOME_CATEGORIES_BUSINESS : ALL_INCOME)
     : isExpenseType
-      ? (qaScope === "business" ? EXPENSE_CATEGORIES_BUSINESS : EXPENSE_CATEGORIES_PERSONAL)
-      : (qaScope === "business" ? CATEGORIES_BUSINESS : CATEGORIES_PERSONAL);
+      ? (qaScope === "business" ? EXPENSE_CATEGORIES_BUSINESS : ALL_EXPENSE)
+      : (qaScope === "business" ? CATEGORIES_BUSINESS : Array.from(new Set([...CATEGORIES_PERSONAL, ...CATEGORIES_BUSINESS])));
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-background via-background to-muted/30 pb-32">
@@ -1776,7 +1780,7 @@ const Finance = () => {
                       <SelectValue placeholder={bn?"আয়ের ক্যাটাগরি (ঐচ্ছিক)":"Income category (optional)"} />
                     </SelectTrigger>
                     <SelectContent>
-                      {(chainScope === "business" ? INCOME_CATEGORIES_BUSINESS : INCOME_CATEGORIES_PERSONAL).map(c => (
+                      {(chainScope === "business" ? INCOME_CATEGORIES_BUSINESS : Array.from(new Set([...INCOME_CATEGORIES_PERSONAL, ...INCOME_CATEGORIES_BUSINESS]))).map(c => (
                         <SelectItem key={c} value={c}>{bn ? (CATEGORY_BN[c] ?? c) : c}</SelectItem>
                       ))}
                     </SelectContent>
@@ -1816,7 +1820,7 @@ const Finance = () => {
                   <SelectValue placeholder={bn?"খরচের ক্যাটাগরি (ঐচ্ছিক)":"Expense category (optional)"} />
                 </SelectTrigger>
                 <SelectContent>
-                  {(chainScope === "business" ? EXPENSE_CATEGORIES_BUSINESS : EXPENSE_CATEGORIES_PERSONAL).map(c => (
+                  {(chainScope === "business" ? EXPENSE_CATEGORIES_BUSINESS : Array.from(new Set([...EXPENSE_CATEGORIES_PERSONAL, ...EXPENSE_CATEGORIES_BUSINESS]))).map(c => (
                     <SelectItem key={c} value={c}>{bn ? (CATEGORY_BN[c] ?? c) : c}</SelectItem>
                   ))}
                 </SelectContent>

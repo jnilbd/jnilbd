@@ -76,7 +76,33 @@ export const DebtsTab = ({ userId, bn }: { userId: string; bn: boolean }) => {
     setPayAmount("");
     setPayNote("");
     setPayDate(new Date().toISOString().slice(0, 10));
+    setPayWalletId(d.wallet_id || "");
     await loadPayments(d.id);
+  };
+
+  // Auto-log a matching finance_transactions row for wallet balance sync
+  const logFinanceTx = async (opts: {
+    walletId: string; amount: number; kind: "loan_received" | "loan_given" | "loan_repay" | "loan_collect";
+    counterparty: string; occurredAt: string; noteExtra?: string | null;
+  }) => {
+    const isIncome = opts.kind === "loan_received" || opts.kind === "loan_collect";
+    const wallet = wallets.find(w => w.id === opts.walletId);
+    const label =
+      opts.kind === "loan_received" ? (bn ? "ধার নেওয়া" : "Loan received")
+      : opts.kind === "loan_given" ? (bn ? "ধার দেওয়া" : "Loan given")
+      : opts.kind === "loan_repay" ? (bn ? "ধার পরিশোধ" : "Loan repay")
+      : (bn ? "ধার আদায়" : "Loan collected");
+    await supabase.from("finance_transactions").insert({
+      user_id: userId,
+      wallet_id: opts.walletId,
+      type: isIncome ? "income" : "expense",
+      amount: opts.amount,
+      category: opts.kind,
+      scope: (wallet?.scope === "business" ? "business" : "personal") as any,
+      party: opts.counterparty,
+      note: `${label}: ${opts.counterparty}${opts.noteExtra ? ` · ${opts.noteExtra}` : ""}`,
+      occurred_at: opts.occurredAt,
+    } as any);
   };
 
   const save = async () => {
@@ -84,15 +110,28 @@ export const DebtsTab = ({ userId, bn }: { userId: string; bn: boolean }) => {
       toast.error(bn ? "নাম ও টাকা দিন" : "Enter name & amount"); return;
     }
     setBusy(true);
-    const { error } = await supabase.from("debts").insert({
+    const amt = Math.round(Number(amount));
+    const { data: inserted, error } = await supabase.from("debts").insert({
       user_id: userId, direction: dir, counterparty: party.trim(),
-      amount: Math.round(Number(amount)),
+      amount: amt,
       due_date: dueDate || null, note: note || null, paid_amount: 0, is_settled: false,
-    });
+      wallet_id: walletId || null,
+    } as any).select().single();
+    if (error) { setBusy(false); toast.error(error.message); return; }
+
+    if (walletId) {
+      await logFinanceTx({
+        walletId,
+        amount: amt,
+        kind: dir === "i_owe" ? "loan_received" : "loan_given",
+        counterparty: party.trim(),
+        occurredAt: new Date().toISOString(),
+        noteExtra: note || null,
+      });
+    }
     setBusy(false);
-    if (error) { toast.error(error.message); return; }
     toast.success(bn ? "যোগ হয়েছে" : "Added");
-    setOpen(false); setParty(""); setAmount(""); setDueDate(""); setNote("");
+    setOpen(false); setParty(""); setAmount(""); setDueDate(""); setNote(""); setWalletId("");
     await load();
   };
 
@@ -114,9 +153,22 @@ export const DebtsTab = ({ userId, bn }: { userId: string; bn: boolean }) => {
     const { error } = await supabase.from("debt_payments").insert({
       user_id: userId, debt_id: historyFor.id, amount: amt,
       paid_at: paidAtIso, note: payNote || null,
-    });
+      wallet_id: payWalletId || null,
+    } as any);
+    if (error) { setPayBusy(false); toast.error(error.message); return; }
+
+    if (payWalletId) {
+      await logFinanceTx({
+        walletId: payWalletId,
+        amount: amt,
+        kind: historyFor.direction === "i_owe" ? "loan_repay" : "loan_collect",
+        counterparty: historyFor.counterparty,
+        occurredAt: paidAtIso,
+        noteExtra: payNote || null,
+      });
+    }
+
     setPayBusy(false);
-    if (error) { toast.error(error.message); return; }
     toast.success(bn ? "পরিশোধ যোগ হয়েছে" : "Payment recorded");
     setPayAmount(""); setPayNote("");
     await Promise.all([loadPayments(historyFor.id), load()]);

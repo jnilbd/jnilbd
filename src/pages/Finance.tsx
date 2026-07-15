@@ -18,7 +18,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue, SelectGroup, SelectLabel, SelectSeparator } from "@/components/ui/select";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
@@ -80,11 +80,26 @@ const DEFAULT_WALLETS: Array<Omit<WalletRow, "id" | "balance" | "currency" | "so
 
 // Income categories — where money comes from
 // Personal: money I personally earn — office withdrawals, salary, gadget sales, repair services, gifts, etc.
+// ধার-দেনা (Loan/Debt) — pinned group, always available for both scopes
+const LOAN_INCOME_CATEGORIES = [
+  "Loan Received",        // ধার নিয়েছি (I borrowed — money came in)
+  "Loan Collected",       // ধার আদায় (someone returned money they owed me)
+  "Interest Received",    // সুদ/লাভ প্রাপ্তি
+];
+const LOAN_EXPENSE_CATEGORIES = [
+  "Loan Given",           // ধার দিয়েছি (I lent — money went out)
+  "Loan Repayment",       // ধার পরিশোধ (I paid back what I owed)
+  "Interest Paid",        // সুদ প্রদান
+  "bKash Loan",           // বিকাশ লোন
+  "Installment",          // কিস্তি
+];
+const LOAN_CATEGORIES_ALL = Array.from(new Set([...LOAN_INCOME_CATEGORIES, ...LOAN_EXPENSE_CATEGORIES]));
+
 const INCOME_CATEGORIES_PERSONAL = [
   "Office Withdrawal","Salary","Freelance",
   "Gadget Sale","Repair Service",
-  "Gift","Bonus","Interest","Rental Income","Investment Return","Refund",
-  "Family Support","Advance Received","Loan Received","Other Income",
+  "Gift","Bonus","Rental Income","Investment Return","Refund",
+  "Family Support","Advance Received","Other Income",
 ];
 // Business (Official): only channels the office actually receives money through
 const INCOME_CATEGORIES_BUSINESS = [
@@ -92,7 +107,7 @@ const INCOME_CATEGORIES_BUSINESS = [
   "Courier Remittance","Courier Return",
   "Investor Investment","Partner Contribution",
   "Advance from Customer","Refund from Supplier",
-  "Commission","Investment Return","Loan Received","Other Income",
+  "Commission","Investment Return","Other Income",
 ];
 // Expense categories — where money goes
 // Personal: household, family, daily life, personal bills
@@ -106,7 +121,7 @@ const EXPENSE_CATEGORIES_PERSONAL = [
   "Subscription","Domain & Hosting","Software","Hardware",
   "Bus Fare","Train Fare","Uber/Ride","Travel",
   "Kids","Family","Wife Shopping","Education","Entertainment",
-  "Charity","Savings","Investment","Installment","bKash Loan","Other",
+  "Charity","Savings","Investment","Other",
 ];
 // Business (Official): only what the office genuinely spends on
 const EXPENSE_CATEGORIES_BUSINESS = [
@@ -116,10 +131,10 @@ const EXPENSE_CATEGORIES_BUSINESS = [
   "Subscription","Domain & Hosting","Software","Hardware",
   "Salary Paid","Office Rent","Utility Bills",
   "Tax","Maintenance","Business Investment","Business Development",
-  "Loan Repayment","Investor Payout","Other",
+  "Investor Payout","Other",
 ];
-const CATEGORIES_PERSONAL = Array.from(new Set([...INCOME_CATEGORIES_PERSONAL, ...EXPENSE_CATEGORIES_PERSONAL]));
-const CATEGORIES_BUSINESS = Array.from(new Set([...INCOME_CATEGORIES_BUSINESS, ...EXPENSE_CATEGORIES_BUSINESS]));
+const CATEGORIES_PERSONAL = Array.from(new Set([...INCOME_CATEGORIES_PERSONAL, ...EXPENSE_CATEGORIES_PERSONAL, ...LOAN_CATEGORIES_ALL]));
+const CATEGORIES_BUSINESS = Array.from(new Set([...INCOME_CATEGORIES_BUSINESS, ...EXPENSE_CATEGORIES_BUSINESS, ...LOAN_CATEGORIES_ALL]));
 
 const walletIcon = (t: WalletType) => {
   switch (t) {
@@ -212,7 +227,17 @@ const CATEGORY_BN: Record<string, string> = {
   Travel: "ভ্রমণ", Rent: "ভাড়া", Investment: "বিনিয়োগ", Savings: "সঞ্চয়",
   Salary: "বেতন", "Salary Paid": "বেতন প্রদান", Advertising: "বিজ্ঞাপন", "Facebook Boosting": "ফেসবুক বুস্টিং", Courier: "কুরিয়ার",
   "Office Rent": "অফিস ভাড়া", Utility: "ইউটিলিটি", Refund: "রিফান্ড",
-  Loan: "ঋণ", "Loan Received": "ঋণ প্রাপ্তি", "Loan Repayment": "ঋণ পরিশোধ",
+  Loan: "ঋণ",
+  "Loan Received": "ধার নিয়েছি",
+  "Loan Given": "ধার দিয়েছি",
+  "Loan Collected": "ধার আদায় (ফেরত পেয়েছি)",
+  "Loan Repayment": "ধার পরিশোধ (ফেরত দিয়েছি)",
+  "Interest Received": "সুদ/লাভ প্রাপ্তি",
+  "Interest Paid": "সুদ প্রদান",
+  loan_received: "ধার নিয়েছি",
+  loan_given: "ধার দিয়েছি",
+  loan_collect: "ধার আদায় (ফেরত পেয়েছি)",
+  loan_repay: "ধার পরিশোধ (ফেরত দিয়েছি)",
   Sale: "বিক্রি", Purchase: "ক্রয়", Other: "অন্যান্য",
   "WiFi Bill (Village)": "ওয়াইফাই বিল (গ্রাম)", "WiFi Bill (City)": "ওয়াইফাই বিল (শহর)",
   "Dish Bill": "ডিশ বিল", "Electricity Bill": "কারেন্ট বিল", "Gas Bill": "গ্যাস বিল",
@@ -926,11 +951,17 @@ const Finance = () => {
   // Personal scope (e.g. Personal Cash wallet) accepts money from any source and any kind of expense.
   const ALL_INCOME = Array.from(new Set([...INCOME_CATEGORIES_PERSONAL, ...INCOME_CATEGORIES_BUSINESS]));
   const ALL_EXPENSE = Array.from(new Set([...EXPENSE_CATEGORIES_PERSONAL, ...EXPENSE_CATEGORIES_BUSINESS]));
-  const CATEGORIES = isIncomeType
+  // Loan/debt categories shown as a pinned group in the dropdown
+  const LOAN_GROUP = isIncomeType ? LOAN_INCOME_CATEGORIES
+    : isExpenseType ? LOAN_EXPENSE_CATEGORIES
+    : LOAN_CATEGORIES_ALL;
+  const CATEGORIES_BASE = isIncomeType
     ? (qaScope === "business" ? INCOME_CATEGORIES_BUSINESS : ALL_INCOME)
     : isExpenseType
       ? (qaScope === "business" ? EXPENSE_CATEGORIES_BUSINESS : ALL_EXPENSE)
       : (qaScope === "business" ? CATEGORIES_BUSINESS : Array.from(new Set([...CATEGORIES_PERSONAL, ...CATEGORIES_BUSINESS])));
+  // Remove loan items from the base list — they render in their own pinned group
+  const CATEGORIES = CATEGORIES_BASE.filter(c => !LOAN_CATEGORIES_ALL.includes(c));
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-background via-background to-muted/30 pb-32">
@@ -1654,10 +1685,45 @@ const Finance = () => {
                   <SelectTrigger className="mt-1 rounded-xl">
                     <SelectValue placeholder={bn?"ক্যাটাগরি নির্বাচন করুন":"Select category"} />
                   </SelectTrigger>
-                  <SelectContent>
-                    {CATEGORIES.map(c => (
-                      <SelectItem key={c} value={c}>{bn ? (CATEGORY_BN[c] ?? c) : c}</SelectItem>
-                    ))}
+                  <SelectContent className="max-h-[60vh]">
+                    {LOAN_GROUP.length > 0 && (
+                      <>
+                        <SelectGroup>
+                          <SelectLabel className="flex items-center gap-1.5 text-[10px] uppercase tracking-wider text-amber-700 dark:text-amber-400 bg-amber-500/10 px-2 py-1.5 rounded-md mx-1 my-1">
+                            <HandCoins className="h-3 w-3" />
+                            {bn ? "ধার-দেনা (দ্রুত)" : "Loans & Debts (Quick)"}
+                          </SelectLabel>
+                          {LOAN_GROUP.map(c => {
+                            const isIn = LOAN_INCOME_CATEGORIES.includes(c);
+                            return (
+                              <SelectItem key={c} value={c} className="pl-6">
+                                <span className="flex items-center gap-2">
+                                  <span className={cn(
+                                    "inline-block h-1.5 w-1.5 rounded-full",
+                                    isIn ? "bg-emerald-500" : "bg-rose-500"
+                                  )} />
+                                  <span className="font-medium">{bn ? (CATEGORY_BN[c] ?? c) : c}</span>
+                                  <span className={cn(
+                                    "ml-auto text-[9px] px-1.5 py-0 rounded",
+                                    isIn ? "bg-emerald-500/15 text-emerald-600 dark:text-emerald-400"
+                                         : "bg-rose-500/15 text-rose-600 dark:text-rose-400"
+                                  )}>{isIn ? (bn?"আয়":"IN") : (bn?"ব্যয়":"OUT")}</span>
+                                </span>
+                              </SelectItem>
+                            );
+                          })}
+                        </SelectGroup>
+                        <SelectSeparator />
+                      </>
+                    )}
+                    <SelectGroup>
+                      <SelectLabel className="text-[10px] uppercase tracking-wider text-muted-foreground px-2 py-1">
+                        {bn ? "সাধারণ ক্যাটাগরি" : "General"}
+                      </SelectLabel>
+                      {CATEGORIES.map(c => (
+                        <SelectItem key={c} value={c}>{bn ? (CATEGORY_BN[c] ?? c) : c}</SelectItem>
+                      ))}
+                    </SelectGroup>
                   </SelectContent>
                 </Select>
               </div>

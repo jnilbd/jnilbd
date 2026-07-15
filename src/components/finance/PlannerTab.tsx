@@ -225,6 +225,19 @@ export const PlannerTab = ({ userId, bn, monthlyIncome, monthlyExpense, totalBal
       ? (k === "savings" ? "লক্ষ্য" : k === "income_target" ? "আয়ের টার্গেট" : k === "debt_payoff" ? "ধার শোধ" : "কিস্তি")
       : (k === "savings" ? "Goal" : k === "income_target" ? "Income Target" : k === "debt_payoff" ? "Debt Payoff" : "Installment");
 
+  const priorityMeta = (p: number) => {
+    if (p >= 3) return { label: bn ? "উচ্চ" : "High", cls: "bg-rose-500/15 text-rose-600 border-rose-500/30" };
+    if (p <= 1) return { label: bn ? "কম" : "Low", cls: "bg-slate-500/15 text-slate-500 border-slate-500/30" };
+    return { label: bn ? "মাঝারি" : "Medium", cls: "bg-amber-500/15 text-amber-600 border-amber-500/30" };
+  };
+
+  const setPriority = async (r: GoalRow, p: number) => {
+    const { error } = await supabase.from("savings_goals").update({ priority: p }).eq("id", r.id);
+    if (error) return toast.error(error.message);
+    setRows(prev => prev.map(x => x.id === r.id ? { ...x, priority: p } : x).sort((a, b) => Number(a.is_completed) - Number(b.is_completed) || b.priority - a.priority));
+    toast.success(bn ? "গুরুত্ব আপডেট" : "Priority updated");
+  };
+
 
   const GoalCard = ({ r }: { r: GoalRow }) => {
     const remaining = Math.max(0, r.target_amount - r.saved_amount);

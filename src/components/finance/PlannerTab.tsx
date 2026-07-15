@@ -400,9 +400,35 @@ export const PlannerTab = ({ userId, bn, monthlyIncome, monthlyExpense, totalBal
           </Card>
 
 
+          {/* Live countdown for upcoming deadlines */}
+          {rows.filter(r => !r.is_completed && r.target_date).length > 0 && (
+            <Card className="p-3 border-border/60">
+              <div className="flex items-center gap-2 mb-2">
+                <CalendarClock className="h-4 w-4 text-primary" />
+                <p className="text-sm font-semibold">{bn ? "আগামী ডেডলাইন" : "Upcoming Deadlines"}</p>
+              </div>
+              <div className="space-y-1.5">
+                {rows
+                  .filter(r => !r.is_completed && r.target_date)
+                  .sort((a, b) => new Date(a.target_date!).getTime() - new Date(b.target_date!).getTime())
+                  .slice(0, 5)
+                  .map(r => (
+                    <div key={r.id} className="flex items-center justify-between gap-2 text-xs">
+                      <span className="truncate flex-1">
+                        <span className="opacity-60 mr-1">{kindLabel(r.kind)}:</span>
+                        {r.title}
+                      </span>
+                      <PlanCountdown targetDate={r.target_date} bn={bn} />
+                    </div>
+                  ))}
+              </div>
+            </Card>
+          )}
+
           {/* Quick preview of active items */}
           {rows.filter(r => !r.is_completed).slice(0, 3).map(r => <GoalCard key={r.id} r={r} />)}
         </TabsContent>
+
 
         {(["savings", "income_target", "installment"] as Kind[]).map(k => (
           <TabsContent key={k} value={k} className="mt-4 space-y-3">

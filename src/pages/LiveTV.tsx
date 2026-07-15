@@ -11,6 +11,7 @@ import { toast } from "sonner";
 import SportsSchedule from "@/components/SportsSchedule";
 import WorldCupChannels from "@/components/WorldCupChannels";
 import LiveScoreBoard from "@/components/LiveScoreBoard";
+import PortalChannels from "@/components/PortalChannels";
 import { BDIX_CHANNELS, IMPORTANT_BD_CHANNELS, IMPORTANT_IN_CHANNELS } from "@/data/bdixChannels";
 
 const DEAD_KEY = "livetv:dead:v2";
@@ -18,7 +19,7 @@ const WORKING_KEY = "livetv:working:v1";
 const FAV_KEY = "livetv:favorites:v2";
 const RECENT_KEY = "livetv:recent:v1";
 
-type Tab = "mrgify" | "tv" | "bdix" | "world" | "sports" | "radio" | "offline" | "working";
+type Tab = "mrgify" | "tv" | "bdix" | "world" | "sports" | "radio" | "offline" | "working" | "alpha6";
 type Health = "unknown" | "checking" | "live" | "dead";
 
 type Channel = {
@@ -935,6 +936,7 @@ const LiveTV = () => {
               { k: "world", label: t("ওয়ার্ল্ড","World"), icon: Globe2, count: (mergedByTab.world || []).length },
               { k: "sports", label: t("স্পোর্টস","Sports"), icon: Trophy, count: (mergedByTab.sports || []).length },
               { k: "radio", label: t("রেডিও","Radio"), icon: Radio, count: (mergedByTab.radio || []).length },
+              { k: "alpha6", label: t("Alpha6 পোর্টাল","Alpha6 Portal"), icon: Zap, count: 0 },
               { k: "working", label: t("ওয়ার্কিং ✅","Working ✅"), icon: CheckCircle2, count: workingChannels.length },
               { k: "offline", label: t("অফলাইন","Offline"), icon: XCircle, count: offlineChannels.length },
             ] as { k: Tab; label: string; icon: any; count: number }[]).map(({ k, label, icon: Icon, count }) => (
@@ -1023,6 +1025,14 @@ const LiveTV = () => {
 
             {tab === "sports" && <SportsSchedule />}
 
+            {tab === "alpha6" && (
+              <PortalChannels
+                portal="http://alpha6-tx.me:80/c"
+                mac="00:1A:79:59:5F:8E"
+                label={t("Alpha6 IPTV পোর্টাল","Alpha6 IPTV Portal")}
+              />
+            )}
+
             {tab === "bdix" && (
               <Card className="p-3 mb-4 bg-amber-500/5 border-amber-500/30">
                 <p className="text-xs text-muted-foreground">
@@ -1041,7 +1051,7 @@ const LiveTV = () => {
               </div>
             )}
 
-            {loading && tab !== "radio" && tab !== "bdix" && tab !== "mrgify" && (
+            {loading && tab !== "radio" && tab !== "bdix" && tab !== "mrgify" && tab !== "alpha6" && (
               <div className="flex flex-col items-center py-12 text-muted-foreground">
                 <Loader2 className="w-8 h-8 animate-spin mb-2" />
                 <p className="text-sm">{t("সর্বশেষ চ্যানেল লোড হচ্ছে...", "Loading latest channels...")}</p>

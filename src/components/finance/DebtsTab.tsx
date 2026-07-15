@@ -214,8 +214,13 @@ export const DebtsTab = ({ userId, bn }: { userId: string; bn: boolean }) => {
             <p className="text-[11px] text-muted-foreground truncate">
               {d.created_at ? fmtDate(d.created_at, bn) : ""}
               {d.due_date ? ` → ${fmtDate(d.due_date, bn)}` : ""}
-              {d.note ? ` · ${d.note}` : ""}
             </p>
+            {(d.wallet_id || d.note) && (
+              <p className="text-[10px] text-muted-foreground truncate mt-0.5">
+                {d.wallet_id && <span className="inline-flex items-center gap-1 mr-2"><Wallet className="h-2.5 w-2.5" />{wallets.find(w => w.id === d.wallet_id)?.name || "—"}</span>}
+                {d.note && <span className="italic">"{d.note}"</span>}
+              </p>
+            )}
           </div>
           <div className="text-right shrink-0">
             <div className={cn("text-sm font-semibold tabular-nums",
@@ -414,6 +419,31 @@ export const DebtsTab = ({ userId, bn }: { userId: string; bn: boolean }) => {
                     {historyFor.due_date && <> · {bn ? "শেষ তারিখ" : "Due"}: {fmtDate(historyFor.due_date, bn)}</>}
                   </p>
                 </Card>
+
+                {/* Why / From whom / Where kept */}
+                <Card className="p-3 border-border/60 space-y-2">
+                  <div className="grid grid-cols-[90px_1fr] gap-2 text-xs">
+                    <div className="text-muted-foreground">{bn ? "কারণ" : "Why"}</div>
+                    <div className="font-medium">{historyFor.note || <span className="text-muted-foreground italic">{bn ? "উল্লেখ নেই" : "not set"}</span>}</div>
+
+                    <div className="text-muted-foreground">
+                      {historyFor.direction === "i_owe" ? (bn ? "কার কাছ থেকে" : "From whom") : (bn ? "কাকে দিলাম" : "Given to")}
+                    </div>
+                    <div className="font-medium">{historyFor.counterparty}</div>
+
+                    <div className="text-muted-foreground">
+                      {historyFor.direction === "i_owe" ? (bn ? "কোথায় রেখেছি" : "Kept in") : (bn ? "কোথা থেকে দিলাম" : "Given from")}
+                    </div>
+                    <div className="font-medium flex items-center gap-1">
+                      <Wallet className="h-3 w-3 text-muted-foreground" />
+                      {historyFor.wallet_id
+                        ? (wallets.find(w => w.id === historyFor.wallet_id)?.name || "—")
+                        : <span className="text-muted-foreground italic">{bn ? "ওয়ালেট সেট করা নেই" : "no wallet set"}</span>}
+                    </div>
+                  </div>
+                </Card>
+
+
 
                 {/* Add payment */}
                 {!historyFor.is_settled && (

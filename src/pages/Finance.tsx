@@ -538,6 +538,22 @@ const Finance = () => {
     if ((qaType === "income" || qaType === "expense") && qaWallet2 && qaWallet2 === qaWallet) {
       toast.error(bn ? "উৎস ও গন্তব্য ভিন্ন হতে হবে" : "Source and destination must differ"); return;
     }
+    // Duplicate warning: same type + wallet + amount within 10 minutes (skip when editing)
+    if (!editTxId) {
+      const newAt = qaDate ? new Date(qaDate).getTime() : Date.now();
+      const dup = txs.find(t =>
+        t.type === qaType &&
+        (t.wallet_id ?? "") === qaWallet &&
+        Number(t.amount) === amount &&
+        Math.abs(new Date(t.occurred_at).getTime() - newAt) <= 10 * 60 * 1000
+      );
+      if (dup) {
+        const ok = confirm(bn
+          ? `একই ধরনের একটি লেনদেন ১০ মিনিটের মধ্যে পাওয়া গেছে (৳${amount})। এটি কি ডবল এন্ট্রি হতে পারে? তবুও সংরক্ষণ করবেন?`
+          : `A similar transaction (৳${amount}) exists within 10 minutes. This may be a duplicate. Save anyway?`);
+        if (!ok) return;
+      }
+    }
     setBusy(true);
     const occurred_at = qaDate ? new Date(qaDate).toISOString() : new Date().toISOString();
     const fee = Number(qaFee) || 0;

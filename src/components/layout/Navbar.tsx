@@ -1,5 +1,6 @@
 import { Link, NavLink, useNavigate } from "react-router-dom";
-import { Menu, X, ShoppingCart, Globe, Phone, Mail, MapPin, LayoutGrid, CalendarClock, Sparkles, CloudSun, HeartPulse, Calculator, ShieldCheck, Wifi, Tv, Newspaper, Wallet, Search, Home, BookOpen, ScrollText, Compass, Store, Gift, Wand2, Briefcase, LogIn, UserPlus, LogOut, User as UserIcon } from "lucide-react";
+import { Menu, X, ShoppingCart, Globe, Phone, Mail, MapPin, LayoutGrid, CalendarClock, Sparkles, CloudSun, HeartPulse, Calculator, ShieldCheck, Wifi, Tv, Newspaper, Wallet, Search, Home, BookOpen, ScrollText, Compass, Store, Gift, Wand2, Briefcase, LogIn, UserPlus, LogOut, User as UserIcon, ShieldAlert } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
 import { useState, useMemo, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -20,11 +21,18 @@ const Navbar = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [searchOpen, setSearchOpen] = useState(false);
   const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
   const searchRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
 
   const isBn = language === "bn";
   const topOpen = openMenu === "top";
+
+  useEffect(() => {
+    if (!user) { setIsAdmin(false); return; }
+    supabase.from("user_roles").select("role").eq("user_id", user.id).eq("role", "admin").maybeSingle()
+      .then(({ data }) => setIsAdmin(!!data));
+  }, [user]);
 
   const searchResults = useMemo(() => {
     const q = searchQuery.trim().toLowerCase();
@@ -284,6 +292,14 @@ const Navbar = () => {
                   <DropdownMenuItem onClick={() => navigate("/cart")}>
                     <ShoppingCart className="w-4 h-4 mr-2" /> {isBn ? "কার্ট" : "Cart"}
                   </DropdownMenuItem>
+                  {isAdmin && (
+                    <>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem onClick={() => navigate("/dashboard")} className="text-primary focus:text-primary">
+                        <ShieldAlert className="w-4 h-4 mr-2" /> {isBn ? "অ্যাডমিন প্যানেল" : "Admin Panel"}
+                      </DropdownMenuItem>
+                    </>
+                  )}
                   <DropdownMenuSeparator />
                   <DropdownMenuItem onClick={async () => { await signOut(); navigate("/"); }} className="text-destructive focus:text-destructive">
                     <LogOut className="w-4 h-4 mr-2" /> {isBn ? "লগআউট" : "Sign out"}

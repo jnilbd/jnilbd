@@ -14,6 +14,8 @@ import { Plus, Target, TrendingUp, CalendarClock, Sparkles, Trash2, CheckCircle2
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import FinanceCalculator from "./FinanceCalculator";
+import { PlanCountdown } from "./PlanCountdown";
+
 
 type Kind = "savings" | "income_target" | "installment";
 type Scope = "personal" | "business";
@@ -241,7 +243,13 @@ export const PlannerTab = ({ userId, bn, monthlyIncome, monthlyExpense, totalBal
               {r.is_completed && <Badge className="text-[10px] bg-emerald-500/20 text-emerald-600 border-0"><CheckCircle2 className="h-3 w-3 mr-1" />{bn ? "সম্পন্ন" : "Done"}</Badge>}
             </div>
             {r.note && <p className="text-xs text-muted-foreground mt-0.5 line-clamp-2">{r.note}</p>}
+            {r.target_date && (
+              <div className="mt-1.5">
+                <PlanCountdown targetDate={r.target_date} bn={bn} label={bn ? "বাকি:" : "In:"} />
+              </div>
+            )}
           </div>
+
           <div className="flex items-center gap-1 shrink-0">
             <Button size="icon" variant="ghost" className="h-7 w-7" onClick={() => startEdit(r)} aria-label="edit"><CalendarClock className="h-3.5 w-3.5" /></Button>
             <Button size="icon" variant="ghost" className="h-7 w-7 text-rose-500" onClick={() => remove(r.id)} aria-label="delete"><Trash2 className="h-3.5 w-3.5" /></Button>
@@ -392,9 +400,35 @@ export const PlannerTab = ({ userId, bn, monthlyIncome, monthlyExpense, totalBal
           </Card>
 
 
+          {/* Live countdown for upcoming deadlines */}
+          {rows.filter(r => !r.is_completed && r.target_date).length > 0 && (
+            <Card className="p-3 border-border/60">
+              <div className="flex items-center gap-2 mb-2">
+                <CalendarClock className="h-4 w-4 text-primary" />
+                <p className="text-sm font-semibold">{bn ? "আগামী ডেডলাইন" : "Upcoming Deadlines"}</p>
+              </div>
+              <div className="space-y-1.5">
+                {rows
+                  .filter(r => !r.is_completed && r.target_date)
+                  .sort((a, b) => new Date(a.target_date!).getTime() - new Date(b.target_date!).getTime())
+                  .slice(0, 5)
+                  .map(r => (
+                    <div key={r.id} className="flex items-center justify-between gap-2 text-xs">
+                      <span className="truncate flex-1">
+                        <span className="opacity-60 mr-1">{kindLabel(r.kind)}:</span>
+                        {r.title}
+                      </span>
+                      <PlanCountdown targetDate={r.target_date} bn={bn} />
+                    </div>
+                  ))}
+              </div>
+            </Card>
+          )}
+
           {/* Quick preview of active items */}
           {rows.filter(r => !r.is_completed).slice(0, 3).map(r => <GoalCard key={r.id} r={r} />)}
         </TabsContent>
+
 
         {(["savings", "income_target", "installment"] as Kind[]).map(k => (
           <TabsContent key={k} value={k} className="mt-4 space-y-3">
@@ -453,11 +487,15 @@ export const PlannerTab = ({ userId, bn, monthlyIncome, monthlyExpense, totalBal
                         {r.months_total ? `${r.months_paid}/${r.months_total} ${bn ? "মাস" : "mo"}` : ""}
                         {r.interest_rate ? ` · ${r.interest_rate}%` : ""}
                       </p>
+                      {r.target_date && (
+                        <div className="mt-1"><PlanCountdown targetDate={r.target_date} bn={bn} label={bn ? "শেষ:" : "Ends:"} /></div>
+                      )}
                     </div>
                     <Badge variant="outline" className="text-[10px] shrink-0">
                       {bn ? (r.scope === "business" ? "ব্যবসা" : "ব্যক্তিগত") : r.scope}
                     </Badge>
                   </div>
+
 
                   <div className="grid grid-cols-[1fr_auto] gap-2 items-end">
                     <div>

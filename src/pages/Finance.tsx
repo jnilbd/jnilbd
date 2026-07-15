@@ -80,11 +80,11 @@ const DEFAULT_WALLETS: Array<Omit<WalletRow, "id" | "balance" | "currency" | "so
 ];
 
 // Income categories — where money comes from
-const INCOME_CATEGORIES_PERSONAL = ["Salary","Freelance","Business Income","Advance Received","Loan Received","Mobile Sale","Laptop Sale","Mobile Repair","Laptop Repair","Gift","Bonus","Interest","Rental Income","Investment Return","Refund","Family Support","Other Income"];
-const INCOME_CATEGORIES_BUSINESS = ["Sale","Advance Received","Loan Received","Mobile Sale","Laptop Sale","Mobile Repair","Laptop Repair","Service Income","Commission","Investment Return","Refund","Other Income"];
+const INCOME_CATEGORIES_PERSONAL = ["Office Withdrawal","Salary","Freelance","Mobile Sale","Laptop Sale","Mobile Repair","Laptop Repair","Service Income","Gift","Bonus","Interest","Rental Income","Investment Return","Refund","Family Support","Advance Received","Loan Received","Other Income"];
+const INCOME_CATEGORIES_BUSINESS = ["Sale","Product Sale","Service Income","Investor Investment","Advance Received","Loan Received","Commission","Investment Return","Refund","Other Income"];
 // Expense categories — where money goes
-const EXPENSE_CATEGORIES_PERSONAL = ["Food","Groceries","Fruits","Wife Shopping","Mobile Bill","bKash Loan","Transport","Shopping","Medicine","Education","Family","Kids","Entertainment","Internet","WiFi Bill (Village)","WiFi Bill (City)","Dish Bill","Electricity Bill","Gas Bill","Water Bill","Installment","Mobile Recharge","Bills","Travel","Rent","Investment","Business Investment","Savings","Charity","Other"];
-const EXPENSE_CATEGORIES_BUSINESS = ["Purchase","Business Investment","bKash Loan","Mobile Bill","Salary Paid","Advertising","Facebook Boosting","Courier","Office Rent","Utility","WiFi Bill (Village)","WiFi Bill (City)","Dish Bill","Electricity Bill","Gas Bill","Installment","Transport","Maintenance","Tax","Investment","Loan Repayment","Other"];
+const EXPENSE_CATEGORIES_PERSONAL = ["Groceries","Vegetables","Fruits","Fish & Meat","Dates","Banana","Baby Diaper","Wife Paan-Supari","Medicine","Food","Eating Out","Guest Gift","Kids","Family","Wife Shopping","Mobile Recharge","Mobile Bill","WiFi Bill (City)","WiFi Bill (Village)","Electricity Bill","Gas Bill","Water Bill","Dish Bill","House Rent","Subscription","Domain & Hosting","Software","Hardware","Bus Fare","Train Fare","Uber/Ride","Travel","Transport","Village Trip","Education","Entertainment","Shopping","bKash Loan","Installment","Investment","Business Investment","Savings","Charity","Bills","Other"];
+const EXPENSE_CATEGORIES_BUSINESS = ["Purchase","Product Purchase","Packaging","Packaging Tools","Office Supplies","Sales Campaign","Facebook Boosting","Advertising","Subscription","Domain & Hosting","Software","Hardware","Courier","Salary Paid","Office Rent","Utility","WiFi Bill (Village)","WiFi Bill (City)","Electricity Bill","Gas Bill","Dish Bill","Mobile Bill","Transport","Maintenance","Tax","Installment","bKash Loan","Business Investment","Investment","Loan Repayment","Business Development","Other"];
 const CATEGORIES_PERSONAL = Array.from(new Set([...INCOME_CATEGORIES_PERSONAL, ...EXPENSE_CATEGORIES_PERSONAL]));
 const CATEGORIES_BUSINESS = Array.from(new Set([...INCOME_CATEGORIES_BUSINESS, ...EXPENSE_CATEGORIES_BUSINESS]));
 
@@ -183,6 +183,24 @@ const CATEGORY_BN: Record<string, string> = {
   Groceries: "বাজার সদাই", Fruits: "ফল ফ্রুট", "Wife Shopping": "বৌয়ের নেশা",
   "Mobile Bill": "মোবাইল বিল", "bKash Loan": "বিকাশ লোন",
   "Business Investment": "ব্যবসায়িক ইনভেস্টমেন্ট",
+  "Office Withdrawal": "অফিস থেকে উত্তোলন",
+  "Product Sale": "পণ্য বিক্রি", "Product Purchase": "পণ্য ক্রয়",
+  "Investor Investment": "ইনভেস্টরের বিনিয়োগ",
+  Vegetables: "সবজি বাজার", "Fish & Meat": "মাছ-মাংস",
+  Dates: "খেজুর", Banana: "কলা",
+  "Baby Diaper": "বাচ্চার ডায়াপার",
+  "Wife Paan-Supari": "বৌয়ের পান-সুপারি",
+  "Eating Out": "বাইরে খাওয়া", "Guest Gift": "মেহমান/উপহার",
+  "House Rent": "বাসা ভাড়া",
+  Subscription: "সাবস্ক্রিপশন",
+  "Domain & Hosting": "ডোমেন ও হোস্টিং",
+  Software: "সফটওয়্যার", Hardware: "হার্ডওয়্যার",
+  "Bus Fare": "বাস ভাড়া", "Train Fare": "ট্রেন ভাড়া", "Uber/Ride": "উবার/রাইড",
+  "Village Trip": "গ্রাম ভ্রমণ",
+  Packaging: "প্যাকেজিং", "Packaging Tools": "প্যাকেজিং টুলস",
+  "Office Supplies": "অফিস সরঞ্জাম",
+  "Sales Campaign": "সেলস ক্যাম্পেইন",
+  "Business Development": "ব্যবসা উন্নয়ন",
 };
 const bnLabel = (m: Record<string,string>, k: string | null | undefined, bn: boolean) =>
   !k ? "—" : (bn ? (m[k] ?? k) : k);

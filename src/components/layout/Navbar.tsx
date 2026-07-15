@@ -1,5 +1,6 @@
 import { Link, NavLink, useNavigate } from "react-router-dom";
-import { Menu, X, ShoppingCart, Globe, Phone, Mail, MapPin, LayoutGrid, CalendarClock, Sparkles, CloudSun, HeartPulse, Calculator, ShieldCheck, Wifi, Tv, Newspaper, Wallet, Search, Home, BookOpen, ScrollText, Compass, Store, Gift, Wand2, Briefcase, LogIn, UserPlus, LogOut, User as UserIcon } from "lucide-react";
+import { Menu, X, ShoppingCart, Globe, Phone, Mail, MapPin, LayoutGrid, CalendarClock, Sparkles, CloudSun, HeartPulse, Calculator, ShieldCheck, Wifi, Tv, Newspaper, Wallet, Search, Home, BookOpen, ScrollText, Compass, Store, Gift, Wand2, Briefcase, LogIn, UserPlus, LogOut, User as UserIcon, ShieldAlert } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
 import { useState, useMemo, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useLanguage } from "@/contexts/LanguageContext";

@@ -420,6 +420,28 @@ export const DebtsTab = ({ userId, bn }: { userId: string; bn: boolean }) => {
                   </p>
                 </Card>
 
+                {/* Why / From whom / Where kept */}
+                <Card className="p-3 border-border/60 space-y-2">
+                  <div className="grid grid-cols-[90px_1fr] gap-2 text-xs">
+                    <div className="text-muted-foreground">{bn ? "কারণ" : "Why"}</div>
+                    <div className="font-medium">{historyFor.note || <span className="text-muted-foreground italic">{bn ? "উল্লেখ নেই" : "not set"}</span>}</div>
+
+                    <div className="text-muted-foreground">
+                      {historyFor.direction === "i_owe" ? (bn ? "কার কাছ থেকে" : "From whom") : (bn ? "কাকে দিলাম" : "Given to")}
+                    </div>
+                    <div className="font-medium">{historyFor.counterparty}</div>
+
+                    <div className="text-muted-foreground">
+                      {historyFor.direction === "i_owe" ? (bn ? "কোথায় রেখেছি" : "Kept in") : (bn ? "কোথা থেকে দিলাম" : "Given from")}
+                    </div>
+                    <div className="font-medium flex items-center gap-1">
+                      <Wallet className="h-3 w-3 text-muted-foreground" />
+                      {historyFor.wallet_id
+                        ? (wallets.find(w => w.id === historyFor.wallet_id)?.name || "—")
+                        : <span className="text-muted-foreground italic">{bn ? "ওয়ালেট সেট করা নেই" : "no wallet set"}</span>}
+                    </div>
+                  </div>
+
                 {/* Add payment */}
                 {!historyFor.is_settled && (
                   <Card className="p-3 border-border/60 space-y-2">

@@ -1025,6 +1025,14 @@ const LiveTV = () => {
 
             {tab === "sports" && <SportsSchedule />}
 
+            {tab === "alpha6" && (
+              <PortalChannels
+                portal="http://alpha6-tx.me:80/c"
+                mac="00:1A:79:59:5F:8E"
+                label={t("Alpha6 IPTV পোর্টাল","Alpha6 IPTV Portal")}
+              />
+            )}
+
             {tab === "bdix" && (
               <Card className="p-3 mb-4 bg-amber-500/5 border-amber-500/30">
                 <p className="text-xs text-muted-foreground">

@@ -302,6 +302,28 @@ export const PlannerTab = ({ userId, bn, monthlyIncome, monthlyExpense, totalBal
           </div>
         </div>
 
+        {r.kind === "debt_payoff" && !r.is_completed && (
+          <div className="flex items-center gap-1.5 pt-1">
+            <span className="text-[10px] text-muted-foreground mr-0.5">{bn ? "গুরুত্ব:" : "Priority:"}</span>
+            {[3, 2, 1].map(p => {
+              const meta = priorityMeta(p);
+              const active = r.priority === p;
+              return (
+                <button
+                  key={p}
+                  onClick={() => setPriority(r, p)}
+                  className={cn(
+                    "px-2 py-0.5 rounded-full text-[10px] border transition",
+                    active ? meta.cls + " font-semibold" : "border-border/60 text-muted-foreground hover:bg-muted"
+                  )}
+                >
+                  {meta.label}
+                </button>
+              );
+            })}
+          </div>
+        )}
+
         {!r.is_completed && (
           <div className="flex items-center gap-2 pt-1">
             <Input

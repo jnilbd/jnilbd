@@ -880,8 +880,10 @@ const Finance = () => {
         String(t.amount).includes(s)
       );
     }
+    if (flowFilter === "in") list = list.filter(t => INCOME_TYPES.includes(t.type));
+    else if (flowFilter === "out") list = list.filter(t => EXPENSE_TYPES.includes(t.type));
     return list;
-  }, [filteredTxs, q, dateRange, customFrom, customTo]);
+  }, [filteredTxs, q, dateRange, customFrom, customTo, flowFilter]);
 
   const rangeTotals = useMemo(() => {
     let inc = 0, exp = 0;

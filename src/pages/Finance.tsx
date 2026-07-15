@@ -1075,11 +1075,13 @@ const Finance = () => {
           {/* Transactions */}
           <TabsContent value="tx" className="mt-4 space-y-3">
             <div className="grid grid-cols-2 gap-2">
-              <Button className="h-12 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white" onClick={() => openQuick("income")}>
-                <TrendingUp className="h-4 w-4 mr-1" /> {bn?"আয় যোগ":"Add Income"}
+              <Button className="h-12 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white gap-1.5" onClick={() => openQuick("income")}>
+                <span className="inline-flex items-center justify-center h-4 px-1 rounded bg-white/20 text-white text-[9px] font-bold">CR</span>
+                <TrendingUp className="h-4 w-4" /> {bn?"আয় / জমা":"Add Income"}
               </Button>
-              <Button className="h-12 rounded-xl bg-rose-500 hover:bg-rose-600 text-white" onClick={() => openQuick("expense")}>
-                <TrendingDown className="h-4 w-4 mr-1" /> {bn?"খরচ যোগ":"Add Expense"}
+              <Button className="h-12 rounded-xl bg-rose-500 hover:bg-rose-600 text-white gap-1.5" onClick={() => openQuick("expense")}>
+                <span className="inline-flex items-center justify-center h-4 px-1 rounded bg-white/20 text-white text-[9px] font-bold">DR</span>
+                <TrendingDown className="h-4 w-4" /> {bn?"খরচ / ডেবিট":"Add Expense"}
               </Button>
             </div>
             <div className="relative">

@@ -90,7 +90,7 @@ const INCOME_CATEGORIES_PERSONAL = [
 // Business (Official): only channels the office actually receives money through
 const INCOME_CATEGORIES_BUSINESS = [
   "Product Sale","Service Sale",
-  "Courier Remittance","Cash on Delivery Remit",
+  "Courier Remittance","Cash on Delivery Remit","Courier Return",
   "Investor Investment","Partner Contribution",
   "Advance from Customer","Refund from Supplier",
   "Commission","Investment Return","Loan Received","Other Income",
@@ -113,7 +113,7 @@ const EXPENSE_CATEGORIES_PERSONAL = [
 const EXPENSE_CATEGORIES_BUSINESS = [
   "Product Purchase","Packaging","Packaging Tools","Office Supplies",
   "Sales Campaign","Facebook Boosting","Advertising",
-  "Courier Charge","Processing Fee","Payment Gateway Fee",
+  "Courier Charge","Courier Return Loss","Processing Fee","Payment Gateway Fee",
   "Subscription","Domain & Hosting","Software","Hardware",
   "Salary Paid","Office Rent","Utility Bills",
   "Tax","Maintenance","Business Investment","Business Development",
@@ -253,7 +253,7 @@ const CATEGORY_BN: Record<string, string> = {
   "Partner Contribution": "পার্টনার কন্ট্রিবিউশন",
   "Advance from Customer": "কাস্টমার অগ্রিম",
   "Refund from Supplier": "সাপ্লায়ার রিফান্ড",
-  "Courier Charge": "কুরিয়ার চার্জ",
+  "Courier Charge": "কুরিয়ার চার্জ", "Courier Return": "কুরিয়ার রিটার্ন", "Courier Return Loss": "কুরিয়ার রিটার্ন ক্ষতি",
   "Processing Fee": "প্রসেসিং ফি", "Payment Gateway Fee": "পেমেন্ট গেটওয়ে ফি",
   "Utility Bills": "ইউটিলিটি বিল",
   "Investor Payout": "ইনভেস্টর পে-আউট",

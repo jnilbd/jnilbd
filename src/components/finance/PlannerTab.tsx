@@ -634,7 +634,7 @@ export const PlannerTab = ({ userId, bn, monthlyIncome, monthlyExpense, totalBal
                 <Label className="text-xs">
                   {draft.kind === "installment" ? (bn ? "পরিশোধিত (৳)" : "Paid (৳)") :
                    draft.kind === "debt_payoff" ? (bn ? "শোধ করা (৳)" : "Repaid (৳)") :
-                   (bn ? "জমা (৳)" : "Saved (৳)")}
+                   (bn ? "অগ্রগতি (৳)" : "Progress (৳)")}
                 </Label>
                 <Input type="number" className="mt-1" value={draft.saved_amount ?? 0}
                   onChange={(e) => setDraft({ ...draft, saved_amount: +e.target.value || 0 })} />

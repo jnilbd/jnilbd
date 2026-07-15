@@ -645,7 +645,7 @@ export const PlannerTab = ({ userId, bn, monthlyIncome, monthlyExpense, totalBal
             <div className="grid grid-cols-2 gap-2">
               <div>
                 <Label className="text-xs">
-                  {draft.kind === "installment" ? (bn ? "মাসিক কিস্তি (৳)" : "Monthly EMI (৳)") : (bn ? "মাসিক জমা (৳)" : "Monthly (৳)")}
+                  {draft.kind === "installment" ? (bn ? "মাসিক কিস্তি (৳)" : "Monthly EMI (৳)") : (bn ? "মাসিক বরাদ্দ (৳)" : "Monthly (৳)")}
                 </Label>
                 <Input type="number" className="mt-1" value={draft.monthly_contribution ?? 0}
                   onChange={(e) => setDraft({ ...draft, monthly_contribution: +e.target.value || 0 })} />

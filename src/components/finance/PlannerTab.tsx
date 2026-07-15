@@ -391,20 +391,6 @@ export const PlannerTab = ({ userId, bn, monthlyIncome, monthlyExpense, totalBal
             </div>
           </Card>
 
-          <div className="grid grid-cols-3 gap-2">
-            <Button variant="outline" className="h-auto py-3 flex-col gap-1" onClick={() => startNew("savings")}>
-              <Target className="h-4 w-4 text-primary" />
-              <span className="text-[11px]">{bn ? "লক্ষ্য যোগ" : "Add Goal"}</span>
-            </Button>
-            <Button variant="outline" className="h-auto py-3 flex-col gap-1" onClick={() => startNew("income_target")}>
-              <TrendingUp className="h-4 w-4 text-emerald-500" />
-              <span className="text-[11px]">{bn ? "আয় টার্গেট" : "Income"}</span>
-            </Button>
-            <Button variant="outline" className="h-auto py-3 flex-col gap-1" onClick={() => startNew("installment")}>
-              <CalendarClock className="h-4 w-4 text-amber-500" />
-              <span className="text-[11px]">{bn ? "কিস্তি" : "EMI"}</span>
-            </Button>
-          </div>
 
           {/* Quick preview of active items */}
           {rows.filter(r => !r.is_completed).slice(0, 3).map(r => <GoalCard key={r.id} r={r} />)}

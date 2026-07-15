@@ -594,7 +594,7 @@ export const PlannerTab = ({ userId, bn, monthlyIncome, monthlyExpense, totalBal
               <Select value={draft.kind} onValueChange={(v) => setDraft({ ...draft, kind: v as Kind })}>
                 <SelectTrigger className="mt-1"><SelectValue /></SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="savings">{bn ? "🎯 লক্ষ্য (Savings goal)" : "🎯 Savings goal"}</SelectItem>
+                  <SelectItem value="savings">{bn ? "🎯 লক্ষ্য (যেকোনো উদ্দেশ্য)" : "🎯 Goal (any purpose)"}</SelectItem>
                   <SelectItem value="income_target">{bn ? "📈 আয়ের টার্গেট" : "📈 Income target"}</SelectItem>
                   <SelectItem value="installment">{bn ? "📆 কিস্তি / EMI" : "📆 Installment / EMI"}</SelectItem>
                   <SelectItem value="debt_payoff">{bn ? "🤝 ধার শোধ" : "🤝 Debt Payoff"}</SelectItem>

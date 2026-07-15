@@ -248,12 +248,61 @@ export function ReportsTab({
         </Card>
       )}
 
+      {yStats && (
+        <Card className="p-4 border-border/60 bg-muted/30">
+          <div className="flex items-center justify-between mb-3">
+            <div className="flex items-center gap-2">
+              <Calendar className="h-4 w-4 text-muted-foreground" />
+              <h3 className="font-semibold text-sm">{bn ? "গতকাল" : "Yesterday"}</h3>
+            </div>
+            <span className={cn("text-sm font-semibold tabular-nums",
+              yStats.net >= 0 ? "text-emerald-500" : "text-rose-500")}>
+              {yStats.net >= 0 ? "+" : ""}{fmt(yStats.net, bn)}
+            </span>
+          </div>
+          <div className="grid grid-cols-2 gap-2 mb-3">
+            <div className="rounded-lg border border-emerald-500/20 bg-emerald-500/5 p-2">
+              <p className="text-[10px] text-muted-foreground">{bn ? "আয়" : "Income"}</p>
+              <p className="text-sm font-semibold text-emerald-500 tabular-nums">{fmt(yStats.income, bn)}</p>
+            </div>
+            <div className="rounded-lg border border-rose-500/20 bg-rose-500/5 p-2">
+              <p className="text-[10px] text-muted-foreground">{bn ? "খরচ" : "Expense"}</p>
+              <p className="text-sm font-semibold text-rose-500 tabular-nums">{fmt(yStats.expense, bn)}</p>
+            </div>
+          </div>
+          {yStats.topExpenseCats.length > 0 && (
+            <div className="space-y-1.5">
+              <p className="text-[10px] text-muted-foreground uppercase tracking-wide">{bn ? "গতকালের খরচের খাত" : "Yesterday's expenses"}</p>
+              {yStats.topExpenseCats.map(([cat, amt], i) => {
+                const max = yStats.topExpenseCats[0][1] || 1;
+                const pct = (amt / max) * 100;
+                return (
+                  <div key={cat}>
+                    <div className="flex items-center justify-between text-xs mb-0.5">
+                      <span className="flex items-center gap-1.5 min-w-0">
+                        <Badge variant="outline" className="text-[9px] h-4 px-1.5">#{bn ? (i + 1).toLocaleString("bn-BD") : i + 1}</Badge>
+                        <span className="truncate capitalize">{categoryLabel(cat)}</span>
+                      </span>
+                      <b className="tabular-nums shrink-0 ml-2 text-rose-500">{fmt(amt, bn)}</b>
+                    </div>
+                    <div className="h-1 rounded-full bg-muted overflow-hidden">
+                      <div className="h-full rounded-full bg-gradient-to-r from-rose-400 to-red-500" style={{ width: `${pct}%` }} />
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </Card>
+      )}
+
       {stats.returned > 0 && (
         <Card className="p-3 border-rose-500/30 bg-rose-500/5 text-sm flex items-center gap-2">
           <AlertTriangle className="h-4 w-4 text-rose-500" />
           <span>{bn ? `এই সময়ে ${stats.returned.toLocaleString("bn-BD")} টি অর্ডার রিটার্ন হয়েছে` : `${stats.returned} orders were returned in this period`}</span>
         </Card>
       )}
+
     </div>
   );
 }

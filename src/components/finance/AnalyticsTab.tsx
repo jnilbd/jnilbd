@@ -1,8 +1,11 @@
 import { useMemo, useState } from "react";
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from "recharts";
 import { Card } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
-import { ChevronLeft, ChevronRight, Calendar as CalendarIcon } from "lucide-react";
+import { ChevronLeft, ChevronRight, Calendar as CalendarIcon, Pencil, Trash2 } from "lucide-react";
+
 
 interface Tx {
   id: string; type: string; amount: number; category: string | null; occurred_at: string;
@@ -22,10 +25,12 @@ const fmt = (n: number, bn = false) => {
 };
 
 export const AnalyticsTab = ({
-  txs, bn, categoryLabel,
-}: { txs: Tx[]; bn: boolean; categoryLabel: (c: string) => string }) => {
+  txs, bn, categoryLabel, onEdit, onDelete,
+}: { txs: Tx[]; bn: boolean; categoryLabel: (c: string) => string; onEdit?: (t: Tx) => void; onDelete?: (id: string) => void }) => {
   const [monthOffset, setMonthOffset] = useState(0); // 0 = this month
   const [selectedDay, setSelectedDay] = useState<string | null>(null);
+  const [drill, setDrill] = useState<{ title: string; items: Tx[] } | null>(null);
+
 
   const monthDate = useMemo(() => {
     const d = new Date(); d.setDate(1); d.setMonth(d.getMonth() + monthOffset);
@@ -149,15 +154,23 @@ export const AnalyticsTab = ({
               {spendingByCategory.map((c, i) => {
                 const pct = totalExpense > 0 ? (c.value / totalExpense) * 100 : 0;
                 return (
-                  <div key={c.name} className="flex items-center gap-2 text-xs">
+                  <button
+                    key={c.name}
+                    onClick={() => {
+                      const items = monthTxs.filter(t => EXPENSE_TYPES.has(t.type) && (t.category || (bn?"অন্যান্য":"Other")) === c.name);
+                      setDrill({ title: `${categoryLabel(c.name)} · ${monthLabel}`, items });
+                    }}
+                    className="w-full flex items-center gap-2 text-xs rounded-lg px-2 py-1 hover:bg-muted/60 transition-colors"
+                  >
                     <span className="h-3 w-3 rounded shrink-0" style={{ background: PALETTE[i % PALETTE.length] }} />
-                    <span className="flex-1 truncate">{categoryLabel(c.name)}</span>
+                    <span className="flex-1 truncate text-left">{categoryLabel(c.name)}</span>
                     <span className="tabular-nums text-muted-foreground">{pct.toFixed(0)}%</span>
                     <span className="tabular-nums font-medium w-16 text-right">{fmt(c.value, bn)}</span>
-                  </div>
+                  </button>
                 );
               })}
             </div>
+
           </div>
         )}
       </Card>
@@ -210,11 +223,21 @@ export const AnalyticsTab = ({
               selectedDayTxs.map(t => {
                 const inc = INCOME_TYPES.has(t.type);
                 return (
-                  <div key={t.id} className="flex items-center justify-between text-xs py-1">
-                    <span className="truncate">{categoryLabel(t.category || t.type)}</span>
+                  <div key={t.id} className="flex items-center justify-between gap-2 text-xs py-1">
+                    <span className="truncate flex-1">{categoryLabel(t.category || t.type)}</span>
                     <span className={cn("tabular-nums font-medium", inc ? "text-emerald-500" : "text-rose-500")}>
                       {inc ? "+" : "-"}{fmt(Number(t.amount), bn)}
                     </span>
+                    {onEdit && (
+                      <button onClick={() => onEdit(t)} className="h-6 w-6 rounded hover:bg-muted grid place-items-center">
+                        <Pencil className="h-3 w-3" />
+                      </button>
+                    )}
+                    {onDelete && (
+                      <button onClick={() => onDelete(t.id)} className="h-6 w-6 rounded hover:bg-rose-500/10 text-rose-500 grid place-items-center">
+                        <Trash2 className="h-3 w-3" />
+                      </button>
+                    )}
                   </div>
                 );
               })
@@ -222,6 +245,45 @@ export const AnalyticsTab = ({
           </div>
         )}
       </Card>
+
+      <Dialog open={!!drill} onOpenChange={(o) => !o && setDrill(null)}>
+        <DialogContent className="max-w-md max-h-[80vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="text-sm">{drill?.title}</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-1.5">
+            {drill?.items.length === 0 && (
+              <p className="text-xs text-muted-foreground text-center py-4">{bn?"কোনো লেনদেন নেই":"No transactions"}</p>
+            )}
+            {drill?.items.map(t => {
+              const inc = INCOME_TYPES.has(t.type);
+              const d = new Date(t.occurred_at);
+              return (
+                <div key={t.id} className="flex items-center justify-between gap-2 text-xs py-1.5 border-b border-border/40 last:border-0">
+                  <div className="flex-1 min-w-0">
+                    <p className="truncate font-medium">{categoryLabel(t.category || t.type)}</p>
+                    <p className="text-[10px] text-muted-foreground">{d.toLocaleDateString(bn?"bn-BD":"en-BD", { dateStyle: "medium" })}</p>
+                  </div>
+                  <span className={cn("tabular-nums font-medium", inc ? "text-emerald-500" : "text-rose-500")}>
+                    {inc ? "+" : "-"}{fmt(Number(t.amount), bn)}
+                  </span>
+                  {onEdit && (
+                    <Button size="icon" variant="ghost" className="h-7 w-7" onClick={() => { onEdit(t); setDrill(null); }}>
+                      <Pencil className="h-3 w-3" />
+                    </Button>
+                  )}
+                  {onDelete && (
+                    <Button size="icon" variant="ghost" className="h-7 w-7 text-rose-500" onClick={() => onDelete(t.id)}>
+                      <Trash2 className="h-3 w-3" />
+                    </Button>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
+
   );
 };

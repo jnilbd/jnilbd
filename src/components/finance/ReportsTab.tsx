@@ -71,6 +71,32 @@ export function ReportsTab({
   const filteredTxs = useMemo(() => txs.filter(t => new Date(t.occurred_at).getTime() >= from), [txs, from]);
   const filteredSales = useMemo(() => sales.filter(s => new Date(s.occurred_at).getTime() >= from), [sales, from]);
 
+  // Yesterday range (only used for daily view)
+  const yesterday = useMemo(() => {
+    const start = new Date(); start.setHours(0, 0, 0, 0); start.setDate(start.getDate() - 1);
+    const end = new Date(start); end.setDate(end.getDate() + 1);
+    return { start: start.getTime(), end: end.getTime() };
+  }, []);
+  const yStats = useMemo(() => {
+    if (period !== "daily") return null;
+    let income = 0, expense = 0;
+    const catExpense: Record<string, number> = {};
+    for (const t of txs) {
+      const ts = new Date(t.occurred_at).getTime();
+      if (ts < yesterday.start || ts >= yesterday.end) continue;
+      const amt = Number(t.amount || 0);
+      if (INCOME.has(t.type)) income += amt;
+      else if (EXPENSE.has(t.type)) {
+        expense += amt;
+        const c = t.category || t.type;
+        catExpense[c] = (catExpense[c] || 0) + amt;
+      }
+    }
+    const topExpenseCats = Object.entries(catExpense).sort((a, b) => b[1] - a[1]).slice(0, 5);
+    return { income, expense, net: income - expense, topExpenseCats };
+  }, [txs, period, yesterday]);
+
+
   const stats = useMemo(() => {
     let income = 0, expense = 0;
     const catExpense: Record<string, number> = {};

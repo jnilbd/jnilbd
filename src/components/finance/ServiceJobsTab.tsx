@@ -407,7 +407,7 @@ export function ServiceJobsTab({ userId, bn }: { userId: string; bn: boolean }) 
                   <SelectTrigger className="h-9"><SelectValue /></SelectTrigger>
                   <SelectContent>
                     <SelectItem value="repair">{bn ? "মেরামত/সার্ভিস" : "Repair / Service"}</SelectItem>
-                    <SelectItem value="sale">{bn ? "কার্য বিক্রয়" : "Service Sale"}</SelectItem>
+                    <SelectItem value="sale">{bn ? "ক্রয়" : "Purchase"}</SelectItem>
                   </SelectContent>
                 </Select>
               </div>

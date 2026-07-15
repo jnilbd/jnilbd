@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card } from "@/components/ui/card";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Plus, ArrowDownRight, ArrowUpRight, Trash2, Check, Loader2, HandCoins, History, Wallet } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
@@ -13,9 +14,14 @@ interface DebtRow {
   id: string; direction: string; counterparty: string;
   amount: number; paid_amount: number | null; due_date: string | null;
   note: string | null; is_settled: boolean; created_at?: string;
+  wallet_id?: string | null;
 }
 interface PaymentRow {
   id: string; debt_id: string; amount: number; paid_at: string; note: string | null;
+  wallet_id?: string | null;
+}
+interface WalletRow {
+  id: string; name: string; scope: string; balance: number;
 }
 
 const fmt = (n: number, bn = false) => {

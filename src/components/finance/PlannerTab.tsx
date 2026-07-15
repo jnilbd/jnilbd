@@ -253,6 +253,7 @@ export const PlannerTab = ({ userId, bn, monthlyIncome, monthlyExpense, totalBal
           <div className="min-w-0">
             <div className="flex items-center gap-2 flex-wrap">
               <p className="font-semibold text-sm truncate">{r.title}</p>
+              <Badge variant="outline" className={cn("text-[10px]", priorityMeta(r.priority).cls)}>★ {priorityMeta(r.priority).label}</Badge>
               <Badge variant="outline" className="text-[10px]">{bn ? (r.scope === "business" ? "ব্যবসা" : "ব্যক্তিগত") : r.scope}</Badge>
               {r.is_completed && <Badge className="text-[10px] bg-emerald-500/20 text-emerald-600 border-0"><CheckCircle2 className="h-3 w-3 mr-1" />{bn ? "সম্পন্ন" : "Done"}</Badge>}
             </div>

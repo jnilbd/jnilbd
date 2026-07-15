@@ -316,6 +316,7 @@ const Finance = () => {
 
   // date filter for transactions
   const [dateRange, setDateRange] = useState<"all"|"today"|"yesterday"|"week"|"month"|"custom">("all");
+  const [flowFilter, setFlowFilter] = useState<"all"|"in"|"out">("all");
   const [customFrom, setCustomFrom] = useState<string>("");
   const [customTo, setCustomTo] = useState<string>("");
 
@@ -879,8 +880,10 @@ const Finance = () => {
         String(t.amount).includes(s)
       );
     }
+    if (flowFilter === "in") list = list.filter(t => INCOME_TYPES.includes(t.type));
+    else if (flowFilter === "out") list = list.filter(t => EXPENSE_TYPES.includes(t.type));
     return list;
-  }, [filteredTxs, q, dateRange, customFrom, customTo]);
+  }, [filteredTxs, q, dateRange, customFrom, customTo, flowFilter]);
 
   const rangeTotals = useMemo(() => {
     let inc = 0, exp = 0;
@@ -1170,26 +1173,53 @@ const Finance = () => {
 
             {/* Range totals */}
             <div className="grid grid-cols-3 gap-2">
-              <div className="rounded-xl border border-emerald-500/20 bg-emerald-500/5 p-2 text-center">
+              <button
+                type="button"
+                onClick={() => setFlowFilter(f => f === "in" ? "all" : "in")}
+                className={cn(
+                  "rounded-xl border p-2 text-center transition-all active:scale-95",
+                  flowFilter === "in"
+                    ? "border-emerald-500 bg-emerald-500/15 ring-2 ring-emerald-500/40 shadow-md"
+                    : "border-emerald-500/20 bg-emerald-500/5 hover:border-emerald-500/50 hover:bg-emerald-500/10"
+                )}
+                aria-pressed={flowFilter === "in"}
+              >
                 <p className="text-[10px] text-muted-foreground flex items-center justify-center gap-1">
                   <span className="inline-flex items-center justify-center h-3.5 min-w-[18px] px-1 rounded bg-emerald-500/15 text-emerald-500 text-[8px] font-bold">CR</span>
                   {bn?"জমা (আয়)":"Credit (In)"}
                 </p>
                 <p className="text-sm font-semibold text-emerald-500 tabular-nums">{fmtBDT(rangeTotals.inc, bn)}</p>
-              </div>
-              <div className="rounded-xl border border-rose-500/20 bg-rose-500/5 p-2 text-center">
+              </button>
+              <button
+                type="button"
+                onClick={() => setFlowFilter(f => f === "out" ? "all" : "out")}
+                className={cn(
+                  "rounded-xl border p-2 text-center transition-all active:scale-95",
+                  flowFilter === "out"
+                    ? "border-rose-500 bg-rose-500/15 ring-2 ring-rose-500/40 shadow-md"
+                    : "border-rose-500/20 bg-rose-500/5 hover:border-rose-500/50 hover:bg-rose-500/10"
+                )}
+                aria-pressed={flowFilter === "out"}
+              >
                 <p className="text-[10px] text-muted-foreground flex items-center justify-center gap-1">
                   <span className="inline-flex items-center justify-center h-3.5 min-w-[18px] px-1 rounded bg-rose-500/15 text-rose-500 text-[8px] font-bold">DR</span>
                   {bn?"খরচ (ডেবিট)":"Debit (Out)"}
                 </p>
                 <p className="text-sm font-semibold text-rose-500 tabular-nums">{fmtBDT(rangeTotals.exp, bn)}</p>
-              </div>
-              <div className={cn("rounded-xl border p-2 text-center",
-                rangeTotals.net >= 0 ? "border-emerald-500/20 bg-emerald-500/5" : "border-rose-500/20 bg-rose-500/5")}>
+              </button>
+              <button
+                type="button"
+                onClick={() => setFlowFilter("all")}
+                className={cn("rounded-xl border p-2 text-center transition-all active:scale-95",
+                  rangeTotals.net >= 0 ? "border-emerald-500/20 bg-emerald-500/5 hover:bg-emerald-500/10" : "border-rose-500/20 bg-rose-500/5 hover:bg-rose-500/10",
+                  flowFilter === "all" && "ring-2 ring-primary/40"
+                )}
+                aria-pressed={flowFilter === "all"}
+              >
                 <p className="text-[10px] text-muted-foreground">{bn?"নেট ব্যালেন্স":"Net Balance"}</p>
                 <p className={cn("text-sm font-semibold tabular-nums",
                   rangeTotals.net >= 0 ? "text-emerald-500" : "text-rose-500")}>{fmtBDT(rangeTotals.net, bn)}</p>
-              </div>
+              </button>
             </div>
 
             <div className="space-y-2">

@@ -20,7 +20,7 @@ const WORKING_KEY = "livetv:working:v1";
 const FAV_KEY = "livetv:favorites:v2";
 const RECENT_KEY = "livetv:recent:v1";
 
-type Tab = "mrgify" | "tv" | "bdix" | "world" | "sports" | "radio" | "offline" | "working" | "alpha6" | "neosfpoo" | "business8k" | "mhiptv" | "serveurprotv" | "vlue1" | "vlue2" | "vlue3" | "vlue4" | "vlue5";
+type Tab = "mrgify" | "tv" | "bdix" | "world" | "sports" | "radio" | "offline" | "working" | "alpha6" | "neosfpoo" | "business8k" | "mhiptv" | "serveurprotv" | "vlue1" | "vlue2" | "vlue3" | "vlue4" | "vlue5" | "x81637" | "kilas7" | "vipapy" | "berati" | "ogietv" | "mag204" | "mag4kgood" | "maglinehunt" | "magwatchtivo";
 type Health = "unknown" | "checking" | "live" | "dead";
 
 type Channel = {
@@ -947,6 +947,15 @@ const LiveTV = () => {
               { k: "vlue3", label: "Vlue #3", icon: Zap, count: 0 },
               { k: "vlue4", label: "Vlue #4", icon: Zap, count: 0 },
               { k: "vlue5", label: "Vlue #5", icon: Zap, count: 0 },
+              { k: "x81637", label: "81637.org", icon: Zap, count: 0 },
+              { k: "kilas7", label: "Kilas7", icon: Zap, count: 0 },
+              { k: "vipapy", label: "Vipapy", icon: Zap, count: 0 },
+              { k: "berati", label: "TV-Berati", icon: Zap, count: 0 },
+              { k: "ogietv", label: "OgieTV", icon: Zap, count: 0 },
+              { k: "mag204", label: "MAG 204.52", icon: Zap, count: 0 },
+              { k: "mag4kgood", label: "MAG 4KGood", icon: Zap, count: 0 },
+              { k: "maglinehunt", label: "MAG LineHunt", icon: Zap, count: 0 },
+              { k: "magwatchtivo", label: "MAG WatchTivo", icon: Zap, count: 0 },
               { k: "working", label: t("ওয়ার্কিং ✅","Working ✅"), icon: CheckCircle2, count: workingChannels.length },
               { k: "offline", label: t("অফলাইন","Offline"), icon: XCircle, count: offlineChannels.length },
             ] as { k: Tab; label: string; icon: any; count: number }[]).map(({ k, label, icon: Icon, count }) => (
@@ -1094,6 +1103,30 @@ const LiveTV = () => {
               />
             ))}
 
+            {([
+              { k: "x81637", host: "http://81637.org:2052", u: "ElectricChris", p: "021223" },
+              { k: "kilas7", host: "http://iptv.kilas7.com:80", u: "kaukia", p: "asdfrewq" },
+              { k: "vipapy", host: "http://vipapyenhmw.top:8080", u: "brejna", p: "6yGNnFuahuTG" },
+              { k: "berati", host: "http://93.93.113.95:25461", u: "TV-Berati", p: "XtreamCodes" },
+              { k: "ogietv", host: "http://ogietv.biz.id:80", u: "aqin", p: "aqin168" },
+            ] as const).map(({ k, host, u, p }) => tab === k && (
+              <XtreamChannels
+                key={k}
+                m3uUrl={`${host}/get.php?username=${u}&password=${p}&type=m3u_plus&output=ts`}
+                label={`${host.replace(/^https?:\/\//, "")}`}
+                username={u}
+              />
+            ))}
+
+            {([
+              { k: "mag204", portal: "http://204.52.191.254:80/c", mac: "00:1A:79:C9:A4:81", label: "MAG · 204.52.191.254" },
+              { k: "mag4kgood", portal: "http://4kgood.org/c", mac: "00:1A:79:CF:8A:92", label: "MAG · 4kgood.org" },
+              { k: "maglinehunt", portal: "http://line.linehunt.org:8000/c", mac: "A0:BB:3E:64:68:E3", label: "MAG · linehunt.org" },
+              { k: "magwatchtivo", portal: "http://line.watchtivo-8k.com:80/c", mac: "00:1A:79:A8:0B:7F", label: "MAG · watchtivo-8k.com" },
+            ] as const).map(({ k, portal, mac, label }) => tab === k && (
+              <PortalChannels key={k} portal={portal} mac={mac} label={label} />
+            ))}
+
 
             {tab === "bdix" && (
               <Card className="p-3 mb-4 bg-amber-500/5 border-amber-500/30">
@@ -1113,7 +1146,7 @@ const LiveTV = () => {
               </div>
             )}
 
-            {loading && !["radio","bdix","mrgify","alpha6","neosfpoo","business8k","mhiptv","serveurprotv","vlue1","vlue2","vlue3","vlue4","vlue5"].includes(tab) && (
+            {loading && !["radio","bdix","mrgify","alpha6","neosfpoo","business8k","mhiptv","serveurprotv","vlue1","vlue2","vlue3","vlue4","vlue5","x81637","kilas7","vipapy","berati","ogietv","mag204","mag4kgood","maglinehunt","magwatchtivo"].includes(tab) && (
               <div className="flex flex-col items-center py-12 text-muted-foreground">
                 <Loader2 className="w-8 h-8 animate-spin mb-2" />
                 <p className="text-sm">{t("সর্বশেষ চ্যানেল লোড হচ্ছে...", "Loading latest channels...")}</p>

@@ -61,6 +61,7 @@ interface TxRow {
   id: string; wallet_id: string | null; transfer_to_wallet_id: string | null;
   type: TxType; amount: number; category: string | null; scope: "personal" | "business";
   party: string | null; note: string | null; occurred_at: string;
+  meta?: any;
 }
 
 // ---------- Constants ----------

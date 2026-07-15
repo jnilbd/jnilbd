@@ -2,20 +2,27 @@ import { useEffect, useMemo, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import {
-  TrendingUp, TrendingDown, PiggyBank, Package, Trophy, AlertTriangle,
-  Calendar, CalendarDays, CalendarRange, Loader2, ArrowUpRight, ArrowDownRight
+  TrendingUp, TrendingDown, AlertTriangle,
+  Calendar, CalendarDays, CalendarRange, ArrowUpRight, ArrowDownRight,
+  Pencil, Trash2, ChevronRight,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 type Period = "daily" | "weekly" | "monthly";
 
 interface TxRow {
+  id: string;
   type: string;
   amount: number;
   category: string | null;
   scope: string;
   occurred_at: string;
+  wallet_id?: string | null;
+  note?: string | null;
+  party?: string | null;
 }
 interface SaleRow {
   product_name: string;
@@ -34,6 +41,13 @@ const EXPENSE = new Set(["expense", "purchase", "loan_given", "repayment_out", "
 const fmt = (n: number, bn: boolean) =>
   "৳" + Math.round(n).toLocaleString(bn ? "bn-BD" : "en-BD");
 
+const fmtDateTime = (iso: string, bn: boolean) => {
+  const d = new Date(iso);
+  return d.toLocaleString(bn ? "bn-BD" : "en-BD", {
+    day: "2-digit", month: "short", hour: "2-digit", minute: "2-digit",
+  });
+};
+
 const startOf = (p: Period) => {
   const d = new Date(); d.setHours(0, 0, 0, 0);
   if (p === "weekly") d.setDate(d.getDate() - 6);
@@ -42,27 +56,27 @@ const startOf = (p: Period) => {
 };
 
 export function ReportsTab({
-  userId, bn, txs, categoryLabel,
+  userId, bn, txs, categoryLabel, onEdit, onDelete,
 }: {
   userId: string;
   bn: boolean;
   txs: TxRow[];
   categoryLabel: (c: string) => string;
+  onEdit?: (t: TxRow) => void;
+  onDelete?: (id: string) => void;
 }) {
   const [period, setPeriod] = useState<Period>("daily");
   const [sales, setSales] = useState<SaleRow[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [drill, setDrill] = useState<{ title: string; rows: TxRow[] } | null>(null);
 
   useEffect(() => {
     (async () => {
-      setLoading(true);
       const { data } = await (supabase as any)
         .from("finance_sales")
         .select("product_name,quantity,unit_price,cost_price,discount,total_amount,occurred_at,delivery_status")
         .eq("user_id", userId)
         .order("occurred_at", { ascending: false });
       setSales((data as SaleRow[]) || []);
-      setLoading(false);
     })();
   }, [userId]);
 
@@ -77,13 +91,15 @@ export function ReportsTab({
     const end = new Date(start); end.setDate(end.getDate() + 1);
     return { start: start.getTime(), end: end.getTime() };
   }, []);
+  const ydayTxs = useMemo(() => txs.filter(t => {
+    const ts = new Date(t.occurred_at).getTime();
+    return ts >= yesterday.start && ts < yesterday.end;
+  }), [txs, yesterday]);
   const yStats = useMemo(() => {
     if (period !== "daily") return null;
     let income = 0, expense = 0;
     const catExpense: Record<string, number> = {};
-    for (const t of txs) {
-      const ts = new Date(t.occurred_at).getTime();
-      if (ts < yesterday.start || ts >= yesterday.end) continue;
+    for (const t of ydayTxs) {
       const amt = Number(t.amount || 0);
       if (INCOME.has(t.type)) income += amt;
       else if (EXPENSE.has(t.type)) {
@@ -94,8 +110,7 @@ export function ReportsTab({
     }
     const topExpenseCats = Object.entries(catExpense).sort((a, b) => b[1] - a[1]).slice(0, 5);
     return { income, expense, net: income - expense, topExpenseCats };
-  }, [txs, period, yesterday]);
-
+  }, [ydayTxs, period]);
 
   const stats = useMemo(() => {
     let income = 0, expense = 0;
@@ -113,36 +128,44 @@ export function ReportsTab({
         catExpense[c] = (catExpense[c] || 0) + amt;
       }
     }
-    let salesTotal = 0, salesProfit = 0, salesQty = 0, delivered = 0, returned = 0;
-    const productMap: Record<string, { qty: number; revenue: number; profit: number }> = {};
+    let returned = 0;
     for (const s of filteredSales) {
-      const rev = Number(s.total_amount || 0);
-      const profit = (Number(s.unit_price) - Number(s.cost_price)) * Number(s.quantity) - Number(s.discount || 0);
-      salesTotal += rev;
-      salesProfit += profit;
-      salesQty += Number(s.quantity || 0);
-      if (s.delivery_status === "delivered") delivered++;
       if (s.delivery_status === "returned") returned++;
-      const key = s.product_name || "—";
-      productMap[key] = productMap[key] || { qty: 0, revenue: 0, profit: 0 };
-      productMap[key].qty += Number(s.quantity || 0);
-      productMap[key].revenue += rev;
-      productMap[key].profit += profit;
     }
-    const topProducts = Object.entries(productMap)
-      .sort((a, b) => b[1].revenue - a[1].revenue).slice(0, 5);
     const topExpenseCats = Object.entries(catExpense).sort((a, b) => b[1] - a[1]).slice(0, 5);
     const topIncomeCats = Object.entries(catIncome).sort((a, b) => b[1] - a[1]).slice(0, 5);
     return {
-      income, expense, net: income - expense,
-      salesTotal, salesProfit, salesQty, delivered, returned,
-      topProducts, topExpenseCats, topIncomeCats,
+      income, expense, net: income - expense, returned,
+      topExpenseCats, topIncomeCats,
     };
   }, [filteredTxs, filteredSales]);
 
   const periodLabel = period === "daily" ? (bn ? "আজ" : "Today")
     : period === "weekly" ? (bn ? "৭ দিন" : "7 Days")
     : (bn ? "এই মাস" : "This Month");
+
+  // ---- Drilldown helpers ----
+  const openCatDrill = (cat: string, kind: "income" | "expense", scope: "period" | "yesterday" = "period") => {
+    const src = scope === "yesterday" ? ydayTxs : filteredTxs;
+    const set = kind === "income" ? INCOME : EXPENSE;
+    const rows = src
+      .filter(t => set.has(t.type) && (t.category || t.type) === cat)
+      .sort((a, b) => new Date(b.occurred_at).getTime() - new Date(a.occurred_at).getTime());
+    const scopeLabel = scope === "yesterday" ? (bn ? "গতকাল" : "Yesterday") : periodLabel;
+    setDrill({ title: `${categoryLabel(cat)} · ${scopeLabel}`, rows });
+  };
+
+  const openPeriodDrill = (scope: "period" | "yesterday" = "period", kind?: "income" | "expense") => {
+    const src = scope === "yesterday" ? ydayTxs : filteredTxs;
+    const rows = src
+      .filter(t => (kind === "income" ? INCOME.has(t.type) : kind === "expense" ? EXPENSE.has(t.type) : (INCOME.has(t.type) || EXPENSE.has(t.type))))
+      .sort((a, b) => new Date(b.occurred_at).getTime() - new Date(a.occurred_at).getTime());
+    const scopeLabel = scope === "yesterday" ? (bn ? "গতকাল" : "Yesterday") : periodLabel;
+    const kindLabel = kind === "income" ? (bn ? "আয়" : "Income") : kind === "expense" ? (bn ? "খরচ" : "Expense") : (bn ? "সব লেনদেন" : "All");
+    setDrill({ title: `${kindLabel} · ${scopeLabel}`, rows });
+  };
+
+  const closeDrill = () => setDrill(null);
 
   return (
     <div className="space-y-4">
@@ -163,28 +186,32 @@ export function ReportsTab({
         ))}
       </div>
 
-      {/* P&L hero */}
+      {/* P&L hero — clickable */}
       <Card className="relative overflow-hidden border-border/60 bg-gradient-to-br from-primary/10 via-background to-background p-5">
         <div className="absolute -top-16 -right-16 h-48 w-48 rounded-full bg-primary/20 blur-3xl" />
-        <p className="text-xs text-muted-foreground">{bn ? "লাভ / লোকসান" : "Profit / Loss"} · {periodLabel}</p>
-        <p className={cn("text-3xl sm:text-4xl font-semibold mt-1 tabular-nums",
-          stats.net >= 0 ? "text-emerald-500" : "text-rose-500")}>
-          {stats.net >= 0 ? "+" : ""}{fmt(stats.net, bn)}
-        </p>
+        <button className="w-full text-left" onClick={() => openPeriodDrill("period")}>
+          <p className="text-xs text-muted-foreground flex items-center gap-1">
+            {bn ? "লাভ / লোকসান" : "Profit / Loss"} · {periodLabel}
+            <ChevronRight className="h-3 w-3 opacity-60" />
+          </p>
+          <p className={cn("text-3xl sm:text-4xl font-semibold mt-1 tabular-nums",
+            stats.net >= 0 ? "text-emerald-500" : "text-rose-500")}>
+            {stats.net >= 0 ? "+" : ""}{fmt(stats.net, bn)}
+          </p>
+        </button>
         <div className="grid grid-cols-2 gap-3 mt-3">
-          <div className="rounded-xl border border-emerald-500/30 bg-emerald-500/5 p-3">
+          <button onClick={() => openPeriodDrill("period", "income")}
+            className="rounded-xl border border-emerald-500/30 bg-emerald-500/5 p-3 text-left hover:bg-emerald-500/10 transition">
             <p className="text-[10px] text-muted-foreground flex items-center gap-1"><ArrowUpRight className="h-3 w-3" />{bn ? "আয়" : "Income"}</p>
             <p className="text-lg font-semibold text-emerald-500 tabular-nums">{fmt(stats.income, bn)}</p>
-          </div>
-          <div className="rounded-xl border border-rose-500/30 bg-rose-500/5 p-3">
+          </button>
+          <button onClick={() => openPeriodDrill("period", "expense")}
+            className="rounded-xl border border-rose-500/30 bg-rose-500/5 p-3 text-left hover:bg-rose-500/10 transition">
             <p className="text-[10px] text-muted-foreground flex items-center gap-1"><ArrowDownRight className="h-3 w-3" />{bn ? "খরচ" : "Expense"}</p>
             <p className="text-lg font-semibold text-rose-500 tabular-nums">{fmt(stats.expense, bn)}</p>
-          </div>
+          </button>
         </div>
       </Card>
-
-      {/* Sales/Product metrics moved to Business Tools */}
-
 
       {/* Top expense categories */}
       <Card className="p-4 border-border/60">
@@ -200,18 +227,19 @@ export function ReportsTab({
               const max = stats.topExpenseCats[0][1] || 1;
               const pct = (amt / max) * 100;
               return (
-                <div key={cat}>
+                <button key={cat} onClick={() => openCatDrill(cat, "expense", "period")}
+                  className="w-full text-left rounded-md p-1 -m-1 hover:bg-muted/60 transition">
                   <div className="flex items-center justify-between text-xs mb-0.5">
                     <span className="flex items-center gap-1.5 min-w-0">
                       <Badge variant="outline" className="text-[9px] h-4 px-1.5">#{bn ? (i + 1).toLocaleString("bn-BD") : i + 1}</Badge>
                       <span className="truncate capitalize">{categoryLabel(cat)}</span>
                     </span>
-                    <b className="tabular-nums shrink-0 ml-2 text-rose-500">{fmt(amt, bn)}</b>
+                    <b className="tabular-nums shrink-0 ml-2 text-rose-500 flex items-center gap-0.5">{fmt(amt, bn)}<ChevronRight className="h-3 w-3 opacity-60" /></b>
                   </div>
                   <div className="h-1.5 rounded-full bg-muted overflow-hidden">
                     <div className="h-full rounded-full bg-gradient-to-r from-rose-400 to-red-500" style={{ width: `${pct}%` }} />
                   </div>
-                </div>
+                </button>
               );
             })}
           </div>
@@ -230,18 +258,19 @@ export function ReportsTab({
               const max = stats.topIncomeCats[0][1] || 1;
               const pct = (amt / max) * 100;
               return (
-                <div key={cat}>
+                <button key={cat} onClick={() => openCatDrill(cat, "income", "period")}
+                  className="w-full text-left rounded-md p-1 -m-1 hover:bg-muted/60 transition">
                   <div className="flex items-center justify-between text-xs mb-0.5">
                     <span className="flex items-center gap-1.5 min-w-0">
                       <Badge variant="outline" className="text-[9px] h-4 px-1.5">#{bn ? (i + 1).toLocaleString("bn-BD") : i + 1}</Badge>
                       <span className="truncate capitalize">{categoryLabel(cat)}</span>
                     </span>
-                    <b className="tabular-nums shrink-0 ml-2 text-emerald-500">{fmt(amt, bn)}</b>
+                    <b className="tabular-nums shrink-0 ml-2 text-emerald-500 flex items-center gap-0.5">{fmt(amt, bn)}<ChevronRight className="h-3 w-3 opacity-60" /></b>
                   </div>
                   <div className="h-1.5 rounded-full bg-muted overflow-hidden">
                     <div className="h-full rounded-full bg-gradient-to-r from-emerald-400 to-teal-500" style={{ width: `${pct}%` }} />
                   </div>
-                </div>
+                </button>
               );
             })}
           </div>
@@ -250,25 +279,29 @@ export function ReportsTab({
 
       {yStats && (
         <Card className="p-4 border-border/60 bg-muted/30">
-          <div className="flex items-center justify-between mb-3">
-            <div className="flex items-center gap-2">
-              <Calendar className="h-4 w-4 text-muted-foreground" />
-              <h3 className="font-semibold text-sm">{bn ? "গতকাল" : "Yesterday"}</h3>
+          <button className="w-full text-left" onClick={() => openPeriodDrill("yesterday")}>
+            <div className="flex items-center justify-between mb-3">
+              <div className="flex items-center gap-2">
+                <Calendar className="h-4 w-4 text-muted-foreground" />
+                <h3 className="font-semibold text-sm flex items-center gap-1">{bn ? "গতকাল" : "Yesterday"}<ChevronRight className="h-3 w-3 opacity-60" /></h3>
+              </div>
+              <span className={cn("text-sm font-semibold tabular-nums",
+                yStats.net >= 0 ? "text-emerald-500" : "text-rose-500")}>
+                {yStats.net >= 0 ? "+" : ""}{fmt(yStats.net, bn)}
+              </span>
             </div>
-            <span className={cn("text-sm font-semibold tabular-nums",
-              yStats.net >= 0 ? "text-emerald-500" : "text-rose-500")}>
-              {yStats.net >= 0 ? "+" : ""}{fmt(yStats.net, bn)}
-            </span>
-          </div>
+          </button>
           <div className="grid grid-cols-2 gap-2 mb-3">
-            <div className="rounded-lg border border-emerald-500/20 bg-emerald-500/5 p-2">
+            <button onClick={() => openPeriodDrill("yesterday", "income")}
+              className="rounded-lg border border-emerald-500/20 bg-emerald-500/5 p-2 text-left hover:bg-emerald-500/10 transition">
               <p className="text-[10px] text-muted-foreground">{bn ? "আয়" : "Income"}</p>
               <p className="text-sm font-semibold text-emerald-500 tabular-nums">{fmt(yStats.income, bn)}</p>
-            </div>
-            <div className="rounded-lg border border-rose-500/20 bg-rose-500/5 p-2">
+            </button>
+            <button onClick={() => openPeriodDrill("yesterday", "expense")}
+              className="rounded-lg border border-rose-500/20 bg-rose-500/5 p-2 text-left hover:bg-rose-500/10 transition">
               <p className="text-[10px] text-muted-foreground">{bn ? "খরচ" : "Expense"}</p>
               <p className="text-sm font-semibold text-rose-500 tabular-nums">{fmt(yStats.expense, bn)}</p>
-            </div>
+            </button>
           </div>
           {yStats.topExpenseCats.length > 0 && (
             <div className="space-y-1.5">
@@ -277,18 +310,19 @@ export function ReportsTab({
                 const max = yStats.topExpenseCats[0][1] || 1;
                 const pct = (amt / max) * 100;
                 return (
-                  <div key={cat}>
+                  <button key={cat} onClick={() => openCatDrill(cat, "expense", "yesterday")}
+                    className="w-full text-left rounded-md p-1 -m-1 hover:bg-muted/60 transition">
                     <div className="flex items-center justify-between text-xs mb-0.5">
                       <span className="flex items-center gap-1.5 min-w-0">
                         <Badge variant="outline" className="text-[9px] h-4 px-1.5">#{bn ? (i + 1).toLocaleString("bn-BD") : i + 1}</Badge>
                         <span className="truncate capitalize">{categoryLabel(cat)}</span>
                       </span>
-                      <b className="tabular-nums shrink-0 ml-2 text-rose-500">{fmt(amt, bn)}</b>
+                      <b className="tabular-nums shrink-0 ml-2 text-rose-500 flex items-center gap-0.5">{fmt(amt, bn)}<ChevronRight className="h-3 w-3 opacity-60" /></b>
                     </div>
                     <div className="h-1 rounded-full bg-muted overflow-hidden">
                       <div className="h-full rounded-full bg-gradient-to-r from-rose-400 to-red-500" style={{ width: `${pct}%` }} />
                     </div>
-                  </div>
+                  </button>
                 );
               })}
             </div>
@@ -303,19 +337,52 @@ export function ReportsTab({
         </Card>
       )}
 
-    </div>
-  );
-}
-
-function MetricBox({ label, value, icon: Icon, tone }: { label: string; value: any; icon: any; tone?: "emerald" | "rose" }) {
-  return (
-    <div className="rounded-xl border border-border/60 bg-card/70 backdrop-blur p-2.5">
-      <div className="flex items-center gap-1.5 text-[10px] text-muted-foreground">
-        <Icon className="h-3 w-3" />{label}
-      </div>
-      <p className={cn("text-base font-semibold tabular-nums mt-0.5",
-        tone === "emerald" && "text-emerald-500",
-        tone === "rose" && "text-rose-500")}>{value}</p>
+      {/* Drilldown Dialog */}
+      <Dialog open={!!drill} onOpenChange={(v) => !v && closeDrill()}>
+        <DialogContent className="max-w-md max-h-[80vh] overflow-hidden flex flex-col">
+          <DialogHeader>
+            <DialogTitle className="text-sm">{drill?.title}</DialogTitle>
+          </DialogHeader>
+          <div className="overflow-y-auto -mx-6 px-6 space-y-2">
+            {(!drill || drill.rows.length === 0) && (
+              <p className="text-xs text-muted-foreground text-center py-8">{bn ? "কোনো লেনদেন নেই" : "No transactions"}</p>
+            )}
+            {drill?.rows.map(t => {
+              const isIncome = INCOME.has(t.type);
+              return (
+                <div key={t.id} className="rounded-lg border border-border/60 bg-card p-3 flex items-start gap-2">
+                  <div className={cn("shrink-0 mt-0.5 h-8 w-8 rounded-full grid place-items-center",
+                    isIncome ? "bg-emerald-500/10 text-emerald-500" : "bg-rose-500/10 text-rose-500")}>
+                    {isIncome ? <ArrowUpRight className="h-4 w-4" /> : <ArrowDownRight className="h-4 w-4" />}
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-baseline justify-between gap-2">
+                      <p className="text-sm font-medium truncate capitalize">{categoryLabel(t.category || t.type)}</p>
+                      <b className={cn("tabular-nums text-sm shrink-0", isIncome ? "text-emerald-500" : "text-rose-500")}>
+                        {isIncome ? "+" : "-"}{fmt(Number(t.amount || 0), bn)}
+                      </b>
+                    </div>
+                    <p className="text-[10px] text-muted-foreground">{fmtDateTime(t.occurred_at, bn)}</p>
+                    {t.note && <p className="text-[11px] text-muted-foreground mt-0.5 line-clamp-2">{t.note}</p>}
+                  </div>
+                  <div className="flex flex-col gap-1">
+                    {onEdit && (
+                      <Button variant="ghost" size="icon" className="h-7 w-7 text-primary" onClick={() => { onEdit(t); closeDrill(); }} title={bn ? "সম্পাদনা" : "Edit"}>
+                        <Pencil className="h-3.5 w-3.5" />
+                      </Button>
+                    )}
+                    {onDelete && (
+                      <Button variant="ghost" size="icon" className="h-7 w-7 text-rose-500" onClick={() => { onDelete(t.id); }} title={bn ? "মুছুন" : "Delete"}>
+                        <Trash2 className="h-3.5 w-3.5" />
+                      </Button>
+                    )}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

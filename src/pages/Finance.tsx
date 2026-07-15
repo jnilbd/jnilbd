@@ -975,7 +975,6 @@ const Finance = () => {
                 { t: "expense", label: bn?"খরচ যোগ":"Add Expense", icon: TrendingDown, tone: "rose" },
                 { t: "sale", label: bn?"বিক্রি":"Sale", icon: ShoppingCart, tone: "emerald" },
                 { t: "purchase", label: bn?"ক্রয়":"Purchase", icon: Package, tone: "rose" },
-                { t: "transfer", label: bn?"ট্রান্সফার":"Transfer", icon: ArrowLeftRight, tone: "sky" },
               ].map(a => {
                 const toneCls: Record<string,string> = {
                   emerald: "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400",

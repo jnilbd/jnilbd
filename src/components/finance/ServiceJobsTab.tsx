@@ -45,7 +45,11 @@ const KIND_OPTIONS_REPAIR = [
   "Lock Unlock", "FRP Unlock", "Root", "MDM Bypass", "iCloud Bypass",
   "Flash / Firmware", "Water Damage", "Other",
 ];
-const KIND_OPTIONS_SALE = ["New Sale", "Used Sale", "Accessory Sale", "Trade-in", "Other"];
+const KIND_OPTIONS_SALE = [
+  "Buy New", "Buy Used", "Buy Accessory", "Buy for Resale", "Buy Parts",
+  "Sell New", "Sell Used", "Sell Accessory", "Trade-in", "Exchange",
+  "Wholesale", "Other",
+];
 
 const KIND_BN: Record<string, string> = {
   "Screen Repair": "স্ক্রিন মেরামত", "Battery Change": "ব্যাটারি পরিবর্তন",
@@ -53,8 +57,12 @@ const KIND_BN: Record<string, string> = {
   "Lock Unlock": "লক খোলা", "FRP Unlock": "FRP খোলা", "Root": "রুট",
   "MDM Bypass": "MDM বাইপাস", "iCloud Bypass": "iCloud বাইপাস",
   "Flash / Firmware": "ফ্ল্যাশ/ফার্মওয়্যার", "Water Damage": "পানি ক্ষতি",
-  "New Sale": "নতুন বিক্রি", "Used Sale": "পুরাতন বিক্রি",
-  "Accessory Sale": "এক্সেসরিজ বিক্রি", "Trade-in": "এক্সচেঞ্জ",
+  "Buy New": "নতুন ক্রয়", "Buy Used": "পুরাতন ক্রয়",
+  "Buy Accessory": "এক্সেসরিজ ক্রয়", "Buy for Resale": "পুনঃবিক্রয়ের জন্য ক্রয়",
+  "Buy Parts": "পার্টস ক্রয়",
+  "Sell New": "নতুন বিক্রয়", "Sell Used": "পুরাতন বিক্রয়",
+  "Sell Accessory": "এক্সেসরিজ বিক্রয়", "Trade-in": "এক্সচেঞ্জ (নেওয়া)",
+  "Exchange": "এক্সচেঞ্জ (দেওয়া)", "Wholesale": "পাইকারি",
   "Other": "অন্যান্য",
 };
 

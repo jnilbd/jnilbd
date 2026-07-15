@@ -340,10 +340,32 @@ export const DebtsTab = ({ userId, bn }: { userId: string; bn: boolean }) => {
               <Input type="date" value={dueDate} onChange={e => setDueDate(e.target.value)} className="mt-1 rounded-xl" />
             </div>
             <div>
+              <Label className="text-xs">
+                {dir === "i_owe"
+                  ? (bn ? "কোথায় জমা করলাম? (ওয়ালেট)" : "Deposited into (wallet)")
+                  : (bn ? "কোথা থেকে দিলাম? (ওয়ালেট)" : "Given from (wallet)")}
+              </Label>
+              <Select value={walletId} onValueChange={setWalletId}>
+                <SelectTrigger className="mt-1 rounded-xl h-11">
+                  <SelectValue placeholder={bn ? "ওয়ালেট বাছুন (ঐচ্ছিক)" : "Choose wallet (optional)"} />
+                </SelectTrigger>
+                <SelectContent>
+                  {wallets.length === 0 && <SelectItem value="__none" disabled>{bn ? "কোনো ওয়ালেট নেই" : "No wallet"}</SelectItem>}
+                  {wallets.map(w => (
+                    <SelectItem key={w.id} value={w.id}>
+                      {w.name} · {fmt(w.balance, bn)} · {w.scope === "business" ? (bn ? "ব্যবসা" : "Business") : (bn ? "ব্যক্তিগত" : "Personal")}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <p className="text-[10px] text-muted-foreground mt-1">
+                {bn ? "ওয়ালেট দিলে ব্যালান্স ও লেনদেনে অটো আপডেট হবে।" : "If set, wallet balance and transactions update automatically."}
+              </p>
+            </div>
+            <div>
               <Label className="text-xs">{bn?"কারণ / উদ্দেশ্য":"Purpose / Reason"}</Label>
               <Input value={note} onChange={e => setNote(e.target.value)} className="mt-1 rounded-xl"
                 placeholder={bn?"কেন ধার? কী কাজে? (যেমন: চিকিৎসা, ব্যবসা)":"Why? What for? (e.g. medical, business)"} />
-
             </div>
             <Button className="w-full h-12 rounded-xl" onClick={save} disabled={busy}>
               {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : (bn?"সংরক্ষণ":"Save")}

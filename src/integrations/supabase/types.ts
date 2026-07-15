@@ -116,6 +116,7 @@ export type Database = {
           note: string | null
           paid_at: string
           user_id: string
+          wallet_id: string | null
         }
         Insert: {
           amount: number
@@ -125,6 +126,7 @@ export type Database = {
           note?: string | null
           paid_at?: string
           user_id: string
+          wallet_id?: string | null
         }
         Update: {
           amount?: number
@@ -134,6 +136,7 @@ export type Database = {
           note?: string | null
           paid_at?: string
           user_id?: string
+          wallet_id?: string | null
         }
         Relationships: [
           {
@@ -141,6 +144,13 @@ export type Database = {
             columns: ["debt_id"]
             isOneToOne: false
             referencedRelation: "debts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "debt_payments_wallet_id_fkey"
+            columns: ["wallet_id"]
+            isOneToOne: false
+            referencedRelation: "finance_wallets"
             referencedColumns: ["id"]
           },
         ]
@@ -158,6 +168,7 @@ export type Database = {
           paid_amount: number
           updated_at: string
           user_id: string
+          wallet_id: string | null
         }
         Insert: {
           amount: number
@@ -171,6 +182,7 @@ export type Database = {
           paid_amount?: number
           updated_at?: string
           user_id: string
+          wallet_id?: string | null
         }
         Update: {
           amount?: number
@@ -184,8 +196,17 @@ export type Database = {
           paid_amount?: number
           updated_at?: string
           user_id?: string
+          wallet_id?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "debts_wallet_id_fkey"
+            columns: ["wallet_id"]
+            isOneToOne: false
+            referencedRelation: "finance_wallets"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       finance_recurring_bills: {
         Row: {

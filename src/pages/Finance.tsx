@@ -1137,6 +1137,8 @@ const Finance = () => {
               monthlyIncome={monthTotals.inc}
               monthlyExpense={monthTotals.exp}
               totalBalance={totalBalance}
+              wallets={wallets as any}
+              onPaid={loadAll}
             />
           </TabsContent>
 

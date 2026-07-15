@@ -109,40 +109,49 @@ const INCOME_TYPES: TxType[] = ["income","sale","loan_taken","repayment_in","ret
 const EXPENSE_TYPES: TxType[] = ["expense","purchase","loan_given","repayment_out","return_out","stock_out"];
 
 // ---------- Small components ----------
-const MetricCard = ({ label, value, icon: Icon, tone = "default", sub, onClick }: any) => (
-  <motion.button
-    type="button"
-    onClick={onClick}
-    initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}
-    className={cn(
-      "relative overflow-hidden rounded-2xl border border-border/60 bg-card/70 backdrop-blur-xl p-4 shadow-sm hover:shadow-md transition-all text-left w-full",
-      "hover:-translate-y-0.5",
-      onClick && "cursor-pointer focus:outline-none focus:ring-2 focus:ring-primary/40"
-    )}
-  >
-    <div className="flex items-start justify-between gap-2">
-      <div className="min-w-0">
-        <p className="text-xs text-muted-foreground truncate">{label}</p>
-        <p className={cn(
-          "text-lg sm:text-xl font-semibold mt-1 tabular-nums truncate",
-          tone === "positive" && "text-emerald-500",
-          tone === "negative" && "text-rose-500",
-        )}>{value}</p>
-        {sub && <p className="text-[10px] text-muted-foreground mt-0.5 truncate">{sub}</p>}
+const MetricCard = ({ label, value, icon: Icon, tone = "default", sub, onClick }: any) => {
+  const toneRing =
+    tone === "positive" ? "from-emerald-400/15 via-emerald-400/5" :
+    tone === "negative" ? "from-rose-400/15 via-rose-400/5" :
+    "from-primary/15 via-primary/5";
+  const toneIcon =
+    tone === "positive" ? "bg-gradient-to-br from-emerald-400 to-emerald-600 text-white shadow-emerald-500/30" :
+    tone === "negative" ? "bg-gradient-to-br from-rose-400 to-rose-600 text-white shadow-rose-500/30" :
+    "bg-gradient-to-br from-primary to-primary/70 text-primary-foreground shadow-primary/30";
+  return (
+    <motion.button
+      type="button"
+      onClick={onClick}
+      initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}
+      whileTap={{ scale: 0.98 }}
+      className={cn(
+        "group relative overflow-hidden rounded-2xl border border-border/60 bg-card p-3.5 shadow-sm hover:shadow-lg transition-all text-left w-full",
+        "hover:-translate-y-0.5 hover:border-primary/30",
+        onClick && "cursor-pointer focus:outline-none focus:ring-2 focus:ring-primary/40"
+      )}
+    >
+      <div className={cn("pointer-events-none absolute -top-10 -right-10 h-28 w-28 rounded-full bg-gradient-to-br to-transparent blur-2xl opacity-70 group-hover:opacity-100 transition", toneRing)} />
+      <div className="relative flex items-start justify-between gap-2">
+        <div className="min-w-0 flex-1">
+          <p className="text-[11px] font-medium text-muted-foreground/90 truncate uppercase tracking-wide">{label}</p>
+          <p className={cn(
+            "text-lg sm:text-xl font-bold mt-1.5 tabular-nums truncate",
+            tone === "positive" && "text-emerald-600 dark:text-emerald-400",
+            tone === "negative" && "text-rose-600 dark:text-rose-400",
+          )}>{value}</p>
+          {sub && <p className="text-[10px] text-muted-foreground mt-0.5 truncate">{sub}</p>}
+        </div>
+        <div className={cn(
+          "shrink-0 h-9 w-9 rounded-xl grid place-items-center shadow-md",
+          toneIcon
+        )}>
+          <Icon className="h-4 w-4" />
+        </div>
       </div>
-      <div className={cn(
-        "shrink-0 h-9 w-9 rounded-xl grid place-items-center",
-        tone === "positive" ? "bg-emerald-500/10 text-emerald-500" :
-        tone === "negative" ? "bg-rose-500/10 text-rose-500" :
-        "bg-primary/10 text-primary"
-      )}>
-        <Icon className="h-4 w-4" />
-      </div>
-    </div>
-    {onClick && (
-      <span className="absolute bottom-1.5 right-2 text-[9px] text-muted-foreground/70">
-        →
-      </span>
+      {onClick && (
+        <span className="absolute bottom-1.5 right-2.5 text-[10px] text-muted-foreground/60 group-hover:text-primary group-hover:translate-x-0.5 transition">
+          →
+        </span>
     )}
   </motion.button>
 );

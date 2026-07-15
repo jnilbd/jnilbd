@@ -980,51 +980,79 @@ const Finance = () => {
 
             </div>
 
-            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
-              {[
-                { t: "income", label: bn?"আয় যোগ":"Add Income", icon: TrendingUp, tone: "emerald" },
-                { t: "expense", label: bn?"খরচ যোগ":"Add Expense", icon: TrendingDown, tone: "rose" },
-                { t: "sale", label: bn?"বিক্রি":"Sale", icon: ShoppingCart, tone: "emerald" },
-                { t: "purchase", label: bn?"ক্রয়":"Purchase", icon: Package, tone: "rose" },
-              ].map(a => {
-                const toneCls: Record<string,string> = {
-                  emerald: "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400",
-                  rose: "bg-rose-500/10 text-rose-600 dark:text-rose-400",
-                  sky: "bg-sky-500/10 text-sky-600 dark:text-sky-400",
-                  amber: "bg-amber-500/10 text-amber-600 dark:text-amber-400",
-                };
-                return (
-                  <button key={a.t} onClick={() => openQuick(a.t as TxType)}
-                    className="rounded-2xl border border-border/60 bg-card/70 backdrop-blur p-3 flex items-center gap-2 hover:shadow-md hover:-translate-y-0.5 transition-all text-left">
-                    <div className={`h-9 w-9 rounded-xl grid place-items-center ${toneCls[a.tone]}`}>
-                      <a.icon className="h-4 w-4" />
-                    </div>
-                    <span className="text-sm font-medium">{a.label}</span>
-                  </button>
-                );
-              })}
-              <button onClick={() => openChain("pass_through")}
-                className="rounded-2xl border border-dashed border-primary/50 bg-primary/5 backdrop-blur p-3 flex items-center gap-2 hover:shadow-md hover:-translate-y-0.5 transition-all text-left">
-                <div className="h-9 w-9 rounded-xl grid place-items-center bg-primary/10 text-primary">
-                  <LinkIcon className="h-4 w-4" />
-                </div>
-                <span className="text-sm font-medium">{bn?"চেইন (ঢুকল → ফেরত)":"Chain (In → Out)"}</span>
-              </button>
-              <button onClick={() => openChain("withdraw_spend")}
-                className="rounded-2xl border border-dashed border-primary/50 bg-primary/5 backdrop-blur p-3 flex items-center gap-2 hover:shadow-md hover:-translate-y-0.5 transition-all text-left">
-                <div className="h-9 w-9 rounded-xl grid place-items-center bg-primary/10 text-primary">
-                  <LinkIcon className="h-4 w-4" />
-                </div>
-                <span className="text-sm font-medium">{bn?"চেইন (উত্তোলন → খরচ)":"Chain (Withdraw → Spend)"}</span>
-              </button>
-              <button onClick={() => openQuick("transfer")}
-                className="rounded-2xl border border-border/60 bg-card/70 backdrop-blur p-3 flex items-center gap-2 hover:shadow-md hover:-translate-y-0.5 transition-all text-left">
-                <div className="h-9 w-9 rounded-xl grid place-items-center bg-sky-500/10 text-sky-600 dark:text-sky-400">
-                  <ArrowLeftRight className="h-4 w-4" />
-                </div>
-                <span className="text-sm font-medium">{bn?"ট্রান্সফার":"Transfer"}</span>
-              </button>
+            <div>
+              <div className="flex items-center gap-2 mb-2.5 px-0.5">
+                <div className="h-1 w-6 rounded-full bg-gradient-to-r from-primary to-primary/40" />
+                <p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">{bn?"দ্রুত এন্ট্রি":"Quick Entry"}</p>
+              </div>
+              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2.5">
+                {[
+                  { t: "income", label: bn?"আয় যোগ":"Add Income", icon: TrendingUp, tone: "emerald" },
+                  { t: "expense", label: bn?"খরচ যোগ":"Add Expense", icon: TrendingDown, tone: "rose" },
+                  { t: "sale", label: bn?"বিক্রি":"Sale", icon: ShoppingCart, tone: "emerald" },
+                  { t: "purchase", label: bn?"ক্রয়":"Purchase", icon: Package, tone: "rose" },
+                ].map(a => {
+                  const toneCls: Record<string,string> = {
+                    emerald: "from-emerald-400 to-emerald-600 shadow-emerald-500/30",
+                    rose: "from-rose-400 to-rose-600 shadow-rose-500/30",
+                    sky: "from-sky-400 to-sky-600 shadow-sky-500/30",
+                    amber: "from-amber-400 to-amber-600 shadow-amber-500/30",
+                  };
+                  const glowCls: Record<string,string> = {
+                    emerald: "from-emerald-400/20",
+                    rose: "from-rose-400/20",
+                    sky: "from-sky-400/20",
+                    amber: "from-amber-400/20",
+                  };
+                  return (
+                    <button key={a.t} onClick={() => openQuick(a.t as TxType)}
+                      className="group relative overflow-hidden rounded-2xl border border-border/60 bg-card p-3 flex items-center gap-2.5 hover:shadow-lg hover:-translate-y-0.5 hover:border-primary/30 transition-all text-left">
+                      <div className={cn("pointer-events-none absolute -top-8 -right-8 h-20 w-20 rounded-full bg-gradient-to-br to-transparent blur-2xl opacity-60 group-hover:opacity-100 transition", glowCls[a.tone])} />
+                      <div className={cn("relative shrink-0 h-10 w-10 rounded-xl grid place-items-center text-white shadow-md bg-gradient-to-br", toneCls[a.tone])}>
+                        <a.icon className="h-5 w-5" />
+                      </div>
+                      <span className="relative text-sm font-semibold">{a.label}</span>
+                    </button>
+                  );
+                })}
+              </div>
+
+              <div className="flex items-center gap-2 mt-4 mb-2.5 px-0.5">
+                <div className="h-1 w-6 rounded-full bg-gradient-to-r from-primary to-primary/40" />
+                <p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">{bn?"চেইন ও ট্রান্সফার":"Chain & Transfer"}</p>
+              </div>
+              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2.5">
+                <button onClick={() => openChain("pass_through")}
+                  className="group relative overflow-hidden rounded-2xl border border-primary/30 bg-gradient-to-br from-primary/8 via-card to-card p-3 flex items-center gap-2.5 hover:shadow-lg hover:-translate-y-0.5 hover:border-primary/60 transition-all text-left">
+                  <div className="shrink-0 h-10 w-10 rounded-xl grid place-items-center bg-gradient-to-br from-primary to-primary/60 text-primary-foreground shadow-md shadow-primary/30">
+                    <LinkIcon className="h-5 w-5" />
+                  </div>
+                  <div className="min-w-0">
+                    <span className="block text-sm font-semibold leading-tight">{bn?"চেইন":"Chain"}</span>
+                    <span className="block text-[10px] text-muted-foreground leading-tight">{bn?"ঢুকল → ফেরত":"In → Out"}</span>
+                  </div>
+                </button>
+                <button onClick={() => openChain("withdraw_spend")}
+                  className="group relative overflow-hidden rounded-2xl border border-primary/30 bg-gradient-to-br from-primary/8 via-card to-card p-3 flex items-center gap-2.5 hover:shadow-lg hover:-translate-y-0.5 hover:border-primary/60 transition-all text-left">
+                  <div className="shrink-0 h-10 w-10 rounded-xl grid place-items-center bg-gradient-to-br from-primary to-primary/60 text-primary-foreground shadow-md shadow-primary/30">
+                    <LinkIcon className="h-5 w-5" />
+                  </div>
+                  <div className="min-w-0">
+                    <span className="block text-sm font-semibold leading-tight">{bn?"চেইন":"Chain"}</span>
+                    <span className="block text-[10px] text-muted-foreground leading-tight">{bn?"উত্তোলন → খরচ":"Withdraw → Spend"}</span>
+                  </div>
+                </button>
+                <button onClick={() => openQuick("transfer")}
+                  className="group relative overflow-hidden rounded-2xl border border-border/60 bg-card p-3 flex items-center gap-2.5 hover:shadow-lg hover:-translate-y-0.5 hover:border-sky-400/50 transition-all text-left">
+                  <div className="pointer-events-none absolute -top-8 -right-8 h-20 w-20 rounded-full bg-gradient-to-br from-sky-400/20 to-transparent blur-2xl opacity-60 group-hover:opacity-100 transition" />
+                  <div className="relative shrink-0 h-10 w-10 rounded-xl grid place-items-center bg-gradient-to-br from-sky-400 to-sky-600 text-white shadow-md shadow-sky-500/30">
+                    <ArrowLeftRight className="h-5 w-5" />
+                  </div>
+                  <span className="relative text-sm font-semibold">{bn?"ট্রান্সফার":"Transfer"}</span>
+                </button>
+              </div>
             </div>
+
           </TabsContent>
 
           {/* Wallets */}

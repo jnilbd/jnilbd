@@ -17,7 +17,7 @@ import FinanceCalculator from "./FinanceCalculator";
 import { PlanCountdown } from "./PlanCountdown";
 
 
-type Kind = "savings" | "income_target" | "installment";
+type Kind = "savings" | "income_target" | "installment" | "debt_payoff";
 type Scope = "personal" | "business";
 
 interface GoalRow {

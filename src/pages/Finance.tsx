@@ -402,6 +402,7 @@ const Finance = () => {
   const [qaAmount, setQaAmount] = useState("");
   const [qaWallet, setQaWallet] = useState<string>("");
   const [qaWallet2, setQaWallet2] = useState<string>("");
+  const [qaOriginWallet, setQaOriginWallet] = useState<string>("");
   const [qaCategory, setQaCategory] = useState<string>("");
   const [qaParty, setQaParty] = useState("");
   const [qaNote, setQaNote] = useState("");
@@ -617,7 +618,7 @@ const Finance = () => {
   const openQuick = (type: TxType, presetWalletId?: string, opts?: { asDestination?: boolean; presetCategory?: string }) => {
     setEditTxId(null);
     setQaType(type);
-    setQaAmount(""); setQaCategory(opts?.presetCategory ?? ""); setQaParty(""); setQaNote(""); setQaWallet2(""); setQaFee("");
+    setQaAmount(""); setQaCategory(opts?.presetCategory ?? ""); setQaParty(""); setQaNote(""); setQaWallet2(""); setQaOriginWallet(""); setQaFee("");
     const preset = presetWalletId ? wallets.find(w => w.id === presetWalletId) : undefined;
     if (preset) {
       if (opts?.asDestination && type === "transfer") {
@@ -706,8 +707,23 @@ const Finance = () => {
       const ins = await supabase.from("finance_transactions").insert({ user_id: user.id, ...payload });
       error = ins.error;
     } else if (expenseWithSource) {
-      // 1) transfer amount+fee from source (qaWallet2) → destination (qaWallet)
+      // Optional 3-hop: origin → source (qaWallet2) → destination (qaWallet) → expense
+      const chainId = (globalThis.crypto?.randomUUID?.() ?? `${Date.now()}-${Math.random()}`);
+      const linkMeta = { chain_id: chainId } as any;
       const transferAmt = amount + fee;
+      const useOrigin = !!qaOriginWallet && qaOriginWallet !== qaWallet2 && qaOriginWallet !== qaWallet;
+      if (useOrigin) {
+        const t0 = await supabase.from("finance_transactions").insert({
+          user_id: user.id,
+          wallet_id: qaOriginWallet, transfer_to_wallet_id: qaWallet2,
+          type: "transfer", amount: transferAmt,
+          category: null, scope: qaScope, party: null,
+          note: bn ? `${qaNote || "খরচের জন্য"} — মূল উৎস` : `${qaNote || "for expense"} — origin`,
+          occurred_at, meta: linkMeta,
+        });
+        if (t0.error) { setBusy(false); toast.error(t0.error.message); return; }
+      }
+      // 1) transfer amount+fee from source (qaWallet2) → destination (qaWallet)
       const t1 = await supabase.from("finance_transactions").insert({
         user_id: user.id,
         wallet_id: qaWallet2,
@@ -715,7 +731,7 @@ const Finance = () => {
         type: "transfer", amount: transferAmt,
         category: null, scope: qaScope, party: null,
         note: bn ? `${qaNote || "খরচের জন্য"} — রুট` : `${qaNote || "for expense"} — routed`,
-        occurred_at,
+        occurred_at, meta: linkMeta,
       });
       if (t1.error) { setBusy(false); toast.error(t1.error.message); return; }
       // 2) fee as expense on destination (cash-out charge)
@@ -726,11 +742,11 @@ const Finance = () => {
           type: "expense", amount: fee, category: "fees",
           scope: qaScope, party: null,
           note: bn ? "ক্যাশ-আউট ফি" : "Cash-out fee",
-          occurred_at,
+          occurred_at, meta: linkMeta,
         });
       }
       // 3) actual expense on destination
-      const t3 = await supabase.from("finance_transactions").insert({ user_id: user.id, ...payload });
+      const t3 = await supabase.from("finance_transactions").insert({ user_id: user.id, ...payload, meta: linkMeta });
       error = t3.error;
     } else {
       const ins = await supabase.from("finance_transactions").insert({ user_id: user.id, ...payload });
@@ -1703,6 +1719,27 @@ const Finance = () => {
                 {qaWallet2 && (
                   <>
                     <div>
+                      <Label className="text-xs">
+                        {bn?"মূল উৎস (ঐচ্ছিক — Step ০)":"Original source (optional — Step 0)"}
+                      </Label>
+                      <Select value={qaOriginWallet || "__none__"} onValueChange={(v) => setQaOriginWallet(v === "__none__" ? "" : v)}>
+                        <SelectTrigger className="mt-1 rounded-xl">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="__none__">{bn?"নেই — উৎস থেকেই শুরু":"None — start from source"}</SelectItem>
+                          {wallets.filter(w => w.id !== qaWallet && w.id !== qaWallet2).map(w => (
+                            <SelectItem key={w.id} value={w.id}>
+                              <span className="flex items-center justify-between gap-3 w-full">
+                                <span className="truncate">{w.name}</span>
+                                <span className="text-[10px] text-muted-foreground tabular-nums">৳{Number(w.balance||0).toFixed(0)}</span>
+                              </span>
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div>
                       <Label className="text-xs">{bn?"ক্যাশ-আউট / চার্জ (ঐচ্ছিক)":"Cash-out fee / charge (optional)"}</Label>
                       <Input type="number" inputMode="decimal" value={qaFee}
                         onChange={e => setQaFee(e.target.value)}
@@ -1710,8 +1747,8 @@ const Finance = () => {
                     </div>
                     <p className="text-[10px] text-muted-foreground">
                       {bn
-                        ? `প্রথমে ${walletById(qaWallet2)?.name ?? "উৎস"} → ${walletById(qaWallet)?.name ?? "গন্তব্য"} ট্রান্সফার, তারপর খরচ${Number(qaFee)>0?" + ফি":""}`
-                        : `Transfers ${walletById(qaWallet2)?.name ?? "source"} → ${walletById(qaWallet)?.name ?? "dest"} first, then records expense${Number(qaFee)>0?" + fee":""}`}
+                        ? `${qaOriginWallet ? `${walletById(qaOriginWallet)?.name ?? "মূল উৎস"} → ` : ""}${walletById(qaWallet2)?.name ?? "উৎস"} → ${walletById(qaWallet)?.name ?? "গন্তব্য"} → খরচ${Number(qaFee)>0?" + ফি":""} (${qaOriginWallet ? "৩" : "২"} ধাপ লিঙ্কড)`
+                        : `${qaOriginWallet ? `${walletById(qaOriginWallet)?.name ?? "origin"} → ` : ""}${walletById(qaWallet2)?.name ?? "source"} → ${walletById(qaWallet)?.name ?? "dest"} → expense${Number(qaFee)>0?" + fee":""} (${qaOriginWallet ? "3" : "2"} hops linked)`}
                     </p>
                   </>
                 )}

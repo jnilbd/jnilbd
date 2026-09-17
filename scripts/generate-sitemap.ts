@@ -58,16 +58,47 @@ const entries: SitemapEntry[] = [
   { path: "/capcut-pro", changefreq: "monthly", priority: "0.5" },
   { path: "/mini-projector", changefreq: "monthly", priority: "0.5" },
   { path: "/chat", changefreq: "monthly", priority: "0.5" },
+  { path: "/giveaway", changefreq: "weekly", priority: "0.5" },
 ];
 
-const now = new Date().toISOString().slice(0, 10);
+// Pull published products, services and blog posts so every public detail
+// page is discoverable by search engines.
+async function dynamicEntries(): Promise<SitemapEntry[]> {
+  const url = process.env.VITE_SUPABASE_URL;
+  const key = process.env.VITE_SUPABASE_PUBLISHABLE_KEY || process.env.VITE_SUPABASE_ANON_KEY;
+  if (!url || !key) return [];
+  const headers = { apikey: key, Authorization: `Bearer ${key}` };
+
+  const grab = async (
+    table: string,
+    query: string,
+    prefix: string,
+    changefreq: SitemapEntry["changefreq"],
+    priority: string,
+  ): Promise<SitemapEntry[]> => {
+    try {
+      const res = await fetch(`${url}/rest/v1/${table}?${query}`, { headers });
+      if (!res.ok) return [];
+      const rows = (await res.json()) as { id: string }[];
+      return rows.map((r) => ({ path: `${prefix}/${r.id}`, changefreq, priority }));
+    } catch {
+      return [];
+    }
+  };
+
+  const [products, services, posts] = await Promise.all([
+    grab("shop_products", "select=id&is_active=eq.true&limit=2000", "/shop", "weekly", "0.8"),
+    grab("services", "select=id&limit=500", "/services", "monthly", "0.8"),
+    grab("blog_posts", "select=id&is_published=eq.true&limit=1000", "/blog", "monthly", "0.7"),
+  ]);
+  return [...products, ...services, ...posts];
+}
 
 function generateSitemap(entries: SitemapEntry[]) {
   const urls = entries.map((e) =>
     [
       `  <url>`,
       `    <loc>${BASE_URL}${e.path}</loc>`,
-      `    <lastmod>${now}</lastmod>`,
       e.changefreq ? `    <changefreq>${e.changefreq}</changefreq>` : null,
       e.priority ? `    <priority>${e.priority}</priority>` : null,
       `  </url>`,

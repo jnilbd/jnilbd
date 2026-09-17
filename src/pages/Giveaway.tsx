@@ -39,7 +39,7 @@ export default function Giveaway() {
 
   return (
     <div>
-      <SEO title="ফ্রি গিভঅ্যাওয়ে ও ফ্রি ড্রপ | John Nil" description="বিনামূল্যে পুরস্কার জিতুন — নাম ও ফোন দিয়ে অংশ নিন।" />
+      <SEO title="ফ্রি গিভঅ্যাওয়ে ও ফ্রি ড্রপ | John Nil" description="বিনামূল্যে পুরস্কার জিতুন — নাম ও ফোন দিয়ে অংশ নিন।" path="/giveaway" />
       <section className="relative overflow-hidden bg-gradient-to-br from-primary via-primary/90 to-secondary text-primary-foreground">
         <div className="container py-10 text-center">
           <Gift className="h-10 w-10 mx-auto mb-2" />

@@ -1,5 +1,5 @@
 // Runs before `vite dev` and `vite build` (predev/prebuild hooks); writes public/sitemap.xml.
-import { writeFileSync } from "fs";
+import { readFileSync, writeFileSync } from "fs";
 import { resolve } from "path";
 
 const BASE_URL = "https://johnnil.com";
@@ -115,5 +115,23 @@ function generateSitemap(entries: SitemapEntry[]) {
   ].join("\n");
 }
 
-writeFileSync(resolve("public/sitemap.xml"), generateSitemap(entries));
-console.log(`sitemap.xml written (${entries.length} entries)`);
+function loadEnv() {
+  try {
+    const raw = readFileSync(resolve(".env"), "utf8");
+    for (const line of raw.split("\n")) {
+      const m = line.match(/^\s*([A-Z0-9_]+)\s*=\s*"?([^"\n]*)"?\s*$/);
+      if (m && !process.env[m[1]]) process.env[m[1]] = m[2];
+    }
+  } catch {
+    /* no .env — static routes only */
+  }
+}
+
+async function main() {
+  loadEnv();
+  const all = [...entries, ...(await dynamicEntries())];
+  writeFileSync(resolve("public/sitemap.xml"), generateSitemap(all));
+  console.log(`sitemap.xml written (${all.length} entries)`);
+}
+
+main();

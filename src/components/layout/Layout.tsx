@@ -5,11 +5,13 @@ import WhatsAppButton from "./WhatsAppButton";
 import MobileTabBar from "./MobileTabBar";
 import ScrollToTop from "@/components/ScrollToTop";
 import SiteRuntime from "@/components/SiteRuntime";
+import RouteSEO from "@/components/RouteSEO";
 
 const Layout = () => {
   return (
     <div className="min-h-screen flex flex-col">
       <ScrollToTop />
+      <RouteSEO />
       <SiteRuntime />
       <Navbar />
       <main className="flex-1">

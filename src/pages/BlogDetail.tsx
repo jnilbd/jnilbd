@@ -6,6 +6,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { Button } from "@/components/ui/button";
 import { displayImage, fallbackImageHandler } from "@/lib/siteImages";
 import { toast } from "sonner";
+import SEO from "@/components/SEO";
 
 const AUTHOR_AVATAR = "https://api.dicebear.com/7.x/initials/svg?seed=John%20Nil&backgroundColor=6366f1,a855f7,ec4899&backgroundType=gradientLinear";
 
@@ -45,8 +46,36 @@ const BlogDetail = () => {
     } catch {}
   };
 
+  const seoImage = hq(displayImage(post.image, post.id, bn ? post.titleBn : post.title, post.category), 1200);
+
   return (
     <div className="bg-background">
+      <SEO
+        title={`${bn ? post.titleBn : post.title} | JohnNil.com ব্লগ`}
+        description={(bn ? post.excerptBn : post.excerpt).replace(/\s+/g, " ").slice(0, 160)}
+        path={`/blog/${post.id}`}
+        image={seoImage}
+        type="article"
+        keywords={`${post.category}, ${post.title}, বাংলা ব্লগ, johnnil blog`}
+        jsonLd={{
+          "@context": "https://schema.org",
+          "@type": "Article",
+          headline: bn ? post.titleBn : post.title,
+          description: bn ? post.excerptBn : post.excerpt,
+          image: seoImage,
+          datePublished: post.date,
+          dateModified: post.date,
+          articleSection: post.category,
+          inLanguage: bn ? "bn-BD" : "en-US",
+          author: { "@type": "Person", name: post.author || "John Nil" },
+          publisher: {
+            "@type": "Organization",
+            name: "JohnNil.com",
+            logo: { "@type": "ImageObject", url: "https://johnnil.com/favicon.png" },
+          },
+          mainEntityOfPage: `https://johnnil.com/blog/${post.id}`,
+        }}
+      />
       {/* Cinematic hero */}
       <section className="relative">
         <div className="absolute inset-0 h-[70vh] overflow-hidden">

@@ -13,6 +13,7 @@ import { Card } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
 import ReactMarkdown from "react-markdown";
+import SEO from "@/components/SEO";
 
 const badgeColorMap: Record<string, string> = {
   red: "bg-red-500", green: "bg-green-500", blue: "bg-blue-500",
@@ -83,8 +84,45 @@ const ServiceDetail = () => {
     setSubmitting(false);
   };
 
+  const seoDesc = (shortDesc || fullDesc || `${name} সার্ভিস — JohnNil.com, ঢাকা ও সারা বাংলাদেশে।`)
+    .toString()
+    .replace(/\s+/g, " ")
+    .slice(0, 160);
+
   return (
     <div>
+      <SEO
+        title={`${name} সার্ভিস — খরচ ও বুকিং | JohnNil.com`}
+        description={seoDesc}
+        path={`/services/${service.id}`}
+        image={service.image || undefined}
+        keywords={`${name}, ${service.category || ""}, সার্ভিস বাংলাদেশ, ঢাকা, service in bangladesh`}
+        jsonLd={{
+          "@context": "https://schema.org",
+          "@type": "Service",
+          name,
+          description: seoDesc,
+          serviceType: service.category || "IT Service",
+          provider: {
+            "@type": "LocalBusiness",
+            name: "JohnNil.com",
+            telephone: "+880-1774-585757",
+            email: "jnilbd@gmail.com",
+            address: {
+              "@type": "PostalAddress",
+              addressLocality: "Dhaka",
+              addressCountry: "BD",
+            },
+          },
+          areaServed: { "@type": "Country", name: "Bangladesh" },
+          offers: {
+            "@type": "Offer",
+            priceCurrency: "BDT",
+            price: String(minPrice),
+            url: `https://johnnil.com/services/${service.id}`,
+          },
+        }}
+      />
       <section className="container py-8">
         <Button variant="ghost" onClick={() => navigate(-1)} className="mb-6 -ml-3">
           <ArrowLeft className="w-4 h-4 mr-1" /> {language === "bn" ? "ফিরে যান" : "Back"}

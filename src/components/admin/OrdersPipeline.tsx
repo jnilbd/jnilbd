@@ -292,11 +292,27 @@ function OrderDetail({ order, onClose, onStatus, onDelete, onSaved, risky }: any
         </div>
 
         {order.product_type === "physical" ? (
-          <div className="grid sm:grid-cols-2 gap-2">
-            <div><Label className="text-xs flex items-center gap-1"><Truck className="h-3 w-3" /> কুরিয়ার</Label>
-              <Input value={form.courier_name} onChange={(e) => setForm({ ...form, courier_name: e.target.value })} placeholder="Steadfast / Pathao / RedX" /></div>
-            <div><Label className="text-xs">ট্র্যাকিং নম্বর</Label>
-              <Input value={form.tracking_no} onChange={(e) => setForm({ ...form, tracking_no: e.target.value })} /></div>
+          <div className="space-y-2">
+            <div className="grid sm:grid-cols-2 gap-2">
+              <div><Label className="text-xs flex items-center gap-1"><Truck className="h-3 w-3" /> কুরিয়ার</Label>
+                <Input value={form.courier_name} onChange={(e) => setForm({ ...form, courier_name: e.target.value })} placeholder="Steadfast / Pathao / RedX" /></div>
+              <div><Label className="text-xs">ট্র্যাকিং নম্বর</Label>
+                <Input value={form.tracking_no} onChange={(e) => setForm({ ...form, tracking_no: e.target.value })} /></div>
+            </div>
+            <div className="rounded-xl border border-dashed border-border p-2.5 space-y-2">
+              <p className="text-[11px] text-muted-foreground">এক ক্লিকে কুরিয়ার বুকিং (ইন্টিগ্রেশন পাতায় চালু থাকতে হবে)</p>
+              <div className="flex flex-wrap gap-1.5">
+                <Button size="sm" variant="outline" disabled={busy !== ""} onClick={() => book("steadfast")}>
+                  {busy === "steadfast" ? <Loader2 className="h-3.5 w-3.5 mr-1 animate-spin" /> : <Truck className="h-3.5 w-3.5 mr-1" />} Steadfast-এ বুক
+                </Button>
+                <Button size="sm" variant="outline" disabled={busy !== ""} onClick={() => book("pathao")}>
+                  {busy === "pathao" ? <Loader2 className="h-3.5 w-3.5 mr-1 animate-spin" /> : <Truck className="h-3.5 w-3.5 mr-1" />} Pathao-তে বুক
+                </Button>
+                <Button size="sm" variant="ghost" disabled={busy !== "" || !form.tracking_no} onClick={track}>
+                  {busy === "track" ? <Loader2 className="h-3.5 w-3.5 mr-1 animate-spin" /> : null} ট্র্যাক করুন
+                </Button>
+              </div>
+            </div>
           </div>
         ) : (
           <div>

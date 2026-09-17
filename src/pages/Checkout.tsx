@@ -162,7 +162,21 @@ const Checkout = () => {
               ))}
             </RadioGroup>
 
-            {isCod ? (
+            {isOnline ? (
+              <div className="bg-gradient-to-br from-primary/10 to-secondary/10 p-5 rounded-2xl mb-4">
+                <div className="flex items-start gap-3">
+                  <ShieldCheck className="w-5 h-5 text-green-600 mt-0.5 shrink-0" />
+                  <div>
+                    <p className="font-semibold mb-1">{isBn ? "সিকিউর অনলাইন পেমেন্ট" : "Secure online payment"}</p>
+                    <p className="text-sm text-muted-foreground">
+                      {isBn
+                        ? `"অর্ডার নিশ্চিত করুন" চাপলে সিকিউর পেমেন্ট পেজে নিয়ে যাওয়া হবে, সেখানে ৳${grandTotal.toLocaleString()} পরিশোধ করুন।`
+                        : `You will be taken to a secure payment page to pay ৳${grandTotal.toLocaleString()}.`}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            ) : isCod ? (
               <div className="bg-gradient-to-br from-secondary/10 to-primary/10 p-5 rounded-2xl mb-4">
                 <div className="flex items-start gap-3 mb-3">
                   <Truck className="w-5 h-5 text-primary mt-0.5 shrink-0" />

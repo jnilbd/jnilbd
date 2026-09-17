@@ -9,7 +9,7 @@ import {
   LayoutDashboard, ShoppingCart, Wrench, Inbox, Users, Package, Briefcase, Tag, Home as HomeIcon,
   Star, FolderKanban, Loader2, Sparkles, Activity, LogOut, Eye, DollarSign, TrendingUp, Ticket,
   LifeBuoy, ShieldCheck, Image as ImageIcon, FileText, Settings, FileBarChart, ScrollText, Zap,
-  Layers, Bot, Menu as MenuIcon, X,
+  Layers, Bot, Menu as MenuIcon, X, RotateCcw, AlertTriangle, Gift, Palette, Globe,
 } from "lucide-react";
 import { Area, AreaChart, ResponsiveContainer, Tooltip as RTooltip, XAxis, YAxis, PieChart, Pie, Cell, BarChart, Bar } from "recharts";
 

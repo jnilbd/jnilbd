@@ -69,6 +69,7 @@ import BusinessTools from "./pages/BusinessTools";
 import Offers from "./pages/Offers";
 import CapCutPro from "./pages/CapCutPro";
 import MiniProjector from "./pages/MiniProjector";
+import Giveaway from "./pages/Giveaway";
 
 const queryClient = new QueryClient();
 

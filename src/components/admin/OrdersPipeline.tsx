@@ -11,7 +11,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { toast } from "sonner";
 import {
-  LayoutGrid, List, Loader2, Printer, RefreshCw, Search, ShieldAlert, Trash2, Download, Truck, KeyRound,
+  LayoutGrid, List, Loader2, Printer, RefreshCw, Search, ShieldAlert, Trash2, Download, Truck, KeyRound, Mail,
 } from "lucide-react";
 import { ORDER_STATUSES, statusBn, statusColor, money, logAudit, downloadCsv, sendTemplateEmail } from "./shared";
 

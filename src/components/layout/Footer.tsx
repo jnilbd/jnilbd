@@ -10,6 +10,7 @@ import logoMark from "@/assets/logo-mark.png";
 
 const Footer = () => {
   const { language } = useLanguage();
+  const siteSettings = useSiteSettings();
   const [email, setEmail] = useState("");
 
   const handleSubscribe = (e: React.FormEvent) => {

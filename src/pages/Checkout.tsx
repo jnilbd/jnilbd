@@ -19,8 +19,11 @@ const Checkout = () => {
   const navigate = useNavigate();
   const isBn = language === "bn";
 
+  const siteSettings = useSiteSettings();
+  const onlinePay = (siteSettings?.payments || {}) as { bkash?: boolean; sslcommerz?: boolean };
+
   const [form, setForm] = useState({ name: "", email: "", phone: "", address: "", notes: "" });
-  const [method, setMethod] = useState<"bkash" | "nagad" | "cod">("bkash");
+  const [method, setMethod] = useState<"bkash" | "nagad" | "cod" | "online_bkash" | "online_card">("bkash");
   const [trxId, setTrxId] = useState("");
   const [screenshot, setScreenshot] = useState<File | null>(null);
   const [submitting, setSubmitting] = useState(false);

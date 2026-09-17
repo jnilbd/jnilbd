@@ -382,6 +382,9 @@ function OrderDetail({ order, onClose, onStatus, onDelete, onSaved, risky }: any
         <div className="flex flex-wrap gap-2 pt-1">
           <Button size="sm" onClick={save}>সেভ করুন</Button>
           <Button size="sm" variant="outline" onClick={print}><Printer className="h-3.5 w-3.5 mr-1" /> ইনভয়েস প্রিন্ট</Button>
+          <Button size="sm" variant="outline" disabled={busy === "email"} onClick={emailCustomer}>
+            {busy === "email" ? <Loader2 className="h-3.5 w-3.5 mr-1 animate-spin" /> : <Mail className="h-3.5 w-3.5 mr-1" />} ইমেইল পাঠান
+          </Button>
           {order.customer_phone && (
             <Button size="sm" variant="outline" asChild>
               <a target="_blank" rel="noreferrer" href={`https://wa.me/${String(order.customer_phone).replace(/[^0-9]/g, "").replace(/^0/, "88")}`}>WhatsApp</a>

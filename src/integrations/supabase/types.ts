@@ -676,6 +676,101 @@ export type Database = {
           },
         ]
       }
+      giveaway_entries: {
+        Row: {
+          created_at: string
+          email: string | null
+          giveaway_id: string
+          id: string
+          is_winner: boolean
+          name: string
+          note: string | null
+          phone: string
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          email?: string | null
+          giveaway_id: string
+          id?: string
+          is_winner?: boolean
+          name: string
+          note?: string | null
+          phone: string
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          email?: string | null
+          giveaway_id?: string
+          id?: string
+          is_winner?: boolean
+          name?: string
+          note?: string | null
+          phone?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "giveaway_entries_giveaway_id_fkey"
+            columns: ["giveaway_id"]
+            isOneToOne: false
+            referencedRelation: "giveaways"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      giveaways: {
+        Row: {
+          created_at: string
+          description: string | null
+          ends_at: string | null
+          id: string
+          image: string | null
+          is_active: boolean
+          max_entries: number | null
+          prize: string | null
+          rules: string | null
+          starts_at: string
+          title: string
+          title_bn: string | null
+          updated_at: string
+          winner_entry_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          ends_at?: string | null
+          id?: string
+          image?: string | null
+          is_active?: boolean
+          max_entries?: number | null
+          prize?: string | null
+          rules?: string | null
+          starts_at?: string
+          title: string
+          title_bn?: string | null
+          updated_at?: string
+          winner_entry_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          ends_at?: string | null
+          id?: string
+          image?: string | null
+          is_active?: boolean
+          max_entries?: number | null
+          prize?: string | null
+          rules?: string | null
+          starts_at?: string
+          title?: string
+          title_bn?: string | null
+          updated_at?: string
+          winner_entry_id?: string | null
+        }
+        Relationships: []
+      }
       homepage_blocks: {
         Row: {
           block_type: string
@@ -887,6 +982,68 @@ export type Database = {
           user_id?: string | null
         }
         Relationships: []
+      }
+      order_returns: {
+        Row: {
+          admin_note: string | null
+          created_at: string
+          customer_name: string
+          customer_phone: string | null
+          id: string
+          kind: string
+          order_id: string | null
+          product_name: string | null
+          reason: string
+          refund_amount: number
+          refund_method: string | null
+          resolved_at: string | null
+          status: string
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          admin_note?: string | null
+          created_at?: string
+          customer_name: string
+          customer_phone?: string | null
+          id?: string
+          kind?: string
+          order_id?: string | null
+          product_name?: string | null
+          reason: string
+          refund_amount?: number
+          refund_method?: string | null
+          resolved_at?: string | null
+          status?: string
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          admin_note?: string | null
+          created_at?: string
+          customer_name?: string
+          customer_phone?: string | null
+          id?: string
+          kind?: string
+          order_id?: string | null
+          product_name?: string | null
+          reason?: string
+          refund_amount?: number
+          refund_method?: string | null
+          resolved_at?: string | null
+          status?: string
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "order_returns_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "shop_orders"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       owned_assets: {
         Row: {
@@ -1899,6 +2056,48 @@ export type Database = {
           key?: string
           updated_at?: string
           value?: Json
+        }
+        Relationships: []
+      }
+      site_visits: {
+        Row: {
+          country: string | null
+          created_at: string
+          device: string | null
+          id: string
+          path: string
+          referrer: string | null
+          session_id: string | null
+          utm_campaign: string | null
+          utm_content: string | null
+          utm_medium: string | null
+          utm_source: string | null
+        }
+        Insert: {
+          country?: string | null
+          created_at?: string
+          device?: string | null
+          id?: string
+          path: string
+          referrer?: string | null
+          session_id?: string | null
+          utm_campaign?: string | null
+          utm_content?: string | null
+          utm_medium?: string | null
+          utm_source?: string | null
+        }
+        Update: {
+          country?: string | null
+          created_at?: string
+          device?: string | null
+          id?: string
+          path?: string
+          referrer?: string | null
+          session_id?: string | null
+          utm_campaign?: string | null
+          utm_content?: string | null
+          utm_medium?: string | null
+          utm_source?: string | null
         }
         Relationships: []
       }

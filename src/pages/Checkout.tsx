@@ -203,7 +203,7 @@ const Checkout = () => {
               </div>
             )}
 
-            <div className="space-y-4">
+            <div className={`space-y-4 ${isOnline ? "hidden" : ""}`}>
               <div>
                 <Label>{isBn ? "ট্রানজেকশন আইডি (TrxID) *" : "Transaction ID (TrxID) *"}</Label>
                 <Input required value={trxId} onChange={(e) => setTrxId(e.target.value)} placeholder="e.g. 8N7A4B5C6D" className="rounded-xl" />

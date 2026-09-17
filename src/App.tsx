@@ -145,6 +145,7 @@ const App = () => (
                 <Route path="/capcut-pro" element={<CapCutPro />} />
                 <Route path="/mini-projector" element={<MiniProjector />} />
                 <Route path="/giveaway" element={<Giveaway />} />
+                <Route path="/p/:slug" element={<LandingPage />} />
                 <Route path="/cart" element={<Cart />} />
                 <Route path="/checkout" element={<Checkout />} />
                 <Route path="/profile" element={<Profile />} />

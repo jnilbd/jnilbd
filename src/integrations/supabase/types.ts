@@ -14,6 +14,39 @@ export type Database = {
   }
   public: {
     Tables: {
+      admin_audit_log: {
+        Row: {
+          action: string
+          actor_email: string | null
+          actor_id: string | null
+          created_at: string
+          details: Json
+          entity: string | null
+          entity_id: string | null
+          id: string
+        }
+        Insert: {
+          action: string
+          actor_email?: string | null
+          actor_id?: string | null
+          created_at?: string
+          details?: Json
+          entity?: string | null
+          entity_id?: string | null
+          id?: string
+        }
+        Update: {
+          action?: string
+          actor_email?: string | null
+          actor_id?: string | null
+          created_at?: string
+          details?: Json
+          entity?: string | null
+          entity_id?: string | null
+          id?: string
+        }
+        Relationships: []
+      }
       admin_notification_settings: {
         Row: {
           admin_user_id: string
@@ -53,6 +86,66 @@ export type Database = {
           telegram_chat_id?: string | null
           updated_at?: string
           whatsapp_number?: string | null
+        }
+        Relationships: []
+      }
+      blog_posts: {
+        Row: {
+          author: string | null
+          category: string | null
+          content: string | null
+          content_bn: string | null
+          cover_image: string | null
+          created_at: string
+          excerpt: string | null
+          excerpt_bn: string | null
+          id: string
+          is_published: boolean
+          published_at: string | null
+          slug: string | null
+          source_url: string | null
+          tags: Json
+          title: string
+          title_bn: string | null
+          updated_at: string
+        }
+        Insert: {
+          author?: string | null
+          category?: string | null
+          content?: string | null
+          content_bn?: string | null
+          cover_image?: string | null
+          created_at?: string
+          excerpt?: string | null
+          excerpt_bn?: string | null
+          id?: string
+          is_published?: boolean
+          published_at?: string | null
+          slug?: string | null
+          source_url?: string | null
+          tags?: Json
+          title: string
+          title_bn?: string | null
+          updated_at?: string
+        }
+        Update: {
+          author?: string | null
+          category?: string | null
+          content?: string | null
+          content_bn?: string | null
+          cover_image?: string | null
+          created_at?: string
+          excerpt?: string | null
+          excerpt_bn?: string | null
+          id?: string
+          is_published?: boolean
+          published_at?: string | null
+          slug?: string | null
+          source_url?: string | null
+          tags?: Json
+          title?: string
+          title_bn?: string | null
+          updated_at?: string
         }
         Relationships: []
       }
@@ -104,6 +197,57 @@ export type Database = {
           id?: string
           message?: string
           user_id?: string
+        }
+        Relationships: []
+      }
+      coupons: {
+        Row: {
+          applies_to: string
+          code: string
+          created_at: string
+          description: string | null
+          discount_type: string
+          discount_value: number
+          expires_at: string | null
+          id: string
+          is_active: boolean
+          max_uses: number | null
+          min_order: number
+          starts_at: string | null
+          updated_at: string
+          used_count: number
+        }
+        Insert: {
+          applies_to?: string
+          code: string
+          created_at?: string
+          description?: string | null
+          discount_type?: string
+          discount_value?: number
+          expires_at?: string | null
+          id?: string
+          is_active?: boolean
+          max_uses?: number | null
+          min_order?: number
+          starts_at?: string | null
+          updated_at?: string
+          used_count?: number
+        }
+        Update: {
+          applies_to?: string
+          code?: string
+          created_at?: string
+          description?: string | null
+          discount_type?: string
+          discount_value?: number
+          expires_at?: string | null
+          id?: string
+          is_active?: boolean
+          max_uses?: number | null
+          min_order?: number
+          starts_at?: string | null
+          updated_at?: string
+          used_count?: number
         }
         Relationships: []
       }
@@ -532,6 +676,54 @@ export type Database = {
           },
         ]
       }
+      homepage_blocks: {
+        Row: {
+          block_type: string
+          config: Json
+          created_at: string
+          id: string
+          image: string | null
+          is_active: boolean
+          link: string | null
+          sort_order: number
+          subtitle: string | null
+          subtitle_bn: string | null
+          title: string | null
+          title_bn: string | null
+          updated_at: string
+        }
+        Insert: {
+          block_type: string
+          config?: Json
+          created_at?: string
+          id?: string
+          image?: string | null
+          is_active?: boolean
+          link?: string | null
+          sort_order?: number
+          subtitle?: string | null
+          subtitle_bn?: string | null
+          title?: string | null
+          title_bn?: string | null
+          updated_at?: string
+        }
+        Update: {
+          block_type?: string
+          config?: Json
+          created_at?: string
+          id?: string
+          image?: string | null
+          is_active?: boolean
+          link?: string | null
+          sort_order?: number
+          subtitle?: string | null
+          subtitle_bn?: string | null
+          title?: string | null
+          title_bn?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       inventory_movements: {
         Row: {
           amount_paid: number
@@ -906,6 +1098,48 @@ export type Database = {
           title_bn?: string | null
           updated_at?: string
           year?: string | null
+        }
+        Relationships: []
+      }
+      product_requests: {
+        Row: {
+          admin_note: string | null
+          budget: number | null
+          created_at: string
+          details: string | null
+          id: string
+          name: string
+          phone: string | null
+          product_name: string
+          status: string
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          admin_note?: string | null
+          budget?: number | null
+          created_at?: string
+          details?: string | null
+          id?: string
+          name: string
+          phone?: string | null
+          product_name: string
+          status?: string
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          admin_note?: string | null
+          budget?: number | null
+          created_at?: string
+          details?: string | null
+          id?: string
+          name?: string
+          phone?: string | null
+          product_name?: string
+          status?: string
+          updated_at?: string
+          user_id?: string | null
         }
         Relationships: []
       }
@@ -1474,11 +1708,16 @@ export type Database = {
       shop_orders: {
         Row: {
           addons: Json | null
+          admin_note: string | null
+          coupon_code: string | null
+          courier_name: string | null
           created_at: string
           customer_address: string | null
           customer_email: string | null
           customer_name: string
           customer_phone: string
+          delivery_charge: number
+          delivery_payload: string | null
           id: string
           notes: string | null
           notified: boolean | null
@@ -1490,16 +1729,22 @@ export type Database = {
           quantity: number
           status: string
           total_amount: number
+          tracking_no: string | null
           unit_price: number
           user_id: string | null
         }
         Insert: {
           addons?: Json | null
+          admin_note?: string | null
+          coupon_code?: string | null
+          courier_name?: string | null
           created_at?: string
           customer_address?: string | null
           customer_email?: string | null
           customer_name: string
           customer_phone: string
+          delivery_charge?: number
+          delivery_payload?: string | null
           id?: string
           notes?: string | null
           notified?: boolean | null
@@ -1511,16 +1756,22 @@ export type Database = {
           quantity?: number
           status?: string
           total_amount: number
+          tracking_no?: string | null
           unit_price: number
           user_id?: string | null
         }
         Update: {
           addons?: Json | null
+          admin_note?: string | null
+          coupon_code?: string | null
+          courier_name?: string | null
           created_at?: string
           customer_address?: string | null
           customer_email?: string | null
           customer_name?: string
           customer_phone?: string
+          delivery_charge?: number
+          delivery_payload?: string | null
           id?: string
           notes?: string | null
           notified?: boolean | null
@@ -1532,6 +1783,7 @@ export type Database = {
           quantity?: number
           status?: string
           total_amount?: number
+          tracking_no?: string | null
           unit_price?: number
           user_id?: string | null
         }
@@ -1629,6 +1881,72 @@ export type Database = {
           slug?: string | null
           stock?: number | null
           updated_at?: string
+        }
+        Relationships: []
+      }
+      site_settings: {
+        Row: {
+          key: string
+          updated_at: string
+          value: Json
+        }
+        Insert: {
+          key: string
+          updated_at?: string
+          value?: Json
+        }
+        Update: {
+          key?: string
+          updated_at?: string
+          value?: Json
+        }
+        Relationships: []
+      }
+      support_tickets: {
+        Row: {
+          admin_reply: string | null
+          category: string | null
+          created_at: string
+          email: string | null
+          id: string
+          message: string
+          name: string
+          phone: string | null
+          priority: string
+          status: string
+          subject: string
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          admin_reply?: string | null
+          category?: string | null
+          created_at?: string
+          email?: string | null
+          id?: string
+          message: string
+          name: string
+          phone?: string | null
+          priority?: string
+          status?: string
+          subject: string
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          admin_reply?: string | null
+          category?: string | null
+          created_at?: string
+          email?: string | null
+          id?: string
+          message?: string
+          name?: string
+          phone?: string | null
+          priority?: string
+          status?: string
+          subject?: string
+          updated_at?: string
+          user_id?: string | null
         }
         Relationships: []
       }

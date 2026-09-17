@@ -230,6 +230,8 @@ export default function AdminDashboard() {
                 <Button asChild size="sm"><Link to="/admin/portfolio">পোর্টফোলিও এডিটর খুলুন</Link></Button>
               </CardContent></Card>
             )}
+            {section === "landing" && <LandingPagesTab />}
+            {section === "emails" && <EmailTemplatesTab />}
             {section === "media" && <MediaLibrary />}
             {section === "reports" && <ReportsTab />}
             {section === "audit" && <AuditLogTab />}

@@ -196,6 +196,11 @@ export default function AdminDashboard() {
 
             {section === "overview" && <Overview onNav={setSection} />}
             {section === "orders" && <OrdersPipeline />}
+            {section === "returns" && <ReturnsTab />}
+            {section === "stock" && <StockAlertsTab />}
+            {section === "giveaway" && <GiveawayTab />}
+            {section === "appearance" && <AppearanceTab />}
+            {section === "traffic" && <TrafficTab />}
             {section === "service-orders" && <ServiceOrdersTab />}
             {section === "requests" && <ServiceRequestsTab />}
             {section === "products" && <ProductsTab />}

@@ -273,6 +273,8 @@ export default function IntegrationsTab() {
         })}
       </div>
 
+      <CheckoutPaymentCard />
+
       <Card className="border-border/60">
         <CardHeader className="pb-2"><CardTitle className="text-sm">সর্বশেষ কার্যক্রম</CardTitle></CardHeader>
         <CardContent className="space-y-1.5">

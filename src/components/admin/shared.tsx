@@ -55,6 +55,30 @@ export async function logAudit(action: string, entity: string, entityId?: string
   }
 }
 
+export function renderTemplate(tpl: string, vars: Record<string, any>) {
+  return String(tpl || "").replace(/\{\{\s*(\w+)\s*\}\}/g, (_m, k) => String(vars[k] ?? ""));
+}
+
+/** Sends a stored email template through the Resend integration. Silent when not configured. */
+export async function sendTemplateEmail(key: string, to: string, vars: Record<string, any>) {
+  if (!to) return { ok: false, reason: "no-email" };
+  try {
+    const { data: tpl } = await supabase
+      .from("email_templates").select("*").eq("key", key).eq("is_active", true).maybeSingle();
+    if (!tpl) return { ok: false, reason: "no-template" };
+    const { data, error } = await supabase.functions.invoke("integrations", {
+      body: {
+        provider: "resend", action: "send_email",
+        input: { to, subject: renderTemplate(tpl.subject, vars), html: renderTemplate(tpl.html, vars) },
+      },
+    });
+    if (error || (data as any)?.error) return { ok: false, reason: (data as any)?.error || error?.message };
+    return { ok: true };
+  } catch (e) {
+    return { ok: false, reason: e instanceof Error ? e.message : String(e) };
+  }
+}
+
 export function toCsv(rows: any[], columns?: string[]) {
   if (!rows.length) return "";
   const cols = columns || Object.keys(rows[0]);

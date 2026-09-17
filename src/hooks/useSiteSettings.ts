@@ -3,7 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 
 export type SiteSettings = Record<string, any>;
 
-const PUBLIC_KEYS = ["store", "tracking", "theme", "popup", "menu"];
+const PUBLIC_KEYS = ["store", "tracking", "theme", "popup", "menu", "payments"];
 
 let cache: SiteSettings | null = null;
 const listeners = new Set<(s: SiteSettings) => void>();

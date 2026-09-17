@@ -11,9 +11,25 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { toast } from "sonner";
 import {
-  LayoutGrid, List, Loader2, Printer, RefreshCw, Search, ShieldAlert, Trash2, Download, Truck, KeyRound,
+  LayoutGrid, List, Loader2, Printer, RefreshCw, Search, ShieldAlert, Trash2, Download, Truck, KeyRound, Mail,
 } from "lucide-react";
-import { ORDER_STATUSES, statusBn, statusColor, money, logAudit, downloadCsv } from "./shared";
+import { ORDER_STATUSES, statusBn, statusColor, money, logAudit, downloadCsv, sendTemplateEmail } from "./shared";
+
+const STATUS_EMAIL: Record<string, string> = {
+  confirmed: "order_confirmed",
+  shipped: "order_shipped",
+  delivered: "order_delivered",
+};
+
+export const orderVars = (o: any) => ({
+  customer_name: o.customer_name || "গ্রাহক",
+  order_id: String(o.id || "").slice(0, 8).toUpperCase(),
+  product_name: o.product_name || "",
+  total: Number(o.total_amount || 0).toLocaleString("en-BD"),
+  courier: o.courier_name || "—",
+  tracking: o.tracking_no || "—",
+  status: statusBn(o.status),
+});
 
 type Order = any;
 
@@ -59,6 +75,13 @@ export default function OrdersPipeline() {
     toast.success(`স্ট্যাটাস: ${statusBn(status)}`);
     setRows((p) => p.map((r) => (r.id === id ? { ...r, status } : r)));
     setActive((a) => (a && a.id === id ? { ...a, status } : a));
+
+    const key = STATUS_EMAIL[status];
+    const order = rows.find((r) => r.id === id);
+    if (key && order?.customer_email) {
+      const res = await sendTemplateEmail(key, order.customer_email, orderVars({ ...order, status }));
+      if (res.ok) toast.success("গ্রাহককে ইমেইল পাঠানো হয়েছে");
+    }
   };
 
   const remove = async (id: string) => {
@@ -188,7 +211,60 @@ function OrderDetail({ order, onClose, onStatus, onDelete, onSaved, risky }: any
     });
   }, [order?.id]);
 
+  const [busy, setBusy] = useState("");
+
   if (!order) return null;
+
+  const book = async (provider: "steadfast" | "pathao") => {
+    setBusy(provider);
+    const { data, error } = await supabase.functions.invoke("integrations", {
+      body: {
+        provider, action: "create_order",
+        input: {
+          invoice: String(order.id).slice(0, 8).toUpperCase(),
+          name: order.customer_name, phone: order.customer_phone,
+          address: order.customer_address || "", cod: Number(order.total_amount || 0),
+          qty: Number(order.quantity || 1), note: order.admin_note || order.product_name,
+        },
+      },
+    });
+    setBusy("");
+    const err = (data as any)?.error || error?.message;
+    if (err) return toast.error(err);
+    const res: any = data;
+    const consignment =
+      res?.data?.consignment?.tracking_code || res?.data?.consignment?.consignment_id ||
+      res?.data?.data?.consignment_id || "";
+    const patch = { courier_name: provider === "steadfast" ? "Steadfast" : "Pathao", tracking_no: String(consignment || form.tracking_no || "") };
+    setForm((f: any) => ({ ...f, ...patch }));
+    await supabase.from("shop_orders").update({ ...patch, status: "shipped" }).eq("id", order.id);
+    logAudit("order_courier_book", "shop_orders", order.id, { provider, ...patch });
+    toast.success(res?.message || "কুরিয়ারে বুক হয়েছে");
+    onSaved({ ...order, ...patch, status: "shipped" });
+    if (order.customer_email) {
+      sendTemplateEmail("order_shipped", order.customer_email, orderVars({ ...order, ...patch, status: "shipped" }));
+    }
+  };
+
+  const track = async () => {
+    setBusy("track");
+    const { data, error } = await supabase.functions.invoke("integrations", {
+      body: { provider: "steadfast", action: "track", input: { tracking: form.tracking_no } },
+    });
+    setBusy("");
+    const err = (data as any)?.error || error?.message;
+    if (err) return toast.error(err);
+    toast.success((data as any)?.message || "তথ্য পাওয়া গেছে");
+  };
+
+  const emailCustomer = async () => {
+    if (!order.customer_email) return toast.error("গ্রাহকের ইমেইল নেই");
+    setBusy("email");
+    const key = ({ confirmed: "order_confirmed", shipped: "order_shipped", delivered: "order_delivered" } as any)[order.status] || "order_placed";
+    const res = await sendTemplateEmail(key, order.customer_email, orderVars({ ...order, ...form }));
+    setBusy("");
+    res.ok ? toast.success("ইমেইল পাঠানো হয়েছে") : toast.error(String(res.reason || "পাঠানো যায়নি"));
+  };
 
   const save = async () => {
     const { error } = await supabase.from("shop_orders").update(form).eq("id", order.id);
@@ -269,11 +345,27 @@ function OrderDetail({ order, onClose, onStatus, onDelete, onSaved, risky }: any
         </div>
 
         {order.product_type === "physical" ? (
-          <div className="grid sm:grid-cols-2 gap-2">
-            <div><Label className="text-xs flex items-center gap-1"><Truck className="h-3 w-3" /> কুরিয়ার</Label>
-              <Input value={form.courier_name} onChange={(e) => setForm({ ...form, courier_name: e.target.value })} placeholder="Steadfast / Pathao / RedX" /></div>
-            <div><Label className="text-xs">ট্র্যাকিং নম্বর</Label>
-              <Input value={form.tracking_no} onChange={(e) => setForm({ ...form, tracking_no: e.target.value })} /></div>
+          <div className="space-y-2">
+            <div className="grid sm:grid-cols-2 gap-2">
+              <div><Label className="text-xs flex items-center gap-1"><Truck className="h-3 w-3" /> কুরিয়ার</Label>
+                <Input value={form.courier_name} onChange={(e) => setForm({ ...form, courier_name: e.target.value })} placeholder="Steadfast / Pathao / RedX" /></div>
+              <div><Label className="text-xs">ট্র্যাকিং নম্বর</Label>
+                <Input value={form.tracking_no} onChange={(e) => setForm({ ...form, tracking_no: e.target.value })} /></div>
+            </div>
+            <div className="rounded-xl border border-dashed border-border p-2.5 space-y-2">
+              <p className="text-[11px] text-muted-foreground">এক ক্লিকে কুরিয়ার বুকিং (ইন্টিগ্রেশন পাতায় চালু থাকতে হবে)</p>
+              <div className="flex flex-wrap gap-1.5">
+                <Button size="sm" variant="outline" disabled={busy !== ""} onClick={() => book("steadfast")}>
+                  {busy === "steadfast" ? <Loader2 className="h-3.5 w-3.5 mr-1 animate-spin" /> : <Truck className="h-3.5 w-3.5 mr-1" />} Steadfast-এ বুক
+                </Button>
+                <Button size="sm" variant="outline" disabled={busy !== ""} onClick={() => book("pathao")}>
+                  {busy === "pathao" ? <Loader2 className="h-3.5 w-3.5 mr-1 animate-spin" /> : <Truck className="h-3.5 w-3.5 mr-1" />} Pathao-তে বুক
+                </Button>
+                <Button size="sm" variant="ghost" disabled={busy !== "" || !form.tracking_no} onClick={track}>
+                  {busy === "track" ? <Loader2 className="h-3.5 w-3.5 mr-1 animate-spin" /> : null} ট্র্যাক করুন
+                </Button>
+              </div>
+            </div>
           </div>
         ) : (
           <div>
@@ -290,6 +382,9 @@ function OrderDetail({ order, onClose, onStatus, onDelete, onSaved, risky }: any
         <div className="flex flex-wrap gap-2 pt-1">
           <Button size="sm" onClick={save}>সেভ করুন</Button>
           <Button size="sm" variant="outline" onClick={print}><Printer className="h-3.5 w-3.5 mr-1" /> ইনভয়েস প্রিন্ট</Button>
+          <Button size="sm" variant="outline" disabled={busy === "email"} onClick={emailCustomer}>
+            {busy === "email" ? <Loader2 className="h-3.5 w-3.5 mr-1 animate-spin" /> : <Mail className="h-3.5 w-3.5 mr-1" />} ইমেইল পাঠান
+          </Button>
           {order.customer_phone && (
             <Button size="sm" variant="outline" asChild>
               <a target="_blank" rel="noreferrer" href={`https://wa.me/${String(order.customer_phone).replace(/[^0-9]/g, "").replace(/^0/, "88")}`}>WhatsApp</a>

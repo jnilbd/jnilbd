@@ -9,7 +9,7 @@ import {
   LayoutDashboard, ShoppingCart, Wrench, Inbox, Users, Package, Briefcase, Tag, Home as HomeIcon,
   Star, FolderKanban, Loader2, Sparkles, Activity, LogOut, Eye, DollarSign, TrendingUp, Ticket,
   LifeBuoy, ShieldCheck, Image as ImageIcon, FileText, Settings, FileBarChart, ScrollText, Zap,
-  Layers, Bot, Menu as MenuIcon, X, RotateCcw, AlertTriangle, Gift, Palette, Globe, PlugZap,
+  Layers, Bot, Menu as MenuIcon, X, RotateCcw, AlertTriangle, Gift, Palette, Globe, PlugZap, Mail,
 } from "lucide-react";
 import { Area, AreaChart, ResponsiveContainer, Tooltip as RTooltip, XAxis, YAxis, PieChart, Pie, Cell, BarChart, Bar } from "recharts";
 
@@ -20,6 +20,8 @@ import InboxTab from "@/components/admin/InboxTab";
 import RolesTab from "@/components/admin/RolesTab";
 import SettingsTab from "@/components/admin/SettingsTab";
 import IntegrationsTab from "@/components/admin/IntegrationsTab";
+import LandingPagesTab from "@/components/admin/LandingPagesTab";
+import EmailTemplatesTab from "@/components/admin/EmailTemplatesTab";
 import MediaLibrary from "@/components/admin/MediaLibrary";
 import CustomersTab from "@/components/admin/CustomersTab";
 import AiToolsTab from "@/components/admin/AiToolsTab";
@@ -39,6 +41,7 @@ type Section =
   | "ai"
   | "customers" | "tickets" | "product-requests" | "giveaway" | "roles"
   | "homepage" | "blog" | "portfolio" | "media" | "appearance"
+  | "landing" | "emails"
   | "reports" | "traffic" | "audit" | "integrations" | "settings";
 
 const GROUPS: { group: string; items: { key: Section; label: string; icon: any }[] }[] = [
@@ -86,6 +89,8 @@ const GROUPS: { group: string; items: { key: Section; label: string; icon: any }
       { key: "appearance", label: "থিম, পপআপ ও মেনু", icon: Palette },
       { key: "blog", label: "ব্লগ", icon: ScrollText },
       { key: "portfolio", label: "পোর্টফোলিও", icon: FolderKanban },
+      { key: "landing", label: "ল্যান্ডিং পেজ বিল্ডার", icon: Layers },
+      { key: "emails", label: "ইমেইল টেমপ্লেট", icon: Mail },
       { key: "media", label: "মিডিয়া লাইব্রেরি", icon: ImageIcon },
     ],
   },
@@ -225,6 +230,8 @@ export default function AdminDashboard() {
                 <Button asChild size="sm"><Link to="/admin/portfolio">পোর্টফোলিও এডিটর খুলুন</Link></Button>
               </CardContent></Card>
             )}
+            {section === "landing" && <LandingPagesTab />}
+            {section === "emails" && <EmailTemplatesTab />}
             {section === "media" && <MediaLibrary />}
             {section === "reports" && <ReportsTab />}
             {section === "audit" && <AuditLogTab />}

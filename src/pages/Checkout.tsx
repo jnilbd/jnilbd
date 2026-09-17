@@ -1,7 +1,9 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Upload, Smartphone, ShieldCheck, Truck, Banknote } from "lucide-react";
+import { Upload, Smartphone, ShieldCheck, Truck, Banknote, CreditCard } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import { useSiteSettings } from "@/hooks/useSiteSettings";
 import { useCart } from "@/contexts/CartContext";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Button } from "@/components/ui/button";
@@ -17,8 +19,11 @@ const Checkout = () => {
   const navigate = useNavigate();
   const isBn = language === "bn";
 
+  const siteSettings = useSiteSettings();
+  const onlinePay = (siteSettings?.payments || {}) as { bkash?: boolean; sslcommerz?: boolean };
+
   const [form, setForm] = useState({ name: "", email: "", phone: "", address: "", notes: "" });
-  const [method, setMethod] = useState<"bkash" | "nagad" | "cod">("bkash");
+  const [method, setMethod] = useState<"bkash" | "nagad" | "cod" | "online_bkash" | "online_card">("bkash");
   const [trxId, setTrxId] = useState("");
   const [screenshot, setScreenshot] = useState<File | null>(null);
   const [submitting, setSubmitting] = useState(false);
@@ -36,6 +41,7 @@ const Checkout = () => {
   const paymentNumbers = { bkash: "01774585757", nagad: "01774585757" };
   const codAdvance = 100;
   const isCod = method === "cod";
+  const isOnline = method === "online_bkash" || method === "online_card";
   const deliveryFee = hasPhysical ? (zone === "dhaka" ? 70 : 150) : 0;
   const deliveryEta = zone === "dhaka"
     ? (isBn ? "ঢাকার ভিতরে — ১–৩ দিন" : "Inside Dhaka — 1–3 days")
@@ -44,13 +50,13 @@ const Checkout = () => {
   const dueNow = isCod ? codAdvance : grandTotal;
   const dueOnDelivery = isCod ? grandTotal - codAdvance : 0;
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!form.name || !form.email || !form.phone || !form.address) {
       toast.error(isBn ? "সব ফিল্ড পূরণ করুন" : "Fill all required fields");
       return;
     }
-    if (!trxId) {
+    if (!isOnline && !trxId) {
       toast.error(isBn ? "ট্রানজেকশন আইডি দিন" : "Provide transaction ID");
       return;
     }
@@ -60,15 +66,38 @@ const Checkout = () => {
     const order = { id: orderId, items, total, deliveryFee, grandTotal, zone, customer: form, payment: { method, trxId, paid: dueNow, due: dueOnDelivery }, date: new Date().toISOString() };
     localStorage.setItem(`order-${orderId}`, JSON.stringify(order));
 
+    if (isOnline) {
+      const { data, error } = await supabase.functions.invoke("public-pay", {
+        body: {
+          provider: method === "online_bkash" ? "bkash" : "sslcommerz",
+          amount: grandTotal, invoice: orderId, name: form.name, phone: form.phone,
+          email: form.email, address: form.address,
+          product: items[0]?.name || "Order",
+          callback: `${window.location.origin}/order-confirmation/${orderId}`,
+        },
+      });
+      const err = (data as any)?.error || error?.message;
+      if (err || !(data as any)?.url) {
+        setSubmitting(false);
+        toast.error(err || (isBn ? "পেমেন্ট শুরু করা যায়নি" : "Could not start payment"));
+        return;
+      }
+      clear();
+      window.location.href = (data as any).url;
+      return;
+    }
+
     setTimeout(() => {
       clear();
       navigate(`/order-confirmation/${orderId}`);
     }, 800);
   };
 
-  const methods: { id: "bkash" | "nagad" | "cod"; label: string; icon: any; show: boolean }[] = [
+  const methods: { id: typeof method; label: string; icon: any; show: boolean }[] = [
     { id: "bkash", label: "bKash", icon: Smartphone, show: true },
     { id: "nagad", label: "Nagad", icon: Smartphone, show: true },
+    { id: "online_bkash", label: isBn ? "bKash অনলাইন পেমেন্ট" : "bKash online payment", icon: Smartphone, show: !!onlinePay.bkash },
+    { id: "online_card", label: isBn ? "কার্ড / ব্যাংক (সিকিউর)" : "Card / Bank (secure)", icon: CreditCard, show: !!onlinePay.sslcommerz },
     { id: "cod", label: isBn ? "ক্যাশ অন ডেলিভারি" : "Cash on Delivery", icon: Banknote, show: hasPhysical },
   ];
 
@@ -133,7 +162,21 @@ const Checkout = () => {
               ))}
             </RadioGroup>
 
-            {isCod ? (
+            {isOnline ? (
+              <div className="bg-gradient-to-br from-primary/10 to-secondary/10 p-5 rounded-2xl mb-4">
+                <div className="flex items-start gap-3">
+                  <ShieldCheck className="w-5 h-5 text-green-600 mt-0.5 shrink-0" />
+                  <div>
+                    <p className="font-semibold mb-1">{isBn ? "সিকিউর অনলাইন পেমেন্ট" : "Secure online payment"}</p>
+                    <p className="text-sm text-muted-foreground">
+                      {isBn
+                        ? `"অর্ডার নিশ্চিত করুন" চাপলে সিকিউর পেমেন্ট পেজে নিয়ে যাওয়া হবে, সেখানে ৳${grandTotal.toLocaleString()} পরিশোধ করুন।`
+                        : `You will be taken to a secure payment page to pay ৳${grandTotal.toLocaleString()}.`}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            ) : isCod ? (
               <div className="bg-gradient-to-br from-secondary/10 to-primary/10 p-5 rounded-2xl mb-4">
                 <div className="flex items-start gap-3 mb-3">
                   <Truck className="w-5 h-5 text-primary mt-0.5 shrink-0" />
@@ -160,10 +203,10 @@ const Checkout = () => {
               </div>
             )}
 
-            <div className="space-y-4">
+            <div className={`space-y-4 ${isOnline ? "hidden" : ""}`}>
               <div>
                 <Label>{isBn ? "ট্রানজেকশন আইডি (TrxID) *" : "Transaction ID (TrxID) *"}</Label>
-                <Input required value={trxId} onChange={(e) => setTrxId(e.target.value)} placeholder="e.g. 8N7A4B5C6D" className="rounded-xl" />
+                <Input required={!isOnline} value={trxId} onChange={(e) => setTrxId(e.target.value)} placeholder="e.g. 8N7A4B5C6D" className="rounded-xl" />
                 {isCod && <p className="text-xs text-muted-foreground mt-1">{isBn ? `৳${codAdvance} অগ্রিম পাঠানোর TrxID দিন।` : `Provide TrxID for ৳${codAdvance} advance.`}</p>}
               </div>
               <div>

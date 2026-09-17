@@ -68,7 +68,7 @@ export default function ProductsTab() {
   };
 
   const toggle = async (r: any, field: string) => {
-    await supabase.from("shop_products").update({ [field]: !r[field] }).eq("id", r.id);
+    await supabase.from("shop_products").update({ [field]: !r[field] } as any).eq("id", r.id);
     setRows((p) => p.map((x) => (x.id === r.id ? { ...x, [field]: !x[field] } : x)));
   };
 

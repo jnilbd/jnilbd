@@ -1,0 +1,69 @@
+# JohnNil.com
+
+> বাংলাদেশের অল-ইন-ওয়ান ডিজিটাল প্ল্যাটফর্ম — আল-কুরআন ও নামাজের সময়, লাইভ আবহাওয়া, ফাইন্যান্স ম্যানেজার, লাইভ টিভি, অনলাইন শপ, আইটি সার্ভিস ও ৩০+ ফ্রি বাংলা টুল। An all-in-one Bangladeshi platform for Islamic resources, weather, finance, live TV, online shopping, IT services and 30+ free Bangla tools.
+
+JohnNil.com is run from Dhaka, Bangladesh by John Nil. It serves Bangla and
+English users with free daily-use tools, verified local information, digital
+and physical products, and professional IT/digital services (website and app
+development, design, digital marketing, CCTV, solar).
+
+Contact: jnilbd@gmail.com · +880-1774-585757 · Dhaka, Bangladesh
+
+## Products and services
+
+- [Shop](/shop): Digital subscriptions, software, gadgets and physical products with cash on delivery, bKash and Nagad across Bangladesh.
+- [Services](/services): Website development, mobile apps, graphic design, digital marketing, CCTV and solar installation.
+- [Business tools](/business-tools): Invoice maker, courier charge calculator, profit calculator, stock management.
+- [Portfolio](/portfolio): Completed websites, apps and design projects.
+- [Appointment](/appointment): Book a consultation.
+- [Marketplace](/marketplace): Free buy/sell classifieds.
+- [Rentals](/rentals): House, flat, shop and equipment rental listings.
+
+## Islamic
+
+- [Al Quran](/quran): Full Quran with Arabic text, Bangla translation and audio recitation.
+- [Namaz time](/namaz): Daily prayer times for Dhaka and all districts of Bangladesh.
+- [Hadith](/hadith): Sahih hadith collections translated into Bangla.
+- [Ruqyah](/ruqyah): Quran and Sunnah based ruqyah guide.
+
+## Daily information
+
+- [Weather](/weather): Live temperature, rain, storm and cyclone alerts for 64 districts.
+- [Offers](/offers): GP, Robi, Banglalink, Airtel and Teletalk internet and bundle offers.
+- [Free internet](/free-internet): Legal ways to get free MB and Wi-Fi in Bangladesh.
+- [Live TV](/livetv): 2000+ live Bangla and international TV channels.
+- [Newspapers](/newspapers): All Bangla newspapers and news portals in one place.
+- [Stocks](/stocks): DSE and CSE indices, gold price and dollar rate.
+- [Railway](/railway): Bangladesh Railway train schedule, fares and live tracking.
+- [Politics](/politics): Bangladesh and world politics updates.
+
+## Guides and calculators
+
+- [Finance manager](/finance): Income, expense, debt, budget and business accounting.
+- [Business guide](/business-guide): Profitable small-capital business ideas for Bangladesh.
+- [Health guide](/health): Symptoms, home remedies and diet advice in Bangla.
+- [Travel guide](/travel): Cox's Bazar, Sajek, Sundarbans and more, with costs and tips.
+- [Income tax calculator](/tax): Bangladesh income tax and return guide.
+- [Warish calculator](/warish): Islamic inheritance share calculation.
+- [Land calculator](/land): Shotangsho, katha, bigha and acre conversion.
+- [Solar calculator](/solar): Solar panel, battery and inverter sizing and cost.
+- [Profit and loss](/profit-loss): Business profit and margin calculator.
+- [Gadget advisor](/gadget): Best phone and laptop suggestions by budget.
+
+## Free tools
+
+- [Ad maker](/ad-maker): AI ad posters, captions and promotional videos.
+- [Thumbnail maker](/thumbnail): YouTube and Facebook thumbnails with Bangla text.
+- [Converter](/converter): PDF, image and video format conversion.
+- [Downloader](/downloader): Download videos from YouTube, Facebook and TikTok.
+- [Voice editor](/voice): Bangla and English text-to-speech and voice editing.
+- [Scheduler](/scheduler): Schedule posts, SMS and WhatsApp messages.
+- [Phone lookup](/phone-lookup): Check mobile operator and number details.
+
+## Optional
+
+- [Blog](/blog): Bangla articles on tech, business, Islam, health and lifestyle.
+- [About](/about): About JohnNil.com and John Nil.
+- [Policies](/policies): Privacy, refund, return and delivery policies.
+- [Movies](/movies): Movie and web series updates.
+- [Giveaway](/giveaway): Free giveaway entries.

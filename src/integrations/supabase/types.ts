@@ -819,6 +819,72 @@ export type Database = {
         }
         Relationships: []
       }
+      integration_logs: {
+        Row: {
+          action: string
+          created_at: string
+          id: string
+          message: string | null
+          ok: boolean
+          payload: Json
+          provider: string
+        }
+        Insert: {
+          action: string
+          created_at?: string
+          id?: string
+          message?: string | null
+          ok?: boolean
+          payload?: Json
+          provider: string
+        }
+        Update: {
+          action?: string
+          created_at?: string
+          id?: string
+          message?: string | null
+          ok?: boolean
+          payload?: Json
+          provider?: string
+        }
+        Relationships: []
+      }
+      integration_settings: {
+        Row: {
+          config: Json
+          created_at: string
+          enabled: boolean
+          id: string
+          last_test_at: string | null
+          last_test_message: string | null
+          last_test_ok: boolean | null
+          provider: string
+          updated_at: string
+        }
+        Insert: {
+          config?: Json
+          created_at?: string
+          enabled?: boolean
+          id?: string
+          last_test_at?: string | null
+          last_test_message?: string | null
+          last_test_ok?: boolean | null
+          provider: string
+          updated_at?: string
+        }
+        Update: {
+          config?: Json
+          created_at?: string
+          enabled?: boolean
+          id?: string
+          last_test_at?: string | null
+          last_test_message?: string | null
+          last_test_ok?: boolean | null
+          provider?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       inventory_movements: {
         Row: {
           amount_paid: number

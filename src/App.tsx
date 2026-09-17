@@ -69,6 +69,7 @@ import BusinessTools from "./pages/BusinessTools";
 import Offers from "./pages/Offers";
 import CapCutPro from "./pages/CapCutPro";
 import MiniProjector from "./pages/MiniProjector";
+import Giveaway from "./pages/Giveaway";
 
 const queryClient = new QueryClient();
 
@@ -142,6 +143,7 @@ const App = () => (
                 <Route path="/offers" element={<Offers />} />
                 <Route path="/capcut-pro" element={<CapCutPro />} />
                 <Route path="/mini-projector" element={<MiniProjector />} />
+                <Route path="/giveaway" element={<Giveaway />} />
                 <Route path="/cart" element={<Cart />} />
                 <Route path="/checkout" element={<Checkout />} />
                 <Route path="/profile" element={<Profile />} />

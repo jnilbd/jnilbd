@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import { Mail, Phone, MapPin, Facebook, Instagram, MessageCircle, Youtube, Linkedin, Send, Sparkles, BookOpen, CloudRain, HeartPulse, Wifi } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useSiteSettings } from "@/hooks/useSiteSettings";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
@@ -9,6 +10,7 @@ import logoMark from "@/assets/logo-mark.png";
 
 const Footer = () => {
   const { language } = useLanguage();
+  const siteSettings = useSiteSettings();
   const [email, setEmail] = useState("");
 
   const handleSubscribe = (e: React.FormEvent) => {
@@ -99,6 +101,10 @@ const Footer = () => {
               { to: "/weather", label: language === "bn" ? "আবহাওয়া" : "Weather" },
               { to: "/health", label: language === "bn" ? "স্বাস্থ্য" : "Health" },
               { to: "/free-internet", label: language === "bn" ? "ফ্রি ইন্টারনেট" : "Free Internet" },
+              { to: "/giveaway", label: language === "bn" ? "ফ্রি গিভঅ্যাওয়ে" : "Free Giveaway" },
+              ...(((siteSettings.menu?.items || []) as any[])
+                .filter((m) => m?.label && m?.href)
+                .map((m) => ({ to: m.href as string, label: m.label as string }))),
             ].map((l) => (
               <li key={l.to}>
                 <Link to={l.to} className="opacity-70 hover:opacity-100 hover:text-secondary transition-smooth">{l.label}</Link>

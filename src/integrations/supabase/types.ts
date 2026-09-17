@@ -352,6 +352,42 @@ export type Database = {
           },
         ]
       }
+      email_templates: {
+        Row: {
+          created_at: string
+          html: string
+          id: string
+          is_active: boolean
+          key: string
+          name: string
+          subject: string
+          trigger_event: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          html: string
+          id?: string
+          is_active?: boolean
+          key: string
+          name: string
+          subject: string
+          trigger_event?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          html?: string
+          id?: string
+          is_active?: boolean
+          key?: string
+          name?: string
+          subject?: string
+          trigger_event?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       finance_recurring_bills: {
         Row: {
           amount: number
@@ -998,6 +1034,51 @@ export type Database = {
           unit?: string
           updated_at?: string
           user_id?: string
+        }
+        Relationships: []
+      }
+      landing_pages: {
+        Row: {
+          blocks: Json
+          cover_image: string | null
+          created_at: string
+          id: string
+          is_published: boolean
+          seo_description: string | null
+          seo_title: string | null
+          slug: string
+          title: string
+          title_bn: string | null
+          updated_at: string
+          views: number
+        }
+        Insert: {
+          blocks?: Json
+          cover_image?: string | null
+          created_at?: string
+          id?: string
+          is_published?: boolean
+          seo_description?: string | null
+          seo_title?: string | null
+          slug: string
+          title: string
+          title_bn?: string | null
+          updated_at?: string
+          views?: number
+        }
+        Update: {
+          blocks?: Json
+          cover_image?: string | null
+          created_at?: string
+          id?: string
+          is_published?: boolean
+          seo_description?: string | null
+          seo_title?: string | null
+          slug?: string
+          title?: string
+          title_bn?: string | null
+          updated_at?: string
+          views?: number
         }
         Relationships: []
       }

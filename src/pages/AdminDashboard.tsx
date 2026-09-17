@@ -9,7 +9,7 @@ import {
   LayoutDashboard, ShoppingCart, Wrench, Inbox, Users, Package, Briefcase, Tag, Home as HomeIcon,
   Star, FolderKanban, Loader2, Sparkles, Activity, LogOut, Eye, DollarSign, TrendingUp, Ticket,
   LifeBuoy, ShieldCheck, Image as ImageIcon, FileText, Settings, FileBarChart, ScrollText, Zap,
-  Layers, Bot, Menu as MenuIcon, X, RotateCcw, AlertTriangle, Gift, Palette, Globe,
+  Layers, Bot, Menu as MenuIcon, X, RotateCcw, AlertTriangle, Gift, Palette, Globe, PlugZap,
 } from "lucide-react";
 import { Area, AreaChart, ResponsiveContainer, Tooltip as RTooltip, XAxis, YAxis, PieChart, Pie, Cell, BarChart, Bar } from "recharts";
 
@@ -19,6 +19,7 @@ import CouponsTab from "@/components/admin/CouponsTab";
 import InboxTab from "@/components/admin/InboxTab";
 import RolesTab from "@/components/admin/RolesTab";
 import SettingsTab from "@/components/admin/SettingsTab";
+import IntegrationsTab from "@/components/admin/IntegrationsTab";
 import MediaLibrary from "@/components/admin/MediaLibrary";
 import CustomersTab from "@/components/admin/CustomersTab";
 import AiToolsTab from "@/components/admin/AiToolsTab";
@@ -38,7 +39,7 @@ type Section =
   | "ai"
   | "customers" | "tickets" | "product-requests" | "giveaway" | "roles"
   | "homepage" | "blog" | "portfolio" | "media" | "appearance"
-  | "reports" | "traffic" | "audit" | "settings";
+  | "reports" | "traffic" | "audit" | "integrations" | "settings";
 
 const GROUPS: { group: string; items: { key: Section; label: string; icon: any }[] }[] = [
   {
@@ -93,6 +94,7 @@ const GROUPS: { group: string; items: { key: Section; label: string; icon: any }
       { key: "reports", label: "স্মার্ট রিপোর্ট", icon: FileBarChart },
       { key: "traffic", label: "ভিজিটর ও অ্যাড সোর্স", icon: Globe },
       { key: "audit", label: "অডিট লগ", icon: Activity },
+      { key: "integrations", label: "ইন্টিগ্রেশন ও API কী", icon: PlugZap },
       { key: "settings", label: "সেটিংস", icon: Settings },
     ],
   },
@@ -226,6 +228,7 @@ export default function AdminDashboard() {
             {section === "media" && <MediaLibrary />}
             {section === "reports" && <ReportsTab />}
             {section === "audit" && <AuditLogTab />}
+            {section === "integrations" && <IntegrationsTab />}
             {section === "settings" && <SettingsTab />}
           </main>
         </div>

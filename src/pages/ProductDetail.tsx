@@ -13,6 +13,7 @@ import { Card } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
 import ReactMarkdown from "react-markdown";
+import SEO from "@/components/SEO";
 
 const badgeColorMap: Record<string, string> = {
   red: "bg-red-500", green: "bg-green-500", blue: "bg-blue-500",
@@ -171,8 +172,49 @@ const ProductDetail = () => {
   const fullDesc = language === "bn" && product.full_description_bn ? product.full_description_bn : product.full_description;
   const avgRating = reviews.length ? reviews.reduce((s, r) => s + r.rating, 0) / reviews.length : 0;
 
+  const seoDesc = (shortDesc || fullDesc || `${name} — JohnNil.com থেকে অনলাইনে অর্ডার করুন, সারা বাংলাদেশে ডেলিভারি।`)
+    .toString()
+    .replace(/\s+/g, " ")
+    .slice(0, 160);
+
+  const productSchema = {
+    "@context": "https://schema.org",
+    "@type": "Product",
+    name,
+    description: seoDesc,
+    image: product.image ? [product.image, ...(product.gallery || [])] : undefined,
+    sku: product.id,
+    brand: { "@type": "Brand", name: product.brand || "JohnNil" },
+    offers: {
+      "@type": "Offer",
+      url: `https://johnnil.com/shop/${product.id}`,
+      priceCurrency: "BDT",
+      price: String(product.discount_price || product.price || 0),
+      availability:
+        product.stock === 0 ? "https://schema.org/OutOfStock" : "https://schema.org/InStock",
+      seller: { "@type": "Organization", name: "JohnNil.com" },
+    },
+    ...(reviews.length
+      ? {
+          aggregateRating: {
+            "@type": "AggregateRating",
+            ratingValue: avgRating.toFixed(1),
+            reviewCount: reviews.length,
+          },
+        }
+      : {}),
+  };
+
   return (
     <div>
+      <SEO
+        title={`${name} — দাম ও অর্ডার | JohnNil.com`}
+        description={seoDesc}
+        path={`/shop/${product.id}`}
+        image={product.image || undefined}
+        keywords={`${name}, ${product.category || ""}, দাম বাংলাদেশ, অনলাইনে কিনুন, buy online bangladesh`}
+        jsonLd={productSchema}
+      />
       <section className="container py-8">
         <Button variant="ghost" onClick={() => navigate(-1)} className="mb-6 -ml-3">
           <ArrowLeft className="w-4 h-4 mr-1" /> {language === "bn" ? "ফিরে যান" : "Back"}

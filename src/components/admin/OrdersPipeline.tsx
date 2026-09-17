@@ -13,7 +13,23 @@ import { toast } from "sonner";
 import {
   LayoutGrid, List, Loader2, Printer, RefreshCw, Search, ShieldAlert, Trash2, Download, Truck, KeyRound,
 } from "lucide-react";
-import { ORDER_STATUSES, statusBn, statusColor, money, logAudit, downloadCsv } from "./shared";
+import { ORDER_STATUSES, statusBn, statusColor, money, logAudit, downloadCsv, sendTemplateEmail } from "./shared";
+
+const STATUS_EMAIL: Record<string, string> = {
+  confirmed: "order_confirmed",
+  shipped: "order_shipped",
+  delivered: "order_delivered",
+};
+
+export const orderVars = (o: any) => ({
+  customer_name: o.customer_name || "গ্রাহক",
+  order_id: String(o.id || "").slice(0, 8).toUpperCase(),
+  product_name: o.product_name || "",
+  total: Number(o.total_amount || 0).toLocaleString("en-BD"),
+  courier: o.courier_name || "—",
+  tracking: o.tracking_no || "—",
+  status: statusBn(o.status),
+});
 
 type Order = any;
 

@@ -33,12 +33,12 @@ import { ServiceOrdersTab, ServiceRequestsTab, ReviewsTab, SimpleEntityTab } fro
 import { money, statusBn, statusColor } from "@/components/admin/shared";
 
 type Section =
-  | "overview" | "orders" | "service-orders" | "requests" | "invoices"
-  | "products" | "coupons" | "services" | "marketplace" | "rentals" | "reviews"
+  | "overview" | "orders" | "returns" | "service-orders" | "requests"
+  | "products" | "stock" | "coupons" | "services" | "marketplace" | "rentals" | "reviews"
   | "ai"
-  | "customers" | "tickets" | "product-requests" | "roles"
-  | "homepage" | "blog" | "portfolio" | "media"
-  | "reports" | "audit" | "settings";
+  | "customers" | "tickets" | "product-requests" | "giveaway" | "roles"
+  | "homepage" | "blog" | "portfolio" | "media" | "appearance"
+  | "reports" | "traffic" | "audit" | "settings";
 
 const GROUPS: { group: string; items: { key: Section; label: string; icon: any }[] }[] = [
   {
@@ -49,6 +49,7 @@ const GROUPS: { group: string; items: { key: Section; label: string; icon: any }
   {
     group: "বিক্রি ও অর্ডার", items: [
       { key: "orders", label: "অর্ডার পাইপলাইন", icon: ShoppingCart },
+      { key: "returns", label: "রিটার্ন ও রিফান্ড", icon: RotateCcw },
       { key: "service-orders", label: "সার্ভিস অর্ডার", icon: Wrench },
       { key: "requests", label: "সার্ভিস রিকোয়েস্ট", icon: Inbox },
     ],
@@ -56,6 +57,7 @@ const GROUPS: { group: string; items: { key: Section; label: string; icon: any }
   {
     group: "পণ্য ও ইনভেন্টরি", items: [
       { key: "products", label: "প্রোডাক্ট", icon: Package },
+      { key: "stock", label: "স্টক অ্যালার্ট", icon: AlertTriangle },
       { key: "coupons", label: "কুপন", icon: Ticket },
       { key: "services", label: "সার্ভিস ক্যাটালগ", icon: Briefcase },
       { key: "marketplace", label: "মার্কেটপ্লেস", icon: Tag },
@@ -73,12 +75,14 @@ const GROUPS: { group: string; items: { key: Section; label: string; icon: any }
       { key: "customers", label: "কাস্টমার", icon: Users },
       { key: "tickets", label: "সাপোর্ট টিকিট", icon: LifeBuoy },
       { key: "product-requests", label: "প্রোডাক্ট রিকোয়েস্ট", icon: Layers },
+      { key: "giveaway", label: "গিভঅ্যাওয়ে / ফ্রি ড্রপ", icon: Gift },
       { key: "roles", label: "রোল ও অ্যাকসেস", icon: ShieldCheck },
     ],
   },
   {
     group: "কনটেন্ট ও সাইট", items: [
       { key: "homepage", label: "হোমপেজ ও ব্যানার", icon: FileText },
+      { key: "appearance", label: "থিম, পপআপ ও মেনু", icon: Palette },
       { key: "blog", label: "ব্লগ", icon: ScrollText },
       { key: "portfolio", label: "পোর্টফোলিও", icon: FolderKanban },
       { key: "media", label: "মিডিয়া লাইব্রেরি", icon: ImageIcon },
@@ -87,6 +91,7 @@ const GROUPS: { group: string; items: { key: Section; label: string; icon: any }
   {
     group: "রিপোর্ট ও সিস্টেম", items: [
       { key: "reports", label: "স্মার্ট রিপোর্ট", icon: FileBarChart },
+      { key: "traffic", label: "ভিজিটর ও অ্যাড সোর্স", icon: Globe },
       { key: "audit", label: "অডিট লগ", icon: Activity },
       { key: "settings", label: "সেটিংস", icon: Settings },
     ],

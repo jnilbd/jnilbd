@@ -206,7 +206,7 @@ const Checkout = () => {
             <div className={`space-y-4 ${isOnline ? "hidden" : ""}`}>
               <div>
                 <Label>{isBn ? "ট্রানজেকশন আইডি (TrxID) *" : "Transaction ID (TrxID) *"}</Label>
-                <Input required value={trxId} onChange={(e) => setTrxId(e.target.value)} placeholder="e.g. 8N7A4B5C6D" className="rounded-xl" />
+                <Input required={!isOnline} value={trxId} onChange={(e) => setTrxId(e.target.value)} placeholder="e.g. 8N7A4B5C6D" className="rounded-xl" />
                 {isCod && <p className="text-xs text-muted-foreground mt-1">{isBn ? `৳${codAdvance} অগ্রিম পাঠানোর TrxID দিন।` : `Provide TrxID for ৳${codAdvance} advance.`}</p>}
               </div>
               <div>

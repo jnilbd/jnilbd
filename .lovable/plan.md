@@ -1,54 +1,58 @@
-# Finance Phase 2 Plan
+# ইউনিফাইড অ্যাডমিন প্যানেল (ডিজিটাল + ফিজিক্যাল + সার্ভিস)
 
-আপনার লিস্ট আর বর্তমান Finance মডিউল মিলিয়ে দেখলাম — যেগুলো **আগে থেকেই আছে** সেগুলো বাদ দিয়ে শুধু **অনুপস্থিত অংশ** যোগ করব।
+এখনকার `/dashboard` এ ১২টা সেকশন আছে। এটাকে একটা গ্রুপ-ভিত্তিক কন্ট্রোল সেন্টারে বদলানো হবে — ডিজিটাল প্যানেল ও ফিজিক্যাল প্যানেলের সেরা অংশগুলো এক জায়গায়।
 
-## ✅ আগে থেকেই আছে (নতুন করে করব না)
+## নতুন সাইডবার কাঠামো (গ্রুপসহ)
 
-- **Dashboard**: আজকের আয়/খরচ/লাভ, মাসিক আয়/খরচ/লাভ, নগদ/ব্যাংক/মোবাইল ব্যাংকিং, ব্যক্তিগত ও ব্যবসা net worth
-- **Wallets**: multi-wallet (অফিস ক্যাশ, ব্যক্তিগত, bKash, Nagad, Bank, Mobile Wallet — সব একসাথে)
-- **Personal Finance categories**: বাজার, খাবার, যাতায়াত, মোবাইল, পরিবার, চিকিৎসা, বিল সব category হিসেবে
-- **Budget**: মাসিক ক্যাটাগরি বাজেট + used/remaining প্রগ্রেস বার
-- **Smart Alerts**: আজ এন্ট্রি নেই / আজ খরচ বেশি / লাভ কমেছে / মাসিক over-spend
+**১. ওভারভিউ**
+- লাইভ KPI (আয়, অর্ডার, পেন্ডিং, কাস্টমার), ১৪ দিনের চার্ট, স্ট্যাটাস ডোনাট, টপ প্রোডাক্ট, লাইভ ফিড
+- ডিজিটাল vs ফিজিক্যাল vs সার্ভিস — আলাদা রেভিনিউ ভাগ
 
-## 🆕 যা যোগ করব
+**২. বিক্রি ও অর্ডার**
+- অর্ডার পাইপলাইন (কানবান-স্টাইল স্ট্যাটাস কলাম + লিস্ট ভিউ টগল)
+- অর্ডার ডিটেইল ড্রয়ার: কাস্টমার তথ্য, আইটেম, পেমেন্ট প্রুফ, কুরিয়ার/ট্র্যাকিং, নোট
+- ইনভয়েস প্রিন্ট (A4 প্রিন্ট ভিউ)
+- সার্ভিস অর্ডার + সার্ভিস রিকোয়েস্ট
+- ডিজিটাল ডেলিভারি: অর্ডার অ্যাপ্রুভ করলে ডেলিভারি তথ্য/লাইসেন্স পাঠানোর ফিল্ড
+- ফ্রড/রিস্ক চেক: একই ফোনে বারবার বাতিল অর্ডারের ফ্ল্যাগ
 
-### ১. Inventory ট্যাব (নতুন)
-- `inventory_products` table: name, sku, unit, purchase_price, sell_price, current_stock, low_stock_threshold
-- `inventory_movements` table: product_id, type (`stock_in`/`stock_out`/`customer_return`/`supplier_return`/`damage`/`sale`), qty, unit_price, note, related_tx_id, occurred_at
-- UI: পণ্য লিস্ট (কার্ড গ্রিড, বর্তমান স্টক + কম হলে লাল ব্যাজ), "পণ্য যোগ" ডায়ালগ, movement এন্ট্রি sheet (৫ ধরনের), প্রতি পণ্যের history
+**৩. পণ্য ও ইনভেন্টরি**
+- প্রোডাক্ট এডিটর (ডিজিটাল/ফিজিক্যাল টগল, গ্যালারি, অফার, অ্যাডঅন, রিলেটেড)
+- কুইক-অ্যাড, ক্যাটাগরি ম্যানেজার, কুপন, স্টক লেজার (ফিজিক্যাল), রিভিউ মডারেশন
+- মার্কেটপ্লেস ও রেন্টাল লিস্টিং
 
-### ২. Sales ট্যাব (নতুন)
-- `sales_orders` table: customer_name, phone, address, status (`order`/`payment`/`courier`/`delivery`/`return`), total, paid, courier_name, tracking, occurred_at
-- `sales_order_items` table: order_id, product_id, qty, unit_price
-- UI: Kanban-স্টাইল ৫টা status column, order card drag/click করে status বদলানো, নতুন অর্ডার ফর্ম (product picker → auto stock deduct)
+**৪. AI ইঞ্জিন**
+- AI প্রোডাক্ট রাইটার (নাম দিলে বাংলা+ইংরেজি বর্ণনা, ফিচার, ব্যাজ, দাম সাজেশন)
+- AI অ্যাড/ক্যাম্পেইন কপি (বিদ্যমান ad-content-maker ফাংশন কাজে লাগিয়ে)
+- AI বিজনেস ইনসাইট (বিক্রির ডেটা থেকে সাপ্তাহিক পরামর্শ)
 
-### ৩. Reports ট্যাব (নতুন)
-- Range picker: দৈনিক / সাপ্তাহিক / মাসিক / কাস্টম
-- **লাভ-লোকসান**: total income − total expense − COGS
-- **Top Products**: সবচেয়ে বেশি বিক্রি (qty + revenue)
-- **Top Expense Categories**: বার চার্ট
-- Export CSV button
+**৫. কাস্টমার ও কমিউনিটি**
+- কাস্টমার লিস্ট (লাইফটাইম ভ্যালু, অর্ডার সংখ্যা, শেষ অর্ডার)
+- সাপোর্ট টিকিট, প্রোডাক্ট রিকোয়েস্ট, রোল ম্যানেজমেন্ট (admin যোগ/বাদ)
 
-### ৪. Dashboard-এ যোগ
-- **মোট স্টক** কার্ড (সব product current_stock × sell_price)
-- **কম স্টকের পণ্য** কার্ড (threshold-এর নিচে থাকা count)
-- **আজকের বিক্রি** কার্ড (আজ sales_orders থেকে)
+**৬. কনটেন্ট ও সাইট**
+- হোমপেজ হিরো/ব্যানার টেক্সট, মেনু অর্ডার, পোর্টফোলিও, ব্লগ, মিডিয়া লাইব্রেরি (স্টোরেজ ব্রাউজার)
 
-### ৫. Smart Alerts-এ যোগ
-- স্টক কমে গেলে (threshold hit) → red alert
-- কোনো ওয়ালেটে balance < 500 → amber alert
+**৭. রিপোর্ট ও সিস্টেম**
+- অ্যানালিটিক্স, স্মার্ট রিপোর্ট (CSV এক্সপোর্ট), অডিট লগ
+- ইন্টিগ্রেশন সেটিংস: কুরিয়ার, SMS/WhatsApp, টেলিগ্রাম, পিক্সেল/ট্র্যাকিং কোড
+- সাইট সেটিংস: ডেলিভারি চার্জ, পেমেন্ট নাম্বার, নোটিফিকেশন
 
-## Technical
+## টেকনিক্যাল অংশ
 
-- ৩টা নতুন migration (products, movements, sales_orders, sales_order_items) — সব RLS `auth.uid() = user_id`, GRANT authenticated
-- Sale করলে auto: (a) inventory movement `sale` টাইপে qty deduct, (b) finance transaction `sale` টাইপে amount add
-- ৩টা নতুন কম্পোনেন্ট: `InventoryTab.tsx`, `SalesTab.tsx`, `ReportsTab.tsx`
-- Finance.tsx-এ ৩টা নতুন TabsTrigger (এখন ১০টা ট্যাব — horizontal scroll ঠিকই কাজ করবে)
+নতুন টেবিল (RLS + GRANT সহ, admin-only write):
+- `coupons`, `support_tickets`, `product_requests`, `site_settings` (key/value JSON), `admin_audit_log`, `homepage_blocks`, `blog_posts`
+- `shop_orders` এ যোগ: `courier_name`, `tracking_no`, `admin_note`, `delivery_payload`
 
-## Delivery order (এক turn = এক migration approval দরকার)
+কোড কাঠামো: `src/pages/AdminDashboard.tsx` কে শেল হিসেবে রেখে প্রতিটি সেকশন `src/components/admin/*.tsx` এ আলাদা ফাইলে — যাতে পরে সহজে বাড়ানো যায়।
 
-1. **এখন**: Inventory migration → Inventory ট্যাব + Dashboard stock cards + স্টক alert
-2. **পরের turn**: Sales migration → Sales ট্যাব + auto stock/finance sync
-3. **তারপর**: Reports ট্যাব + wallet balance alert
+## ধাপ
 
-**Approve করলে Step 1 (Inventory) শুরু করি।**
+1. ডাটাবেস মাইগ্রেশন (নতুন টেবিল + কলাম)
+2. নতুন সাইডবার শেল + গ্রুপ নেভিগেশন + ওভারভিউ আপগ্রেড
+3. অর্ডার পাইপলাইন + ডিটেইল ড্রয়ার + ইনভয়েস প্রিন্ট
+4. প্রোডাক্ট এডিটর, কুপন, ক্যাটাগরি, স্টক, রিভিউ
+5. কাস্টমার, টিকিট, রোল
+6. কনটেন্ট, মিডিয়া, সেটিংস, রিপোর্ট, AI টুল
+
+প্রতিটি ধাপ শেষ হলে প্যানেল চালু অবস্থায় থাকবে — মাঝপথে কিছু ভাঙবে না।

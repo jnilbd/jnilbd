@@ -41,6 +41,7 @@ const Checkout = () => {
   const paymentNumbers = { bkash: "01774585757", nagad: "01774585757" };
   const codAdvance = 100;
   const isCod = method === "cod";
+  const isOnline = method === "online_bkash" || method === "online_card";
   const deliveryFee = hasPhysical ? (zone === "dhaka" ? 70 : 150) : 0;
   const deliveryEta = zone === "dhaka"
     ? (isBn ? "ঢাকার ভিতরে — ১–৩ দিন" : "Inside Dhaka — 1–3 days")

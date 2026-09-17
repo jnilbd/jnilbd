@@ -211,7 +211,60 @@ function OrderDetail({ order, onClose, onStatus, onDelete, onSaved, risky }: any
     });
   }, [order?.id]);
 
+  const [busy, setBusy] = useState("");
+
   if (!order) return null;
+
+  const book = async (provider: "steadfast" | "pathao") => {
+    setBusy(provider);
+    const { data, error } = await supabase.functions.invoke("integrations", {
+      body: {
+        provider, action: "create_order",
+        input: {
+          invoice: String(order.id).slice(0, 8).toUpperCase(),
+          name: order.customer_name, phone: order.customer_phone,
+          address: order.customer_address || "", cod: Number(order.total_amount || 0),
+          qty: Number(order.quantity || 1), note: order.admin_note || order.product_name,
+        },
+      },
+    });
+    setBusy("");
+    const err = (data as any)?.error || error?.message;
+    if (err) return toast.error(err);
+    const res: any = data;
+    const consignment =
+      res?.data?.consignment?.tracking_code || res?.data?.consignment?.consignment_id ||
+      res?.data?.data?.consignment_id || "";
+    const patch = { courier_name: provider === "steadfast" ? "Steadfast" : "Pathao", tracking_no: String(consignment || form.tracking_no || "") };
+    setForm((f: any) => ({ ...f, ...patch }));
+    await supabase.from("shop_orders").update({ ...patch, status: "shipped" }).eq("id", order.id);
+    logAudit("order_courier_book", "shop_orders", order.id, { provider, ...patch });
+    toast.success(res?.message || "কুরিয়ারে বুক হয়েছে");
+    onSaved({ ...order, ...patch, status: "shipped" });
+    if (order.customer_email) {
+      sendTemplateEmail("order_shipped", order.customer_email, orderVars({ ...order, ...patch, status: "shipped" }));
+    }
+  };
+
+  const track = async () => {
+    setBusy("track");
+    const { data, error } = await supabase.functions.invoke("integrations", {
+      body: { provider: "steadfast", action: "track", input: { tracking: form.tracking_no } },
+    });
+    setBusy("");
+    const err = (data as any)?.error || error?.message;
+    if (err) return toast.error(err);
+    toast.success((data as any)?.message || "তথ্য পাওয়া গেছে");
+  };
+
+  const emailCustomer = async () => {
+    if (!order.customer_email) return toast.error("গ্রাহকের ইমেইল নেই");
+    setBusy("email");
+    const key = ({ confirmed: "order_confirmed", shipped: "order_shipped", delivered: "order_delivered" } as any)[order.status] || "order_placed";
+    const res = await sendTemplateEmail(key, order.customer_email, orderVars({ ...order, ...form }));
+    setBusy("");
+    res.ok ? toast.success("ইমেইল পাঠানো হয়েছে") : toast.error(String(res.reason || "পাঠানো যায়নি"));
+  };
 
   const save = async () => {
     const { error } = await supabase.from("shop_orders").update(form).eq("id", order.id);

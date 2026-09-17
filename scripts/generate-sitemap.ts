@@ -88,10 +88,26 @@ async function dynamicEntries(): Promise<SitemapEntry[]> {
 
   const [products, services, posts] = await Promise.all([
     grab("shop_products", "select=id&is_active=eq.true&limit=2000", "/shop", "weekly", "0.8"),
-    grab("services", "select=id&limit=500", "/services", "monthly", "0.8"),
+    grab("services_catalog", "select=id&limit=500", "/services", "monthly", "0.8"),
     grab("blog_posts", "select=id&is_published=eq.true&limit=1000", "/blog", "monthly", "0.7"),
   ]);
-  return [...products, ...services, ...posts];
+
+  let blog: SitemapEntry[] = [];
+  try {
+    const mod = await import("../src/data/mockData");
+    blog = (mod.blogPosts || []).map((p: { id: string }) => ({
+      path: `/blog/${p.id}`,
+      changefreq: "monthly" as const,
+      priority: "0.7",
+    }));
+  } catch {
+    /* ignore */
+  }
+
+  const seen = new Set<string>();
+  return [...products, ...services, ...posts, ...blog].filter((e) =>
+    seen.has(e.path) ? false : (seen.add(e.path), true),
+  );
 }
 
 function generateSitemap(entries: SitemapEntry[]) {

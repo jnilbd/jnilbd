@@ -292,3 +292,41 @@ export default function IntegrationsTab() {
     </div>
   );
 }
+
+/** Controls which online payment buttons appear on the public checkout page. */
+function CheckoutPaymentCard() {
+  const [cfg, setCfg] = useState<any>({ bkash: false, sslcommerz: false });
+  const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    supabase.from("site_settings").select("value").eq("key", "payments").maybeSingle()
+      .then(({ data }) => { if (data?.value) setCfg(data.value as any); });
+  }, []);
+
+  const save = async () => {
+    setSaving(true);
+    const { error } = await supabase.from("site_settings").upsert({ key: "payments", value: cfg }, { onConflict: "key" });
+    setSaving(false);
+    if (error) return toast.error(error.message);
+    logAudit("settings_update", "site_settings", "payments", cfg);
+    toast.success("চেকআউট পেমেন্ট সেটিংস সেভ হয়েছে");
+  };
+
+  return (
+    <Card className="border-border/60">
+      <CardHeader className="pb-2">
+        <CardTitle className="text-sm">চেকআউটে অনলাইন পেমেন্ট</CardTitle>
+        <p className="text-[11px] text-muted-foreground">উপরে সংশ্লিষ্ট সার্ভিসের চাবি দিয়ে চালু করার পর এখান থেকে চেকআউট পাতায় বাটন দেখানো যাবে।</p>
+      </CardHeader>
+      <CardContent className="space-y-2">
+        {[{ k: "bkash", l: "bKash দিয়ে অনলাইন পেমেন্ট" }, { k: "sslcommerz", l: "কার্ড/মোবাইল ব্যাংকিং (SSLCommerz)" }].map((o) => (
+          <div key={o.k} className="flex items-center gap-2 rounded-lg border p-2.5">
+            <span className="text-sm flex-1">{o.l}</span>
+            <Switch checked={!!cfg[o.k]} onCheckedChange={(v) => setCfg({ ...cfg, [o.k]: v })} />
+          </div>
+        ))}
+        <Button size="sm" onClick={save} disabled={saving}><Save className="h-3.5 w-3.5 mr-1" /> সেভ</Button>
+      </CardContent>
+    </Card>
+  );
+}

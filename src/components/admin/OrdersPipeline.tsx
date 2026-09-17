@@ -75,6 +75,13 @@ export default function OrdersPipeline() {
     toast.success(`স্ট্যাটাস: ${statusBn(status)}`);
     setRows((p) => p.map((r) => (r.id === id ? { ...r, status } : r)));
     setActive((a) => (a && a.id === id ? { ...a, status } : a));
+
+    const key = STATUS_EMAIL[status];
+    const order = rows.find((r) => r.id === id);
+    if (key && order?.customer_email) {
+      const res = await sendTemplateEmail(key, order.customer_email, orderVars({ ...order, status }));
+      if (res.ok) toast.success("গ্রাহককে ইমেইল পাঠানো হয়েছে");
+    }
   };
 
   const remove = async (id: string) => {

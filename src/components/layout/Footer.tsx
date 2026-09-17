@@ -99,6 +99,10 @@ const Footer = () => {
               { to: "/weather", label: language === "bn" ? "আবহাওয়া" : "Weather" },
               { to: "/health", label: language === "bn" ? "স্বাস্থ্য" : "Health" },
               { to: "/free-internet", label: language === "bn" ? "ফ্রি ইন্টারনেট" : "Free Internet" },
+              { to: "/giveaway", label: language === "bn" ? "ফ্রি গিভঅ্যাওয়ে" : "Free Giveaway" },
+              ...(((siteSettings.menu?.items || []) as any[])
+                .filter((m) => m?.label && m?.href)
+                .map((m) => ({ to: m.href as string, label: m.label as string }))),
             ].map((l) => (
               <li key={l.to}>
                 <Link to={l.to} className="opacity-70 hover:opacity-100 hover:text-secondary transition-smooth">{l.label}</Link>

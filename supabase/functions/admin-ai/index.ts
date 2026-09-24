@@ -15,6 +15,11 @@ const PROMPTS: Record<string, (i: any) => string> = {
   campaign: (i) => `বাংলাদেশের জন্য ৭ দিনের ফেসবুক অ্যাড ক্যাম্পেইন প্ল্যান বাংলায় দাও — দৈনিক বাজেট, অডিয়েন্স, ক্রিয়েটিভ আইডিয়া, KPI। বিষয়: ${i.prompt}`,
   market: (i) => `বাংলাদেশের বাজারে এই পণ্যের চাহিদা, প্রতিযোগী, সম্ভাব্য দাম ও মুনাফা নিয়ে বাংলায় সংক্ষিপ্ত রিসার্চ দাও: ${i.prompt}`,
   reply: (i) => `একজন ভদ্র বাংলাদেশি দোকানির মতো বাংলায় সংক্ষিপ্ত, সহায়ক উত্তর লেখো। গ্রাহকের বার্তা: ${i.prompt}`,
+  seo_blog: (i) =>
+    `তুমি বাংলাদেশের সেরা SEO কনটেন্ট রাইটার। ওয়েবসাইট: johnnil.com (ঢাকা, বাংলাদেশ)। বিষয়/কিওয়ার্ড: "${i.prompt}"।
+৯০০-১২০০ শব্দের বাংলা আর্টিকেল ও তার ছোট ইংরেজি সংস্করণ লেখো। মূল কিওয়ার্ড শিরোনাম, প্রথম অনুচ্ছেদ ও সাবহেডিং-এ রাখো; "ঢাকা/বাংলাদেশ" লোকাল শব্দ ব্যবহার করো; শেষে প্রশ্নোত্তর অংশ ও johnnil.com-এ যাওয়ার আহ্বান দাও। Markdown (## সাবহেডিং) ব্যবহার করো।
+শুধু একটি JSON অবজেক্ট দাও, markdown কোড ব্লক ছাড়া:
+{"title":"English title","title_bn":"বাংলা শিরোনাম","slug":"english-url-slug","excerpt":"English meta description under 155 chars","excerpt_bn":"বাংলা মেটা বর্ণনা ১৫৫ অক্ষরের মধ্যে","content":"English article","content_bn":"বাংলা আর্টিকেল","category":"","tags":["৮টি বাংলা ও ইংরেজি কিওয়ার্ড"]}`,
 };
 
 Deno.serve(async (req) => {
@@ -60,7 +65,7 @@ Deno.serve(async (req) => {
     const data = await res.json();
     const text: string = data?.choices?.[0]?.message?.content ?? "";
 
-    if (task === "product") {
+    if (task === "product" || task === "seo_blog") {
       const m = text.match(/\{[\s\S]*\}/);
       let result: any = {};
       try { result = m ? JSON.parse(m[0]) : {}; } catch { result = {}; }

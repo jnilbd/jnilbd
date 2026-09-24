@@ -25,6 +25,7 @@ import EmailTemplatesTab from "@/components/admin/EmailTemplatesTab";
 import MediaLibrary from "@/components/admin/MediaLibrary";
 import CustomersTab from "@/components/admin/CustomersTab";
 import AiToolsTab from "@/components/admin/AiToolsTab";
+import SeoBlogTab from "@/components/admin/SeoBlogTab";
 import ReturnsTab from "@/components/admin/ReturnsTab";
 import StockAlertsTab from "@/components/admin/StockAlertsTab";
 import TrafficTab from "@/components/admin/TrafficTab";
@@ -38,7 +39,7 @@ import { money, statusBn, statusColor } from "@/components/admin/shared";
 type Section =
   | "overview" | "orders" | "returns" | "service-orders" | "requests"
   | "products" | "stock" | "coupons" | "services" | "marketplace" | "rentals" | "reviews"
-  | "ai"
+  | "ai" | "seo-blog"
   | "customers" | "tickets" | "product-requests" | "giveaway" | "roles"
   | "homepage" | "blog" | "portfolio" | "media" | "appearance"
   | "landing" | "emails"
@@ -72,6 +73,7 @@ const GROUPS: { group: string; items: { key: Section; label: string; icon: any }
   {
     group: "AI ইঞ্জিন", items: [
       { key: "ai", label: "AI টুলস", icon: Bot },
+      { key: "seo-blog", label: "SEO ব্লগ জেনারেটর", icon: Bot },
     ],
   },
   {
@@ -217,6 +219,7 @@ export default function AdminDashboard() {
             {section === "rentals" && <SimpleEntityTab table="rentals" label="রেন্টাল" editPath="/rentals" />}
             {section === "reviews" && <ReviewsTab />}
             {section === "ai" && <AiToolsTab />}
+            {section === "seo-blog" && <SeoBlogTab />}
             {section === "customers" && <CustomersTab />}
             {section === "tickets" && <InboxTab kind="tickets" />}
             {section === "product-requests" && <InboxTab kind="product-requests" />}

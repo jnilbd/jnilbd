@@ -20,6 +20,7 @@ const TYPES = [
   { id: "online", icon: Video, en: "Online (Zoom / Google Meet)", bn: "অনলাইন (Zoom / Google Meet)", price: 1500, durationEn: "45 min", durationBn: "৪৫ মিনিট" },
   { id: "phone", icon: Phone, en: "Phone Call Consultation", bn: "ফোন কল কনসালটেশন", price: 1000, durationEn: "30 min", durationBn: "৩০ মিনিট" },
   { id: "inperson", icon: MapPin, en: "In-Person (Baridhara, Dhaka)", bn: "সরাসরি (বারিধারা, ঢাকা)", price: 3000, durationEn: "60 min", durationBn: "৬০ মিনিট" },
+  { id: "rajshahi", icon: MapPin, en: "In-Person (Own Home, Rajshahi)", bn: "সরাসরি (নিজ বাড়ি, রাজশাহী)", price: 1000, durationEn: "60 min", durationBn: "৬০ মিনিট" },
 ] as const;
 
 const TOPICS_BN = ["ডিজিটাল প্রোডাক্ট স্ট্র্যাটেজি", "ই-কমার্স / শপিফাই সেটআপ", "ফ্রিল্যান্সিং ক্যারিয়ার গাইড", "সোশ্যাল মিডিয়া মার্কেটিং", "টেকনিক্যাল কনসালটেশন", "ব্যক্তিগত মেন্টরশিপ"];

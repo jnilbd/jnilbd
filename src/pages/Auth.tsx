@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Wallet, Mail, Lock, User as UserIcon, ArrowRight, MessageCircle } from "lucide-react";
+import { Mail, Lock, User as UserIcon, ArrowRight } from "lucide-react";
 import { z } from "zod";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
@@ -30,7 +30,6 @@ const Auth = () => {
     return n;
   }, [params]);
   const isChatAuth = next === "/chat";
-  const AuthIcon = isChatAuth ? MessageCircle : Wallet;
   const [mode, setMode] = useState<"login" | "signup">("login");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");

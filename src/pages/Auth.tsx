@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { motion } from "framer-motion";
+import logoMark from "@/assets/logo-mark.png";
 import { Mail, Lock, User as UserIcon, ArrowRight } from "lucide-react";
 import { z } from "zod";
 import { toast } from "sonner";

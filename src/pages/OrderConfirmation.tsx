@@ -5,7 +5,6 @@ import { useEffect, useState } from "react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Button } from "@/components/ui/button";
 import logoMark from "@/assets/logo-mark.png";
-import logoMark from "@/assets/logo-mark.png";
 
 const OrderConfirmation = () => {
   const { id } = useParams();

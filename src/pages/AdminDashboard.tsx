@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
+import logoMark from "@/assets/logo-mark.png";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -167,8 +168,8 @@ export default function AdminDashboard() {
           <Button variant="ghost" size="icon" className="lg:hidden" onClick={() => setNavOpen((v) => !v)}>
             {navOpen ? <X className="h-5 w-5" /> : <MenuIcon className="h-5 w-5" />}
           </Button>
-          <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-primary via-primary/80 to-purple-500 grid place-items-center shadow-lg shadow-primary/30">
-            <Sparkles className="h-5 w-5 text-primary-foreground" />
+          <div className="h-10 w-10 rounded-xl overflow-hidden bg-gradient-to-br from-background to-muted/60 ring-1 ring-secondary/40 shadow-lg grid place-items-center shrink-0">
+            <img src={logoMark} alt="JohnNil logo" width={40} height={40} className="w-full h-full object-cover" />
           </div>
           <div className="min-w-0 flex-1">
             <h1 className="text-base sm:text-lg font-bold leading-tight truncate flex items-center gap-2">

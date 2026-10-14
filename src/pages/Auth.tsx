@@ -1,7 +1,8 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Wallet, Mail, Lock, User as UserIcon, ArrowRight, MessageCircle } from "lucide-react";
+import logoMark from "@/assets/logo-mark.png";
+import { Mail, Lock, User as UserIcon, ArrowRight } from "lucide-react";
 import { z } from "zod";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
@@ -30,7 +31,6 @@ const Auth = () => {
     return n;
   }, [params]);
   const isChatAuth = next === "/chat";
-  const AuthIcon = isChatAuth ? MessageCircle : Wallet;
   const [mode, setMode] = useState<"login" | "signup">("login");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -91,8 +91,8 @@ const Auth = () => {
         className="w-full max-w-md"
       >
         <div className="text-center mb-6">
-          <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl gradient-bg-primary text-primary-foreground shadow-glow mb-3">
-            <AuthIcon className="w-7 h-7" />
+          <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br from-background to-muted/60 ring-1 ring-secondary/40 shadow-glow overflow-hidden mb-3">
+            <img src={logoMark} alt="JohnNil logo" width={64} height={64} className="w-full h-full object-cover" />
           </div>
           <h1 className="font-display text-3xl font-bold">
             {isChatAuth ? (language === "bn" ? "লাইভ চ্যাট" : "Live Chat") : (language === "bn" ? "ফিন্যান্স ম্যানেজার" : "Finance Manager")}

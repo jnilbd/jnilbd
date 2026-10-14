@@ -4,6 +4,7 @@ import { CheckCircle2, Mail, MessageCircle, Home } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Button } from "@/components/ui/button";
+import logoMark from "@/assets/logo-mark.png";
 
 const OrderConfirmation = () => {
   const { id } = useParams();
@@ -19,6 +20,8 @@ const OrderConfirmation = () => {
 
   return (
     <div className="container py-16 max-w-2xl">
+      <img src={logoMark} alt="JohnNil" width={64} height={64}
+        className="w-16 h-16 mx-auto mb-4 rounded-full bg-gradient-to-br from-background to-muted/60 ring-1 ring-secondary/40 object-cover" />
       <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ type: "spring", duration: 0.6 }}
         className="w-24 h-24 rounded-full gradient-bg-primary mx-auto flex items-center justify-center shadow-glow mb-6">
         <CheckCircle2 className="w-12 h-12 text-white" />

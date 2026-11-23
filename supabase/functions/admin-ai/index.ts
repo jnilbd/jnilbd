@@ -1,6 +1,10 @@
 import { corsHeaders } from "npm:@supabase/supabase-js@2/cors";
 import { createClient } from "npm:@supabase/supabase-js@2";
 
+// Tables live in the "jnilbd" schema of the shared Supabase project.
+const withSchema = (url: string, key: string, opts: any = {}) =>
+  createClient(url, key, { ...opts, db: { schema: Deno.env.get("DB_SCHEMA") ?? "jnilbd" } });
+
 const MODEL = "google/gemini-3-flash-preview";
 
 const PROMPTS: Record<string, (i: any) => string> = {
@@ -30,7 +34,7 @@ Deno.serve(async (req) => {
     const token = authHeader.replace("Bearer ", "");
     if (!token) return json({ error: "Unauthorized" }, 401);
 
-    const supabase = createClient(Deno.env.get("SUPABASE_URL")!, Deno.env.get("SUPABASE_ANON_KEY")!, {
+    const supabase = withSchema(Deno.env.get("SUPABASE_URL")!, Deno.env.get("SUPABASE_ANON_KEY")!, {
       global: { headers: { Authorization: authHeader } },
     });
     const { data: userData } = await supabase.auth.getUser(token);

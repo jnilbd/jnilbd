@@ -14,6 +14,7 @@ import { supabase } from "@/integrations/supabase/client";
 import type { User } from "@supabase/supabase-js";
 import { z } from "zod";
 import { displayImage, fallbackImageHandler } from "@/lib/siteImages";
+import { DB_SCHEMA, bucket } from '@/integrations/supabase/schema';
 
 interface Rental {
   id: string;
@@ -129,9 +130,9 @@ const Rentals = () => {
     for (const file of files) {
       const ext = file.name.split(".").pop() || "jpg";
       const path = `${crypto.randomUUID()}.${ext}`;
-      const { error } = await supabase.storage.from("rental-images").upload(path, file, { contentType: file.type });
+      const { error } = await supabase.storage.from(bucket('rental-images')).upload(path, file, { contentType: file.type });
       if (error) { toast.error(error.message); continue; }
-      const { data } = supabase.storage.from("rental-images").getPublicUrl(path);
+      const { data } = supabase.storage.from(bucket('rental-images')).getPublicUrl(path);
       urls.push(data.publicUrl);
     }
     return urls;
@@ -187,7 +188,7 @@ const Rentals = () => {
     if (authMode === "signup") {
       const { error } = await supabase.auth.signUp({
         email, password,
-        options: { emailRedirectTo: `${window.location.origin}/rentals` },
+        options: { data: { site: DB_SCHEMA }, emailRedirectTo: `${window.location.origin}/rentals` },
       });
       if (error) return toast.error(error.message);
       toast.success(language === "bn" ? "ইমেইল চেক করুন" : "Check your email");

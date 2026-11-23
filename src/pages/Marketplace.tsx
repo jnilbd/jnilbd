@@ -13,6 +13,7 @@ import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import type { User } from "@supabase/supabase-js";
 import { z } from "zod";
+import { DB_SCHEMA, bucket } from '@/integrations/supabase/schema';
 
 interface Item {
   id: string;
@@ -120,9 +121,9 @@ const Marketplace = () => {
     for (const file of files) {
       const ext = file.name.split(".").pop() || "jpg";
       const path = `${crypto.randomUUID()}.${ext}`;
-      const { error } = await supabase.storage.from("marketplace-images").upload(path, file, { contentType: file.type });
+      const { error } = await supabase.storage.from(bucket('marketplace-images')).upload(path, file, { contentType: file.type });
       if (error) { toast.error(error.message); continue; }
-      const { data } = supabase.storage.from("marketplace-images").getPublicUrl(path);
+      const { data } = supabase.storage.from(bucket('marketplace-images')).getPublicUrl(path);
       urls.push(data.publicUrl);
     }
     return urls;
@@ -171,7 +172,7 @@ const Marketplace = () => {
   const handleAuth = async (e: React.FormEvent) => {
     e.preventDefault();
     if (authMode === "signup") {
-      const { error } = await supabase.auth.signUp({ email, password, options: { emailRedirectTo: `${window.location.origin}/marketplace` } });
+      const { error } = await supabase.auth.signUp({ email, password, options: { data: { site: DB_SCHEMA }, emailRedirectTo: `${window.location.origin}/marketplace` } });
       if (error) return toast.error(error.message);
       toast.success(language === "bn" ? "ইমেইল চেক করুন" : "Check your email");
     } else {

@@ -13,6 +13,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { DB_SCHEMA, bucket } from '@/integrations/supabase/schema';
 
 const schema = z.object({
   email: z.string().trim().email().max(255),
@@ -54,7 +55,7 @@ const Auth = () => {
         const { error } = await supabase.auth.signUp({
           email,
           password,
-          options: {
+          options: { data: { site: DB_SCHEMA },
             emailRedirectTo: `${window.location.origin}${next}`,
             data: { full_name: fullName },
           },

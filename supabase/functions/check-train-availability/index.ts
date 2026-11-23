@@ -14,6 +14,10 @@
 
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
 
+// Tables live in the "jnilbd" schema of the shared Supabase project.
+const withSchema = (url: string, key: string, opts: any = {}) =>
+  createClient(url, key, { ...opts, db: { schema: Deno.env.get("DB_SCHEMA") ?? "jnilbd" } });
+
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
@@ -268,7 +272,7 @@ async function runOneCycle(supabase: any) {
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
-  const supabase = createClient(
+  const supabase = withSchema(
     Deno.env.get("SUPABASE_URL")!,
     Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
   );

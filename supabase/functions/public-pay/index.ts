@@ -1,11 +1,15 @@
 import { corsHeaders } from "npm:@supabase/supabase-js@2/cors";
 import { createClient } from "npm:@supabase/supabase-js@2";
 
+// Tables live in the "jnilbd" schema of the shared Supabase project.
+const withSchema = (url: string, key: string, opts: any = {}) =>
+  createClient(url, key, { ...opts, db: { schema: Deno.env.get("DB_SCHEMA") ?? "jnilbd" } });
+
 const json = (body: unknown, status = 200) =>
   new Response(JSON.stringify(body), { status, headers: { ...corsHeaders, "Content-Type": "application/json" } });
 
 const db = () =>
-  createClient(Deno.env.get("SUPABASE_URL")!, Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!, {
+  withSchema(Deno.env.get("SUPABASE_URL")!, Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!, {
     auth: { persistSession: false },
   });
 

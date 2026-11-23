@@ -19,6 +19,7 @@ import {
   Trash2, ImageIcon, Star, Edit3, Award, CalendarDays,
 } from "lucide-react";
 import { toast } from "sonner";
+import { DB_SCHEMA, bucket } from '@/integrations/supabase/schema';
 
 type Profile = {
   user_id: string;
@@ -136,9 +137,9 @@ export default function ProfilePage() {
     try {
       const ext = file.name.split(".").pop();
       const path = `${user.id}/${kind}-${Date.now()}.${ext}`;
-      const { error: upErr } = await supabase.storage.from("avatars").upload(path, file, { upsert: true });
+      const { error: upErr } = await supabase.storage.from(bucket('avatars')).upload(path, file, { upsert: true });
       if (upErr) throw upErr;
-      const { data } = supabase.storage.from("avatars").getPublicUrl(path);
+      const { data } = supabase.storage.from(bucket('avatars')).getPublicUrl(path);
       const url = data.publicUrl;
       update(kind === "avatar" ? { avatar_url: url } : { cover_url: url });
       await supabase.from("profiles").upsert(

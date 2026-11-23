@@ -16,6 +16,9 @@ import { z } from "zod";
 import { displayImage, fallbackImageHandler } from "@/lib/siteImages";
 import { DB_SCHEMA, bucket } from '@/integrations/supabase/schema';
 
+// Logged-out visitors may not read contact_phone (column-level grant), so ask only for public columns.
+const PUBLIC_COLS = "id,title,description,price,type,bedrooms,bathrooms,size,location,contact_name,images,created_at,updated_at,user_id";
+
 interface Rental {
   id: string;
   user_id: string | null;
@@ -81,9 +84,9 @@ const Rentals = () => {
 
   const loadRentals = async () => {
     setLoading(true);
-    const { data, error } = await supabase.from("rentals").select("*").order("created_at", { ascending: false });
+    const { data, error } = await supabase.from("rentals").select((await supabase.auth.getSession()).data.session ? "*" : PUBLIC_COLS).order("created_at", { ascending: false });
     if (error) toast.error(error.message);
-    else setRentals(data as Rental[]);
+    else setRentals(data as unknown as Rental[]);
     setLoading(false);
   };
 
@@ -406,7 +409,8 @@ const Rentals = () => {
               <div className="flex items-center gap-1 text-muted-foreground"><MapPin className="w-4 h-4" /> {selectedRental.location}</div>
               <div className="text-3xl font-bold gradient-text">৳{selectedRental.price.toLocaleString()}<span className="text-sm font-normal text-muted-foreground">/mo</span></div>
               <p className="text-foreground/80 whitespace-pre-wrap">{selectedRental.description}</p>
-              <div className="flex flex-wrap gap-2 pt-3 border-t">
+              {selectedRental.contact_phone ? (
+<div className="flex flex-wrap gap-2 pt-3 border-t">
                 <a href={`tel:${selectedRental.contact_phone}`} className="flex-1 min-w-[140px]">
                   <Button className="w-full rounded-full gradient-bg-primary text-white border-0"><Phone className="w-4 h-4 mr-2" />{selectedRental.contact_phone}</Button>
                 </a>
@@ -414,6 +418,9 @@ const Rentals = () => {
                   <Button variant="outline" className="w-full rounded-full"><MessageCircle className="w-4 h-4 mr-2" />WhatsApp</Button>
                 </a>
               </div>
+) : (
+<Button asChild className="w-full rounded-full gradient-bg-primary text-white border-0"><a href="/auth"><Phone className="w-4 h-4 mr-2" />{language === "bn" ? "ফোন নম্বর দেখতে লগইন করুন" : "Log in to see the phone number"}</a></Button>
+)}
               {selectedRental.contact_name && (
                 <p className="text-sm text-muted-foreground">{language === "bn" ? "যোগাযোগ" : "Contact"}: {selectedRental.contact_name}</p>
               )}

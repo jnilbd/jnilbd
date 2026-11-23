@@ -67,7 +67,8 @@ async function dynamicEntries(): Promise<SitemapEntry[]> {
   const url = process.env.VITE_SUPABASE_URL;
   const key = process.env.VITE_SUPABASE_PUBLISHABLE_KEY || process.env.VITE_SUPABASE_ANON_KEY;
   if (!url || !key) return [];
-  const headers = { apikey: key, Authorization: `Bearer ${key}` };
+  const schema = process.env.VITE_SUPABASE_DB_SCHEMA;
+  const headers: Record<string, string> = { apikey: key, Authorization: `Bearer ${key}`, ...(schema ? { "Accept-Profile": schema } : {}) };
 
   const grab = async (
     table: string,

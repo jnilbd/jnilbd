@@ -15,6 +15,9 @@ import type { User } from "@supabase/supabase-js";
 import { z } from "zod";
 import { DB_SCHEMA, bucket } from '@/integrations/supabase/schema';
 
+// Logged-out visitors may not read contact_phone (column-level grant), so ask only for public columns.
+const PUBLIC_COLS = "id,user_id,title,description,category,condition,price,location,contact_name,images,created_at,updated_at";
+
 interface Item {
   id: string;
   user_id: string | null;
@@ -75,9 +78,9 @@ const Marketplace = () => {
 
   const load = async () => {
     setLoading(true);
-    const { data, error } = await supabase.from("marketplace_items").select("*").order("created_at", { ascending: false });
+    const { data, error } = await supabase.from("marketplace_items").select((await supabase.auth.getSession()).data.session ? "*" : PUBLIC_COLS).order("created_at", { ascending: false });
     if (error) toast.error(error.message);
-    else setItems(data as Item[]);
+    else setItems(data as unknown as Item[]);
     setLoading(false);
   };
 
@@ -385,7 +388,8 @@ const Marketplace = () => {
               <div className="flex items-center gap-1 text-sm text-muted-foreground"><MapPin className="w-4 h-4" /> {selected.location}</div>
               <p className="text-sm whitespace-pre-wrap">{selected.description}</p>
               {selected.contact_name && <p className="text-sm"><strong>{language === "bn" ? "বিক্রেতা" : "Seller"}:</strong> {selected.contact_name}</p>}
-              <div className="flex gap-2 pt-2">
+              {selected.contact_phone ? (
+<div className="flex gap-2 pt-2">
                 <Button asChild className="flex-1 rounded-full gradient-bg-primary text-white border-0">
                   <a href={`tel:${selected.contact_phone}`}><Phone className="w-4 h-4 mr-2" /> {language === "bn" ? "কল করুন" : "Call"}</a>
                 </Button>
@@ -395,6 +399,9 @@ const Marketplace = () => {
                   </a>
                 </Button>
               </div>
+) : (
+<Button asChild className="w-full rounded-full gradient-bg-primary text-white border-0"><a href="/auth"><Phone className="w-4 h-4 mr-2" />{language === "bn" ? "ফোন নম্বর দেখতে লগইন করুন" : "Log in to see the phone number"}</a></Button>
+)}
             </>
           )}
         </DialogContent>
